@@ -1,12 +1,11 @@
-function dashboard_boton({ titulo, descripcion, onClick }) {
+function DashboardBoton({ titulo, descripcion, onClick }) {
   return (
-    <button
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      onClick={onClick}
-    >
-      {titulo}
-        <p className="text-sm">{descripcion}</p>
-    </button>
+    <div className="dashboard-card" onClick={onClick}>
+      <div className="dashboard-icon">📌</div>
+      <h3>{titulo}</h3>
+      <p>{descripcion}</p>
+    </div>
   );
 }
-export default dashboard_boton;
+
+export default DashboardBoton;
