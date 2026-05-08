@@ -2,7 +2,7 @@ import "./admin_dashboard.css";
 import DashboardBoton from "../componentes/admin_dashboard_boton";
 import {useNavigate } from "react-router-dom";
 import Header from "../componentes/admin_dashboard_header";   
-
+import FooterAdmin from "../componentes/footer_admin";
 
 function AdminDashboard() {
     const navigate = useNavigate();   // esto sirve para poder navegar a otras paginas
@@ -10,7 +10,7 @@ function AdminDashboard() {
 return (
   <>
     <Header />
-
+    
     <div className="admin-dashboard">
       <h1>Acciones Rapidas</h1>
 
@@ -40,6 +40,7 @@ return (
         />
       </div>
     </div>
+    <FooterAdmin/>
   </>
 );
 }

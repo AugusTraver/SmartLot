@@ -1,0 +1,205 @@
+/* =========================
+   FOOTER PRINCIPAL
+========================= */
+
+.footer-admin {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 90%;
+  max-width: 700px;
+
+  height: 90px;
+
+  background: rgba(255, 255, 255, 0.75);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-radius: 32px;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  box-shadow:
+    0 8px 30px rgba(0,0,0,0.08);
+
+  z-index: 999;
+
+  padding: 0 10px;
+}
+
+
+/* =========================
+   ITEMS
+========================= */
+
+.footer-item {
+  flex: 1;
+
+  max-width: 150px;
+  height: 60px;
+
+  border-radius: 24px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+
+/* =========================
+   ITEM ACTIVO
+========================= */
+
+.footer-item.active {
+  background: #edf2ff;
+}
+
+
+/* =========================
+   ICONOS
+========================= */
+
+.footer-item svg {
+  color: #94a3b8;
+
+  margin-bottom: 6px;
+
+  transition: 0.2s;
+}
+
+
+/* =========================
+   TEXTO
+========================= */
+
+.footer-item span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  color: #94a3b8;
+
+  text-align: center;
+}
+
+
+/* =========================
+   ACTIVO
+========================= */
+
+.footer-item.active svg,
+.footer-item.active span {
+  color: #2563eb;
+}
+
+
+/* =========================
+   HOVER
+========================= */
+
+.footer-item:hover {
+  transform: translateY(-2px);
+}
+
+
+/* =========================
+   TABLETS
+========================= */
+
+@media (max-width: 900px) {
+
+  .footer-admin {
+    height: 80px;
+    border-radius: 26px;
+  }
+
+  .footer-item {
+    height: 55px;
+  }
+
+  .footer-item span {
+    font-size: 12px;
+  }
+
+  .footer-item svg {
+    width: 24px;
+    height: 24px;
+  }
+
+}
+
+
+/* =========================
+   CELULARES
+========================= */
+
+@media (max-width: 600px) {
+
+  .footer-admin {
+
+    width: 95%;
+
+    height: 72px;
+
+    bottom: 12px;
+
+    border-radius: 22px;
+
+    padding: 0 6px;
+  }
+
+  .footer-item {
+
+    height: 50px;
+
+    border-radius: 18px;
+  }
+
+  .footer-item span {
+
+    font-size: 10px;
+
+    letter-spacing: 0.5px;
+  }
+
+  .footer-item svg {
+
+    width: 20px;
+    height: 20px;
+
+    margin-bottom: 4px;
+  }
+
+}
+
+
+/* =========================
+   CELULARES MUY CHICOS
+========================= */
+
+@media (max-width: 400px) {
+
+  .footer-admin {
+    height: 68px;
+  }
+
+  .footer-item span {
+    font-size: 9px;
+  }
+
+  .footer-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+}
