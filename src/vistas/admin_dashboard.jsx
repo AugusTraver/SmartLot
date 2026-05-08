@@ -1,7 +1,7 @@
 import "./admin_dashboard.css";
 import DashboardBoton from "../componentes/admin_dashboard_boton";
 import {useNavigate } from "react-router-dom";
-import Header from "../componentes/admin_dashboard_header";   
+import Header from "../componentes/header_admin";   
 import FooterAdmin from "../componentes/footer_admin";
 
 function AdminDashboard() {

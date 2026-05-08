@@ -19,7 +19,7 @@ import {
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-import Header from "../componentes/admin_dashboard_header";
+import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 
 const GestionEmpleados = () => {
