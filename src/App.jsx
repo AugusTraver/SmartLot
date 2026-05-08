@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./vistas/admin_dashboard";   
-//import GestionUsuarios from "./vistas/gestion_de_empleados";
+import GestionEmpleados from "./vistas/gestion_de_empleados";
 //import GestionGarages from "./vistas/GestionGarages";
 //import PanelControl from "./vistas/PanelControl";
 //import ControlAcceso from "./vistas/ControlAcceso";
@@ -15,8 +15,9 @@ function App()
       <Routes>
         <Route path="/" element={<AdminDashboard />} />   {/*ruta principal que muestra el dashboard*/ } 
        
-         {/* 
-          <Route path="/gestion-usuarios" element={<GestionUsuarios />} />
+         
+          <Route path="/gestion-usuarios" element={<GestionEmpleados />} />
+          {/* 
          <Route path="/gestion-garages" element={<GestionGarages />} />
          <Route path="/panel-control" element={<PanelControl />} />
          <Route path="/control-acceso" element={<ControlAcceso />} />
