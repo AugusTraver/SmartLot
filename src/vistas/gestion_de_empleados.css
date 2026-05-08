@@ -1,198 +1,432 @@
-/* Contenedor de la vista (debajo de tu Header ya hecho) */
-.view-wrapper {
-  min-height: calc(100vh - 70px); /* Ajusta 70px según la altura de tu header */
-  background-color: #0b0f1a;
-  color: #ffffff;
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.gestion-empleados {
+
+  min-height: 100vh;
+
+  background: #f5f7fb; /* <- SACAMOS EL NEGRO */
+
   font-family: 'Inter', sans-serif;
+
   position: relative;
-  overflow: hidden;
+
+  overflow-x: hidden;
 }
 
-/* Efecto de luz ambiental en el fondo */
-.ambient-light {
+
+/* =========================
+   LUZ AMBIENTAL
+========================= */
+
+.gestion-empleados .ambient-light {
+
   position: absolute;
+
   top: -150px;
   right: -100px;
+
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(59, 130, 246, 0.12) 0%,
+      transparent 70%
+    );
+
   filter: blur(80px);
+
   pointer-events: none;
 }
 
-.envoltorio-contenido {
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.gestion-empleados .envoltorio-contenido {
+
   max-width: 1200px;
+
   margin: 0 auto;
+
   padding: 4rem 2rem;
 }
 
-/* Títulos y Header de Sección */
-.header-seccion {
+
+/* =========================
+   HEADER
+========================= */
+
+.gestion-empleados .header-seccion {
+
   display: flex;
+
   align-items: center;
+
   gap: 1.5rem;
-  margin-bottom: 3rem;
-}
 
-.titulo-vista {
-  font-size: 195%;
-  margin: 0;
-  background: linear-gradient(to bottom, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: #191C1E;
-   padding-bottom: 6%;
-}
-.boton-back{
-    margin-right: 102%;
-    color: #005BBF;
-    border-color: none;
-}
-.subtitulo-vista {
-  color: #414754;
-  margin: 4px 0 0 0;
-}
-
-/* Barra de Búsqueda y Filtros */
-.barra-herramientas {
-  display: flex;
-  gap: 1.2rem;
   margin-bottom: 3rem;
+
   flex-wrap: wrap;
 }
 
-.contenedor-busqueda {
-  flex: 1;
-  min-width: 300px;
-  position: relative;
+
+/* =========================
+   TITULO
+========================= */
+
+.gestion-empleados .titulo-vista {
+
+  font-size: 2.2rem;
+
+  margin: 0;
+
+  color: #191C1E;
 }
 
-.search-icon {
-  position: absolute;
-  left: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
+
+.gestion-empleados .subtitulo-vista {
+
   color: #64748b;
+
+  margin-top: 6px;
 }
 
-.input-moderno {
-  width: 77%;
-  background:#E0E3E5;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.9rem 1rem 0.9rem 3.5rem;
-  border-radius: 16px;
-  color: white;
-  transition: all 0.3s;
-}
 
-.input-moderno:focus {
-  outline: none;
-  border-color: #6366f1;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
+/* =========================
+   BOTON BACK
+========================= */
 
-/* Botonera */
-.btn-primario {
-  background: #1A73E8;
-  color: #0b0f1a;
-  padding: 12px 24px;
-  border-radius: 14px;
-  font-weight: 700;
+.gestion-empleados .boton-back {
+
+  width: 45px;
+  height: 45px;
+
+  border-radius: 12px;
+
   border: none;
+
+  background: white;
+
+  color: #191C1E;
+
   cursor: pointer;
+
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-left: auto;
-  transition: transform 0.2s;
-}
-.textoAgregarEmpelado{
-    color: white;
-    background: none;
+  justify-content: center;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06);
 }
 
-.btn-primario:hover {
+
+/* =========================
+   BOTON PRIMARIO
+========================= */
+
+.gestion-empleados .btn-primario {
+
+  margin-left: auto;
+
+  background: #1A73E8;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 22px;
+
+  border-radius: 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+.gestion-empleados .btn-primario:hover {
+
   transform: scale(1.03);
 }
 
-/* Bento Cards */
-.grid-bento {
+
+.gestion-empleados .textoAgregarEmpelado {
+
+  margin: 0;
+
+  color: white;
+}
+
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.gestion-empleados .barra-herramientas {
+
+  display: flex;
+
+  gap: 1rem;
+
+  margin-bottom: 3rem;
+
+  flex-wrap: wrap;
+}
+
+
+/* =========================
+   BUSCADOR
+========================= */
+
+.gestion-empleados .contenedor-busqueda {
+
+  flex: 1;
+
+  min-width: 280px;
+
+  position: relative;
+}
+
+
+.gestion-empleados .search-icon {
+
+  position: absolute;
+
+  left: 18px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #64748b;
+}
+
+
+.gestion-empleados .input-moderno {
+
+  width: 100%;
+
+  background: white;
+
+  border: 1px solid #dbe2ea;
+
+  padding:
+    0.95rem
+    1rem
+    0.95rem
+    3.2rem;
+
+  border-radius: 16px;
+
+  color: #191C1E;
+
+  box-sizing: border-box;
+}
+
+
+.gestion-empleados .input-moderno:focus {
+
+  outline: none;
+
+  box-shadow:
+    0 0 0 4px rgba(59,130,246,0.12);
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.gestion-empleados .grid-bento {
+
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
   gap: 1.5rem;
 }
-.top-section{
-    background-color: white;
-}
-.mid-section{
-     background-color: white;
-}
-h3{
-    color: #191C1E;
-     background-color: white;
-}
-.card-inner{
-     background-color: white;
-    
-}
-.bottom-section{
-    background-color: white;
-}
-.card-empleado {
+
+
+/* =========================
+   CARD
+========================= */
+
+.gestion-empleados .card-empleado {
+
   background: white;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+
   border-radius: 28px;
+
   padding: 1.8rem;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  transition: 0.3s;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.06);
 }
 
-.card-empleado:hover {
-  border-color: #6366f1;
-  background: rgba(255, 255, 255, 0.04);
+
+.gestion-empleados .card-empleado:hover {
+
   transform: translateY(-8px);
+
+  box-shadow:
+    0 14px 35px rgba(0,0,0,0.12);
 }
 
-.avatar-big {
+
+/* =========================
+   CARD INNER
+========================= */
+
+.gestion-empleados .card-inner {
+  background: white;
+}
+
+
+/* =========================
+   TOP
+========================= */
+
+.gestion-empleados .top-section {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 1rem;
+}
+
+
+/* =========================
+   AVATAR
+========================= */
+
+.gestion-empleados .avatar-big {
+
   width: 70px;
   height: 70px;
+
   border-radius: 20px;
+
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.05);
 }
 
-.role-chip {
+
+/* =========================
+   MID
+========================= */
+
+.gestion-empleados .mid-section h3 {
+
+  margin-top: 12px;
+
+  margin-bottom: 0;
+
+  color: #191C1E;
+}
+
+
+/* =========================
+   ROLE CHIP
+========================= */
+
+.gestion-empleados .role-chip {
+
   display: inline-flex;
+
   align-items: center;
+
   gap: 6px;
-  background: rgba(99, 102, 241, 0.1);
-  color: #a5b4fc;
-  padding: 5px 12px;
+
+  background: rgba(59,130,246,0.1);
+
+  color: #2563eb;
+
+  padding: 6px 12px;
+
   border-radius: 10px;
+
   font-size: 0.75rem;
+
   font-weight: 700;
-  margin-bottom: 0.8rem;
 }
 
-.info-row {
+
+/* =========================
+   INFO ROW
+========================= */
+
+.gestion-empleados .info-row {
+
   display: flex;
+
   align-items: center;
+
   gap: 10px;
-  color: #94a3b8;
-  font-size: 0.9rem;
+
   margin-top: 1rem;
-  background-color: white;
-  text-decoration-color: black ;
-}
-span{
-    color:black
+
+  color: #64748b;
+
+  font-size: 0.9rem;
 }
 
-.parking {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 12px;
-  border-radius: 14px;
-  margin-top: 1.5rem;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+
+.gestion-empleados .info-row span {
+
+  color: #64748b;
 }
- 
+
+
+/* =========================
+   PARKING
+========================= */
+
+.gestion-empleados .parking {
+
+  background: #f1f5f9;
+
+  padding: 12px;
+
+  border-radius: 14px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .gestion-empleados .envoltorio-contenido {
+    padding: 2rem 1rem;
+  }
+
+  .gestion-empleados .titulo-vista {
+    font-size: 1.7rem;
+  }
+
+  .gestion-empleados .btn-primario {
+
+    width: 100%;
+
+    justify-content: center;
+  }
+
+}

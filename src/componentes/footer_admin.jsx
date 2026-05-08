@@ -14,12 +14,12 @@ function FooterAdmin (){
     <footer className="footer-admin">
          <FooterBotton    
         titulo="DASHBOARD"
-        icono={<UsersRound size={28}/>} 
-        onClick={() => navigate("/gestion_de_empleados")}
+        icono={<House size={28}/>} 
+        onClick={() => navigate("/")}
         />
       <FooterBotton
         titulo="GARAGE"
-        icono={<UsersRound size={28}/>} 
+        icono={<CarFront size={28}/>} 
         onClick={() => navigate("/gestion_de_empleados")}
         />
     
