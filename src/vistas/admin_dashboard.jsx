@@ -18,7 +18,7 @@ return (
         <DashboardBoton  
           titulo="Gestionar de usuarios"
           descripcion="Gestionar y agregar nuevos empleados"
-          onClick={() => navigate("/gestion-usuarios")}
+          onClick={() => navigate("/gestion_de_empleados")}
         />
 
         <DashboardBoton

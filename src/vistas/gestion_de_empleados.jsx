@@ -2,8 +2,8 @@ import  "./gestion_de_empleados.css";
 import EmployeeCard from "../componentes/tarjeta_empleados.jsx"
 import { useState } from "react";
 
-
-const gestionEempleados = () =>{
+function gestionEempleados(){
+    const navigate = useNavigate(); 
 
 const [tarjeta_empleados, setEmpleados] = useState(
 [
@@ -72,3 +72,8 @@ return (
       </main>
     </div>
   );
+
+
+
+
+  export default gestionEempleados 
