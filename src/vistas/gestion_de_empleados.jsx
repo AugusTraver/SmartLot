@@ -1,9 +1,6 @@
 import "./gestion_de_empleados.css";
-
 import React, { useRef, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
 import {
   Search,
   UserPlus,
@@ -15,10 +12,8 @@ import {
   MapPin,
   ShieldCheck
 } from "lucide-react";
-
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 

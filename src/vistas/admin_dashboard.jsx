@@ -27,7 +27,7 @@ return (
          icono={<Car/>}
           titulo="Gestion de garages"
           descripcion="Gestión y definición de nuevos garages"
-          onClick={() => navigate("/gestion-garages")}
+          onClick={() => navigate("/gestion_garages")}
         />
 
         <DashboardBoton
