@@ -1,0 +1,170 @@
+/* Contenedor de la vista (debajo de tu Header ya hecho) */
+.view-wrapper {
+  min-height: calc(100vh - 70px); /* Ajusta 70px según la altura de tu header */
+  background-color: #0b0f1a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de luz ambiental en el fondo */
+.ambient-light {
+  position: absolute;
+  top: -150px;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.envoltorio-contenido {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+/* Títulos y Header de Sección */
+.header-seccion {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.titulo-vista {
+  font-size: 2.8rem;
+  font-weight: 850;
+  letter-spacing: -1.5px;
+  margin: 0;
+  background: linear-gradient(to bottom, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitulo-vista {
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+}
+
+/* Barra de Búsqueda y Filtros */
+.barra-herramientas {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.contenedor-busqueda {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+}
+
+.input-moderno {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.9rem 1rem 0.9rem 3.5rem;
+  border-radius: 16px;
+  color: white;
+  transition: all 0.3s;
+}
+
+.input-moderno:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Botonera */
+.btn-primario {
+  background: white;
+  color: #0b0f1a;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.btn-primario:hover {
+  transform: scale(1.03);
+}
+
+/* Bento Cards */
+.grid-bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-empleado {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px;
+  padding: 1.8rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-empleado:hover {
+  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-8px);
+}
+
+.avatar-big {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.parking {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  border-radius: 14px;
+  margin-top: 1.5rem;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+ 

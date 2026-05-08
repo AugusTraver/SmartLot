@@ -1,3 +1,4 @@
+import "./gestion_de_empleados.css";
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -85,7 +86,7 @@ const GestionEmpleados = () => {
             </div>
             <button className="btn-primario">
               <UserPlus size={18} />
-              <span>Nuevo Empleado</span>
+              <span>Agregar Empleado</span>
             </button>
         </div>
 
