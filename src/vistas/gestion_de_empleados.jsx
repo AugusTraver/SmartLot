@@ -1,79 +1,145 @@
-import  "./gestion_de_empleados.css";
-import EmployeeCard from "../componentes/tarjeta_empleados.jsx"
+import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+  Search, UserPlus, ArrowLeft, 
+  ChevronDown, SlidersHorizontal, MoreHorizontal,
+  Mail, MapPin, ShieldCheck
+} from "lucide-react";
 import { useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
-function gestionEempleados(){
-    const navigate = useNavigate(); 
+// Registro del hook para React
+gsap.registerPlugin(useGSAP);
 
-const [tarjeta_empleados, setEmpleados] = useState(
-[
+const GestionEmpleados = () => {
+  const navigate = useNavigate();
+  const container = useRef(null);
+
+  // Mock de datos para la interfaz
+  const [empleados] = useState([
     {
-     "name": "Elena Rodriguez",
-     "role": "Admin",
-    "email": "elena.rodriguez@smartlot.com",
-     "parkingSpot": "Plaza A-22 • Nivel Superior",
-      "avatar": `https://i.pravatar.cc/150?u=${Date.now()}`
+      id: 1,
+      name: "Elena Rodriguez",
+      role: "Admin",
+      email: "elena.rodriguez@smartlot.com",
+      parkingSpot: "Plaza A-22 • Nivel Superior",
+      avatar: "https://i.pravatar.cc/150?u=11"
+    },
+    {
+      id: 2,
+      name: "Julian Casablancas",
+      role: "Editor",
+      email: "julian.c@smartlot.com",
+      parkingSpot: "Plaza B-10 • Nivel Inferior",
+      avatar: "https://i.pravatar.cc/150?u=22"
+    },
+    {
+      id: 3,
+      name: "Ana Valery",
+      role: "Seguridad",
+      email: "ana.v@smartlot.com",
+      parkingSpot: "Plaza C-04 • Nivel Superior",
+      avatar: "https://i.pravatar.cc/150?u=33"
     }
-    
-]
-) 
-}
+  ]);
 
-return (
-    <div className="contenedor-app">
-      <header className="cabecera-principal">
-        <div className="logo-marca">
-          <div className="icono-logo">P</div>
-          <span className="nombre-marca">SmartLot</span>
-        </div>
-        <div className="acciones-cabecera">
-          <Bell className="icono-campana" size={20} />
-          <div className="miniatura-perfil">
-            <img src="https://i.pravatar.cc/150?u=me" alt="Perfil" />
-          </div>
-        </div>
-      </header>
+  // Coreografía de entrada para la vista
+  useGSAP(() => {
+    const tl = gsap.timeline();
+    
+    tl.from(".anim-header", { 
+        y: 30, 
+        opacity: 0, 
+        duration: 0.8, 
+        ease: "power4.out" 
+      })
+      .from(".anim-bar", { 
+        x: -20, 
+        opacity: 0, 
+        duration: 0.6 
+      }, "-=0.4")
+      .from(".card-empleado", { 
+        y: 40, 
+        opacity: 0, 
+        stagger: 0.1, 
+        duration: 0.7, 
+        ease: "back.out(1.2)" 
+      }, "-=0.3");
+  }, { scope: container });
+
+  return (
+    <div className="view-wrapper" ref={container}>
+      {/* Elemento decorativo de fondo para dar profundidad */}
+      <div className="ambient-light"></div>
 
       <main className="envoltorio-contenido">
-        <button className="boton-volver">
-          <ArrowLeft size={20} />
-        </button>
-        
-        <h1 className="titulo-vista">Gestión de Empleado</h1>
-        <p className="subtitulo-vista">Administra el acceso y roles de todo el personal de SmartLot.</p>
-
-        <button className="boton-agregar-empleado" onClick={agregarEmpleado}>
-          <UserPlus size={20} />
-          Agregar empleado
-        </button>
-
-        <section className="seccion-filtros">
-          <div className="contenedor-barra-busqueda">
-            <Search className="icono-busqueda" size={18} />
-            <input type="text" placeholder="Buscar por nombre, email o cargo..." className="input-busqueda" />
-          </div>
-          
-          <div className="controles-filtrado">
-            <button className="filtro-desplegable">
-              Filtrar por sede
-              <ChevronDown size={18} />
+        {/* Encabezado de la Vista */}
+        <div className="header-seccion anim-header">
+            <button className="boton-back" onClick={() => navigate(-1)}>
+              <ArrowLeft size={20} />
             </button>
-            <button className="boton-configuracion-filtro">
-              <SlidersHorizontal size={20} />
+            <div className="textos">
+                <h1 className="titulo-vista">Gestión de Personal</h1>
+                <p className="subtitulo-vista">Panel de control de accesos y jerarquías del sistema.</p>
+            </div>
+            <button className="btn-primario">
+              <UserPlus size={18} />
+              <span>Nuevo Empleado</span>
+            </button>
+        </div>
+
+        {/* Herramientas de filtrado */}
+        <section className="barra-herramientas anim-bar">
+          <div className="contenedor-busqueda">
+            <Search className="search-icon" size={18} />
+            <input type="text" placeholder="Buscar empleado..." className="input-moderno" />
+          </div>
+          <div className="filtros-grupo">
+            <button className="btn-secundario">
+                Sede Central <ChevronDown size={16} />
+            </button>
+            <button className="btn-icon">
+                <SlidersHorizontal size={20} />
             </button>
           </div>
         </section>
 
-        <div className="lista-empleados">
+        {/* Grid Bento de Empleados */}
+        <div className="grid-bento">
           {empleados.map(emp => (
-            <TarjetaEmpleado key={emp.id} empleado={emp} />
+            <div key={emp.id} className="card-empleado">
+               <div className="card-inner">
+                  <div className="top-section">
+                    <img src={emp.avatar} alt={emp.name} className="avatar-big" />
+                    <button className="btn-more">
+                        <MoreHorizontal size={18} />
+                    </button>
+                  </div>
+                  <div className="mid-section">
+                    <div className="role-chip">
+                        <ShieldCheck size={12} />
+                        {emp.role}
+                    </div>
+                    <h3>{emp.name}</h3>
+                  </div>
+                  <div className="bottom-section">
+                    <div className="info-row">
+                        <Mail size={14} />
+                        <span>{emp.email}</span>
+                    </div>
+                    <div className="info-row parking">
+                        <MapPin size={14} />
+                        <span>{emp.parkingSpot}</span>
+                    </div>
+                  </div>
+               </div>
+            </div>
           ))}
         </div>
       </main>
     </div>
   );
+};
 
-
-
-
-  export default gestionEempleados 
+export default GestionEmpleados;
