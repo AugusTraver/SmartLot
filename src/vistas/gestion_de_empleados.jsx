@@ -70,6 +70,7 @@ const GestionEmpleados = () => {
   }, { scope: container });
 
   return (
+    
     <div className="view-wrapper" ref={container}>
       {/* Elemento decorativo de fondo para dar profundidad */}
       <div className="ambient-light"></div>
