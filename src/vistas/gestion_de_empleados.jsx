@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import Header from "../componentes/admin_dashboard_header";
 
 // Registro del hook para React
 gsap.registerPlugin(useGSAP);
@@ -45,32 +46,8 @@ const GestionEmpleados = () => {
     }
   ]);
 
-  // Coreografía de entrada para la vista
-  useGSAP(() => {
-    const tl = gsap.timeline();
-    
-    tl.from(".anim-header", { 
-        y: 30, 
-        opacity: 0, 
-        duration: 0.8, 
-        ease: "power4.out" 
-      })
-      .from(".anim-bar", { 
-        x: -20, 
-        opacity: 0, 
-        duration: 0.6 
-      }, "-=0.4")
-      .from(".card-empleado", { 
-        y: 40, 
-        opacity: 0, 
-        stagger: 0.1, 
-        duration: 0.7, 
-        ease: "back.out(1.2)" 
-      }, "-=0.3");
-  }, { scope: container });
-
   return (
-    
+
     <div className="view-wrapper" ref={container}>
       {/* Elemento decorativo de fondo para dar profundidad */}
       <div className="ambient-light"></div>
@@ -82,12 +59,12 @@ const GestionEmpleados = () => {
               <ArrowLeft size={20} />
             </button>
             <div className="textos">
-                <h1 className="titulo-vista">Gestión de Personal</h1>
+                <h1 className="titulo-vista">Gestión de Empleados</h1>
                 <p className="subtitulo-vista">Panel de control de accesos y jerarquías del sistema.</p>
             </div>
             <button className="btn-primario">
               <UserPlus size={18} />
-              <span>Agregar Empleado</span>
+              <p className="textoAgregarEmpelado">Agregar Empleado</p>
             </button>
         </div>
 

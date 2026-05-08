@@ -1,91 +1,144 @@
-/* CONTENEDOR GENERAL */
-.admin-dashboard {
-  padding: 20px;
-  background-color: #f5f7fb;
+*{
+  background-color: #edf4ff;
+}
+:root {
+  --primary-blue: #1d69d7;
+  --bg-app: #f8f9fb; /* Fondo grisáceo muy suave de la foto */
+  --white: #ffffff;
+  --text-main: #1a1c1e;
+  --text-muted: #6a6f75;
+  --border-light: #eef1f4;
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.view-wrapper {
   min-height: 100vh;
-  font-family: Arial, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 4rem;
 }
 
-/* TITULO */
-.admin-dashboard h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  
+/* Eliminamos los fondos oscuros y blobs antiguos */
+.ambient-light { display: none; }
+
+.envoltorio-contenido {
+  max-width: 500px; /* Ancho de App Móvil como en la foto */
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
-/* GRID DE CARDS */
-.dashboard-grid {
+/* Encabezado */
+.header-seccion {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-/* CARD */
-.dashboard-card {
-  background: #e6edf7;
-  border-radius: 16px;
-  padding: 18px;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.titulo-vista {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  margin: 0;
+  background: none; /* Quitamos el degradado que lo achicaba visualmente */
+  -webkit-text-fill-color: #191C1E;
 }
 
-/* HOVER */
-.dashboard-card:hover {
-  transform: translateY(-2px);
-  background: #dce6f5;
+.subtitulo-vista {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
-/* ICONO */
-.dashboard-icon {
-  width: 40px;
-  height: 40px;
-  background: #ffffff;
-  border-radius: 12px;
+/* Botón Agregar - Azul Figma */
+.btn-primario {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 0.9rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
 }
 
-/* TITULO CARD */
-.dashboard-card h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  text-align: left;
+/* Buscador y Filtros */
+.barra-herramientas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 }
 
-/* DESCRIPCION */
-.dashboard-card p {
-  margin: 0;
-  font-size: 13px;
-  color: #555;
-  text-align: left;
+.input-moderno {
+  background-color: #eef1f4; /* Gris claro de los inputs en Figma */
+  border: none;
+  padding: 0.85rem 1rem 0.85rem 3rem;
+  border-radius: var(--radius-md);
+  width: 100%;
+  color: var(--text-main);
 }
 
+.filtros-grupo {
+  display: flex;
+  gap: 0.5rem;
+}
 
-
-
-.header {
-  height: 60px;
-  background: white;
+.btn-secundario, .btn-icon {
+  background-color: #eef1f4;
+  border: none;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid #ddd;
+  gap: 5px;
 }
 
-.logo {
-  font-weight: bold;
-  color: #2d6cdf;
+/* Cards de Empleados - Fondo Blanco */
+.grid-bento {
+  display: grid;
+  grid-template-columns: 1fr; /* Lista vertical como en la foto */
+  gap: 1.25rem;
 }
 
-.header-icons {
-  display: flex;
-  gap: 15px;
-  font-size: 18px;
+.card-empleado {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-subtle);
+  border: 1px solid var(--border-light);
+}
+
+.avatar-big {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.role-chip {
+  background-color: #edf4ff;
+  color: var(--primary-blue);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.info-row.parking {
+  background-color: #f8f9fb;
+  padding: 10px;
+  border-radius: 12px;
+  margin-top: 1rem;
+  border: 1px solid var(--border-light);
 }

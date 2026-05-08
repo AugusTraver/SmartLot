@@ -35,17 +35,20 @@
 }
 
 .titulo-vista {
-  font-size: 2.8rem;
-  font-weight: 850;
-  letter-spacing: -1.5px;
+  font-size: 195%;
   margin: 0;
   background: linear-gradient(to bottom, #fff, #94a3b8);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: #191C1E;
+   padding-bottom: 6%;
 }
-
+.boton-back{
+    margin-right: 102%;
+    color: #005BBF;
+    border-color: none;
+}
 .subtitulo-vista {
-  color: #94a3b8;
+  color: #414754;
   margin: 4px 0 0 0;
 }
 
@@ -72,8 +75,8 @@
 }
 
 .input-moderno {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.03);
+  width: 77%;
+  background:#E0E3E5;
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.9rem 1rem 0.9rem 3.5rem;
   border-radius: 16px;
@@ -90,7 +93,7 @@
 
 /* Botonera */
 .btn-primario {
-  background: white;
+  background: #1A73E8;
   color: #0b0f1a;
   padding: 12px 24px;
   border-radius: 14px;
@@ -103,6 +106,10 @@
   margin-left: auto;
   transition: transform 0.2s;
 }
+.textoAgregarEmpelado{
+    color: white;
+    background: none;
+}
 
 .btn-primario:hover {
   transform: scale(1.03);
@@ -114,9 +121,25 @@
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 1.5rem;
 }
-
+.top-section{
+    background-color: white;
+}
+.mid-section{
+     background-color: white;
+}
+h3{
+    color: #191C1E;
+     background-color: white;
+}
+.card-inner{
+     background-color: white;
+    
+}
+.bottom-section{
+    background-color: white;
+}
 .card-empleado {
-  background: rgba(255, 255, 255, 0.02);
+  background: white;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 28px;
   padding: 1.8rem;
@@ -157,6 +180,11 @@
   color: #94a3b8;
   font-size: 0.9rem;
   margin-top: 1rem;
+  background-color: white;
+  text-decoration-color: black ;
+}
+span{
+    color:black
 }
 
 .parking {
