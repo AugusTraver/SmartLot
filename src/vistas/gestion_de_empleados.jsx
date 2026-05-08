@@ -111,7 +111,7 @@ const GestionEmpleados = () => {
           {empleados.map(emp => (
             <div key={emp.id} className="card-empleado">
                <div className="card-inner">
-                  <div className="top-section">
+                  <div className="top-section"> 
                     <img src={emp.avatar} alt={emp.name} className="avatar-big" />
                     <button className="btn-more">
                         <MoreHorizontal size={18} />

@@ -16,7 +16,7 @@ function App()
         <Route path="/" element={<AdminDashboard />} />   {/*ruta principal que muestra el dashboard*/ } 
        
          
-          <Route path="/gestion-usuarios" element={<GestionEmpleados />} />
+          <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
           {/* 
          <Route path="/gestion-garages" element={<GestionGarages />} />
          <Route path="/panel-control" element={<PanelControl />} />
