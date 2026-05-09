@@ -18,7 +18,7 @@ return (
       <div className="dashboard-grid">
         <DashboardBoton  
           icono={<UserPlus/>}    
-          titulo="Gestionar de usuarios"
+          titulo="Gestionar de Empleados"
           descripcion="Gestionar y agregar nuevos empleados"
           onClick={() => navigate("/gestion_de_empleados")}
         />

@@ -16,6 +16,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
+import BotonGenerico from "../componentes/boton_generico";
 
 const GestionEmpleados = () => {
 
@@ -120,7 +121,7 @@ const GestionEmpleados = () => {
 
           </div>
 
-          <button className="btn-primario">
+          <BotonGenerico className="btn-primario" onClick={() => navigate('/agregar_empleado')}>
 
             <UserPlus size={18} />
 
@@ -128,7 +129,7 @@ const GestionEmpleados = () => {
               Agregar Empleado
             </p>
 
-          </button>
+          </BotonGenerico>
 
         </div>
 
