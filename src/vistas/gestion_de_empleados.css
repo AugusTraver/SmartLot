@@ -81,11 +81,11 @@
 
 .gestion-empleados .titulo-vista {
 
-  font-size: 2.2rem;
-
-  margin: 0;
-
-  color: #191C1E;
+     font-size: 2.2rem !important;
+    margin: 0;
+    margin-bottom: 4%;
+    color: #191C1E;
+    text-align: left;
 }
 
 
@@ -141,7 +141,7 @@
 
   padding: 12px 22px;
 
-  border-radius: 14px;
+ border-radius: 999px;
 
   display: flex;
 
@@ -255,6 +255,7 @@
     repeat(auto-fit, minmax(320px, 1fr));
 
   gap: 1.5rem;
+  padding-bottom: 28%;
 }
 
 

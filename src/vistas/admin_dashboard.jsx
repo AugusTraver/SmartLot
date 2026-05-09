@@ -14,6 +14,7 @@ return (
     
     <div className="admin-dashboard">
       <h1>Acciones Rapidas</h1>
+      <p>Desde aquí puedes acceder a las funciones de mayor uso.</p>
 
       <div className="dashboard-grid">
         <DashboardBoton  

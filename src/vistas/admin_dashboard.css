@@ -4,6 +4,17 @@
   background-color: #f5f7fb;
   min-height: 100vh;
   font-family: Arial, sans-serif;
+  padding-top: 0%;
+  padding-bottom: 23%;
+}
+h1{
+  
+ 
+  
+}
+.admin-dashboard p{
+  padding-bottom: 2%;
+  text-align: left;
 }
 
 /* TITULO */
@@ -11,7 +22,9 @@
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 20px;
-  
+  text-align: left;
+  font-size: 25px;
+   color:#191C1E;
 }
 
 /* GRID DE CARDS */
@@ -19,11 +32,12 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+
 }
 
 /* CARD */
 .dashboard-card {
-  background: #e6edf7;
+  background: #DBEAFE;
   border-radius: 16px;
   padding: 18px;
   cursor: pointer;

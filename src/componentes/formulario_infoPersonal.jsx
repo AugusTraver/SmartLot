@@ -1,11 +1,11 @@
-import { Section } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Contact, CircleCheck } from 'lucide-react'; 
+import { useNavigate } from 'react-router-dom'; 
 import "./formulario_infoPersonal.css";
-import { Contact } from 'lucide-react';
 import BotonGenerico from "./boton_generico";
 
 function FormularioInfoPersonal({infoPersonalTitulo, NombreCompleto, Email, NumeroTelefono}) {
-
+   const navigate = useNavigate();
     const [nombreCompleto, setNombreCompleto] = useState('');
     const [email, setEmail] = useState('');
     const [numeroTelefono, setNumeroTelefono] = useState('');
@@ -51,13 +51,7 @@ function FormularioInfoPersonal({infoPersonalTitulo, NombreCompleto, Email, Nume
         
             </div>
             
-            <div className="form-actions">
-             <BotonGenerico onClick={() => navigate('/gestion_de_empleados')}>
             
-               <CircleCheck size={20} color="white" />
-              <span>Guardar empleado</span>
-              </BotonGenerico>
-            </div>
       </section>
      
   )
