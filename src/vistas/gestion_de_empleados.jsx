@@ -24,7 +24,7 @@ const GestionEmpleados = () => {
   const container = useRef(null);
 
   // Mock de empleados
-  const [empleados] = useState([
+  const [empleados, setEmpleados] = useState([
     {
       id: 1,
       name: "Elena Rodriguez",
