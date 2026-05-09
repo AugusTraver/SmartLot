@@ -2,7 +2,7 @@
     import "./tarjeta_garages.css"
     import { useNavigate } from "react-router-dom";
     import { Pencil } from "lucide-react";
-
+    
 function TarjetaGarage({ titulo,plazas,estado,capacidad,imagen,ultimoReporte,onClick }) 
 {
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ function TarjetaGarage({ titulo,plazas,estado,capacidad,imagen,ultimoReporte,onC
       onClick={onClick}
     >
       <img
-        src={imagen}
+        src={Garage_1}
         alt={titulo}
         className="garage-img"
       />

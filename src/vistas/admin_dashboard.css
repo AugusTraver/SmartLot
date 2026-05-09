@@ -4,6 +4,7 @@
   background-color: #f5f7fb;
   min-height: 100vh;
   font-family: Arial, sans-serif;
+    padding-bottom: 130px; /* fundametal en los css de las vista le da espacio al footer para que no se superponga sobre nigun elemento */
 }
 
 /* TITULO */
@@ -31,6 +32,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  
 }
 
 /* HOVER */
