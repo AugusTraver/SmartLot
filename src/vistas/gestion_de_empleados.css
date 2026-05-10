@@ -13,6 +13,8 @@
   position: relative;
 
   overflow-x: hidden;
+    padding-bottom: 130px; /* fundametal en los css de las vista le da espacio al footer para que no se superponga sobre nigun elemento */
+
 }
 
 

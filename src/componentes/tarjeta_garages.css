@@ -1,0 +1,254 @@
+/* =========================
+   TARJETA GARAGE
+========================= */
+
+.tarjeta-garage {
+
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 0.9rem;
+
+  width: 400px; /* MÁS CHICA */
+
+  box-shadow:
+    0 4px 18px rgba(0,0,0,0.06);
+
+  transition: 0.25s ease;
+
+  display: flex;
+
+  flex-direction: column;
+
+align-items: center;
+  gap: 12px;
+
+  cursor: pointer;
+
+  margin-bottom: 24px; /* ESPACIO ENTRE TARJETAS */
+}
+
+
+.tarjeta-garage:hover {
+
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.10);
+}
+
+
+/* =========================
+   IMAGEN
+========================= */
+
+.garage-img {
+
+  width: 100%;
+
+  height: 150px;
+
+  object-fit: cover;
+
+  border-radius: 14px;
+}
+
+
+/* =========================
+   HEADER CARD
+========================= */
+
+.tarjeta-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+
+/* =========================
+   TITULO
+========================= */
+
+.tarjeta-garage h3 {
+
+  margin: 0;
+
+  font-size: 1.4rem;
+
+  color: #191C1E;
+
+  line-height: 1.2;
+}
+
+
+/* =========================
+   ESTADO
+========================= */
+
+.estado-garage {
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* CONECTADO */
+.estado-conectado {
+
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+
+/* MANTENIMIENTO */
+.estado-mantenimiento {
+
+  background: #fef3c7;
+
+  color: #b45309;
+}
+
+
+/* DESCONECTADO */
+.estado-desconectado {
+
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+
+/* =========================
+   INFO
+========================= */
+
+.info-garage {
+
+  color: #6b7280;
+
+  font-size: 0.95rem;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   BARRA PROGRESO
+========================= */
+
+.barra-container {
+
+  width: 100%;
+
+  height: 8px;
+
+  background: #e5e7eb;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+
+.barra-capacidad {
+
+  height: 100%;
+
+  background: #2563eb;
+
+  border-radius: 999px;
+}
+
+
+/* =========================
+   TEXTO CAPACIDAD
+========================= */
+
+.capacidad-texto {
+
+  text-align: right;
+
+  font-size: 0.85rem;
+
+  font-weight: 600;
+
+  color: #2563eb;
+}
+
+
+/* =========================
+   BOTON EDITAR
+========================= */
+
+.btn-editar {
+
+  width: 100%;
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #005BBF;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.btn-editar:hover {
+
+  background: #e5e7eb;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .tarjeta-garage {
+
+    padding: 0.9rem;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+
+
+
+  }
+
+  .garage-img {
+
+    height: 130px;
+  }
+
+  .tarjeta-garage h3 {
+
+    font-size: 1.2rem;
+  }
+
+}
