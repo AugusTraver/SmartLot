@@ -20,7 +20,7 @@ function FooterAdmin (){
       <FooterBotton
         titulo="GARAGE"
         icono={<CarFront size={28}/>} 
-        onClick={() => navigate("/gestion_de_empleados")}
+        onClick={() => navigate("/gestion_garages")}
         />
     
           <FooterBotton
@@ -32,7 +32,7 @@ function FooterAdmin (){
           <FooterBotton
         titulo="PANEL"
         icono={<ChartBarDecreasing size={28}/>} 
-        onClick={() => navigate("/gestion_de_empleados")}
+        onClick={() => navigate("/panel_de_control")}
         />
     </footer>
   );

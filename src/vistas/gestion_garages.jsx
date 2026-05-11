@@ -3,26 +3,88 @@ import "./gestion_garages.css"
 import TarjetaGarage from "../componentes/tarjeta_garages";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
-
+import fotoGarage1 from "../Imagenes/Garage1.jpg";
+import fotoGarage2 from "../Imagenes/Garage2.jpg"
+import fotoGarage3 from "../Imagenes/Garage3.jpg"
 function GestionGarages() {
     const navigate = useNavigate();
     return (
 
-        <div className="gestion-garages>">
+         
+       <div className="gestion-garages">
             <Header />
+
+        <div className="gestion-garages-top">
+
+      <p>PANEL DE CONTROL</p>
+
+      <h1>Configuración de Garages</h1>
+
+    </div>
+
+    {/* BOTON */}
+
+    <button className="btn-nueva-zona">
+
+      ⊕ Nueva Zona
+
+    </button>
+
+    {/* STATS */}
+
+    <div className="stats-container">
+
+      <div className="stats-card">
+
+        <div className="stats-header">
+
+          <h4>TOTAL ZONAS</h4>
+
+          <span className="stats-icon">🗺️</span>
+
+        </div>
+
+        <h2>08</h2>
+
+        <p>
+          <span className="stats-green">+2</span> este mes
+        </p>
+
+      </div>
+
+      <div className="stats-card">
+
+        <div className="stats-header">
+
+          <h4>OCUPACIÓN MEDIA</h4>
+
+          <span className="stats-icon">📊</span>
+
+        </div>
+
+        <h2>64%</h2>
+
+        <p>Pico máximo a las 14:00</p>
+
+      </div>
+
+    </div>
+
+
+
             <div className="gestion-garages-container">
 
            
-                <h1 className="titulo-garages">Gestión de Garages</h1>
+                <h2 className="titulo-garages">Gestión de Garages</h2>
                 <p className="subtitulo-garages">Aquí puedes gestionar los garages disponibles en tu sistema.</p>
-                <div className="tarjetas-garages">
+                <div className="contenedor-tarjetas">
                     <TarjetaGarage
                         titulo="Garage Central"
                         plazas={50}
                         estado="Abierto"
                         capacidad="80%"
                         ultimoReporte="Hace 10 minutos"
-                        imagen="https://via.placeholder.com/300x200.png?text=Garage+Central"
+                        imagen={fotoGarage1}
                         onClick={() => navigate("/detalle_garage/1")}
                     />
                     <TarjetaGarage
@@ -31,7 +93,7 @@ function GestionGarages() {
                         estado="Cerrado"
                         capacidad="100%"
                         ultimoReporte="Hace 1 hora"
-                        imagen="https://via.placeholder.com/300x200.png?text=Garage+Norte"
+                        imagen={fotoGarage2}
                         onClick={() => navigate("/detalle_garage/2")}
                     />
                     <TarjetaGarage
@@ -40,7 +102,7 @@ function GestionGarages() {
                         estado="Abierto"
                         capacidad="60%"
                         ultimoReporte="Hace 30 minutos"
-                        imagen="https://via.placeholder.com/300x200.png?text=Garage+Sur"
+                        imagen={fotoGarage3}
                         onClick={() => navigate("/detalle_garage/3")}
                     />
                 </div>
