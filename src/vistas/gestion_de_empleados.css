@@ -50,12 +50,10 @@
 ========================= */
 
 .gestion-empleados .envoltorio-contenido {
-
-  max-width: 1200px;
-
-  margin: 0 auto;
-
-  padding: 4rem 2rem;
+max-width: 100% !important; /* Libera el ancho */
+  width: 100%;
+  padding: 2rem 5%; /* Usa porcentajes para los lados */
+  box-sizing: border-box;
 }
 
 
@@ -64,16 +62,10 @@
 ========================= */
 
 .gestion-empleados .header-seccion {
-
-  display: flex;
-
+display: flex;
+  justify-content: space-between; /* Empuja elementos a los bordes */
+  width: 100%;
   align-items: center;
-
-  gap: 1.5rem;
-
-  margin-bottom: 3rem;
-
-  flex-wrap: wrap;
 }
 
 
@@ -215,6 +207,11 @@
   opacity: 0.8;
 }
 
+.gestion-empleados .envoltorio-contenido {
+  max-width: 100%; /* Ocupa todo el ancho */
+  padding: 2rem 4rem; /* Más aire a los costados */
+}
+
 /* Botón cuadrado de filtros (el de la derecha) */
 .btn-icon-filtros {
   width: 56px;
@@ -249,13 +246,10 @@
 .gestion-empleados .barra-herramientas {
 
   display: flex;
-
-  gap: 1rem;
-
+  width: 100%; /* Asegura que la barra ocupe todo el ancho */
+  gap: 1.5rem;
   margin-bottom: 3rem;
-
-  flex-wrap: wrap;
-      margin-top: -2%;
+  align-items: center;
 }
 
 
@@ -265,11 +259,7 @@
 
 .gestion-empleados .contenedor-busqueda {
 
-  flex: 1;
-
-  min-width: 280px;
-
-  position: relative;
+ flex: 1; /* Hace que el buscador se estire */
 }
 
 
@@ -333,13 +323,11 @@
 .gestion-empleados .grid-bento {
 
   display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(320px, 1fr));
-
-  gap: 1.5rem;
-  padding-bottom: 0%;
-      margin-top: -3%;
+  width: 100%;
+  /* Cambiamos el minmax para que las tarjetas se adapten mejor al ancho total */
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
 

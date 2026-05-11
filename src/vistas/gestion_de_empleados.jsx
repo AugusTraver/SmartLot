@@ -11,7 +11,6 @@ import {
   Mail,
   MapPin,
   ShieldCheck,
-
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -20,13 +19,11 @@ import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
 
 const GestionEmpleados = () => {
-
   const navigate = useNavigate();
-
   const container = useRef(null);
 
   // Mock de empleados
-  const [empleados, setEmpleados] = useState([
+  const [empleados] = useState([
     {
       id: 1,
       name: "Elena Rodriguez",
@@ -35,7 +32,6 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza A-22 • Nivel Superior",
       avatar: "https://i.pravatar.cc/150?u=11"
     },
-
     {
       id: 2,
       name: "Julian Casablancas",
@@ -44,7 +40,6 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza B-10 • Nivel Inferior",
       avatar: "https://i.pravatar.cc/150?u=22"
     },
-
     {
       id: 3,
       name: "Ana Valery",
@@ -55,102 +50,63 @@ const GestionEmpleados = () => {
     }
   ]);
 
-
-  // Animaciones
+  // Animaciones Premium con limpieza automática
   useGSAP(() => {
-
     const tl = gsap.timeline();
 
-    tl.from(".gestion-empleados .anim-header", {
+    tl.from(".anim-header", {
       y: 30,
       opacity: 0,
       duration: 0.8,
       ease: "power4.out"
     })
-
-      .from(".gestion-empleados .anim-bar", {
+      .from(".anim-bar", {
         x: -20,
         opacity: 0,
         duration: 0.6
       }, "-=0.4")
-
-      .from(".gestion-empleados .card-empleado", {
+      .from(".card-empleado", {
         y: 40,
-        opacity: 100,
+        opacity: 0, // Corregido de 100 a 0
         stagger: 0.1,
         duration: 0.7,
         ease: "back.out(1.2)"
       }, "-=0.3");
-
   }, { scope: container });
 
-
   return (
-
-    <div
-      className="gestion-empleados"
-      ref={container} >
-
-
+    <div className="gestion-empleados" ref={container}>
       <Header />
       <FooterAdmin />
 
-      {/* Fondo decorativo */}
       <div className="ambient-light"></div>
 
+      {/* Main sin restricciones de ancho en CSS */}
       <main className="envoltorio-contenido">
 
-        {/* HEADER */}
-        <div className="header-seccion anim-header">
-
-          <button
-            className="boton-back"
-            onClick={() => navigate(-1)}
-          >
+        {/* HEADER: Sin el div 'textos' intermedio para mejor control flex */}
+        <header className="header-seccion anim-header">
+          <button className="boton-back" onClick={() => navigate(-1)}>
             <ArrowLeft size={20} />
           </button>
 
-          <div className="textos">
-
-            <h1 className="titulo-vista">
-              Gestión de Empleados
-            </h1>
-
-            <p className="subtitulo-vista">
-              Panel de control de accesos y jerarquías del sistema.
-            </p>
-
-          </div>
+          <h1 className="titulo-vista">Gestión de Empleados</h1>
 
           <BotonGenerico className="btn-primario" onClick={() => navigate('/agregar_empleado')}>
-
             <UserPlus size={18} />
-
-            <p className="textoAgregarEmpelado">
-              Agregar Empleado
-            </p>
-
+            <span className="textoAgregarEmpelado">Agregar Empleado</span>
           </BotonGenerico>
+        </header>
 
-        </div>
-
-
-        {/* FILTROS */}
+        {/* TOOLBAR: Buscador crece al máximo disponible */}
         <section className="barra-herramientas anim-bar">
-
           <div className="contenedor-busqueda">
-
-            <Search
-              className="search-icon"
-              size={18}
-            />
-
+            <Search className="search-icon" size={18} />
             <input
               type="text"
-              placeholder="Buscar empleado..."
+              placeholder="Buscar empleado por nombre, email o cargo..."
               className="input-moderno"
             />
-
           </div>
 
           <div className="filtros-grupo">
@@ -166,91 +122,45 @@ const GestionEmpleados = () => {
               <SlidersHorizontal size={22} strokeWidth={2.5} />
             </button>
           </div>
-
         </section>
 
-
-        {/* GRID */}
+        {/* GRID: Fluida de borde a borde */}
         <div className="grid-bento">
-
           {empleados.map(emp => (
-
-            <div
-              key={emp.id}
-              className="card-empleado"
-            >
-
+            <article key={emp.id} className="card-empleado">
               <div className="card-inner">
-
-                {/* TOP */}
                 <div className="top-section">
-
-                  <img
-                    src={emp.avatar}
-                    alt={emp.name}
-                    className="avatar-big"
-                  />
-
+                  <img src={emp.avatar} alt={emp.name} className="avatar-big" />
                   <button className="btn-more">
-
                     <MoreHorizontal size={18} />
-
                   </button>
-
                 </div>
 
-
-                {/* MID */}
                 <div className="mid-section">
-
                   <div className="role-chip">
-
                     <ShieldCheck size={12} />
-
                     {emp.role}
-
                   </div>
-
                   <h3>{emp.name}</h3>
-
                 </div>
 
-
-                {/* BOTTOM */}
                 <div className="bottom-section">
-
                   <div className="info-row">
-
                     <Mail size={14} />
-
                     <span>{emp.email}</span>
-
                   </div>
-
                   <div className="info-row parking">
-
                     <MapPin size={14} />
-
                     <span>{emp.parkingSpot}</span>
-
                   </div>
-
                 </div>
-
               </div>
-
-            </div>
-
+            </article>
           ))}
-
         </div>
-
       </main>
-
     </div>
-
   );
-
 };
 
 export default GestionEmpleados;

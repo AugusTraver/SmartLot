@@ -1,3 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Evita scroll horizontal accidental */
+  background: var(--bg);
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -55,14 +62,25 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
+ width: 100%; 
+  max-width: 100vw; /* Asegura que no pase del ancho de la ventana */
+  margin: 0;
   text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  
+  /* Eliminamos el borde que lo hacía ver como una caja */
+  border-inline: none; 
+  
+  min-height: 100vh; /* Cambiado de 100svh para mejor compatibilidad */
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+}
+.envoltorio-contenido, 
+.admin-dashboard,
+.gestion-garages-container {
+  width: 100%;
+  max-width: 1400px; /* Ancho máximo sugerido para dashboards premium */
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
