@@ -170,6 +170,77 @@
   color: white;
 }
 
+/* Contenedor de los filtros */
+.filtros-grupo {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espaciado entre el selector y el botón de icono */
+}
+
+/* Botón principal "Filtrar por sede" */
+.btn-selector-sede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #E0E3E5; /* Gris suave de la imagen */
+  border: none;
+  border-radius: 20px; /* Bordes redondeados estilo cápsula */
+  padding: 10px 20px;
+  min-width: 280px; /* Ajustar según necesidad */
+  height: 56px;    /* Altura estándar para touch targets */
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-selector-sede:hover {
+  background: #D1D5D8;
+}
+
+.texto-sede {
+  color: #191C1E;
+  font-size: 17px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Contenedor de las dos flechitas */
+.iconos-flecha {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #5F6368; /* Color de icono más tenue */
+}
+
+.chevron-icon {
+  opacity: 0.8;
+}
+
+/* Botón cuadrado de filtros (el de la derecha) */
+.btn-icon-filtros {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E0E3E5;
+  border: none;
+  border-radius: 18px; /* Bordes suaves */
+  color: #191C1E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-filtros:hover {
+  background: #D1D5D8;
+  transform: scale(1.02);
+}
+
+/* Ajuste de accesibilidad para los botones */
+.btn-selector-sede:focus-visible,
+.btn-icon-filtros:focus-visible {
+  outline: 2px solid #1A73E8;
+  outline-offset: 2px;
+}
 
 /* =========================
    TOOLBAR
@@ -213,13 +284,22 @@
 
   color: #64748b;
 }
+.btn-secundario-filtrarPorsede{
+  background:#E0E3E5 ;
+  border: 1px solid #dbe2ea;
+  border-radius: 16px;
+  
+}
+.btn-secundario-filtrarPorsede p{
 
+  font-size: 17px;
+}
 
 .gestion-empleados .input-moderno {
 
   width: 100%;
 
-  background: white;
+  background: #E0E3E5;
 
   border: 1px solid #dbe2ea;
 

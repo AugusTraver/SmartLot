@@ -10,7 +10,8 @@ import {
   MoreHorizontal,
   Mail,
   MapPin,
-  ShieldCheck
+  ShieldCheck,
+
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -38,7 +39,7 @@ const GestionEmpleados = () => {
     {
       id: 2,
       name: "Julian Casablancas",
-      role: "Editor",
+      role: "Empleado",
       email: "julian.c@smartlot.com",
       parkingSpot: "Plaza B-10 • Nivel Inferior",
       avatar: "https://i.pravatar.cc/150?u=22"
@@ -47,7 +48,7 @@ const GestionEmpleados = () => {
     {
       id: 3,
       name: "Ana Valery",
-      role: "Seguridad",
+      role: "Empleado",
       email: "ana.v@smartlot.com",
       parkingSpot: "Plaza C-04 • Nivel Superior",
       avatar: "https://i.pravatar.cc/150?u=33"
@@ -67,19 +68,19 @@ const GestionEmpleados = () => {
       ease: "power4.out"
     })
 
-    .from(".gestion-empleados .anim-bar", {
-      x: -20,
-      opacity: 0,
-      duration: 0.6
-    }, "-=0.4")
+      .from(".gestion-empleados .anim-bar", {
+        x: -20,
+        opacity: 0,
+        duration: 0.6
+      }, "-=0.4")
 
-    .from(".gestion-empleados .card-empleado", {
-      y: 40,
-      opacity: 100,
-      stagger: 0.1,
-      duration: 0.7,
-      ease: "back.out(1.2)"
-    }, "-=0.3");
+      .from(".gestion-empleados .card-empleado", {
+        y: 40,
+        opacity: 100,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: "back.out(1.2)"
+      }, "-=0.3");
 
   }, { scope: container });
 
@@ -89,7 +90,7 @@ const GestionEmpleados = () => {
     <div
       className="gestion-empleados"
       ref={container} >
-    
+
 
       <Header />
       <FooterAdmin />
@@ -152,23 +153,18 @@ const GestionEmpleados = () => {
 
           </div>
 
-
           <div className="filtros-grupo">
-
-            <button className="btn-secundario">
-
-              Sede Central
-
-              <ChevronDown size={16} />
-
+            <button className="btn-selector-sede">
+              <span className="texto-sede">Filtrar por sede</span>
+              <div className="iconos-flecha">
+                <ChevronDown size={18} className="chevron-icon" />
+                <ChevronDown size={18} className="chevron-icon" />
+              </div>
             </button>
 
-            <button className="btn-icon">
-
-              <SlidersHorizontal size={20} />
-
+            <button className="btn-icon-filtros">
+              <SlidersHorizontal size={22} strokeWidth={2.5} />
             </button>
-
           </div>
 
         </section>
@@ -252,9 +248,9 @@ const GestionEmpleados = () => {
       </main>
 
     </div>
-    
+
   );
-  
+
 };
 
 export default GestionEmpleados;
