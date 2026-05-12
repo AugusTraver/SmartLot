@@ -10,7 +10,7 @@
 
   background: #f5f7fb;
 
-  padding: 2rem 1rem 6rem 1rem;
+  padding: 0rem 1rem 6rem 1rem;
 
   padding-bottom: 140px;
 }
@@ -52,6 +52,28 @@
   font-weight: 700;
 }
 
+
+.gestion-garages-top .boton-back{
+  width: 45px;
+  height: 45px;
+  margin: 1%;
+  border-radius: 12px;
+
+  border: none;
+
+  background: #ffffff;
+
+  color: #191C1E;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06);
+}
 
 .titulo-garages {
   font-family: 'Poppins';
@@ -95,9 +117,17 @@
 
 .gestion-garages-container {
 
-  max-width: 420px;
- padding-bottom: 130px; /* fundametal en los css de las vista le da espacio al footer para que no se superponga sobre nigun elemento */
+
+
+  width: 100%;
+
+  max-width: 1400px;
+
   margin: 0 auto;
+
+  padding-bottom: 130px;
+
+
 }
 
 
@@ -107,7 +137,7 @@
 
 .gestion-garages-top {
 
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 
@@ -235,21 +265,18 @@
 /* =========================
    CONTENEDOR TARJETAS
 ========================= */
-
 .contenedor-tarjetas {
 
   display: flex;
 
-  flex-direction: column;
+  flex-wrap: wrap;
 
-  align-items: center;
+  justify-content: center;
 
-  gap: 24px;
+  gap: 32px;
 
   width: 100%;
 }
-
-
 
 
 

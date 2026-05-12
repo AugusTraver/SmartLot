@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import{ArrowLeft}  from "lucide-react";
 import "./gestion_garages.css"
 import TarjetaGarage from "../componentes/tarjeta_garages";
 import Header from "../componentes/header_admin";
@@ -15,6 +16,10 @@ function GestionGarages() {
             <Header />
 
         <div className="gestion-garages-top">
+
+          <button className="boton-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={20} />
+          </button>
 
       <p>PANEL DE CONTROL</p>
 
