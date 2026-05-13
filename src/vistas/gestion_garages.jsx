@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import{ArrowLeft}  from "lucide-react";
+import{ArrowLeft,CirclePlus}  from "lucide-react";
 import "./gestion_garages.css"
 import TarjetaGarage from "../componentes/tarjeta_garages";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
+import BotonGenerico from "../componentes/boton_generico";
 import fotoGarage1 from "../Imagenes/Garage1.jpg";
 import fotoGarage2 from "../Imagenes/Garage2.jpg"
 import fotoGarage3 from "../Imagenes/Garage3.jpg"
+
 function GestionGarages() {
     const navigate = useNavigate();
     return (
@@ -29,11 +31,11 @@ function GestionGarages() {
 
     {/* BOTON */}
 
-    <button className="btn-nueva-zona">
+     <BotonGenerico className="btn-nueva-zona" onClick={() => navigate('/agregar_zona')}>
+            <CirclePlus size={18} />
+            <span >Nueva Zona</span>
+          </BotonGenerico>
 
-      ⊕ Nueva Zona
-
-    </button>
 
     {/* STATS */}
 

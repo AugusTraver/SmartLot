@@ -12,8 +12,7 @@ import {
   MapPin,
   ShieldCheck,
 } from "lucide-react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
@@ -51,28 +50,7 @@ const GestionEmpleados = () => {
   ]);
 
   // Animaciones Premium con limpieza automática
-  useGSAP(() => {
-    const tl = gsap.timeline();
-
-    tl.from(".anim-header", {
-      y: 30,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power4.out"
-    })
-      .from(".anim-bar", {
-        x: -20,
-        opacity: 0,
-        duration: 0.6
-      }, "-=0.4")
-      .from(".card-empleado", {
-        y: 40,
-        opacity: 0, // Corregido de 100 a 0
-        stagger: 0.1,
-        duration: 0.7,
-        ease: "back.out(1.2)"
-      }, "-=0.3");
-  }, { scope: container });
+  
 
   return (
     <div className="gestion-empleados" ref={container}>
