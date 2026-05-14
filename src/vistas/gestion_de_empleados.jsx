@@ -31,7 +31,7 @@ const GestionEmpleados = () => {
       id: 2,
       name: "Marta Casablancas",
       role: "Empleado",
-      email: "julian.c@smartlot.com",
+      email: "marta.c@smartlot.com",
       parkingSpot: "Plaza B-10 • Nivel Inferior",
       avatar: "https://i.pravatar.cc/150?u=22"
     },
@@ -39,7 +39,7 @@ const GestionEmpleados = () => {
       id: 3,
       name: "Carlos Valery",
       role: "Empleado",
-      email: "ana.v@smartlot.com",
+      email: "carlos.v@smartlot.com",
       parkingSpot: "Plaza C-04 • Nivel Superior",
       avatar: "https://i.pravatar.cc/150?u=33"
     },
@@ -47,7 +47,7 @@ const GestionEmpleados = () => {
       id: 4,
       name: "Juana Perez",
       role: "Empleado",
-      email: "m.perez@smartlot.com",
+      email: "juana.perez@smartlot.com",
       parkingSpot: "Plaza D-01 • Nivel Superior",
       avatar: "https://i.pravatar.cc/150?u=44"
     }
@@ -122,9 +122,9 @@ const GestionEmpleados = () => {
             <button className="btn-selector-sede">
               <span className="texto-sede">Filtrar por sede</span>
               <div className="iconos-flecha">
-                {/* Doble Chevron solicitado por el usuario */}
+               
                 <ChevronDown size={18} className="chevron-icon" />
-                <ChevronDown size={18} className="chevron-icon" />
+               
               </div>
             </button>
 
@@ -165,7 +165,7 @@ const GestionEmpleados = () => {
                   </div>
                   <div className="footer-bottom-row">
                     <span className="email-v3">{emp.email}</span>
-                    <button className="btn-more-v3"><MoreVertical size={20} /></button>
+                   
                   </div>
                 </div>
               </article>

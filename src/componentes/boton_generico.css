@@ -14,6 +14,9 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+   margin-top: 29%
+
+;
 }
 
 .btn-primario:hover {
@@ -39,12 +42,14 @@
   }
 
   .btn-primario {
-    width: 100% !important; /* El botón ocupa todo el ancho del contenedor */
-    height: 54px !important; /* Altura de la foto 2 */
+    width: 100% !important; 
+    height: 50px ; 
     justify-content: center;
     border-radius: 14px !important;
     font-size: 16px;
+    margin-top: 0%
   }
+  
 
   /* Ajuste para que el icono y texto no se peguen a los bordes */
   .btn-primario span {

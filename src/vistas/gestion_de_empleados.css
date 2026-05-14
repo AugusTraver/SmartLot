@@ -107,7 +107,7 @@
 
 
 .btn-icon-filtros {
-  width: 56px;
+  width: 66px;
   height: 56px;
   display: flex;
   align-items: center;
@@ -140,6 +140,7 @@
   .btn-selector-sede {
     flex: 1; 
     min-width: auto;
+    margin-left: 0%;
   }
 }
 
@@ -159,7 +160,7 @@
   gap: 12px;
 }
 
-.btn-selector-sede, .btn-icon-filtros {
+.btn-selector-sede {
   height: 56px;
   background: #E8EAED;
   border: none;
@@ -168,6 +169,7 @@
   align-items: center;
   font-weight: 600;
   color: #1a1c1e;
+  margin-left: 6%;
 }
 
 /* GRID Y CARDS PREMIUM (Foto 2) */
@@ -308,7 +310,7 @@
   color: #5f6368;
 }
 
-/* MEDIA QUERIES PARA MÓVIL (FOTO 2) */
+
 @media (max-width: 768px) {
   .envoltorio-contenido {
     padding: 20px 16px;
@@ -316,6 +318,7 @@
   .input-moderno{
     width: 85% !important;
     margin-top: 4%;
+    height: 50px;
   }
 
   .header-seccion {
@@ -326,14 +329,7 @@
     font-size: 33px;
   }
 
-  .btn-primario {
-    width: 100% !important;
-    height: 54px !important;
-    border-radius: 14px !important;
-    background-color: #1A73E8 !important;
-    justify-content: center;
-  }
-
+  
   .barra-herramientas {
     flex-direction: column;
   }
@@ -344,6 +340,7 @@
 
   .btn-selector-sede {
     flex: 1;
+    margin-left: 0%;
   }
 
   .grid-bento {

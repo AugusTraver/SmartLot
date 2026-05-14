@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CarFront } from 'lucide-react'; 
 import { useNavigate } from 'react-router-dom'; 
-import "./formulario_infoPersonal.css";
+import "./formularios.css";
 import BotonGenerico from "./boton_generico";
 
 
@@ -33,15 +33,17 @@ function FormularioDetallesVehiculo({detallesVehiculoTitulo, Patente, Modelo, })
          </div>
          
          <div className="input-group">
-            <label> { Patente}</label>
-             <input type="text" placeholder="ABC123" value={patente} onChange={(e) => setPatente(e.target.value)} />
+           <input type="text" placeholder="ABC123" value={patente} onChange={(e) => setPatente(e.target.value)} />
            
+            <label> { Patente}</label>
+            
           </div>
  
          <div className="input-group">
-           <label> { Modelo}</label>
-             <input type="text" placeholder="Toyota Corolla" value={modelo} onChange={(e) => setmodelo(e.target.value)} />
+           <input type="text" placeholder="Toyota Corolla" value={modelo} onChange={(e) => setmodelo(e.target.value)} />
 
+           <label> { Modelo}</label>
+            
          </div>
 
             
