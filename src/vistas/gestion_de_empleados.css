@@ -1,505 +1,351 @@
-/* =========================
-   CONTENEDOR PRINCIPAL
-========================= */
-
+/* CONFIGURACIÓN GENERAL */
 .gestion-empleados {
-
   min-height: 100vh;
-
-  background: #f5f7fb; /* <- SACAMOS EL NEGRO */
-
-  font-family: 'Inter', sans-serif;
-
-  position: relative;
-
-  overflow-x: hidden;
-    padding-bottom: 130px; /* fundametal en los css de las vista le da espacio al footer para que no se superponga sobre nigun elemento */
-
-}
-
-
-/* =========================
-   LUZ AMBIENTAL
-========================= */
-
-.gestion-empleados .ambient-light {
-
-  position: absolute;
-
-  top: -150px;
-  right: -100px;
-
-  width: 500px;
-  height: 500px;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(59, 130, 246, 0.12) 0%,
-      transparent 70%
-    );
-
-  filter: blur(80px);
-
-  pointer-events: none;
-}
-
-
-/* =========================
-   CONTENIDO
-========================= */
-
-.gestion-empleados .envoltorio-contenido {
-max-width: 100% !important; /* Libera el ancho */
+  background: #f8fafc;
+  padding-bottom: 120px;
   width: 100%;
-  padding: 2rem 5%; /* Usa porcentajes para los lados */
+}
+
+.envoltorio-contenido {
+  padding: 40px 5%;
+  width: 100%;
   box-sizing: border-box;
 }
 
-
-/* =========================
-   HEADER
-========================= */
-
-.gestion-empleados .header-seccion {
-display: flex;
-  justify-content: space-between; /* Empuja elementos a los bordes */
-  width: 100%;
-  align-items: center;
+/* HEADER Y TITULOS */
+.header-seccion {
+ display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  gap: 20px;
 }
 
-
-/* =========================
-   TITULO
-========================= */
-
-.gestion-empleados .titulo-vista {
-
-     font-size: 2.2rem !important;
-    margin: 0;
-    margin-bottom: 4%;
-    color: #191C1E;
-    text-align: left;
-}
-
-
-.gestion-empleados .subtitulo-vista {
-
-  color: #64748b;
-
-  margin-top: 6px;
-}
-
-
-/* =========================
-   BOTON BACK
-========================= */
-
-.gestion-empleados .boton-back {
-
-  width: 45px;
-  height: 45px;
-
-  border-radius: 12px;
-
-  border: none;
-
-  background: white;
-
-  color: #191C1E;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow:
-    0 4px 12px rgba(0,0,0,0.06);
-}
-
-
-/* =========================
-   BOTON PRIMARIO
-========================= */
-
-.gestion-empleados .btn-primario {
-
-  margin-left: auto;
-
-  background: #1A73E8;
-
-  color: white;
-
-  border: none;
-
-  padding: 12px 22px;
-
- border-radius: 999px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-
-.gestion-empleados .btn-primario:hover {
-
-  transform: scale(1.03);
-}
-
-
-.gestion-empleados .textoAgregarEmpelado {
-
+.titulo-vista {
+  font-size: 38px;
+  font-weight: 850;
+  color: #1a1c1e;
   margin: 0;
-
-  color: white;
+  letter-spacing: -0.02em;
+  text-align: left;
+  margin-bottom: 5%;
 }
 
-/* Contenedor de los filtros */
+.subtitulo-vista {
+  font-size: 16px;
+  color: #64748b;
+  margin-top: 4px;
+  line-height: 1.4;
+  text-align: left;
+  margin-bottom: 3%;
+}
+
+/* TOOLBAR - BUSCADOR GRIS (Foto 2) */
+.barra-herramientas {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.contenedor-busqueda {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  z-index: 10;
+}
+/* CONTENEDOR DE FILTROS */
 .filtros-grupo {
   display: flex;
   align-items: center;
-  gap: 12px; /* Espaciado entre el selector y el botón de icono */
+  gap: 12px; /* Espacio exacto entre el selector y el botón de icono */
 }
 
-/* Botón principal "Filtrar por sede" */
+/* BOTÓN SELECTOR (EL LARGO) */
 .btn-selector-sede {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #E0E3E5; /* Gris suave de la imagen */
+  background-color: #E8EAED; /* Gris suave de la referencia */
   border: none;
-  border-radius: 20px; /* Bordes redondeados estilo cápsula */
-  padding: 10px 20px;
-  min-width: 280px; /* Ajustar según necesidad */
-  height: 56px;    /* Altura estándar para touch targets */
+  border-radius: 20px; /* Estilo cápsula */
+  padding: 0 20px;
+  min-width: 280px; /* Ancho para que respire el texto */
+  height: 56px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-selector-sede:hover {
-  background: #D1D5D8;
+  background-color: #dee0e3;
 }
 
 .texto-sede {
-  color: #191C1E;
-  font-size: 17px;
+  color: #1a1c1e;
+  font-size: 16px;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
 }
 
-/* Contenedor de las dos flechitas */
+/* CONTENEDOR DE DOBLE FLECHA */
 .iconos-flecha {
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: #5F6368; /* Color de icono más tenue */
+  gap: 2px;
+  color: #5f6368;
 }
 
 .chevron-icon {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
-.gestion-empleados .envoltorio-contenido {
-  max-width: 100%; /* Ocupa todo el ancho */
-  padding: 2rem 4rem; /* Más aire a los costados */
-}
 
-/* Botón cuadrado de filtros (el de la derecha) */
 .btn-icon-filtros {
   width: 56px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #E0E3E5;
+  background-color: #E8EAED;
   border: none;
-  border-radius: 18px; /* Bordes suaves */
-  color: #191C1E;
+  border-radius: 18px;
+  color: #1a1c1e;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-icon-filtros:hover {
-  background: #D1D5D8;
+  background-color: #dee0e3;
   transform: scale(1.02);
 }
 
-/* Ajuste de accesibilidad para los botones */
-.btn-selector-sede:focus-visible,
-.btn-icon-filtros:focus-visible {
-  outline: 2px solid #1A73E8;
-  outline-offset: 2px;
-}
 
-/* =========================
-   TOOLBAR
-========================= */
-
-.gestion-empleados .barra-herramientas {
-
-  display: flex;
-  width: 100%; /* Asegura que la barra ocupe todo el ancho */
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-  align-items: center;
+.btn-selector-sede:active,
+.btn-icon-filtros:active {
+  transform: scale(0.97);
 }
 
 
-/* =========================
-   BUSCADOR
-========================= */
-
-.gestion-empleados .contenedor-busqueda {
-
- flex: 1; /* Hace que el buscador se estire */
-}
-
-
-.gestion-empleados .search-icon {
-
-  position: absolute;
-
-  left: 18px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  color: #64748b;
-}
-.btn-secundario-filtrarPorsede{
-  background:#E0E3E5 ;
-  border: 1px solid #dbe2ea;
-  border-radius: 16px;
+@media (max-width: 768px) {
+  .filtros-grupo {
+    width: 100%;
+  }
   
+  .btn-selector-sede {
+    flex: 1; 
+    min-width: auto;
+  }
 }
-.btn-secundario-filtrarPorsede p{
 
-  font-size: 17px;
-}
-
-.gestion-empleados .input-moderno {
-
-  width: 100%;
-
-  background: #E0E3E5;
-
-  border: 1px solid #dbe2ea;
-
-  padding:
-    0.95rem
-    1rem
-    0.95rem
-    3.2rem;
-
+.input-moderno {
+  width: 95%;
+  height: 56px;
+  padding-left: 52px;
+  background: #E8EAED; /* Gris de la foto 2 */
+  border: none;
   border-radius: 16px;
-
-  color: #191C1E;
-
-  box-sizing: border-box;
-}
-
-
-.gestion-empleados .input-moderno:focus {
-
+  font-size: 16px;
   outline: none;
-
-  box-shadow:
-    0 0 0 4px rgba(59,130,246,0.12);
 }
 
+.filtros-grupo {
+  display: flex;
+  gap: 12px;
+}
 
-/* =========================
-   GRID
-========================= */
+.btn-selector-sede, .btn-icon-filtros {
+  height: 56px;
+  background: #E8EAED;
+  border: none;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #1a1c1e;
+}
 
-.gestion-empleados .grid-bento {
-
+/* GRID Y CARDS PREMIUM (Foto 2) */
+.grid-bento {
   display: grid;
   width: 100%;
-  /* Cambiamos el minmax para que las tarjetas se adapten mejor al ancho total */
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
 }
 
-
-/* =========================
-   CARD
-========================= */
-
-.gestion-empleados .card-empleado {
-
+.card-empleado-v3 {
   background: white;
-
-  border-radius: 28px;
-
-  padding: 1.8rem;
-
-  transition: 0.3s;
-
-  box-sizing: border-box;
-
-  box-shadow:
-    0 6px 20px rgba(0,0,0,0.06);
-}
-
-
-.gestion-empleados .card-empleado:hover {
-
-  transform: translateY(-8px);
-
-  box-shadow:
-    0 14px 35px rgba(0,0,0,0.12);
-}
-
-
-/* =========================
-   CARD INNER
-========================= */
-
-.gestion-empleados .card-inner {
-  background: white;
-}
-
-
-/* =========================
-   TOP
-========================= */
-
-.gestion-empleados .top-section {
-
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   display: flex;
+  flex-direction: column;
+}
 
+.card-header-v3 {
+  display: flex;
   justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 1rem;
+  align-items: flex-start;
+  margin-bottom: 16px;
 }
 
 
-/* =========================
-   AVATAR
-========================= */
-
-.gestion-empleados .avatar-big {
-
-  width: 70px;
-  height: 70px;
-
-  border-radius: 20px;
-
+.avatar-v3 {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
   object-fit: cover;
 }
 
-
-/* =========================
-   MID
-========================= */
-
-.gestion-empleados .mid-section h3 {
-
-  margin-top: 12px;
-
-  margin-bottom: 0;
-
-  color: #191C1E;
-}
-
-
-/* =========================
-   ROLE CHIP
-========================= */
-
-.gestion-empleados .role-chip {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  background: rgba(59,130,246,0.1);
-
+.role-badge-v3 {
+  padding: 6px 14px;
+  background: #eff6ff;
   color: #2563eb;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
 
-  padding: 6px 12px;
+.emp-name-v3 {
+  font-size: 24px;
+  font-weight: 850;
+  color: #1a1c1e;
+  margin: 0 0 20px 0;
+}
 
-  border-radius: 10px;
+/* PARKING PILL - EL ELEMENTO CLAVE DE LA FOTO 2 */
+.parking-section-v3 {
+  margin-bottom: 24px;
+}
 
-  font-size: 0.75rem;
-
+.parking-label-v3 {
+  font-size: 11px;
   font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
 }
 
-
-/* =========================
-   INFO ROW
-========================= */
-
-.gestion-empleados .info-row {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  margin-top: 1rem;
-
-  color: #64748b;
-
-  font-size: 0.9rem;
-}
-
-
-.gestion-empleados .info-row span {
-
-  color: #64748b;
-}
-
-
-/* =========================
-   PARKING
-========================= */
-
-.gestion-empleados .parking {
-
-  background: #f1f5f9;
-
+.parking-pill-v3 {
+  background: #f1f3f4;
   padding: 12px;
-
-  border-radius: 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
+.p-icon-box {
+  width: 44px;
+  height: 44px;
+  background: white;
+  color: #1A73E8;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
 
-/* =========================
-   RESPONSIVE
-========================= */
+.parking-details-v3 {
+  display: flex;
+  flex-direction: column;
+}
 
+.spot-v3 {
+  font-weight: 800;
+  font-size: 16px;
+  color: #1a1c1e;
+}
+
+.level-v3 {
+  font-size: 13px;
+  color: #5f6368;
+}
+
+/* FOOTER CARD */
+.card-footer-v3 {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1c1e;
+}
+
+.green-dot {
+  width: 10px;
+  height: 10px;
+  background: #34a853;
+  border-radius: 50%;
+}
+
+.footer-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #f1f3f4;
+}
+
+.email-v3 {
+  font-size: 14px;
+  color: #5f6368;
+}
+
+/* MEDIA QUERIES PARA MÓVIL (FOTO 2) */
 @media (max-width: 768px) {
-
-  .gestion-empleados .envoltorio-contenido {
-    padding: 2rem 1rem;
+  .envoltorio-contenido {
+    padding: 20px 16px;
+  }
+  .input-moderno{
+    width: 85% !important;
+    margin-top: 4%;
   }
 
-  .gestion-empleados .titulo-vista {
-    font-size: 1.7rem;
+  .header-seccion {
+    flex-direction: column;
   }
 
-  .gestion-empleados .btn-primario {
+  .titulo-vista {
+    font-size: 35px;
+  }
 
-    width: 100%;
-
+  .btn-primario {
+    width: 100% !important;
+    height: 54px !important;
+    border-radius: 14px !important;
+    background-color: #1A73E8 !important;
     justify-content: center;
   }
 
+  .barra-herramientas {
+    flex-direction: column;
+  }
+
+  .filtros-grupo {
+    width: 100%;
+  }
+
+  .btn-selector-sede {
+    flex: 1;
+  }
+
+  .grid-bento {
+    grid-template-columns: 1fr;
+  }
 }
