@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserPlus, ArrowLeft, ChevronDown, SlidersHorizontal, Mail, MapPin, MoreVertical } from "lucide-react";
+import { Search, UserPlus, ArrowLeft, ChevronDown, SlidersHorizontal, MoreVertical } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -14,6 +14,9 @@ gsap.registerPlugin(useGSAP);
 const GestionEmpleados = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  
+  // Estado para controlar la búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [empleados] = useState([
     {
@@ -50,11 +53,32 @@ const GestionEmpleados = () => {
     }
   ]);
 
+  // Lógica de filtrado reactivo: nombre, email o cargo
+  const empleadosFiltrados = useMemo(() => {
+    const query = searchTerm.toLowerCase().trim();
+    return empleados.filter((emp) => 
+      emp.name.toLowerCase().includes(query) || 
+      emp.email.toLowerCase().includes(query) || 
+      emp.role.toLowerCase().includes(query)
+    );
+  }, [searchTerm, empleados]);
+
+  // Animación de entrada inicial del layout[cite: 4, 6]
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
     tl.from(".animate-header", { y: 30, opacity: 0, stagger: 0.1 })
       .from(".animate-toolbar", { y: 20, opacity: 0 }, "-=0.5");
   }, { scope: containerRef });
+
+  // Animación reactiva cuando cambian los resultados de búsqueda[cite: 6]
+  useGSAP(() => {
+    if (empleadosFiltrados.length > 0) {
+      gsap.fromTo(".card-empleado-v3", 
+        { y: 20, opacity: 0 }, 
+        { y: 0, opacity: 1, stagger: 0.05, duration: 0.4, ease: "power2.out" }
+      );
+    }
+  }, [empleadosFiltrados]);
 
   return (
     <div className="gestion-empleados" ref={containerRef}>
@@ -85,19 +109,24 @@ const GestionEmpleados = () => {
         <section className="barra-herramientas animate-toolbar">
           <div className="contenedor-busqueda">
             <Search className="search-icon" size={20} />
-            <input type="text" placeholder="Buscar por nombre, email o cargo..." className="input-moderno" />
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, email o cargo..." 
+              className="input-moderno" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
           <div className="filtros-grupo">
-
             <button className="btn-selector-sede">
               <span className="texto-sede">Filtrar por sede</span>
               <div className="iconos-flecha">
+                {/* Doble Chevron solicitado por el usuario */}
                 <ChevronDown size={18} className="chevron-icon" />
                 <ChevronDown size={18} className="chevron-icon" />
               </div>
             </button>
-
 
             <button className="btn-icon-filtros">
               <SlidersHorizontal size={22} strokeWidth={2.5} />
@@ -106,40 +135,46 @@ const GestionEmpleados = () => {
         </section>
 
         <div className="grid-bento">
-          {empleados.map((emp) => (
-            <article key={emp.id} className="card-empleado-v3">
-              <div className="card-header-v3">
-                <img src={emp.avatar} alt={emp.name} className="avatar-v3" />
-                <span className={`role-badge-v3 ${emp.role.toLowerCase()}`}>{emp.role}</span>
-              </div>
+          {empleadosFiltrados.length > 0 ? (
+            empleadosFiltrados.map((emp) => (
+              <article key={emp.id} className="card-empleado-v3">
+                <div className="card-header-v3">
+                  <img src={emp.avatar} alt={emp.name} className="avatar-v3" />
+                  <span className={`role-badge-v3 ${emp.role.toLowerCase()}`}>{emp.role}</span>
+                </div>
 
-              <div className="card-body-v3">
-                <h3 className="emp-name-v3">{emp.name}</h3>
-              </div>
+                <div className="card-body-v3">
+                  <h3 className="emp-name-v3">{emp.name}</h3>
+                </div>
 
-              <div className="parking-section-v3">
-                <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
-                <div className="parking-pill-v3">
-                  <div className="p-icon-box">P</div>
-                  <div className="parking-details-v3">
-                    <span className="spot-v3">{emp.parkingSpot}</span>
-                    <span className="level-v3">{emp.parkingLevel}</span>
+                <div className="parking-section-v3">
+                  <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
+                  <div className="parking-pill-v3">
+                    <div className="p-icon-box">P</div>
+                    <div className="parking-details-v3">
+                      <span className="spot-v3">{emp.parkingSpot}</span>
+                      <span className="level-v3">{emp.parkingLevel}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="card-footer-v3">
-                <div className="status-indicator">
-                  <div className="green-dot"></div>
-                  <span>Activo hoy</span>
+                <div className="card-footer-v3">
+                  <div className="status-indicator">
+                    <div className="green-dot"></div>
+                    <span>Activo hoy</span>
+                  </div>
+                  <div className="footer-bottom-row">
+                    <span className="email-v3">{emp.email}</span>
+                    <button className="btn-more-v3"><MoreVertical size={20} /></button>
+                  </div>
                 </div>
-                <div className="footer-bottom-row">
-                  <span className="email-v3">{emp.email}</span>
-                  <button className="btn-more-v3"><MoreVertical size={20} /></button>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          ) : (
+            <div className="no-results animate-header" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+              <p className="text-lg">No se encontraron empleados que coincidan con tu búsqueda.</p>
+            </div>
+          )}
         </div>
       </main>
 

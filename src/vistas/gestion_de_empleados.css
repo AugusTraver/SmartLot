@@ -49,6 +49,7 @@
 .contenedor-busqueda {
   position: relative;
   flex: 1;
+  text-emphasis-color: black;
 }
 
 .search-icon {
@@ -322,7 +323,7 @@
   }
 
   .titulo-vista {
-    font-size: 35px;
+    font-size: 33px;
   }
 
   .btn-primario {
