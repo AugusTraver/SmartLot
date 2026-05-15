@@ -154,6 +154,10 @@
   font-size: 16px;
   outline: none;
 }
+.input-moderno:hover{
+   background: #e2e8f0;
+  border-color: #cbd5e1;
+}
 
 .filtros-grupo {
   display: flex;
@@ -310,6 +314,48 @@
   color: #5f6368;
 }
 
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.btn-selector-sede {
+  appearance: none; 
+  -webkit-appearance: none;
+  background: #E8EAED;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 40px 10px 16px; 
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.btn-selector-sede:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+
+/* El icono de Chevron */
+.chevron-select-icon {
+  position: absolute;
+  right: 14px;
+  color: #64748b; /* Slate-500 */
+  pointer-events: none; /* CRÍTICO: el clic pasa a través del icono al select */
+  transition: transform 0.2s ease;
+}
+
+/* Efecto visual al abrir (opcional, si usas un estado de open) */
+.select-wrapper:focus-within .chevron-select-icon {
+  color:#E8EAED;
+  transform: rotate(180deg);
+}
+
 
 @media (max-width: 768px) {
   .envoltorio-contenido {
@@ -320,6 +366,9 @@
     margin-top: 4%;
     height: 50px;
   }
+   .search-icon{
+   margin-top: 2%;
+   }
 
   .header-seccion {
     flex-direction: column;

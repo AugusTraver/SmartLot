@@ -1,41 +1,48 @@
 import "./footer_admin.css";
-import{
-    House, // home icono 
-    CarFront, // gestion usuario icono 
-    UsersRound,  // user icono
-    ChartBarDecreasing  // panel de control 
-}  from "lucide-react";
-import {useNavigate } from "react-router-dom";
-import FooterBotton from "./admin_dashboard_boton_footer"; // componete que se encarga del boton del footer que tiene titulo icono y el onclick 
-function FooterAdmin (){
+import {
+    House, 
+    CarFront, 
+    UsersRound,  
+    ChartBarDecreasing  
+} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom"; // Importamos useLocation
+import FooterBotton from "./admin_dashboard_boton_footer";
 
- const navigate = useNavigate(); 
- return (
-    <footer className="footer-admin">
-         <FooterBotton    
-        titulo="DASHBOARD"
-        icono={<House size={28}/>} 
-        onClick={() => navigate("/")}
-        />
-      <FooterBotton
-        titulo="GARAGE"
-        icono={<CarFront size={28}/>} 
-        onClick={() => navigate("/gestion_garages")}
-        />
-    
-          <FooterBotton
-        titulo="GESTION"
-        icono={<UsersRound size={28}/>} 
-        onClick={() => navigate("/gestion_de_empleados")}
-        />
-       
-          <FooterBotton
-        titulo="PANEL"
-        icono={<ChartBarDecreasing size={28}/>} 
-        onClick={() => navigate("/panel_de_control")}
-        />
-    </footer>
-  );
+function FooterAdmin() {
+    const navigate = useNavigate();
+    const location = useLocation(); // Obtenemos la ruta actual
+
+    // Función auxiliar para verificar si la ruta está activa
+    const isPathActive = (path) => location.pathname === path;
+
+    return (
+        <footer className="footer-admin">
+            <FooterBotton    
+                titulo="DASHBOARD"
+                icono={<House size={28}/>} 
+                onClick={() => navigate("/")}
+                isActive={isPathActive("/")} // Se activa si estamos en la raíz
+            />
+            <FooterBotton
+                titulo="GARAGE"
+                icono={<CarFront size={28}/>} 
+                onClick={() => navigate("/gestion_garages")}
+                isActive={isPathActive("/gestion_garages")}
+            />
+            <FooterBotton
+                titulo="GESTION"
+                icono={<UsersRound size={28}/>} 
+                onClick={() => navigate("/gestion_de_empleados")}
+                isActive={isPathActive("/gestion_de_empleados")}
+            />
+            <FooterBotton
+                titulo="PANEL"
+                icono={<ChartBarDecreasing size={28}/>} 
+                onClick={() => navigate("/panel_de_control")}
+                isActive={isPathActive("/panel_de_control")}
+            />
+        </footer>
+    );
 }
 
 export default FooterAdmin;

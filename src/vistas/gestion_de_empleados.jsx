@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserPlus, ArrowLeft, ChevronDown, SlidersHorizontal, MoreVertical } from "lucide-react";
+import { Search, UserPlus, ArrowLeft, ChevronDown, SlidersHorizontal, MapPin } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -14,9 +14,10 @@ gsap.registerPlugin(useGSAP);
 const GestionEmpleados = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
-  
-  // Estado para controlar la búsqueda
+
+  // Estados para filtros
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSede, setSelectedSede] = useState("Todas"); // Nueva lógica de sede
 
   const [empleados] = useState([
     {
@@ -24,7 +25,9 @@ const GestionEmpleados = () => {
       name: "Elena Rodriguez",
       role: "Admin",
       email: "elena.rodriguez@smartlot.com",
-      parkingSpot: "Plaza A-22 • Nivel Superior",
+      parkingSpot: "Plaza A-22",
+      parkingLevel: "Nivel Superior",
+      sede: "Sede Central",
       avatar: "https://i.pravatar.cc/150?u=11"
     },
     {
@@ -32,7 +35,9 @@ const GestionEmpleados = () => {
       name: "Marta Casablancas",
       role: "Empleado",
       email: "marta.c@smartlot.com",
-      parkingSpot: "Plaza B-10 • Nivel Inferior",
+      parkingSpot: "Plaza B-10",
+      parkingLevel: "Nivel Inferior",
+      sede: "Sede Norte",
       avatar: "https://i.pravatar.cc/150?u=22"
     },
     {
@@ -40,7 +45,9 @@ const GestionEmpleados = () => {
       name: "Carlos Valery",
       role: "Empleado",
       email: "carlos.v@smartlot.com",
-      parkingSpot: "Plaza C-04 • Nivel Superior",
+      parkingSpot: "Plaza C-04",
+      parkingLevel: "Nivel Superior",
+      sede: "Sede Central",
       avatar: "https://i.pravatar.cc/150?u=33"
     },
     {
@@ -48,34 +55,41 @@ const GestionEmpleados = () => {
       name: "Juana Perez",
       role: "Empleado",
       email: "juana.perez@smartlot.com",
-      parkingSpot: "Plaza D-01 • Nivel Superior",
+      parkingSpot: "Plaza D-01",
+      parkingLevel: "Nivel Superior",
+      sede: "Sede Sur",
       avatar: "https://i.pravatar.cc/150?u=44"
     }
   ]);
 
-  // Lógica de filtrado reactivo: nombre, email o cargo
+  // Filtrado reactivo optimizado
   const empleadosFiltrados = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
-    return empleados.filter((emp) => 
-      emp.name.toLowerCase().includes(query) || 
-      emp.email.toLowerCase().includes(query) || 
-      emp.role.toLowerCase().includes(query)
-    );
-  }, [searchTerm, empleados]);
 
-  // Animación de entrada inicial del layout[cite: 4, 6]
+    return empleados.filter((emp) => {
+      const coincideBusqueda =
+        emp.name.toLowerCase().includes(query) ||
+        emp.email.toLowerCase().includes(query) ||
+        emp.role.toLowerCase().includes(query);
+
+      const coincideSede = selectedSede === "Todas" || emp.sede === selectedSede;
+
+      return coincideBusqueda && coincideSede;
+    });
+  }, [searchTerm, selectedSede, empleados]);
+
+  // Animaciones GSAP (Manteniendo tu estructura original)
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
     tl.from(".animate-header", { y: 30, opacity: 0, stagger: 0.1 })
       .from(".animate-toolbar", { y: 20, opacity: 0 }, "-=0.5");
   }, { scope: containerRef });
 
-  // Animación reactiva cuando cambian los resultados de búsqueda[cite: 6]
   useGSAP(() => {
     if (empleadosFiltrados.length > 0) {
-      gsap.fromTo(".card-empleado-v3", 
-        { y: 20, opacity: 0 }, 
-        { y: 0, opacity: 1, stagger: 0.05, duration: 0.4, ease: "power2.out" }
+      gsap.fromTo(".card-empleado-v3",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.05, duration: 0.4, ease: "power2.out", overwrite: "auto" }
       );
     }
   }, [empleadosFiltrados]);
@@ -92,14 +106,11 @@ const GestionEmpleados = () => {
             </button>
             <div className="textos-titulos">
               <h1 className="titulo-vista">Gestión de Empleados</h1>
-              <p className="subtitulo-vista">Administra el acceso y roles de todo el personal de SmartLot.</p>
+              <p className="subtitulo-vista">Administra el acceso y roles de todo el personal.</p>
             </div>
           </div>
           <div className="animate-header btn-container-mobile">
-            <BotonGenerico
-              className="btn-primario"
-              onClick={() => navigate('/agregar_empleado')}
-            >
+            <BotonGenerico className="btn-primario" onClick={() => navigate('/agregar_empleado')}>
               <UserPlus size={20} />
               <span>Agregar empleado</span>
             </BotonGenerico>
@@ -109,29 +120,35 @@ const GestionEmpleados = () => {
         <section className="barra-herramientas animate-toolbar">
           <div className="contenedor-busqueda">
             <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              placeholder="Buscar por nombre, email o cargo..." 
-              className="input-moderno" 
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email o cargo..."
+              className="input-moderno"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <div className="filtros-grupo">
-            <button className="btn-selector-sede">
-              <span className="texto-sede">Filtrar por sede</span>
-              <div className="iconos-flecha">
-               
-                <ChevronDown size={18} className="chevron-icon" />
-               
+            <div className="filtros-grupo">
+              <div className="select-wrapper">
+                <select
+                  className="btn-selector-sede"
+                  value={selectedSede}
+                  onChange={(e) => setSelectedSede(e.target.value)}
+                >
+                  <option value="Todas">Todas las sedes</option>
+                  <option value="Sede Central">Sede Central</option>
+                  <option value="Sede Norte">Sede Norte</option>
+                  <option value="Sede Sur">Sede Sur</option>
+                </select>
+              
+                <ChevronDown size={18} className="chevron-select-icon" />
               </div>
-            </button>
 
-            <button className="btn-icon-filtros">
-              <SlidersHorizontal size={22} strokeWidth={2.5} />
-            </button>
-          </div>
+              <button className="btn-icon-filtros">
+                <SlidersHorizontal size={18} strokeWidth={2.5} />
+              </button>
+            </div>
         </section>
 
         <div className="grid-bento">
@@ -140,11 +157,16 @@ const GestionEmpleados = () => {
               <article key={emp.id} className="card-empleado-v3">
                 <div className="card-header-v3">
                   <img src={emp.avatar} alt={emp.name} className="avatar-v3" />
-                  <span className={`role-badge-v3 ${emp.role.toLowerCase()}`}>{emp.role}</span>
+                  <span className="role-badge-v3">{emp.role}</span>
                 </div>
 
                 <div className="card-body-v3">
                   <h3 className="emp-name-v3">{emp.name}</h3>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: '#64748b', marginBottom: '15px' }}>
+                    <MapPin size={14} />
+                    <span>{emp.sede}</span>
+                  </div>
                 </div>
 
                 <div className="parking-section-v3">
@@ -165,14 +187,16 @@ const GestionEmpleados = () => {
                   </div>
                   <div className="footer-bottom-row">
                     <span className="email-v3">{emp.email}</span>
-                   
                   </div>
                 </div>
               </article>
             ))
           ) : (
-            <div className="no-results animate-header" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
-              <p className="text-lg">No se encontraron empleados que coincidan con tu búsqueda.</p>
+            <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
+              <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
+              <BotonGenerico onClick={() => { setSearchTerm(""); setSelectedSede("Todas") }} style={{ marginTop: '20px', background: '#e2e8f0', color: '#475569' }}>
+                Limpiar filtros
+              </BotonGenerico>
             </div>
           )}
         </div>
