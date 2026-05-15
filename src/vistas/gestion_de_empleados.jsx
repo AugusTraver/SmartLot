@@ -28,7 +28,7 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza A-22",
       parkingLevel: "Nivel Superior",
       sede: "Sede Central",
-      avatar: "https://i.pravatar.cc/150?u=11"
+      
     },
     {
       id: 2,
@@ -38,7 +38,7 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza B-10",
       parkingLevel: "Nivel Inferior",
       sede: "Sede Norte",
-      avatar: "https://i.pravatar.cc/150?u=22"
+     
     },
     {
       id: 3,
@@ -48,7 +48,7 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza C-04",
       parkingLevel: "Nivel Superior",
       sede: "Sede Central",
-      avatar: "https://i.pravatar.cc/150?u=33"
+      
     },
     {
       id: 4,
@@ -58,7 +58,7 @@ const GestionEmpleados = () => {
       parkingSpot: "Plaza D-01",
       parkingLevel: "Nivel Superior",
       sede: "Sede Sur",
-      avatar: "https://i.pravatar.cc/150?u=44"
+      
     }
   ]);
 
@@ -129,6 +129,8 @@ const GestionEmpleados = () => {
             />
           </div>
 
+        
+
             <div className="filtros-grupo">
               <div className="select-wrapper">
                 <select
@@ -141,7 +143,7 @@ const GestionEmpleados = () => {
                   <option value="Sede Norte">Sede Norte</option>
                   <option value="Sede Sur">Sede Sur</option>
                 </select>
-              
+                {/* El Chevron posicionado estratégicamente */}
                 <ChevronDown size={18} className="chevron-select-icon" />
               </div>
 
@@ -156,12 +158,13 @@ const GestionEmpleados = () => {
             empleadosFiltrados.map((emp) => (
               <article key={emp.id} className="card-empleado-v3">
                 <div className="card-header-v3">
-                  <img src={emp.avatar} alt={emp.name} className="avatar-v3" />
+                  <h3 className="emp-name-v3">{emp.name}</h3>
                   <span className="role-badge-v3">{emp.role}</span>
+                   
                 </div>
 
                 <div className="card-body-v3">
-                  <h3 className="emp-name-v3">{emp.name}</h3>
+                 
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: '#64748b', marginBottom: '15px' }}>
                     <MapPin size={14} />
@@ -194,9 +197,7 @@ const GestionEmpleados = () => {
           ) : (
             <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
               <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
-              <BotonGenerico onClick={() => { setSearchTerm(""); setSelectedSede("Todas") }} style={{ marginTop: '20px', background: '#e2e8f0', color: '#475569' }}>
-                Limpiar filtros
-              </BotonGenerico>
+             
             </div>
           )}
         </div>

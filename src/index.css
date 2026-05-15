@@ -79,8 +79,9 @@ body {
 .admin-dashboard,
 .gestion-garages-container {
   width: 100%;
-  max-width: 1400px; /* Ancho máximo sugerido para dashboards premium */
-  margin: 0 auto;
+  max-width: none !important; /* Forzamos a que no haya límite cuadrado */
+  margin: 0;
+  padding: 40px 4%; /* Damos un margen interno sutil a los lados */
   box-sizing: border-box;
 }
 
