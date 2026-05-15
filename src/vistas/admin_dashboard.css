@@ -1,60 +1,61 @@
 /* CONTENEDOR GENERAL */
 .admin-dashboard {
-  padding: 20px;
+  padding: 40px 4%;
   background-color: #f5f7fb;
   min-height: 100vh;
   font-family: Arial, sans-serif;
-  padding-top: 0%;
-  padding-bottom: 23%;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 120px; /* Aumentado para que no tape el footer */
 }
 
-
-.admin-dashboard p{
+.admin-dashboard p {
   padding-bottom: 2%;
   text-align: left;
 }
 
 /* TITULO */
 .admin-dashboard h1 {
-  font-size: 22px;
   font-weight: 700;
   margin-bottom: 20px;
   text-align: left;
   font-size: 25px;
-   color:#191C1E;
+  color: #191C1E;
 }
 
 /* GRID DE CARDS */
 .dashboard-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-
+  display: grid; 
+  grid-template-columns: 1fr; /* Por defecto 1 columna (Mobile) */
+  gap: 17px; /* Más espacio entre tarjetas grandes */
+  width: 100%;
 }
 
 /* CARD */
 .dashboard-card {
   background: #DBEAFE;
   border-radius: 16px;
-  padding: 18px;
+  padding: 11px; /* TARJETAS MÁS GRANDES: Aumenté el padding interno */
   cursor: pointer;
   transition: 0.2s;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  
+  gap: 3px;
+  height: 100%; 
+  box-sizing: border-box;
 }
 
 /* HOVER */
 .dashboard-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   background: #dce6f5;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
 
 /* ICONO */
 .dashboard-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px; /* Icono un poco más grande para acompañar la card */
+  height: 44px;
   background: #ffffff;
   border-radius: 12px;
   display: flex;
@@ -65,17 +66,28 @@
 /* TITULO CARD */
 .dashboard-card h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px; /* Texto un poco más grande */
+  font-weight: 700;
   text-align: left;
+  margin-top: 2%;
 }
 
 /* DESCRIPCION */
 .dashboard-card p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #555;
   text-align: left;
+  margin-bottom: 6%;
 }
 
-
+/* SOLO PARA ESCRITORIO (No toca el mobile) */
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr; /* EXACTAMENTE 2 AL LADO */
+  }
+  
+  .admin-dashboard h1 {
+    font-size: 32px; /* Título más imponente en PC */
+  }
+}
