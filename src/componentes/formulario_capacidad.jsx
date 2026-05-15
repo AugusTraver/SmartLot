@@ -1,33 +1,69 @@
 import "./formulario_capacidad.css";
 
 function FormularioCapacidad({
+
     capacidad,
     capacidadReservas,
     capacidadNoReservas
+
 }) {
 
     return (
 
         <div className="formulario-capacidad">
 
-            <h3>Capacidad del Garage</h3>
+            <div className="header-formulario-capacidad">
 
-            <div className="bloque-formulario">
+                <h3>Capacidad del Garage</h3>
 
-                <input
-                    type="text"
-                    placeholder={capacidad}
-                />
+                <p>
+                    Configura la distribución
+                    de plazas disponibles.
+                </p>
 
-                <input
-                    type="text"
-                    placeholder={capacidadReservas}
-                />
+            </div>
 
-                <input
-                    type="text"
-                    placeholder={capacidadNoReservas}
-                />
+
+            <div className="bloque-formulario-capacidad">
+
+                <div className="grupo-input-capacidad">
+
+                    <label>Capacidad total</label>
+
+                    <input
+                        type="number"
+                        placeholder={capacidad}
+                    />
+
+                </div>
+
+
+                <div className="fila-capacidad">
+
+                    <div className="grupo-input-capacidad">
+
+                        <label>Reservas</label>
+
+                        <input
+                            type="number"
+                            placeholder={capacidadReservas}
+                        />
+
+                    </div>
+
+
+                    <div className="grupo-input-capacidad">
+
+                        <label>No Reservas</label>
+
+                        <input
+                            type="number"
+                            placeholder={capacidadNoReservas}
+                        />
+
+                    </div>
+
+                </div>
 
             </div>
 

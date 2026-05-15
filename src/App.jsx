@@ -4,7 +4,7 @@ import GestionEmpleados from "./vistas/gestion_de_empleados";
 import GestionGarages from "./vistas/gestion_garages";
 import EditarZona from "./vistas/editar_zona";
 import AgregarEmpleado from "./vistas/agregar_empleado";
-
+import AgregarZona from "./vistas/agregar_zona";
 //import PanelControl from "./vistas/PanelControl";
 //import ControlAcceso from "./vistas/ControlAcceso";
 
@@ -25,7 +25,7 @@ function App()
           {/* Rutas para gestión de garages */}
          <Route path="/gestion_garages" element={<GestionGarages />} />
          
-          
+          <Route path="/agregar_zona" element={<AgregarZona />} /> 
          <Route path="/editar_zona" element={<EditarZona />} />
 
           {/*

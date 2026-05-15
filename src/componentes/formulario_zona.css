@@ -1,248 +1,44 @@
-.formulario-zona {
-
-  background: rgba(255,255,255,0.78);
-
-  backdrop-filter: blur(18px);
-
-  border-radius: 36px;
-
-  padding: 2.6rem;
-
-  box-shadow:
-    0 18px 40px rgba(15,23,42,0.05);
-
-  border: 1px solid rgba(255,255,255,0.7);
+.form-section-box {
+  margin-bottom: 25px;
+  border: 1px solid #f1f5f9;
+  border-radius: 28px;
+  padding: 24px;
 }
 
-.header-form {
+.section-header { display: flex; gap: 14px; align-items: center; margin-bottom: 24px; }
+.icon-circle { width: 42px; height: 42px; background: #EBF4FF; color: #156FE5; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.header-text h3 { margin: 0; font-size: 1.1rem; color: #0f172a; }
+.header-text p { margin: 2px 0 0; font-size: 0.85rem; color: #64748b; }
 
-  display: flex;
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.full-width { grid-column: span 2; }
 
-  align-items: flex-start;
+.input-field label { display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
 
-  gap: 1.4rem;
+.input-icon-wrapper { position: relative; display: flex; align-items: center; }
+.inner-icon { position: absolute; left: 16px; color: #cbd5e1; }
 
-  margin-bottom: 2.5rem;
-}
-
-.icono-form {
-
-  width: 70px;
-  height: 70px;
-
-  border-radius: 22px;
-
-  background: #eff6ff;
-
-  color: #156FE5;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-}
-
-.textos-form h3 {
-
-  font-size: 2rem;
-
-  color: #0f172a;
-
-  margin-bottom: 10px;
-
-  font-weight: 800;
-}
-
-.textos-form p {
-
-  color: #64748b;
-
-  font-size: 1.2rem;
-}
-
-.bloque-formulario label {
-
-  display: block;
-
-  margin-bottom: 14px;
-
-  margin-top: 1.8rem;
-
-  color: #475569;
-
-  font-size: 1rem;
-
-  font-weight: 800;
-
-  letter-spacing: 1.4px;
-
-  text-transform: uppercase;
-}
-
-.bloque-formulario input,
-.bloque-formulario select,
-.bloque-formulario textarea {
-
+.input-icon-wrapper input, .input-icon-wrapper select, .input-icon-wrapper textarea {
   width: 100%;
-
-  height: 82px;
-
-  border: 2px solid #e2e8f0;
-
-  background: rgba(255,255,255,0.7);
-
-  border-radius: 24px;
-
-  padding:
-    0
-    1.5rem;
-
-  font-size: 1.2rem;
-
-  color: #0f172a;
-
+  padding: 14px 14px 14px 48px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 0.95rem;
   outline: none;
-
-  transition: 0.2s ease;
-
-  box-sizing: border-box;
 }
 
-.bloque-formulario textarea {
-
-  height: 170px;
-
-  padding-top: 1.4rem;
-
-  resize: none;
-}
-
-.bloque-formulario input:focus,
-.bloque-formulario select:focus,
-.bloque-formulario textarea:focus {
-
-  border-color: #156FE5;
-
-  background: white;
-
-  box-shadow:
-    0 0 0 5px rgba(21,111,229,0.10);
-}
-
-.doble-input {
-
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 1.5rem;
-}
-
-.selector-color {
-
+.color-picker-row {
   display: flex;
-
-  align-items: center;
-
-  gap: 1rem;
-
-  height: 82px;
-
-  padding:
-    0
-    1.4rem;
-
-  border-radius: 24px;
-
-  border: 2px solid #e2e8f0;
-
-  background: white;
+  justify-content: space-around;
+  padding: 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
 }
-
-.color-item {
-
-  width: 42px;
-  height: 42px;
-
-  border-radius: 50%;
-
-  cursor: pointer;
-}
-
-.color-item.activo {
-
-  outline: 5px solid #dbeafe;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 768px) {
-
-  .formulario-zona {
-
-    padding: 1.4rem;
-
-    border-radius: 28px;
-  }
-
-  .header-form {
-
-    gap: 1rem;
-
-    margin-bottom: 1.8rem;
-  }
-
-  .icono-form {
-
-    width: 54px;
-    height: 54px;
-
-    border-radius: 18px;
-  }
-
-  .textos-form h3 {
-
-    font-size: 1.5rem;
-  }
-
-  .textos-form p {
-
-    font-size: 0.95rem;
-  }
-
-  .bloque-formulario label {
-
-    font-size: 0.78rem;
-
-    margin-top: 1.2rem;
-  }
-
-  .bloque-formulario input,
-  .bloque-formulario select,
-  .bloque-formulario textarea {
-
-    height: 64px;
-
-    font-size: 1rem;
-
-    border-radius: 18px;
-
-    padding:
-      0
-      1rem;
-  }
-
-  .bloque-formulario textarea {
-
-    height: 130px;
-
-    padding-top: 1rem;
-  }
-
-  .doble-input {
-
-    grid-template-columns: 1fr;
-  }
-}
+.color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; }
+.color-dot.blue { background: #156FE5; }
+.color-dot.blue.active { box-shadow: 0 0 0 3px white, 0 0 0 5px #156fe540; }
+.color-dot.green { background: #10b981; }
+.color-dot.orange { background: #f59e0b; }
+.color-dot.red { background: #ef4444; }
+.color-dot.purple { background: #8b5cf6; }
