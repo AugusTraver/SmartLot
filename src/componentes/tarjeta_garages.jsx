@@ -10,13 +10,14 @@ function TarjetaGarage({
   capacidad,
   imagen,
   ultimoReporte,
+  onClick,
 }) {
 
   const navigate = useNavigate();
 
   return (
 
-    <div className="tarjeta-garage">
+    <div className="tarjeta-garage" onClick={onClick}>
 
       <img
         src={imagen}
@@ -63,11 +64,11 @@ function TarjetaGarage({
 
           e.stopPropagation();
 
-          navigate("/editar_garage");
+          navigate("/editar_zona");
 
         }}
       >
-        <Pencil size={18} />
+        <Pencil size={18} color="#000" />
       </button>
 
     </div>

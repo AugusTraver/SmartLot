@@ -92,7 +92,7 @@ function GestionGarages() {
                         capacidad="80%"
                         ultimoReporte="Hace 10 minutos"
                         imagen={fotoGarage1}
-                        onClick={() => navigate("/detalle_garage/1")}
+                        onClick={() => navigate("/editar_zona")}
                     />
                     <TarjetaGarage
                         titulo="Garage Norte"
@@ -101,7 +101,7 @@ function GestionGarages() {
                         capacidad="100%"
                         ultimoReporte="Hace 1 hora"
                         imagen={fotoGarage2}
-                        onClick={() => navigate("/detalle_garage/2")}
+                        onClick={() => navigate("/editar_zona")}
                     />
                     <TarjetaGarage
                         titulo="Garage Sur"
@@ -110,7 +110,7 @@ function GestionGarages() {
                         capacidad="60%"
                         ultimoReporte="Hace 30 minutos"
                         imagen={fotoGarage3}
-                        onClick={() => navigate("/detalle_garage/3")}
+                        onClick={() => navigate("/editar_zona")}
                     />
                 </div>
             </div>

@@ -118,7 +118,6 @@
 .gestion-garages-container {
 
 
-
   width: 100%;
 
   max-width: 1400px;
@@ -145,7 +144,7 @@
 
   color: #2563eb;
 
-  font-size: 0.75rem;
+  font-size: 120%;
 
   font-weight: 700;
 
@@ -193,7 +192,12 @@
 
   margin-bottom: 2rem;
 
+  gap: 18px;
+
   transition: 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 
