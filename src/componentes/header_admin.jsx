@@ -1,5 +1,7 @@
 import logo from "../Imagenes/Logo_smartlot.png";
 import "./header_admin.css";
+import { FaRegBell } from "react-icons/fa";
+import { RxAvatar } from "react-icons/rx";  
 
 function Header() {
 
@@ -16,8 +18,10 @@ function Header() {
         </h1>
       </div>
       <div className="header-right">
-        <span>🔔</span>
-        <span>👤</span>
+         <FaRegBell  size={30} color="black" />
+         <RxAvatar  size={40} color="black" />
+         
+       
      </div>
     </div>
   );
