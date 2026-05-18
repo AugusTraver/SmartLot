@@ -23,7 +23,7 @@ function ForumularioZona({
             </div>
 
 
-            <div className="bloque-formulario">
+            <div className="bloque-formulario-zona">
 
                 <div className="grupo-input">
 

@@ -1,6 +1,6 @@
 .editar-zona {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+  background: #f5f7fb;
   padding-bottom: 120px;
 }
 
@@ -14,13 +14,14 @@
 
 .editar-zona-top {
   margin-bottom: 2rem;
+  text-align: left;
 }
 
 .boton-back-editar {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.92);
   color: #191c1e;
   cursor: pointer;
@@ -42,15 +43,16 @@
   font-size: 0.82rem;
   font-weight: 800;
   margin: 0 0 0.5rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .editar-zona-top h1 {
   font-size: clamp(2rem, 5vw, 3rem);
-  line-height: 1.05;
+  line-height: 1.1;
   margin: 0 0 0.8rem;
   color: #191c1e;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .editar-zona-top span {
@@ -69,7 +71,7 @@
 
 .bloque-formulario {
   background: rgba(255, 255, 255, 0.88);
-  border-radius: 24px;
+  border-radius: 18px;
   padding: 1.4rem;
   border: 1px solid rgba(226, 232, 240, 0.9);
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
@@ -85,7 +87,7 @@
 .bloque-icono {
   width: 42px;
   height: 42px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(21, 111, 229, 0.1);
   color: #156fe5;
   display: flex;
@@ -110,6 +112,10 @@
   margin-top: 1rem;
 }
 
+.campos-grid .campo-formulario {
+  margin-top: 0;
+}
+
 .campo-formulario:first-of-type {
   margin-top: 0;
 }
@@ -130,7 +136,7 @@
   width: 100%;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1rem;
   font-size: 0.97rem;
   color: #191c1e;
@@ -161,7 +167,7 @@
 .estado-btn {
   min-height: 112px;
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
+  border-radius: 14px;
   background: #f8fafc;
   color: #64748b;
   cursor: pointer;
@@ -229,7 +235,7 @@
   gap: 1rem;
   background: #eff6ff;
   color: #156fe5;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
 }
@@ -251,7 +257,7 @@
 
 .plaza-item {
   background: #f8fafc;
-  border-radius: 18px;
+  border-radius: 14px;
   padding: 1rem;
   border: 1px solid #e2e8f0;
 }
@@ -266,7 +272,7 @@
 .plaza-icon {
   width: 40px;
   height: 40px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #eff6ff;
   color: #156fe5;
   display: flex;
@@ -302,7 +308,7 @@
   align-items: center;
   justify-content: space-between;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 0.55rem;
   border: 1px solid #e2e8f0;
 }
@@ -311,7 +317,7 @@
   width: 38px;
   height: 38px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #f1f5f9;
   color: #191c1e;
   cursor: pointer;
@@ -346,9 +352,10 @@
 
 .btn-cancelar,
 .btn-guardar {
-  height: 58px;
+  min-height: 58px;
+  padding: 0.85rem 1rem;
   border: none;
-  border-radius: 18px;
+  border-radius: 14px;
   cursor: pointer;
   font-weight: 800;
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
@@ -369,7 +376,7 @@
 }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #156fe5 0%, #0d5ed4 100%);
+  background: #156fe5;
   color: #ffffff;
   box-shadow: 0 14px 30px rgba(21, 111, 229, 0.24);
 }
@@ -385,8 +392,8 @@
   }
 
   .bloque-formulario {
-    padding: 1.15rem;
-    border-radius: 22px;
+    padding: 1rem;
+    border-radius: 16px;
   }
 
   .campos-grid,
@@ -396,14 +403,64 @@
     grid-template-columns: 1fr;
   }
 
+  .campos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
   .estado-btn {
     min-height: 84px;
+    align-items: flex-start;
+    padding: 1rem;
+    text-align: left;
+  }
+
+  .bloque-titulo {
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-bottom: 1.1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .contenido-editar-zona {
+    padding: 1.25rem 0.85rem;
+  }
+
+  .boton-back-editar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 1.15rem;
+  }
+
+  .editar-zona-top p {
+    font-size: 0.74rem;
+    letter-spacing: 0.6px;
+  }
+
   .editar-zona-top h1 {
-    font-size: 2rem;
+    font-size: 1.85rem;
+  }
+
+  .editar-zona-top span {
+    font-size: 0.92rem;
+  }
+
+  .bloque-formulario label {
+    letter-spacing: 0.3px;
+    line-height: 1.25;
+  }
+
+  .bloque-formulario input,
+  .bloque-formulario select,
+  .bloque-formulario textarea {
+    font-size: 0.95rem;
+    padding: 0.9rem;
+  }
+
+  .campos-grid {
+    gap: 0.75rem;
   }
 
   .plazas-resumen {
@@ -413,6 +470,7 @@
 
   .btn-cancelar,
   .btn-guardar {
-    height: 54px;
+    min-height: 52px;
+    border-radius: 12px;
   }
 }

@@ -79,8 +79,8 @@
 
 @media (max-width: 768px) {
   .formulario-capacidad {
-    padding: 1.15rem;
-    border-radius: 22px;
+    padding: 1rem;
+    border-radius: 16px;
   }
 
   .fila-capacidad {
@@ -93,5 +93,21 @@
 
   .header-formulario-capacidad p {
     font-size: 0.9rem;
+  }
+
+  .grupo-input-capacidad input {
+    border-radius: 12px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .formulario-capacidad {
+    padding: 0.95rem;
+  }
+
+  .grupo-input-capacidad label {
+    letter-spacing: 0.3px;
+    line-height: 1.25;
   }
 }

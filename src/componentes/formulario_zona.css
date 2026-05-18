@@ -26,7 +26,7 @@
   line-height: 1.5;
 }
 
-.bloque-formulario {
+.bloque-formulario-zona {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -81,8 +81,8 @@
 
 @media (max-width: 768px) {
   .formulario-zona {
-    padding: 1.15rem;
-    border-radius: 22px;
+    padding: 1rem;
+    border-radius: 16px;
   }
 
   .fila-inputs {
@@ -95,5 +95,23 @@
 
   .header-formulario-zona p {
     font-size: 0.9rem;
+  }
+
+  .grupo-input input,
+  .grupo-input textarea {
+    border-radius: 12px;
+    font-size: 0.95rem;
+    padding: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .formulario-zona {
+    padding: 0.95rem;
+  }
+
+  .grupo-input label {
+    letter-spacing: 0.3px;
+    line-height: 1.25;
   }
 }
