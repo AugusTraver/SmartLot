@@ -1,121 +1,156 @@
 .agregar-zona {
   min-height: 100vh;
   background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-  padding: 2.5rem 2rem 4rem;
+  padding: 0 1rem 130px;
   box-sizing: border-box;
 }
 
 .contenido-agregar-zona {
   width: 100%;
-  max-width: 800px; /* Ajustado para que no se vea tan estirado */
+  max-width: 800px;
   margin: 0 auto;
+  padding-top: 2rem;
 }
 
 .top-garage {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 2.5rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.top-izquierda {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.5rem;
-}
-
-.boton-back {
-  width: 74px;
-  height: 74px;
+.agregar-zona .boton-back,
+.boton-check {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
   border: none;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(18px);
-  cursor: pointer;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #191c1e;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+}
+
+.agregar-zona .boton-back {
+  cursor: pointer;
   transition: 0.2s ease;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-  color: #64748b;
 }
 
-.boton-back:hover {
-  transform: translateY(-3px);
-  background: white;
-}
-
-.info-top h1 {
-  font-size: 2.5rem; /* Bajado de 4rem para mejor legibilidad */
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0;
-  line-height: 1.1;
-}
-
-.info-top p {
-  color: #64748b;
-  font-size: 1.1rem;
-  margin-top: 8px;
+.agregar-zona .boton-back:hover {
+  transform: translateY(-2px);
 }
 
 .boton-check {
-  width: 74px;
-  height: 74px;
-  border-radius: 24px;
-  border: 2px solid #dbeafe;
-  background: rgba(255, 255, 255, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-left: auto;
+  color: #156fe5;
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+}
+
+.info-top {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-top p {
+  color: #156fe5;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin: 0 0 0.4rem;
+}
+
+.info-top h1 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 800;
+  color: #191c1e;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.info-top span {
+  display: block;
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-top: 0.75rem;
 }
 
 .form-garage {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .acciones-garage {
-  display: flex;
-  flex-direction: column;
+ display: flex;
+  flex-direction: row;
   gap: 1rem;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
 }
 
-.btn-guardar-grande {
-  width: 100%;
-  height: 72px;
+.btn-guardar-grande,
+.btn-cancelar-grande {
+ height: 58px;
   border: none;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #156FE5 0%, #005eff 100%);
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 700;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 14px 30px rgba(21, 111, 229, 0.22);
+  gap: 0.7rem;
+}
+
+.btn-guardar-grande {
+  background: linear-gradient(135deg, #156fe5 0%, #0d5ed4 100%);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(21, 111, 229, 0.24);
+  flex: 1,4;
+}
+
+.btn-guardar-grande:hover {
+  transform: translateY(-2px);
 }
 
 .btn-cancelar-grande {
-  width: 100%;
-  height: 68px;
-  border: none;
-  border-radius: 22px;
-  background: #e2e8f0;
-  color: #475569;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
+  background: #ffffff;
+  color: #156fe5;
+  border: 1px solid rgba(21, 111, 229, 0.16);
+  flex: 1 /*  para saber cuanto ocupa el boton */
 }
 
-/* Responsive */
+.btn-cancelar-grande:hover {
+  background: rgba(21, 111, 229, 0.06);
+}
+
 @media (max-width: 768px) {
-  .info-top h1 { font-size: 1.8rem; }
-  .boton-back, .boton-check { width: 60px; height: 60px; }
+  .contenido-agregar-zona {
+    padding-top: 1.5rem;
+  }
+
+  .top-garage {
+    gap: 0.8rem;
+  }
+
+  .agregar-zona .boton-back,
+  .boton-check {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-radius: 14px;
+  }
+
+  .info-top h1 {
+    font-size: 2rem;
+  }
+
+  .info-top span {
+    font-size: 0.92rem;
+  }
 }

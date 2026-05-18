@@ -1,147 +1,97 @@
 .formulario-capacidad {
-
-  background: white;
-
-  border-radius: 32px;
-
-  padding: 2rem;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.05);
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  padding: 1.4rem;
+  box-sizing: border-box;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
-
-/* HEADER */
-
 .header-formulario-capacidad {
-
-  margin-bottom: 2rem;
+  margin-bottom: 1.4rem;
 }
 
 .header-formulario-capacidad h3 {
-
-  font-size: 2rem;
-
+  margin: 0;
+  color: #191c1e;
+  font-size: 1.15rem;
   font-weight: 800;
-
-  color: #0f172a;
-
-  margin-bottom: 10px;
 }
 
 .header-formulario-capacidad p {
-
+  margin: 0.4rem 0 0;
   color: #64748b;
-
-  font-size: 1rem;
-
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
-
-
-/* FORM */
 
 .bloque-formulario-capacidad {
-
   display: flex;
-
   flex-direction: column;
-
-  gap: 1.5rem;
-}
-
-
-/* GRID */
-
-.fila-capacidad {
-
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
   gap: 1rem;
 }
 
-
-/* INPUT GROUP */
+.fila-capacidad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
 
 .grupo-input-capacidad {
-
   display: flex;
-
   flex-direction: column;
-
-  gap: 10px;
 }
 
 .grupo-input-capacidad label {
-
-  font-size: 0.82rem;
-
-  font-weight: 700;
-
-  text-transform: uppercase;
-
-  letter-spacing: 1px;
-
+  display: block;
+  margin-bottom: 0.55rem;
   color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
-
-/* INPUTS */
-
 .grupo-input-capacidad input {
-
   width: 100%;
-
-  height: 60px;
-
-  border: 2px solid #e2e8f0;
-
+  height: 52px;
+  border: 1px solid #e2e8f0;
   background: #f8fafc;
-
-  border-radius: 18px;
-
+  border-radius: 16px;
   padding: 0 1rem;
-
-  font-size: 1rem;
-
-  transition: 0.2s ease;
-
+  color: #191c1e;
+  font-size: 0.97rem;
   outline: none;
-
   box-sizing: border-box;
+  transition: border 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grupo-input-capacidad input::placeholder {
+  color: #94a3b8;
 }
 
 .grupo-input-capacidad input:focus {
-
-  border-color: #156FE5;
-
-  background: white;
-
-  box-shadow:
-    0 0 0 4px rgba(21,111,229,0.10);
+  border-color: #156fe5;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(21, 111, 229, 0.1);
 }
 
-
-/* MOBILE */
-
 @media (max-width: 768px) {
-
   .formulario-capacidad {
-
-    padding: 1.3rem;
-
-    border-radius: 24px;
-  }
-
-  .header-formulario-capacidad h3 {
-
-    font-size: 1.5rem;
+    padding: 1.15rem;
+    border-radius: 22px;
   }
 
   .fila-capacidad {
-
     grid-template-columns: 1fr;
+  }
+
+  .header-formulario-capacidad h3 {
+    font-size: 1.05rem;
+  }
+
+  .header-formulario-capacidad p {
+    font-size: 0.9rem;
   }
 }

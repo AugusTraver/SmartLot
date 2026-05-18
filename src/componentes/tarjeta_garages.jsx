@@ -1,7 +1,5 @@
-import React from "react";
 import "./tarjeta_garages.css";
-import { useNavigate } from "react-router-dom";
-import { Pencil } from "lucide-react";
+import { Pencil, MapPin, Clock } from "lucide-react";
 
 function TarjetaGarage({
   titulo,
@@ -12,66 +10,62 @@ function TarjetaGarage({
   ultimoReporte,
   onClick,
 }) {
-
-  const navigate = useNavigate();
+  const estaAbierto = estado?.toLowerCase() === "abierto";
 
   return (
+    <article className="tarjeta-garage" onClick={onClick}>
+      <div className="garage-media">
+        <img src={imagen} alt={titulo} className="garage-img" />
 
-    <div className="tarjeta-garage" onClick={onClick}>
-
-      <img
-        src={imagen}
-        alt={titulo}
-        className="garage-img"
-      />
-
-      <div className="garage-header">
-
-        <h3>{titulo}</h3>
-
-        <span className="estado-garage">
+        <span
+          className={`estado-garage ${
+            estaAbierto ? "estado-abierto" : "estado-cerrado"
+          }`}
+        >
           {estado}
         </span>
-
       </div>
 
-      <p className="info-garage">
+      <div className="garage-content">
+        <div className="garage-header">
+          <h3>{titulo}</h3>
 
-        {plazas} plazas • Último reporte: {ultimoReporte}
-
-      </p>
-
-      <div className="capacidad-container">
-
-        <div className="barra-capacidad">
-
-          <div
-            className="barra-fill"
-            style={{ width: capacidad }}
-          ></div>
-
+          <button
+            className="btn-editar"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.();
+            }}
+            aria-label={`Editar ${titulo}`}
+          >
+            <Pencil size={18} />
+          </button>
         </div>
 
-        <span className="capacidad-texto">
-          {capacidad} Capacidad
-        </span>
+        <div className="garage-meta">
+          <span>
+            <MapPin size={17} />
+            {plazas} plazas
+          </span>
 
+          <span>
+            <Clock size={17} />
+            {ultimoReporte}
+          </span>
+        </div>
+
+        <div className="capacidad-container">
+          <div className="capacidad-label">
+            <span>Capacidad</span>
+            <strong>{capacidad}</strong>
+          </div>
+
+          <div className="barra-capacidad">
+            <div className="barra-fill" style={{ width: capacidad }} />
+          </div>
+        </div>
       </div>
-
-      <button
-        className="btn-editar"
-        onClick={(e) => {
-
-          e.stopPropagation();
-
-          navigate("/editar_zona");
-
-        }}
-      >
-        <Pencil size={18} color="#000" />
-      </button>
-
-    </div>
+    </article>
   );
 }
 
