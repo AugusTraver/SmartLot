@@ -16,9 +16,9 @@ function AgregarEmpleado() {
     email: '',
     telefono: '',
     contraseña: '',
-    id_rol: '',
-    id_sede: '',
-    id_empresa: '',
+    id_rol: 2,
+    id_sede: 1,
+    id_empresa: 1,
     patente: '',
     modelo: ''
   });
@@ -73,10 +73,7 @@ function AgregarEmpleado() {
             apellido: 'Apellido',
             email: 'Correo electrónico',
             telefono: 'Número de teléfono',
-            contraseña: 'Contraseña',
-            id_rol: 'ID Rol',
-            id_empresa: 'ID Empresa',
-            id_sede: 'ID Sede'
+            contraseña: 'Contraseña'
           }}
           formData={formData}
           onChange={handleChange}
