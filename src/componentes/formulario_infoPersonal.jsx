@@ -27,7 +27,7 @@ function FormularioInfoPersonal({
           </div>
  
          <div className="input-group">
-            <input                 type="text" 
+            <input type="text" 
                 placeholder=" " 
                 value={formData.apellido} 
                 onChange={(e) => onChange('apellido', e.target.value)} 
@@ -36,7 +36,7 @@ function FormularioInfoPersonal({
          </div>
  
          <div className="input-group">
-            <input                 type="email" 
+            <input type="email" 
                 placeholder=" " 
                 value={formData.email} 
                 onChange={(e) => onChange('email', e.target.value)} 
@@ -62,36 +62,6 @@ function FormularioInfoPersonal({
                 onChange={(e) => onChange('contraseña', e.target.value)} 
             />
             <label>{labels.contraseña}</label>
-         </div>
-
-         <div className="input-group">
-            <input 
-                type="number" 
-                placeholder=" " 
-                value={formData.id_rol} 
-                onChange={(e) => onChange('id_rol', e.target.value)} 
-            />
-            <label>{labels.id_rol}</label>
-         </div>
-
-         <div className="input-group">
-            <input 
-                type="number" 
-                placeholder=" " 
-                value={formData.id_empresa} 
-                onChange={(e) => onChange('id_empresa', e.target.value)} 
-            />
-            <label>{labels.id_empresa}</label>
-         </div>
-
-         <div className="input-group">
-            <input 
-                type="number" 
-                placeholder=" " 
-                value={formData.id_sede} 
-                onChange={(e) => onChange('id_sede', e.target.value)} 
-            />
-            <label>{labels.id_sede}</label>
          </div>
       </section>
     )
