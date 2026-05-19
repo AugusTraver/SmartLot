@@ -15,7 +15,7 @@ function AgregarZona() {
 
       <div className="contenido-agregar-zona">
         <div className="top-garage">
-          <button className="boton-back" onClick={() => navigate(-1)}>
+          <button className="boton-back" onClick={() => navigate("/gestion_garages", { replace: true })}>
             <ArrowLeft size={24} />
           </button>
 
@@ -56,7 +56,7 @@ function AgregarZona() {
 
           <BotonGenerico
             className="btn-cancelar-grande"
-            onClick={() => navigate("/gestion_garages")}
+            onClick={() => navigate("/gestion_garages", { replace: true })}
           >
             <span>Cancelar</span>
           </BotonGenerico>

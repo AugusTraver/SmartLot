@@ -101,7 +101,7 @@ const GestionEmpleados = () => {
       <main className="envoltorio-contenido">
         <header className="header-seccion">
           <div className="header-left-group animate-header">
-            <button className="boton-back" onClick={() => navigate(-1)}>
+            <button className="boton-back" onClick={() => navigate("/")}>
               <ArrowLeft size={24} />
             </button>
             <div className="textos-titulos">

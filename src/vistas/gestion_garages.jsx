@@ -18,7 +18,7 @@ function GestionGarages() {
 
       <main className="gestion-garages-main">
         <section className="gestion-garages-top">
-          <button className="boton-back" onClick={() => navigate(-1)}>
+          <button className="boton-back" onClick={() => navigate("/")}>
             <ArrowLeft size={20} />
           </button>
 

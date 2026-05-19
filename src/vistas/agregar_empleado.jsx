@@ -54,7 +54,7 @@ function AgregarEmpleado() {
     setLoading(false);
 
     if (response.respuesta) {
-      navigate('/gestion_de_empleados');
+      navigate('/gestion_de_empleados', { replace: true });
     } else {
       setError('No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
     }
@@ -106,7 +106,7 @@ function AgregarEmpleado() {
 
           <BotonGenerico
             style={{ backgroundColor: "grey" }}
-            onClick={() => navigate('/gestion_de_empleados')}
+            onClick={() => navigate('/gestion_de_empleados', { replace: true })}
             className="btn-cancelar-grande"
           >
             <span>Cancelar</span>
