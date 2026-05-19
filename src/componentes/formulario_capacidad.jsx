@@ -1,11 +1,8 @@
 import "./formulario_capacidad.css";
 
 function FormularioCapacidad({
-
-    capacidad,
-    capacidadReservas,
-    capacidadNoReservas
-
+    formData,
+    onChange
 }) {
 
     return (
@@ -32,7 +29,9 @@ function FormularioCapacidad({
 
                     <input
                         type="number"
-                        placeholder={capacidad}
+                        placeholder="Ej. 50"
+                        value={formData.capacidad}
+                        onChange={(e) => onChange('capacidad', e.target.value)}
                     />
 
                 </div>
@@ -46,7 +45,9 @@ function FormularioCapacidad({
 
                         <input
                             type="number"
-                            placeholder={capacidadReservas}
+                            placeholder="Ej. 20"
+                            value={formData.capacidad_reservas}
+                            onChange={(e) => onChange('capacidad_reservas', e.target.value)}
                         />
 
                     </div>
@@ -58,7 +59,9 @@ function FormularioCapacidad({
 
                         <input
                             type="number"
-                            placeholder={capacidadNoReservas}
+                            placeholder="Ej. 30"
+                            value={formData.capacidad_para_no_reservas}
+                            onChange={(e) => onChange('capacidad_para_no_reservas', e.target.value)}
                         />
 
                     </div>

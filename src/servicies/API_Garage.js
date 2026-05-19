@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-
+console.log('[API_Garage] Usando URL base:', apiUrl);
 
 const GaragesGetAll = async () => {
 
@@ -106,10 +106,17 @@ const GaragesCreate = async (garage) => {
 
     let url = apiUrl + '/api/garage';
 
+    console.group('[API_Garage.GaragesCreate]');
+    console.log('🔵 URL:', url);
+    console.log('🔵 Payload a enviar:', JSON.stringify(garage, null, 2));
+    console.groupEnd();
+
     try {
 
         const response = await axios.post(url, garage);
 
+        console.log('[API_Garage.GaragesCreate] ✅ Respuesta exitosa (Status:', response.status, ')');
+        console.log('[API_Garage.GaragesCreate] Datos retornados:', response.data);
         returnObject.respuesta = true;
         returnObject.datos = response.data;
 
@@ -117,7 +124,12 @@ const GaragesCreate = async (garage) => {
 
     } catch (error) {
 
-        console.log(error);
+        console.error('[API_Garage.GaragesCreate] ❌ Error en POST:');
+        console.error('  Status:', error.response?.status);
+        console.error('  Mensaje del servidor:', error.response?.data);
+        console.error('  Error:', error.message);
+        
+        returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
 };

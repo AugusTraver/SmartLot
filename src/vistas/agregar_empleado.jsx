@@ -32,8 +32,46 @@ function AgregarEmpleado() {
   const handleGuardarEmpleado = async () => {
     setError('');
 
-    if (!formData.nombre || !formData.apellido || !formData.email || !formData.contraseña) {
-      setError('Por favor completa los campos obligatorios.');
+    // Validaciones personalizadas
+    if (!formData.nombre.trim()) {
+      setError('❌ El nombre es requerido.');
+      return;
+    }
+    if (formData.nombre.trim().length < 2) {
+      setError('❌ El nombre debe tener al menos 2 caracteres.');
+      return;
+    }
+
+    if (!formData.apellido.trim()) {
+      setError('❌ El apellido es requerido.');
+      return;
+    }
+    if (formData.apellido.trim().length < 2) {
+      setError('❌ El apellido debe tener al menos 2 caracteres.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      setError('❌ El correo electrónico es requerido.');
+      return;
+    }
+    if (!emailRegex.test(formData.email.trim())) {
+      setError('❌ El correo electrónico no tiene un formato válido (ej: usuario@ejemplo.com).');
+      return;
+    }
+
+    if (!formData.contraseña) {
+      setError('❌ La contraseña es requerida.');
+      return;
+    }
+    if (formData.contraseña.length < 6) {
+      setError('❌ La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (formData.telefono.trim() && formData.telefono.trim().length < 7) {
+      setError('❌ El teléfono debe tener al menos 7 dígitos.');
       return;
     }
 
@@ -56,7 +94,7 @@ function AgregarEmpleado() {
     if (response.respuesta) {
       navigate('/gestion_de_empleados', { replace: true });
     } else {
-      setError('No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
+      setError('❌ No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
     }
   };
 

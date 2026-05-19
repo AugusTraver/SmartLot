@@ -45,8 +45,13 @@ function EditarZona() {
   const [estadoActivo, setEstadoActivo] = useState("activo");
   const [plazasVip, setPlazasVip] = useState(12);
   const [plazasEstandar, setPlazasEstandar] = useState(45);
+  const [nombreGarage, setNombreGarage] = useState('Garage B');
+  const [piso, setPiso] = useState('Piso 2');
+  const [ubicacion, setUbicacion] = useState('');
+  const [error, setError] = useState('');
 
   const totalPlazas = plazasVip + plazasEstandar;
+
 
   const volverAGarages = () => {
     navigate("/gestion_garages");
@@ -54,6 +59,43 @@ function EditarZona() {
 
   const guardarCambios = (e) => {
     e.preventDefault();
+    setError('');
+
+    // Validaciones personalizadas
+    if (!nombreGarage.trim()) {
+      setError('❌ El nombre del garage es requerido.');
+      return;
+    }
+    if (nombreGarage.trim().length < 3) {
+      setError('❌ El nombre del garage debe tener al menos 3 caracteres.');
+      return;
+    }
+
+    if (!piso.trim()) {
+      setError('❌ El nivel/planta es requerido.');
+      return;
+    }
+
+    if (!ubicacion.trim()) {
+      setError('❌ La ubicación es requerida.');
+      return;
+    }
+    if (ubicacion.trim().length < 5) {
+      setError('❌ La ubicación debe tener al menos 5 caracteres.');
+      return;
+    }
+
+    if (plazasVip < 0 || plazasEstandar < 0) {
+      setError('❌ Las plazas no pueden ser negativas.');
+      return;
+    }
+
+    if (totalPlazas <= 0) {
+      setError('❌ El total de plazas debe ser mayor a 0. Suma Vip (' + plazasVip + ') + Estándar (' + plazasEstandar + ').');
+      return;
+    }
+
+    console.log('✅ Validaciones pasadas. Guardando cambios...');
     navigate("/gestion_garages");
   };
 
@@ -90,17 +132,23 @@ function EditarZona() {
 
             <div className="campo-formulario">
               <label>Nombre del garage</label>
-              <input type="text" placeholder="Garage B, Exterior Norte" />
+              <input
+                type="text"
+                placeholder="Garage B, Exterior Norte"
+                value={nombreGarage}
+                onChange={(e) => setNombreGarage(e.target.value)}
+              />
             </div>
 
             <div className="campos-grid">
               <div className="campo-formulario">
                 <label>Nivel / Planta</label>
-                <select>
-                  <option>Piso 2</option>
-                  <option>Piso 1</option>
-                  <option>Subsuelo</option>
-                </select>
+                <input
+                  type="text"
+                  value={piso}
+                  onChange={(e) => setPiso(e.target.value)}
+                  placeholder="Ej: Piso 1, Subsuelo"
+                />
               </div>
 
               <div className="campo-formulario">
@@ -111,7 +159,12 @@ function EditarZona() {
 
             <div className="campo-formulario">
               <label>Ubicación</label>
-              <textarea rows="4" placeholder="Ubicación del garage" />
+              <textarea
+                rows="4"
+                placeholder="Ubicación del garage"
+                value={ubicacion}
+                onChange={(e) => setUbicacion(e.target.value)}
+              />
             </div>
           </section>
 
@@ -226,6 +279,8 @@ function EditarZona() {
               </div>
             </div>
           </section>
+
+          {error && <div className="error-message" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', border: '1px solid #d32f2f' }}>{error}</div>}
 
           <div className="acciones-formulario">
             <BotonGenerico
