@@ -12,6 +12,29 @@
   box-sizing: border-box;
 }
 
+
+.boton-back {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #191c1e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2 20px 24px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 4%;
+}
+
+.boton-back:hover{
+   transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
 /* HEADER Y TITULOS */
 .header-seccion {
  display: flex;
