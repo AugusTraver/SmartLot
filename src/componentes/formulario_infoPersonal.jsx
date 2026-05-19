@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Contact } from 'lucide-react'; 
+import { Contact } from 'lucide-react';
 import "./formularios.css";
 
-function FormularioInfoPersonal({infoPersonalTitulo, NombreCompleto, Email, NumeroTelefono}) {
-    const [nombreCompleto, setNombreCompleto] = useState('');
-    const [email, setEmail] = useState('');
-    const [numeroTelefono, setNumeroTelefono] = useState('');
+function FormularioInfoPersonal({
+    infoPersonalTitulo,
+    labels,
+    formData,
+    onChange
+}) {
 
     return(
      <section className="formulario-container">
@@ -19,30 +20,78 @@ function FormularioInfoPersonal({infoPersonalTitulo, NombreCompleto, Email, Nume
             <input 
                 type="text" 
                 placeholder=" " 
-                value={nombreCompleto} 
-                onChange={(e) => setNombreCompleto(e.target.value)} 
+                value={formData.nombre} 
+                onChange={(e) => onChange('nombre', e.target.value)} 
             />
-            <label>{NombreCompleto}</label>
+            <label>{labels.nombre}</label>
           </div>
  
          <div className="input-group">
-            <input 
-                type="email" 
+            <input                 type="text" 
                 placeholder=" " 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                value={formData.apellido} 
+                onChange={(e) => onChange('apellido', e.target.value)} 
             />
-            <label>{Email}</label>
+            <label>{labels.apellido}</label>
+         </div>
+ 
+         <div className="input-group">
+            <input                 type="email" 
+                placeholder=" " 
+                value={formData.email} 
+                onChange={(e) => onChange('email', e.target.value)} 
+            />
+            <label>{labels.email}</label>
          </div>
 
          <div className="input-group">
             <input 
                 type="tel" 
                 placeholder=" " 
-                value={numeroTelefono} 
-                onChange={(e) => setNumeroTelefono(e.target.value)} 
+                value={formData.telefono} 
+                onChange={(e) => onChange('telefono', e.target.value)} 
             />
-            <label>{NumeroTelefono}</label>
+            <label>{labels.telefono}</label>
+         </div>
+
+         <div className="input-group">
+            <input 
+                type="password" 
+                placeholder=" " 
+                value={formData.contraseña} 
+                onChange={(e) => onChange('contraseña', e.target.value)} 
+            />
+            <label>{labels.contraseña}</label>
+         </div>
+
+         <div className="input-group">
+            <input 
+                type="number" 
+                placeholder=" " 
+                value={formData.id_rol} 
+                onChange={(e) => onChange('id_rol', e.target.value)} 
+            />
+            <label>{labels.id_rol}</label>
+         </div>
+
+         <div className="input-group">
+            <input 
+                type="number" 
+                placeholder=" " 
+                value={formData.id_empresa} 
+                onChange={(e) => onChange('id_empresa', e.target.value)} 
+            />
+            <label>{labels.id_empresa}</label>
+         </div>
+
+         <div className="input-group">
+            <input 
+                type="number" 
+                placeholder=" " 
+                value={formData.id_sede} 
+                onChange={(e) => onChange('id_sede', e.target.value)} 
+            />
+            <label>{labels.id_sede}</label>
          </div>
       </section>
     )

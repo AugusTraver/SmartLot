@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 
 
@@ -8,7 +8,7 @@ const UsuariosGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/usuarios';
+    let url = apiUrl + '/api/usuario';
 
     try {
 
@@ -32,7 +32,7 @@ const UsuariosGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/usuarios/' + id;
+    let url = apiUrl + '/api/usuario/' + id;
 
     try {
 
@@ -56,7 +56,7 @@ const UsuariosCreate = async (usuario) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/usuarios';
+    let url = apiUrl + '/api/usuario';
 
     try {
 
@@ -80,7 +80,7 @@ const UsuariosUpdate = async (id, usuario) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/usuarios/' + id;
+    let url = apiUrl + '/api/usuario/' + id;
 
     try {
 
@@ -104,7 +104,7 @@ const UsuariosDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/usuarios/' + id;
+    let url = apiUrl + '/api/usuario/' + id;
 
     try {
 
