@@ -1,4 +1,4 @@
-import logo from "../Imagenes/Logo_smartlot.png";
+import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "./header_admin.css";
 import { FaRegBell } from "react-icons/fa";
 import { RxAvatar } from "react-icons/rx";
@@ -10,12 +10,10 @@ function Header() {
     <div className="header">
       <div className="header-left">
 
-        <div className="logo-smartlot">
+        <button className="logo-smartlot" onClick={() => navigate("/admin_dashboard")}>
           <img src={logo} alt="logo SmartLot" />
-        </div>
-        <h1 className="titulo-header">
-          SmartLot
-        </h1>
+        </button>
+        
       </div>
       <div className="header-right">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30 " fill="currentColor">

@@ -58,9 +58,18 @@
 /* LOGO */
 .logo-smartlot img {
 
-  width: 80px;
+  width: 150px;
 
-  height: auto;
+  height: 20% !important;
 
   object-fit: contain;
+  margin-left: -19%;
+  background-color: white;
+}
+.logo-smartlot{
+  width: 150px;
+   height: 20% !important;
+  background: white;
+  border-color: white;
+
 }
