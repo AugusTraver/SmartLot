@@ -1,6 +1,13 @@
-import React, { useState, useRef, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserPlus, ArrowLeft, ChevronDown, SlidersHorizontal, MapPin } from "lucide-react";
+import {
+  Search,
+  UserPlus,
+  ArrowLeft,
+  ChevronDown,
+  SlidersHorizontal,
+  MapPin,
+} from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -8,61 +15,87 @@ import "./gestion_de_empleados.css";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
+import { UsuariosGetAll } from "../servicies/API_Usuario";
 
 gsap.registerPlugin(useGSAP);
+
+const obtenerListadoUsuarios = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
+  if (Array.isArray(datos?.value)) return datos.value;
+  return [];
+};
+
+const obtenerRol = (idRol) => {
+  const roles = {
+    1: "Admin",
+    2: "Empleado",
+    3: "Empleado",
+  };
+
+  return roles[Number(idRol)] || "Empleado";
+};
+
+const obtenerSede = (idSede) => {
+  if (!idSede) return "Sin sede";
+  return `Sede ${idSede}`;
+};
+
+const normalizarEmpleado = (usuario) => ({
+  id: usuario.id ?? usuario.id_usuario ?? usuario._id,
+  name: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Empleado sin nombre",
+  role: obtenerRol(usuario.id_rol),
+  email: usuario.email || "Sin email",
+  parkingSpot: usuario.patente ? `Patente ${usuario.patente}` : "Sin vehiculo",
+  parkingLevel: obtenerSede(usuario.id_sede),
+  sede: obtenerSede(usuario.id_sede),
+});
 
 const GestionEmpleados = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
 
-  // Estados para filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSede, setSelectedSede] = useState("Todas"); // Nueva lógica de sede
+  const [selectedSede, setSelectedSede] = useState("Todas");
+  const [empleados, setEmpleados] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [empleados] = useState([
-    {
-      id: 1,
-      name: "Elena Rodriguez",
-      role: "Admin",
-      email: "elena.rodriguez@smartlot.com",
-      parkingSpot: "Plaza A-22",
-      parkingLevel: "Nivel Superior",
-      sede: "Sede Central",
-      
-    },
-    {
-      id: 2,
-      name: "Marta Casablancas",
-      role: "Empleado",
-      email: "marta.c@smartlot.com",
-      parkingSpot: "Plaza B-10",
-      parkingLevel: "Nivel Inferior",
-      sede: "Sede Norte",
-     
-    },
-    {
-      id: 3,
-      name: "Carlos Valery",
-      role: "Empleado",
-      email: "carlos.v@smartlot.com",
-      parkingSpot: "Plaza C-04",
-      parkingLevel: "Nivel Superior",
-      sede: "Sede Central",
-      
-    },
-    {
-      id: 4,
-      name: "Juana Perez",
-      role: "Empleado",
-      email: "juana.perez@smartlot.com",
-      parkingSpot: "Plaza D-01",
-      parkingLevel: "Nivel Superior",
-      sede: "Sede Sur",
-      
-    }
-  ]);
+  useEffect(() => {
+    let estaMontado = true;
 
-  // Filtrado reactivo optimizado
+    const cargarEmpleados = async () => {
+      setLoading(true);
+      setError("");
+
+      const response = await UsuariosGetAll();
+
+      if (!estaMontado) return;
+
+      if (response.respuesta) {
+        const usuarios = obtenerListadoUsuarios(response.datos);
+        setEmpleados(usuarios.map(normalizarEmpleado));
+      } else {
+        setError("No se pudieron cargar los empleados.");
+      }
+
+      setLoading(false);
+    };
+
+    cargarEmpleados();
+
+    return () => {
+      estaMontado = false;
+    };
+  }, []);
+
+  const sedesDisponibles = useMemo(
+    () => Array.from(new Set(empleados.map((emp) => emp.sede))).filter(Boolean),
+    [empleados]
+  );
+
   const empleadosFiltrados = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
 
@@ -78,18 +111,31 @@ const GestionEmpleados = () => {
     });
   }, [searchTerm, selectedSede, empleados]);
 
-  // Animaciones GSAP (Manteniendo tu estructura original)
-  useGSAP(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
-    tl.from(".animate-header", { y: 30, opacity: 0, stagger: 0.1 })
-      .from(".animate-toolbar", { y: 20, opacity: 0 }, "-=0.5");
-  }, { scope: containerRef });
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
+      tl.from(".animate-header", { y: 30, opacity: 0, stagger: 0.1 }).from(
+        ".animate-toolbar",
+        { y: 20, opacity: 0 },
+        "-=0.5"
+      );
+    },
+    { scope: containerRef }
+  );
 
   useGSAP(() => {
     if (empleadosFiltrados.length > 0) {
-      gsap.fromTo(".card-empleado-v3",
+      gsap.fromTo(
+        ".card-empleado-v3",
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.05, duration: 0.4, ease: "power2.out", overwrite: "auto" }
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.05,
+          duration: 0.4,
+          ease: "power2.out",
+          overwrite: "auto",
+        }
       );
     }
   }, [empleadosFiltrados]);
@@ -105,12 +151,17 @@ const GestionEmpleados = () => {
               <ArrowLeft size={24} />
             </button>
             <div className="textos-titulos">
-              <h1 className="titulo-vista">Gestión de Empleados</h1>
-              <p className="subtitulo-vista">Administra el acceso y roles de todo el personal.</p>
+              <h1 className="titulo-vista">Gestion de Empleados</h1>
+              <p className="subtitulo-vista">
+                Administra el acceso y roles de todo el personal.
+              </p>
             </div>
           </div>
           <div className="animate-header btn-container-mobile">
-            <BotonGenerico className="btn-primario" onClick={() => navigate('/agregar_empleado')}>
+            <BotonGenerico
+              className="btn-primario"
+              onClick={() => navigate("/agregar_empleado")}
+            >
               <UserPlus size={20} />
               <span>Agregar empleado</span>
             </BotonGenerico>
@@ -129,75 +180,84 @@ const GestionEmpleados = () => {
             />
           </div>
 
-        
-
-            <div className="filtros-grupo">
-              <div className="select-wrapper">
-                <select
-                  className="btn-selector-sede"
-                  value={selectedSede}
-                  onChange={(e) => setSelectedSede(e.target.value)}
-                >
-                  <option value="Todas">Todas las sedes</option>
-                  <option value="Sede Central">Sede Central</option>
-                  <option value="Sede Norte">Sede Norte</option>
-                  <option value="Sede Sur">Sede Sur</option>
-                </select>
-                {/* El Chevron posicionado estratégicamente */}
-                <ChevronDown size={18} className="chevron-select-icon" />
-              </div>
-
-              <button className="btn-icon-filtros">
-                <SlidersHorizontal size={18} strokeWidth={2.5} />
-              </button>
+          <div className="filtros-grupo">
+            <div className="select-wrapper">
+              <select
+                className="btn-selector-sede"
+                value={selectedSede}
+                onChange={(e) => setSelectedSede(e.target.value)}
+              >
+                <option value="Todas">Todas las sedes</option>
+                {sedesDisponibles.map((sede) => (
+                  <option key={sede} value={sede}>
+                    {sede}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={18} className="chevron-select-icon" />
             </div>
+
+            <button className="btn-icon-filtros" type="button">
+              <SlidersHorizontal size={18} strokeWidth={2.5} />
+            </button>
+          </div>
         </section>
 
         <div className="grid-bento">
-          {empleadosFiltrados.length > 0 ? (
-            empleadosFiltrados.map((emp) => (
-              <article key={emp.id} className="card-empleado-v3">
-                <div className="card-header-v3">
-                  <h3 className="emp-name-v3">{emp.name}</h3>
-                  <span className="role-badge-v3">{emp.role}</span>
-                   
-                </div>
+          {loading && (
+            <div className="empleados-feedback">
+              <p>Cargando empleados...</p>
+            </div>
+          )}
 
-                <div className="card-body-v3">
-                 
+          {error && (
+            <div className="empleados-feedback empleados-feedback-error">
+              <p>{error}</p>
+            </div>
+          )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: '#64748b', marginBottom: '15px' }}>
-                    <MapPin size={14} />
-                    <span>{emp.sede}</span>
+          {!loading && !error && empleadosFiltrados.length > 0
+            ? empleadosFiltrados.map((emp) => (
+                <article key={emp.id} className="card-empleado-v3">
+                  <div className="card-header-v3">
+                    <h3 className="emp-name-v3">{emp.name}</h3>
+                    <span className="role-badge-v3">{emp.role}</span>
                   </div>
-                </div>
 
-                <div className="parking-section-v3">
-                  <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
-                  <div className="parking-pill-v3">
-                    <div className="p-icon-box">P</div>
-                    <div className="parking-details-v3">
-                      <span className="spot-v3">{emp.parkingSpot}</span>
-                      <span className="level-v3">{emp.parkingLevel}</span>
+                  <div className="card-body-v3">
+                    <div className="empleado-sede-line">
+                      <MapPin size={14} />
+                      <span>{emp.sede}</span>
                     </div>
                   </div>
-                </div>
 
-                <div className="card-footer-v3">
-                  <div className="status-indicator">
-                    <div className="green-dot"></div>
-                    <span>Activo hoy</span>
+                  <div className="parking-section-v3">
+                    <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
+                    <div className="parking-pill-v3">
+                      <div className="p-icon-box">P</div>
+                      <div className="parking-details-v3">
+                        <span className="spot-v3">{emp.parkingSpot}</span>
+                        <span className="level-v3">{emp.parkingLevel}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="footer-bottom-row">
-                    <span className="email-v3">{emp.email}</span>
+
+                  <div className="card-footer-v3">
+                    <div className="status-indicator">
+                      <div className="green-dot"></div>
+                      <span>Activo hoy</span>
+                    </div>
+                    <div className="footer-bottom-row">
+                      <span className="email-v3">{emp.email}</span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="no-results" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
+                </article>
+              ))
+            : null}
+
+          {!loading && !error && empleadosFiltrados.length === 0 && (
+            <div className="no-results">
               <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
-             
             </div>
           )}
         </div>
