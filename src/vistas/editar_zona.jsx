@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./editar_zona.css";
 import Header from "../componentes/header_admin";
 import {
@@ -16,8 +16,9 @@ import {
   Save,
   X,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import BotonGenerico from "../componentes/boton_generico";
+import { GaragesUpdate } from "../servicies/API_Garage";
 
 const estados = [
   {
@@ -42,22 +43,58 @@ const estados = [
 
 function EditarZona() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const garageData = location.state?.garage;
+
   const [estadoActivo, setEstadoActivo] = useState("activo");
-  const [plazasVip, setPlazasVip] = useState(12);
-  const [plazasEstandar, setPlazasEstandar] = useState(45);
+  const [capacidad, setCapacidad] = useState(0);
+  const [capacidadReservas, setCapacidadReservas] = useState(0);
+  const [capacidadNoReservas, setCapacidadNoReservas] = useState(0);
   const [nombreGarage, setNombreGarage] = useState('Garage B');
   const [piso, setPiso] = useState('Piso 2');
   const [ubicacion, setUbicacion] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const totalPlazas = plazasVip + plazasEstandar;
+  useEffect(() => {
+    if (!garageData) {
+      navigate("/gestion_garages", { replace: true });
+      return;
+    }
+    
+    setNombreGarage(garageData.nombre || '');
+    setPiso(garageData.piso || '');
+    setUbicacion(garageData.ubicacion || '');
+    
+    let esActivo = "activo";
+    if (typeof garageData.estado === "string") {
+      const estadoNormalizado = garageData.estado.toLowerCase();
+      if (["activo", "mantenimiento", "desconectado"].includes(estadoNormalizado)) {
+        esActivo = estadoNormalizado;
+      } else if (estadoNormalizado === "abierto" || estadoNormalizado === "true" || estadoNormalizado === "1") {
+        esActivo = "activo";
+      } else {
+        esActivo = "desconectado";
+      }
+    } else if (typeof garageData.estado === "boolean") {
+      esActivo = garageData.estado ? "activo" : "desconectado";
+    } else if (typeof garageData.estado === "number") {
+      esActivo = garageData.estado === 1 ? "activo" : "desconectado";
+    }
+    setEstadoActivo(esActivo);
+
+    setCapacidad(Number(garageData.capacidad || 0));
+    setCapacidadReservas(Number(garageData.capacidad_reservas || 0));
+    setCapacidadNoReservas(Number(garageData.capacidad_para_no_reservas || 0));
+
+  }, [garageData, navigate]);
 
 
   const volverAGarages = () => {
     navigate("/gestion_garages");
   };
 
-  const guardarCambios = (e) => {
+  const guardarCambios = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -71,7 +108,7 @@ function EditarZona() {
       return;
     }
 
-    if (!piso.trim()) {
+    if (!piso.toString().trim()) {
       setError('❌ El nivel/planta es requerido.');
       return;
     }
@@ -85,18 +122,47 @@ function EditarZona() {
       return;
     }
 
-    if (plazasVip < 0 || plazasEstandar < 0) {
-      setError('❌ Las plazas no pueden ser negativas.');
+    if (capacidad <= 0) {
+      setError('❌ La capacidad total debe ser mayor a 0.');
       return;
     }
 
-    if (totalPlazas <= 0) {
-      setError('❌ El total de plazas debe ser mayor a 0. Suma Vip (' + plazasVip + ') + Estándar (' + plazasEstandar + ').');
+    if (capacidadReservas < 0 || capacidadNoReservas < 0) {
+      setError('❌ Las capacidades no pueden ser negativas.');
       return;
     }
 
-    console.log('✅ Validaciones pasadas. Guardando cambios...');
-    navigate("/gestion_garages");
+    if (capacidadReservas + capacidadNoReservas !== capacidad) {
+      setError(
+        `❌ SUMA INVÁLIDA: La capacidad total (${capacidad}) debe ser exactamente igual a la suma de reservas (${capacidadReservas}) y no reservas (${capacidadNoReservas}).`
+      );
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = {
+       ...garageData,
+       nombre: nombreGarage.trim(),
+       piso: piso.toString().trim(),
+       ubicacion: ubicacion.trim(),
+       estado: estadoActivo,
+       capacidad: capacidad,
+       capacidad_reservas: capacidadReservas,
+       capacidad_para_no_reservas: capacidadNoReservas
+    };
+
+    const id = garageData.id_garage ?? garageData.idGarage ?? garageData.id ?? garageData._id;
+
+    const response = await GaragesUpdate(id, payload);
+    setLoading(false);
+
+    if (response.respuesta) {
+      navigate("/gestion_garages", { replace: true });
+    } else {
+      const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
+      setError(`❌ Error al actualizar la zona: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
+    }
   };
 
   return (
@@ -153,7 +219,12 @@ function EditarZona() {
 
               <div className="campo-formulario">
                 <label>Total de plazas</label>
-                <input type="number" value={totalPlazas} readOnly />
+                <input
+                  type="number"
+                  value={capacidad === 0 ? '' : capacidad}
+                  onChange={(e) => setCapacidad(Number(e.target.value) || 0)}
+                  min="1"
+                />
               </div>
             </div>
 
@@ -207,8 +278,8 @@ function EditarZona() {
             </div>
 
             <div className="plazas-resumen">
-              <span>Total asignado</span>
-              <strong>{totalPlazas} plazas</strong>
+              <span>Capacidad total de la zona</span>
+              <strong>{capacidad} plazas</strong>
             </div>
 
             <div className="plazas-grid">
@@ -218,26 +289,26 @@ function EditarZona() {
                     <Star size={18} />
                   </div>
 
-                  <span className="plaza-tag">VIP</span>
+                  <span className="plaza-tag">RESERVAS</span>
                 </div>
 
-                <h4>Plazas VIP</h4>
-                <p>Ubicaciones preferenciales.</p>
+                <h4>Capacidad Reservas</h4>
+                <p>Ubicaciones para usuarios con reserva.</p>
 
                 <div className="contador">
                   <button
                     type="button"
-                    onClick={() => setPlazasVip((valor) => Math.max(0, valor - 1))}
-                    disabled={plazasVip === 0}
+                    onClick={() => setCapacidadReservas((valor) => Math.max(0, valor - 1))}
+                    disabled={capacidadReservas === 0}
                   >
                     <Minus size={16} />
                   </button>
 
-                  <span>{plazasVip}</span>
+                  <span>{capacidadReservas}</span>
 
                   <button
                     type="button"
-                    onClick={() => setPlazasVip((valor) => valor + 1)}
+                    onClick={() => setCapacidadReservas((valor) => valor + 1)}
                   >
                     <Plus size={16} />
                   </button>
@@ -250,28 +321,28 @@ function EditarZona() {
                     <CarFront size={18} />
                   </div>
 
-                  <span className="plaza-tag">ESTÁNDAR</span>
+                  <span className="plaza-tag">NO RESERVAS</span>
                 </div>
 
-                <h4>Estándar</h4>
-                <p>Plazas de uso general.</p>
+                <h4>Capacidad No Reservas</h4>
+                <p>Plazas de uso general por llegada.</p>
 
                 <div className="contador">
                   <button
                     type="button"
                     onClick={() =>
-                      setPlazasEstandar((valor) => Math.max(0, valor - 1))
+                      setCapacidadNoReservas((valor) => Math.max(0, valor - 1))
                     }
-                    disabled={plazasEstandar === 0}
+                    disabled={capacidadNoReservas === 0}
                   >
                     <Minus size={16} />
                   </button>
 
-                  <span>{plazasEstandar}</span>
+                  <span>{capacidadNoReservas}</span>
 
                   <button
                     type="button"
-                    onClick={() => setPlazasEstandar((valor) => valor + 1)}
+                    onClick={() => setCapacidadNoReservas((valor) => valor + 1)}
                   >
                     <Plus size={16} />
                   </button>
@@ -292,9 +363,9 @@ function EditarZona() {
               <span>Cancelar</span>
             </BotonGenerico>
 
-            <BotonGenerico type="submit" className="btn-guardar">
+            <BotonGenerico type="submit" className="btn-guardar" disabled={loading}>
               <Save size={18} />
-              <span>Guardar cambios</span>
+              <span>{loading ? "Guardando..." : "Guardar cambios"}</span>
             </BotonGenerico>
           </div>
         </form>

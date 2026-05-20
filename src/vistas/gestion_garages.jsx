@@ -183,7 +183,7 @@ function GestionGarages() {
                   capacidad={obtenerCapacidadPorcentaje(garage)}
                   ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
                   imagen={imagenesGarage[index % imagenesGarage.length]}
-                  onClick={() => navigate("/editar_zona")}
+                  onClick={() => navigate("/editar_zona", { state: { garage } })}
                 />
               ))}
             </div>
