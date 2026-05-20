@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CirclePlus, MapPinned, BarChart3 } from "lucide-react";
 import "./gestion_garages.css";
@@ -5,12 +6,98 @@ import TarjetaGarage from "../componentes/tarjeta_garages";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
+import { GaragesGetAll } from "../servicies/API_Garage";
 import fotoGarage1 from "../Imagenes/Garage1.jpg";
 import fotoGarage2 from "../Imagenes/Garage2.jpg";
 import fotoGarage3 from "../Imagenes/Garage3.jpg";
 
+const imagenesGarage = [fotoGarage1, fotoGarage2, fotoGarage3];
+
+const obtenerListadoGarages = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.garages)) return datos.garages;
+  if (Array.isArray(datos?.value)) return datos.value;
+  return [];
+};
+
+const obtenerIdGarage = (garage, index) =>
+  garage.id_garage ?? garage.idGarage ?? garage.id ?? garage._id ?? index;
+
+const obtenerEstadoGarage = (estado) => {
+  if (typeof estado === "boolean") return estado ? "Abierto" : "Cerrado";
+  if (typeof estado === "number") return estado === 1 ? "Abierto" : "Cerrado";
+
+  if (typeof estado === "string") {
+    const estadoNormalizado = estado.toLowerCase();
+    return ["true", "activo", "abierto", "1"].includes(estadoNormalizado)
+      ? "Abierto"
+      : "Cerrado";
+  }
+
+  return "Abierto";
+};
+
+const obtenerOcupacion = (garage) =>
+  Number(garage.ocupacion_reservas || 0) +
+  Number(garage.ocupacion_no_reservas || 0);
+
+const obtenerCapacidadPorcentaje = (garage) => {
+  const capacidad = Number(garage.capacidad || 0);
+  if (capacidad <= 0) return "0%";
+
+  const porcentaje = Math.min(
+    100,
+    Math.round((obtenerOcupacion(garage) / capacidad) * 100)
+  );
+
+  return `${porcentaje}%`;
+};
+
 function GestionGarages() {
   const navigate = useNavigate();
+  const [garages, setGarages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let estaMontado = true;
+
+    const cargarGarages = async () => {
+      setLoading(true);
+      setError("");
+
+      const response = await GaragesGetAll();
+
+      if (!estaMontado) return;
+
+      if (response.respuesta) {
+        setGarages(obtenerListadoGarages(response.datos));
+      } else {
+        setError("No se pudieron cargar los garages.");
+      }
+
+      setLoading(false);
+    };
+
+    cargarGarages();
+
+    return () => {
+      estaMontado = false;
+    };
+  }, []);
+
+  const ocupacionMedia =
+    garages.length > 0
+      ? Math.round(
+          garages.reduce((total, garage) => {
+            const capacidad = Number(garage.capacidad || 0);
+            if (capacidad <= 0) return total;
+            return total + (obtenerOcupacion(garage) / capacidad) * 100;
+          }, 0) / garages.length
+        )
+      : 0;
 
   return (
     <div className="gestion-garages">
@@ -24,7 +111,7 @@ function GestionGarages() {
 
           <div>
             <p>PANEL DE CONTROL</p>
-            <h1>Configuración de Garages</h1>
+            <h1>Configuracion de Garages</h1>
           </div>
         </section>
 
@@ -47,67 +134,60 @@ function GestionGarages() {
               </span>
             </div>
 
-            <h2>08</h2>
+            <h2>{loading ? "--" : garages.length}</h2>
 
-            <p>
-              <span className="stats-green">+2</span> este mes
-            </p>
+            <p>Registradas en la base de datos</p>
           </div>
 
           <div className="stats-card">
             <div className="stats-header">
-              <h4>Ocupación media</h4>
+              <h4>Ocupacion media</h4>
               <span className="stats-icon">
                 <BarChart3 size={24} />
               </span>
             </div>
 
-            <h2>64%</h2>
+            <h2>{loading ? "--" : `${ocupacionMedia}%`}</h2>
 
-            <p>Pico máximo a las 14:00</p>
+            <p>Calculada sobre la capacidad total</p>
           </div>
         </section>
 
         <section className="gestion-garages-container">
           <div className="garages-section-heading">
-            <h2 className="titulo-garages">Gestión de Garages</h2>
+            <h2 className="titulo-garages">Gestion de Garages</h2>
             <p className="subtitulo-garages">
               Administra las zonas disponibles, revisa su estado y actualiza su
               capacidad en tiempo real.
             </p>
           </div>
 
-          <div className="contenedor-tarjetas">
-            <TarjetaGarage
-              titulo="Garage Central"
-              plazas={50}
-              estado="Abierto"
-              capacidad="80%"
-              ultimoReporte="Hace 10 minutos"
-              imagen={fotoGarage1}
-              onClick={() => navigate("/editar_zona")}
-            />
+          {loading && <p className="garages-feedback">Cargando garages...</p>}
 
-            <TarjetaGarage
-              titulo="Garage Norte"
-              plazas={30}
-              estado="Cerrado"
-              capacidad="100%"
-              ultimoReporte="Hace 1 hora"
-              imagen={fotoGarage2}
-              onClick={() => navigate("/editar_zona")}
-            />
+          {error && (
+            <p className="garages-feedback garages-feedback-error">{error}</p>
+          )}
 
-            <TarjetaGarage
-              titulo="Garage Sur"
-              plazas={20}
-              estado="Abierto"
-              capacidad="60%"
-              ultimoReporte="Hace 30 minutos"
-              imagen={fotoGarage3}
-              onClick={() => navigate("/editar_zona")}
-            />
-          </div>
+          {!loading && !error && garages.length === 0 && (
+            <p className="garages-feedback">Todavia no hay garages cargados.</p>
+          )}
+
+          {!loading && !error && garages.length > 0 && (
+            <div className="contenedor-tarjetas">
+              {garages.map((garage, index) => (
+                <TarjetaGarage
+                  key={obtenerIdGarage(garage, index)}
+                  titulo={garage.nombre || "Garage sin nombre"}
+                  plazas={Number(garage.capacidad || 0)}
+                  estado={obtenerEstadoGarage(garage.estado)}
+                  capacidad={obtenerCapacidadPorcentaje(garage)}
+                  ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
+                  imagen={imagenesGarage[index % imagenesGarage.length]}
+                  onClick={() => navigate("/editar_zona")}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </main>
 

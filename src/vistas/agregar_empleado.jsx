@@ -7,6 +7,8 @@ import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
 import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
+import { VehiculosCreate } from "../servicies/API_Vehiculo";
+import { ModelosGetAll, ModelosCreate } from "../servicies/API_Modelo";
 
 function AgregarEmpleado() {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ function AgregarEmpleado() {
     setError('');
 
     // Validaciones personalizadas
-    if (!formData.nombre.trim()) {
+    if (!formData.nombre || !formData.nombre.trim()) {
       setError('❌ El nombre es requerido.');
       return;
     }
@@ -41,8 +43,13 @@ function AgregarEmpleado() {
       setError('❌ El nombre debe tener al menos 2 caracteres.');
       return;
     }
+    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/;
+    if (!nombreRegex.test(formData.nombre.trim())) {
+      setError('❌ El nombre solo debe contener letras.');
+      return;
+    }
 
-    if (!formData.apellido.trim()) {
+    if (!formData.apellido || !formData.apellido.trim()) {
       setError('❌ El apellido es requerido.');
       return;
     }
@@ -50,9 +57,13 @@ function AgregarEmpleado() {
       setError('❌ El apellido debe tener al menos 2 caracteres.');
       return;
     }
+    if (!nombreRegex.test(formData.apellido.trim())) {
+      setError('❌ El apellido solo debe contener letras.');
+      return;
+    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
+    if (!formData.email || !formData.email.trim()) {
       setError('❌ El correo electrónico es requerido.');
       return;
     }
@@ -70,9 +81,37 @@ function AgregarEmpleado() {
       return;
     }
 
-    if (formData.telefono.trim() && formData.telefono.trim().length < 7) {
-      setError('❌ El teléfono debe tener al menos 7 dígitos.');
+    if (formData.telefono && formData.telefono.trim()) {
+      const telefonoRegex = /^[+]{0,1}[0-9\s-()]+$/;
+      if (!telefonoRegex.test(formData.telefono.trim())) {
+        setError('❌ El teléfono solo puede contener números, espacios, guiones, paréntesis o el signo +.');
+        return;
+      }
+      if (formData.telefono.trim().replace(/\D/g, '').length < 7) {
+        setError('❌ El teléfono debe tener al menos 7 dígitos.');
+        return;
+      }
+    }
+
+    // Validaciones de vehículo
+    const patenteIngresada = formData.patente && formData.patente.trim();
+    const modeloIngresado = formData.modelo && formData.modelo.trim();
+
+    if ((patenteIngresada && !modeloIngresado) || (!patenteIngresada && modeloIngresado)) {
+      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como el modelo.');
       return;
+    }
+
+    if (patenteIngresada && modeloIngresado) {
+      const patenteRegex = /^[a-zA-Z0-9]{6,8}$/;
+      if (!patenteRegex.test(patenteIngresada)) {
+        setError('❌ La patente debe ser alfanumérica y tener entre 6 y 8 caracteres (ej: AAA123 o AB123CD).');
+        return;
+      }
+      if (modeloIngresado.length < 2) {
+        setError('❌ El modelo del vehículo debe tener al menos 2 caracteres.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -89,11 +128,53 @@ function AgregarEmpleado() {
     };
 
     const response = await UsuariosCreate(payload);
-    setLoading(false);
 
     if (response.respuesta) {
+      if (patenteIngresada && modeloIngresado) {
+        try {
+          const createdUser = response.datos;
+          const idUsuario = createdUser?.id || createdUser?.insertId || (Array.isArray(createdUser) ? createdUser[0]?.id : null);
+
+          if (idUsuario) {
+            const modelosRes = await ModelosGetAll();
+            let idModelo = null;
+            if (modelosRes.respuesta && Array.isArray(modelosRes.datos)) {
+              const modeloExistente = modelosRes.datos.find(
+                (m) => m.nombre.toLowerCase().trim() === modeloIngresado.toLowerCase().trim()
+              );
+              if (modeloExistente) {
+                idModelo = modeloExistente.id;
+              }
+            }
+
+            if (!idModelo) {
+              const nuevoModeloRes = await ModelosCreate({
+                id_marca: 1, // Toyota por defecto
+                nombre: modeloIngresado.trim()
+              });
+              if (nuevoModeloRes.respuesta && nuevoModeloRes.datos) {
+                idModelo = nuevoModeloRes.datos.id || nuevoModeloRes.datos.insertId || (Array.isArray(nuevoModeloRes.datos) ? nuevoModeloRes.datos[0]?.id : null);
+              }
+            }
+
+            if (!idModelo) {
+              idModelo = 1; // Fallback
+            }
+
+            await VehiculosCreate({
+              id_usuario: Number(idUsuario),
+              id_modelo: Number(idModelo),
+              patente: patenteIngresada.toUpperCase()
+            });
+          }
+        } catch (vehErr) {
+          console.error("Error al guardar el vehículo del empleado:", vehErr);
+        }
+      }
+      setLoading(false);
       navigate('/gestion_de_empleados', { replace: true });
     } else {
+      setLoading(false);
       setError('❌ No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
     }
   };

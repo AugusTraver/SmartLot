@@ -207,6 +207,29 @@
   gap: 24px;
 }
 
+.empleados-feedback,
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.empleados-feedback p,
+.no-results p {
+  margin: 0;
+}
+
+.empleados-feedback-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
 .card-empleado-v3 {
   background: white;
   border-radius: 32px;
@@ -221,6 +244,15 @@
   justify-content: space-between;
   align-items: flex-start;
  
+}
+
+.empleado-sede-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 15px;
 }
 
 

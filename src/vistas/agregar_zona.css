@@ -1,7 +1,7 @@
 .agregar-zona {
   min-height: 100vh;
   background: #f5f7fb;
-  padding: 0 1rem 130px;
+  padding: 0 0 130px;
   box-sizing: border-box;
 }
 
@@ -9,7 +9,7 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding-top: 2rem;
+  padding: 2rem 1rem 0;
   box-sizing: border-box;
 }
 
@@ -135,11 +135,11 @@
 
 @media (max-width: 768px) {
   .agregar-zona {
-    padding: 0 0.85rem 120px;
+    padding: 0 0 120px;
   }
 
   .contenido-agregar-zona {
-    padding-top: 1.5rem;
+    padding: 1.5rem 0.85rem 0;
   }
 
   .top-garage {
