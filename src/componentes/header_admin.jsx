@@ -10,9 +10,9 @@ function Header() {
     <div className="header">
       <div className="header-left">
 
-        <button className="logo-smartlot" onClick={() => navigate("/admin_dashboard")}>
+        <div className="logo-smartlot" >
           <img src={logo} alt="logo SmartLot" />
-        </button>
+        </div>
         
       </div>
       <div className="header-right">
