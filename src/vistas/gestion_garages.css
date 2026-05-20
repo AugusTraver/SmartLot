@@ -1,14 +1,15 @@
 .gestion-garages {
   min-height: 100vh;
   background: #f5f7fb;
-  padding: 0 1rem 140px;
+  padding: 0 0 140px;
 }
 
 .gestion-garages-main {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding-top: 1rem;
+  padding: 1rem 1rem 0;
+  box-sizing: border-box;
 }
 
 .gestion-garages-top {
@@ -192,9 +193,32 @@
   align-items: stretch;
 }
 
+.garages-feedback {
+  width: 100%;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 700;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.garages-feedback-error {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 @media (max-width: 720px) {
   .gestion-garages {
-    padding: 1rem 0.8rem 120px;
+    padding: 0 0 120px;
+  }
+
+  .gestion-garages-main {
+    padding: 1rem 0.8rem 0;
   }
 
   .gestion-garages-top {

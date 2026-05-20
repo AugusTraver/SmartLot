@@ -25,10 +25,8 @@ function FormularioZona({
                     />
                 </div>
 
-                {/* El div 'fila-inputs' se puede mantener por temas de CSS, 
-                    pero ahora solo contiene Nivel/Planta */}
                 <div className="fila-inputs">
-                    <div className="grupo-input" style={{ width: '100%' }}>
+                    <div className="grupo-input">
                         <label>Nivel / Planta</label>
                         <input
                             type="number"
