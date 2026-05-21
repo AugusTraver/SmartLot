@@ -2,17 +2,20 @@ import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "./header_admin.css";
 import { FaRegBell } from "react-icons/fa";
 import { RxAvatar } from "react-icons/rx";
-
+import { useNavigate } from "react-router-dom";
 function Header() {
-
+  const navigate = useNavigate();
   return (
 
     <div className="header">
       <div className="header-left">
 
         <div className="logo-smartlot" >
-          <img src={logo} alt="logo SmartLot" />
-        </div>
+
+           
+              <img onClick={() => navigate ("/")} src={logo} alt="logo SmartLot"  style={{ cursor: 'pointer' }}/>
+          
+          </div>
         
       </div>
       <div className="header-right">
