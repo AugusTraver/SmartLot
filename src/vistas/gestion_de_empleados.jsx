@@ -218,41 +218,41 @@ const GestionEmpleados = () => {
 
           {!loading && !error && empleadosFiltrados.length > 0
             ? empleadosFiltrados.map((emp) => (
-                <article key={emp.id} className="card-empleado-v3">
-                  <div className="card-header-v3">
-                    <h3 className="emp-name-v3">{emp.name}</h3>
-                    <span className="role-badge-v3">{emp.role}</span>
-                  </div>
+              <article key={emp.id} className="card-empleado-v3">
+                <div className="card-header-v3">
+                  <h3 className="emp-name-v3">{emp.name}</h3>
+                  <span className="role-badge-v3">{emp.role}</span>
+                </div>
 
-                  <div className="card-body-v3">
-                    <div className="empleado-sede-line">
-                      <MapPin size={14} />
-                      <span>{emp.sede}</span>
-                    </div>
+                <div className="card-body-v3">
+                  <div className="empleado-sede-line">
+                    <MapPin size={14} />
+                    <span>{emp.sede}</span>
                   </div>
+                </div>
 
-                  <div className="parking-section-v3">
-                    <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
-                    <div className="parking-pill-v3">
-                      <div className="p-icon-box">P</div>
-                      <div className="parking-details-v3">
-                        <span className="spot-v3">{emp.parkingSpot}</span>
-                        <span className="level-v3">{emp.parkingLevel}</span>
-                      </div>
+                <div className="parking-section-v3">
+                  <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
+                  <div className="parking-pill-v3">
+                    <div className="p-icon-box">P</div>
+                    <div className="parking-details-v3">
+                      <span className="spot-v3">{emp.parkingSpot}</span>
+                      <span className="level-v3">{emp.parkingLevel}</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="card-footer-v3">
-                    <div className="status-indicator">
-                      <div className="green-dot"></div>
-                      <span>Activo hoy</span>
-                    </div>
-                    <div className="footer-bottom-row">
-                      <span className="email-v3">{emp.email}</span>
-                    </div>
+                <div className="card-footer-v3">
+                  <div className="status-indicator">
+                    <div className="green-dot"></div>
+                    <span>Activo hoy</span>
                   </div>
-                </article>
-              ))
+                  <div className="footer-bottom-row">
+                    <span className="email-v3">{emp.email}</span>
+                  </div>
+                </div>
+              </article>
+            ))
             : null}
 
           {!loading && !error && empleadosFiltrados.length === 0 && (

@@ -100,13 +100,13 @@ function AgregarZona() {
 
     setLoading(true);
 
-    const payload = {
+    const garage = {
       id_sede: Number(formData.id_sede) || 1,
       nombre: formData.nombre.trim(),
       piso: formData.piso.trim(),
       ubicacion: formData.ubicacion.trim(),
-      // SOLUCIÓN: Mandamos un booleano (true = activo, false = inactivo)
-      estado: true, 
+      // SOLUCIÓN: Mandamos un string ("activo" o "inactivo") en lugar de un booleano, ya que el backend espera eso
+      estado: true, // Siempre activo al crear, ya no se maneja desde el formulario
       capacidad: cap,
       capacidad_para_no_reservas: capNoRes,
       capacidad_reservas: capRes,
@@ -114,7 +114,7 @@ function AgregarZona() {
       ocupacion_no_reservas: 0
     };
 
-    const response = await GaragesCreate(payload);
+    const response = await GaragesCreate(garage);
     setLoading(false);
 
     if (response.respuesta) {

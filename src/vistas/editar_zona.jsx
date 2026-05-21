@@ -116,14 +116,19 @@ function EditarZona() {
       return;
     }
 
+    if (!garageData?.id_sede) {
+      setError('❌ No se encontró la sede asociada al garage.');
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
-       id_sede: garageData.id_sede ?? 1,
+       id_sede: garageData.id_sede,
        nombre: nombreGarage.trim(),
        piso: Number(piso),
        ubicacion: ubicacion.trim(),
-       estado: estadoActivo ? 1 : 0,
+       estado: estadoActivo,
        capacidad: Number(capacidad),
        capacidad_reservas: Number(capacidadReservas),
        capacidad_para_no_reservas: Number(capacidadNoReservas)
@@ -237,10 +242,10 @@ function EditarZona() {
               <button
                 type="button"
                 className={`estado-btn estado-desconectado ${!estadoActivo ? "activo" : ""}`}
-                onClick={() => { console.log("[Estado] Click Desconectado"); setEstadoActivo(false); }}
+                onClick={() => { console.log("[Estado] Click Inactivo"); setEstadoActivo(false); }}
               >
                 <WifiOff size={21} />
-                <strong>Desconectado</strong>
+                <strong>Inactivo</strong>
                 <span>Sin conexión</span>
               </button>
             </div>
