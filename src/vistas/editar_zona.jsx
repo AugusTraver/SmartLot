@@ -11,7 +11,6 @@ import {
   MapPin,
   Layers,
   CheckCircle2,
-  Wrench,
   WifiOff,
   Save,
   X,
@@ -20,73 +19,46 @@ import { useNavigate, useLocation } from "react-router-dom";
 import BotonGenerico from "../componentes/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
 
-const estados = [
-  {
-    id: "activo",
-    label: "Activo",
-    detalle: "Operando normal",
-    icono: CheckCircle2,
-  },
-  {
-    id: "mantenimiento",
-    label: "Mantenimiento",
-    detalle: "Revisión técnica",
-    icono: Wrench,
-  },
-  {
-    id: "desconectado",
-    label: "Desconectado",
-    detalle: "Sin conexión",
-    icono: WifiOff,
-  },
-];
+const parseEstadoBool = (estado) => {
+  if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
+  return false;
+};
 
 function EditarZona() {
   const navigate = useNavigate();
   const location = useLocation();
   const garageData = location.state?.garage;
 
-  const [estadoActivo, setEstadoActivo] = useState("activo");
-  const [capacidad, setCapacidad] = useState(0);
-  const [capacidadReservas, setCapacidadReservas] = useState(0);
-  const [capacidadNoReservas, setCapacidadNoReservas] = useState(0);
-  const [nombreGarage, setNombreGarage] = useState('Garage B');
-  const [piso, setPiso] = useState('Piso 2');
-  const [ubicacion, setUbicacion] = useState('');
+  const [estadoActivo, setEstadoActivo] = useState(() => {
+    return garageData ? parseEstadoBool(garageData.estado) : true;
+  });
+  const [capacidad, setCapacidad] = useState(() => {
+    return garageData ? Number(garageData.capacidad || 0) : 0;
+  });
+  const [capacidadReservas, setCapacidadReservas] = useState(() => {
+    return garageData ? Number(garageData.capacidad_reservas || 0) : 0;
+  });
+  const [capacidadNoReservas, setCapacidadNoReservas] = useState(() => {
+    return garageData ? Number(garageData.capacidad_para_no_reservas || 0) : 0;
+  });
+  const [nombreGarage, setNombreGarage] = useState(() => {
+    return garageData ? (garageData.nombre || '') : 'Garage B';
+  });
+  const [piso, setPiso] = useState(() => {
+    return garageData ? (garageData.piso || '') : 'Piso 2';
+  });
+  const [ubicacion, setUbicacion] = useState(() => {
+    return garageData ? (garageData.ubicacion || '') : '';
+  });
+  console.log("[EditarZona] garageData.estado:", garageData?.estado, "→ parseEstadoBool:", parseEstadoBool(garageData?.estado));
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!garageData) {
       navigate("/gestion_garages", { replace: true });
-      return;
     }
-    
-    setNombreGarage(garageData.nombre || '');
-    setPiso(garageData.piso || '');
-    setUbicacion(garageData.ubicacion || '');
-    
-    let esActivo = "activo";
-    if (typeof garageData.estado === "string") {
-      const estadoNormalizado = garageData.estado.toLowerCase();
-      if (["activo", "mantenimiento", "desconectado"].includes(estadoNormalizado)) {
-        esActivo = estadoNormalizado;
-      } else if (estadoNormalizado === "abierto" || estadoNormalizado === "true" || estadoNormalizado === "1") {
-        esActivo = "activo";
-      } else {
-        esActivo = "desconectado";
-      }
-    } else if (typeof garageData.estado === "boolean") {
-      esActivo = garageData.estado ? "activo" : "desconectado";
-    } else if (typeof garageData.estado === "number") {
-      esActivo = garageData.estado === 1 ? "activo" : "desconectado";
-    }
-    setEstadoActivo(esActivo);
-
-    setCapacidad(Number(garageData.capacidad || 0));
-    setCapacidadReservas(Number(garageData.capacidad_reservas || 0));
-    setCapacidadNoReservas(Number(garageData.capacidad_para_no_reservas || 0));
-
   }, [garageData, navigate]);
 
 
@@ -108,8 +80,13 @@ function EditarZona() {
       return;
     }
 
-    if (!piso.toString().trim()) {
+    if (piso === undefined || piso === null || piso.toString().trim() === "") {
       setError('❌ El nivel/planta es requerido.');
+      return;
+    }
+    const pisoNum = Number(piso);
+    if (isNaN(pisoNum) || !Number.isInteger(pisoNum)) {
+      setError('❌ El nivel/planta debe ser un número entero válido.');
       return;
     }
 
@@ -142,14 +119,14 @@ function EditarZona() {
     setLoading(true);
 
     const payload = {
-       ...garageData,
+       id_sede: garageData.id_sede ?? 1,
        nombre: nombreGarage.trim(),
-       piso: piso.toString().trim(),
+       piso: Number(piso),
        ubicacion: ubicacion.trim(),
-       estado: estadoActivo,
-       capacidad: capacidad,
-       capacidad_reservas: capacidadReservas,
-       capacidad_para_no_reservas: capacidadNoReservas
+       estado: estadoActivo ? 1 : 0,
+       capacidad: Number(capacidad),
+       capacidad_reservas: Number(capacidadReservas),
+       capacidad_para_no_reservas: Number(capacidadNoReservas)
     };
 
     const id = garageData.id_garage ?? garageData.idGarage ?? garageData.id ?? garageData._id;
@@ -248,24 +225,24 @@ function EditarZona() {
             </div>
 
             <div className="estado-container">
-              {estados.map((estado) => {
-                const Icono = estado.icono;
-
-                return (
-                  <button
-                    key={estado.id}
-                    type="button"
-                    className={`estado-btn estado-${estado.id} ${
-                      estadoActivo === estado.id ? "activo" : ""
-                    }`}
-                    onClick={() => setEstadoActivo(estado.id)}
-                  >
-                    <Icono size={21} />
-                    <strong>{estado.label}</strong>
-                    <span>{estado.detalle}</span>
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                className={`estado-btn estado-activo ${estadoActivo ? "activo" : ""}`}
+                onClick={() => { console.log("[Estado] Click Activo"); setEstadoActivo(true); }}
+              >
+                <CheckCircle2 size={21} />
+                <strong>Activo</strong>
+                <span>Operando normal</span>
+              </button>
+              <button
+                type="button"
+                className={`estado-btn estado-desconectado ${!estadoActivo ? "activo" : ""}`}
+                onClick={() => { console.log("[Estado] Click Desconectado"); setEstadoActivo(false); }}
+              >
+                <WifiOff size={21} />
+                <strong>Desconectado</strong>
+                <span>Sin conexión</span>
+              </button>
             </div>
           </section>
 

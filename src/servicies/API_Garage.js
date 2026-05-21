@@ -153,7 +153,12 @@ const GaragesUpdate = async (id, garage) => {
 
     } catch (error) {
 
-        console.log(error);
+        console.error('[API_Garage.GaragesUpdate] ❌ Error en PUT:');
+        console.error('  Status:', error.response?.status);
+        console.error('  Mensaje del servidor:', error.response?.data);
+        console.error('  Error:', error.message);
+
+        returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
 };

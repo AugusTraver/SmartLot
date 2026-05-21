@@ -160,7 +160,7 @@
 
 .estado-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
@@ -204,17 +204,6 @@
 
 .estado-btn.activo strong {
   color: #156fe5;
-}
-
-.estado-mantenimiento.activo {
-  border-color: #f59e0b;
-  background: #fff7ed;
-  color: #b45309;
-  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.12);
-}
-
-.estado-mantenimiento.activo strong {
-  color: #b45309;
 }
 
 .estado-desconectado.activo {
