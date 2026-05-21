@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import FormularioInfoPersonal from "../componentes/formulario_infoPersonal";
 import FormularioDetallesVehiculo from "../componentes/formulario_detallesVehiculo";
@@ -8,7 +8,7 @@ import { CircleCheck } from 'lucide-react';
 import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
-import { ModelosGetAll, ModelosCreate } from "../servicies/API_Modelo";
+import { ModelosGetAll } from "../servicies/API_Modelo";
 
 function AgregarEmpleado() {
   const navigate = useNavigate();
@@ -22,10 +22,21 @@ function AgregarEmpleado() {
     id_sede: 1,
     id_empresa: 1,
     patente: '',
-    modelo: ''
+    id_modelo: null
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modelos, setModelos] = useState([]);
+
+  useEffect(() => {
+    const fetchModelos = async () => {
+      const res = await ModelosGetAll();
+      if (res.respuesta && Array.isArray(res.datos)) {
+        setModelos(res.datos);
+      }
+    };
+    fetchModelos();
+  }, []);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -95,21 +106,17 @@ function AgregarEmpleado() {
 
     // Validaciones de vehículo
     const patenteIngresada = formData.patente && formData.patente.trim();
-    const modeloIngresado = formData.modelo && formData.modelo.trim();
+    const modeloSeleccionado = formData.id_modelo;
 
-    if ((patenteIngresada && !modeloIngresado) || (!patenteIngresada && modeloIngresado)) {
-      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como el modelo.');
+    if ((patenteIngresada && !modeloSeleccionado) || (!patenteIngresada && modeloSeleccionado)) {
+      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como seleccionar un modelo.');
       return;
     }
 
-    if (patenteIngresada && modeloIngresado) {
+    if (patenteIngresada && modeloSeleccionado) {
       const patenteRegex = /^[a-zA-Z0-9]{6,8}$/;
       if (!patenteRegex.test(patenteIngresada)) {
         setError('❌ La patente debe ser alfanumérica y tener entre 6 y 8 caracteres (ej: AAA123 o AB123CD).');
-        return;
-      }
-      if (modeloIngresado.length < 2) {
-        setError('❌ El modelo del vehículo debe tener al menos 2 caracteres.');
         return;
       }
     }
@@ -129,46 +136,38 @@ function AgregarEmpleado() {
 
     const response = await UsuariosCreate(payload);
 
+    if (!response.respuesta) {
+      setLoading(false);
+      const serverMsg = response.datos?.message || response.datos || 'Error al crear el usuario.';
+      setError(typeof serverMsg === 'string' ? `❌ ${serverMsg}` : '❌ Error al crear el usuario.');
+      return;
+    }
+
     if (response.respuesta) {
-      if (patenteIngresada && modeloIngresado) {
+      if (patenteIngresada && modeloSeleccionado) {
         try {
           const createdUser = response.datos;
           const idUsuario = createdUser?.id || createdUser?.insertId || (Array.isArray(createdUser) ? createdUser[0]?.id : null);
 
           if (idUsuario) {
-            const modelosRes = await ModelosGetAll();
-            let idModelo = null;
-            if (modelosRes.respuesta && Array.isArray(modelosRes.datos)) {
-              const modeloExistente = modelosRes.datos.find(
-                (m) => m.nombre.toLowerCase().trim() === modeloIngresado.toLowerCase().trim()
-              );
-              if (modeloExistente) {
-                idModelo = modeloExistente.id;
-              }
-            }
-
-            if (!idModelo) {
-              const nuevoModeloRes = await ModelosCreate({
-                id_marca: 1, // Toyota por defecto
-                nombre: modeloIngresado.trim()
-              });
-              if (nuevoModeloRes.respuesta && nuevoModeloRes.datos) {
-                idModelo = nuevoModeloRes.datos.id || nuevoModeloRes.datos.insertId || (Array.isArray(nuevoModeloRes.datos) ? nuevoModeloRes.datos[0]?.id : null);
-              }
-            }
-
-            if (!idModelo) {
-              idModelo = 1; // Fallback
-            }
-
-            await VehiculosCreate({
+            const vehRes = await VehiculosCreate({
               id_usuario: Number(idUsuario),
-              id_modelo: Number(idModelo),
+              id_modelo: Number(modeloSeleccionado),
               patente: patenteIngresada.toUpperCase()
             });
+
+            if (!vehRes.respuesta) {
+              setLoading(false);
+              const msg = vehRes.datos?.message || vehRes.datos || 'Error al crear el vehículo.';
+              setError(typeof msg === 'string' ? `❌ ${msg}` : '❌ Error al crear el vehículo.');
+              return;
+            }
           }
         } catch (vehErr) {
           console.error("Error al guardar el vehículo del empleado:", vehErr);
+          setLoading(false);
+          setError('❌ Error inesperado al guardar el vehículo. Revisa la consola.');
+          return;
         }
       }
       setLoading(false);
@@ -204,7 +203,8 @@ function AgregarEmpleado() {
             patente: 'Patente',
             modelo: 'Modelo'
           }}
-          vehicleData={{ patente: formData.patente, modelo: formData.modelo }}
+          vehicleData={{ patente: formData.patente, id_modelo: formData.id_modelo }}
+          modelos={modelos}
           onChange={handleChange}
         />
 
