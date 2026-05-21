@@ -4,7 +4,7 @@ import {
   Search,
   UserPlus,
   ArrowLeft,
-  ChevronDown,
+  ChevronDown, 
   SlidersHorizontal,
   MapPin,
 } from "lucide-react";

@@ -55,40 +55,89 @@ const obtenerCapacidadPorcentaje = (garage) => {
   return `${porcentaje}%`;
 };
 
+const GarageSkeletonGrid = () => (    // Muestra 6 tarjetas esqueléticas para simular la carga de garages
+  <div className="contenedor-tarjetas" aria-label="Cargando garages">
+    {Array.from({ length: 6 }).map((_, index) => (   //se encarga de generar un array con 6 tarjetas fantasmas y a su vez estas estan vacias 
+      <article className="tarjeta-garage-skeleton" key={index}> {/*al poner el article lo que estoy haciendo es simular que se crea una card de garage */}
+        <div className="skeleton-media">
+          <span className="skeleton-pill" />
+        </div>
+
+        <div className="skeleton-content">
+          <div className="skeleton-header">
+            <span className="skeleton-line skeleton-title" />
+            <span className="skeleton-button" />
+          </div>
+
+          <div className="skeleton-meta">
+            <span className="skeleton-line skeleton-meta-item" />
+            <span className="skeleton-line skeleton-meta-item skeleton-meta-short" />
+          </div>
+
+          <div className="skeleton-capacity">
+            <div className="skeleton-capacity-label">
+              <span className="skeleton-line skeleton-label" />
+              <span className="skeleton-line skeleton-percent" />
+            </div>
+
+            <span className="skeleton-bar" />
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+);
+
+const GarageStatsSkeleton = () => ( // Muestra 2 tarjetas esqueléticas para simular la carga de estadísticas de garages
+  <section className="stats-container" aria-label="Cargando resumen de garages">
+    {Array.from({ length: 2 }).map((_, index) => (
+      <div className="stats-card stats-card-skeleton" key={index}>
+        <div className="stats-header">
+          <span className="skeleton-line skeleton-stat-label" />
+          <span className="skeleton-stat-icon" />
+        </div>
+
+        <span className="skeleton-line skeleton-stat-value" />
+        <span className="skeleton-line skeleton-stat-description" />
+      </div>
+    ))}
+  </section>
+);
+
 function GestionGarages() {
   const navigate = useNavigate();
-  const [garages, setGarages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [garages, setGarages] = useState([]); // Estado para almacenar la lista de garages
+  const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let estaMontado = true;
+    let estaMontado = true; 
 
     const cargarGarages = async () => {
-      setLoading(true);
+      setLoading(true); // Inicia la carga de datos
       setError("");
 
-      const response = await GaragesGetAll();
+      const response = await GaragesGetAll(); // Llama a la función para obtener todos los garages
 
       if (!estaMontado) return;
 
-      if (response.respuesta) {
+      if (response.respuesta) {    // si la repuesta es positiva, se obtiene la lista de garages y se actualiza el estado
         setGarages(obtenerListadoGarages(response.datos));
       } else {
         setError("No se pudieron cargar los garages.");
       }
 
-      setLoading(false);
+      setLoading(false); // Finaliza la carga de datos
     };
 
-    cargarGarages();
+    cargarGarages(); // Llama a la función para cargar los garages al montar el componente
 
     return () => {
       estaMontado = false;
     };
   }, []);
 
-  const ocupacionMedia =
+  const ocupacionMedia =        
     garages.length > 0
       ? Math.round(
           garages.reduce((total, garage) => {
@@ -98,7 +147,7 @@ function GestionGarages() {
           }, 0) / garages.length
         )
       : 0;
-
+           // Calcula la ocupación media de los garages, sumando el porcentaje de ocupación de cada garage y dividiéndolo por el número total de garages. Si no hay garages, devuelve 0.
   return (
     <div className="gestion-garages">
       <Header />
@@ -125,33 +174,37 @@ function GestionGarages() {
           </BotonGenerico>
         </section>
 
-        <section className="stats-container">
-          <div className="stats-card">
-            <div className="stats-header">
-              <h4>Total zonas</h4>
-              <span className="stats-icon">
-                <MapPinned size={24} />
-              </span>
+        {loading ? (
+          <GarageStatsSkeleton />
+        ) : (
+          <section className="stats-container">
+            <div className="stats-card">
+              <div className="stats-header">
+                <h4>Total zonas</h4>
+                <span className="stats-icon">
+                  <MapPinned size={24} />
+                </span>
+              </div>
+
+              <h2>{garages.length}</h2>
+
+              <p>Registradas en la base de datos</p>
             </div>
 
-            <h2>{loading ? "--" : garages.length}</h2>
+            <div className="stats-card">
+              <div className="stats-header">
+                <h4>Ocupacion media</h4>
+                <span className="stats-icon">
+                  <BarChart3 size={24} />
+                </span>
+              </div>
 
-            <p>Registradas en la base de datos</p>
-          </div>
+              <h2>{`${ocupacionMedia}%`}</h2>
 
-          <div className="stats-card">
-            <div className="stats-header">
-              <h4>Ocupacion media</h4>
-              <span className="stats-icon">
-                <BarChart3 size={24} />
-              </span>
+              <p>Calculada sobre la capacidad total</p>
             </div>
-
-            <h2>{loading ? "--" : `${ocupacionMedia}%`}</h2>
-
-            <p>Calculada sobre la capacidad total</p>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="gestion-garages-container">
           <div className="garages-section-heading">
@@ -162,7 +215,7 @@ function GestionGarages() {
             </p>
           </div>
 
-          {loading && <p className="garages-feedback">Cargando garages...</p>}
+          {loading && <GarageSkeletonGrid />}
 
           {error && (
             <p className="garages-feedback garages-feedback-error">{error}</p>
@@ -175,7 +228,7 @@ function GestionGarages() {
           {!loading && !error && garages.length > 0 && (
             <div className="contenedor-tarjetas">
               {garages.map((garage, index) => (
-                <TarjetaGarage
+                <TarjetaGarage  // le manda al componete de tarjeta garage la informacion de cada garage para que este se encargue de mostrarla
                   key={obtenerIdGarage(garage, index)}
                   titulo={garage.nombre || "Garage sin nombre"}
                   plazas={Number(garage.capacidad || 0)}
