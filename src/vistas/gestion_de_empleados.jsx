@@ -140,8 +140,37 @@ const GestionEmpleados = () => {
       estaMontado = false;
     };
   }, []);
+const handleEliminarEmpleado = async (id, nombre) => {
+    const confirmar = window.confirm(
+      `¿Estás seguro de que deseas eliminar a ${nombre || "este empleado"}? Esta acción no se puede deshacer.`
+    );
+    
+    if (!confirmar) return;
 
+    try {
+      // Invocamos la función importada directamente desde el servicio de axios
+      const response = await UsuariosDelete(id); 
 
+      if (response.respuesta) {
+        // Optimización por GPU: Animamos la tarjeta saliente con GSAP antes de removerla del estado
+        gsap.to(`.card-id-${id}`, {
+          scale: 0.9,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.inOut",
+          onComplete: () => {
+            // Remoción reactiva del estado local en memoria a 120fps
+            setEmpleados((prev) => prev.filter((emp) => emp.id !== id));
+          }
+        });
+      } else {
+        alert("El servidor rechazó la solicitud. No se pudo eliminar al empleado.");
+      }
+    } catch (err) {
+      console.error("Error al eliminar el empleado en el servidor:", err);
+      alert("Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.");
+    }
+  };
   const sedesDisponibles = useMemo(
     () => Array.from(new Set(empleados.map((emp) => emp.sede))).filter(Boolean),
     [empleados]
