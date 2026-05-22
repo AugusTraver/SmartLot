@@ -94,6 +94,14 @@
   box-shadow: 0 16px 32px rgba(21, 111, 229, 0.3);
 }
 
+.btn-nueva-zona-skeleton {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
 .stats-container {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -232,7 +240,8 @@
 .skeleton-button,
 .skeleton-pill,
 .skeleton-bar,
-.skeleton-stat-icon {
+.skeleton-stat-icon,
+.btn-nueva-zona-skeleton {
   position: relative;
   overflow: hidden;
   background: #e5e7eb;
@@ -243,7 +252,8 @@
 .skeleton-button::after,
 .skeleton-pill::after,
 .skeleton-bar::after,
-.skeleton-stat-icon::after {
+.skeleton-stat-icon::after,
+.btn-nueva-zona-skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -447,6 +457,11 @@
   }
 
   .btn-nueva-zona {
+    min-height: 54px;
+    border-radius: 12px;
+  }
+
+  .btn-nueva-zona-skeleton {
     min-height: 54px;
     border-radius: 12px;
   }

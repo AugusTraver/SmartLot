@@ -104,6 +104,12 @@ const GarageStatsSkeleton = () => ( // Muestra 2 tarjetas esqueléticas para sim
   </section>
 );
 
+const GarageActionSkeleton = () => (
+  <section className="garages-actions" aria-label="Cargando acciones de garages">
+    <span className="btn-nueva-zona-skeleton" />
+  </section>
+);
+
 function GestionGarages() {
   const navigate = useNavigate();
   const [garages, setGarages] = useState([]); // Estado para almacenar la lista de garages
@@ -164,15 +170,19 @@ function GestionGarages() {
           </div>
         </section>
 
-        <section className="garages-actions">
-          <BotonGenerico
-            className="btn-nueva-zona"
-            onClick={() => navigate("/agregar_zona")}
-          >
-            <CirclePlus size={20} />
-            <span>Nueva Zona</span>
-          </BotonGenerico>
-        </section>
+        {loading ? (
+          <GarageActionSkeleton />
+        ) : (
+          <section className="garages-actions">
+            <BotonGenerico
+              className="btn-nueva-zona"
+              onClick={() => navigate("/agregar_zona")}
+            >
+              <CirclePlus size={20} />
+              <span>Nueva Zona</span>
+            </BotonGenerico>
+          </section>
+        )}
 
         {loading ? (
           <GarageStatsSkeleton />

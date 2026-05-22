@@ -24,7 +24,6 @@ function App()
           
           {/* Rutas para gestión de garages */}
          <Route path="/gestion_garages" element={<GestionGarages />} />
-         
           <Route path="/agregar_zona" element={<AgregarZona />} /> 
          <Route path="/editar_zona" element={<EditarZona />} />
 
