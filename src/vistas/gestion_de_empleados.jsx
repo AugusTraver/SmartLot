@@ -4,7 +4,7 @@ import {
   Search,
   UserPlus,
   ArrowLeft,
-  ChevronDown, 
+  ChevronDown,
   SlidersHorizontal,
   MapPin,
   Trash2
@@ -16,9 +16,10 @@ import "./gestion_de_empleados.css";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
-import { UsuariosGetAll } from "../servicies/API_Usuario";
+import { UsuariosGetAll, UsuariosDelete } from "../servicies/API_Usuario";
 
 gsap.registerPlugin(useGSAP);
+
 
 const obtenerListadoUsuarios = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -140,6 +141,37 @@ const GestionEmpleados = () => {
     };
   }, []);
 
+  const handleEliminarEmpleado = async (id, nombre) => {
+    const confirmar = window.confirm(
+      `¿Estás seguro de que deseas eliminar a ${nombre || "este empleado"}? Esta acción no se puede deshacer.`
+    );
+    
+    if (!confirmar) return;
+
+    try {
+      // Invocamos la función importada directamente desde el servicio de axios
+      const response = await UsuariosDelete(id); 
+
+      if (response.respuesta) {
+        // Optimización por GPU: Animamos la tarjeta saliente con GSAP antes de removerla del estado
+        gsap.to(`.card-id-${id}`, {
+          scale: 0.9,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.inOut",
+          onComplete: () => {
+            // Remoción reactiva del estado local en memoria a 120fps
+            setEmpleados((prev) => prev.filter((emp) => emp.id !== id));
+          }
+        });
+      } else {
+        alert("El servidor rechazó la solicitud. No se pudo eliminar al empleado.");
+      }
+    } catch (err) {
+      console.error("Error al eliminar el empleado en el servidor:", err);
+      alert("Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.");
+    }
+  };
   const sedesDisponibles = useMemo(
     () => Array.from(new Set(empleados.map((emp) => emp.sede))).filter(Boolean),
     [empleados]
@@ -243,7 +275,7 @@ const GestionEmpleados = () => {
                   value={selectedSede}
                   onChange={(e) => setSelectedSede(e.target.value)}
                 >
-                  <option value="Todas">Todas las sedes</option> 
+                  <option value="Todas">Todas las sedes</option>
                   {sedesDisponibles.map((sede) => (
                     <option key={sede} value={sede}>
                       {sede}
@@ -265,64 +297,63 @@ const GestionEmpleados = () => {
         ) : (
           <div className="grid-bento">
 
-          {error && (
-            <div className="empleados-feedback empleados-feedback-error">
-              <p>{error}</p>
-            </div>
-          )}
+            {error && (
+              <div className="empleados-feedback empleados-feedback-error">
+                <p>{error}</p>
+              </div>
+            )}
 
-          {!loading && !error && empleadosFiltrados.length > 0
-            ? empleadosFiltrados.map((emp) => (
-              <article key={emp.id} className="card-empleado-v3">
-                <div className="card-header-v3">
-                  <h3 className="emp-name-v3">{emp.name}</h3>
-                  <span className="role-badge-v3">{emp.role}</span>
-                </div>
-
-                <div className="card-body-v3">
-                  <div className="empleado-sede-line">
-                    <MapPin size={14} />
-                    <span>{emp.sede}</span>
+            {!loading && !error && empleadosFiltrados.length > 0
+              ? empleadosFiltrados.map((emp) => (
+                <article key={emp.id} className="card-empleado-v3">
+                  <div className="card-header-v3">
+                    <h3 className="emp-name-v3">{emp.name}</h3>
+                    <span className="role-badge-v3">{emp.role}</span>
                   </div>
-                </div>
 
-                <div className="parking-section-v3">
-                  <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
-                  <div className="parking-pill-v3">
-                    <div className="p-icon-box">P</div>
-                    <div className="parking-details-v3">
-                      <span className="spot-v3">{emp.parkingSpot}</span>
-                      <span className="level-v3">{emp.parkingLevel}</span>
+                  <div className="card-body-v3">
+                    <div className="empleado-sede-line">
+                      <MapPin size={14} />
+                      <span>{emp.sede}</span>
                     </div>
                   </div>
-                </div>
 
-                <div className="card-footer-v3">
-                  <div className="status-indicator">
-                    <div className="green-dot"></div>
-                    <span>Activo hoy</span>
-                  </div>
-                  <div className="footer-bottom-row">
-                    <span className="email-v3">{emp.email}</span>
-                    <div>
-                       <Trash2 onClick={() => navigate ("/")} size={20} className="trash-icon" />
+                  <div className="parking-section-v3">
+                    <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
+                    <div className="parking-pill-v3">
+                      <div className="p-icon-box">P</div>
+                      <div className="parking-details-v3">
+                        <span className="spot-v3">{emp.parkingSpot}</span>
+                        <span className="level-v3">{emp.parkingLevel}</span>
+                      </div>
                     </div>
-    
-
-                    < BotonGenerico className="boton-eliminar">
-                    <Trash2 size={20} className="trash-icon" />
-                   </BotonGenerico>
                   </div>
-                </div>
-              </article>
-            ))
-            : null}
 
-          {!loading && !error && empleadosFiltrados.length === 0 && (
-            <div className="no-results">
-              <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
-            </div>
-          )}
+                  <div className="card-footer-v3">
+                    <div className="status-indicator">
+                      <div className="green-dot"></div>
+                      <span>Activo hoy</span>
+                    </div>
+                    <div className="footer-bottom-row">
+                      <span className="email-v3">{emp.email}</span>
+                      <BotonGenerico
+                        className="btn-eliminar-v3"
+                        onClick={() => handleEliminarEmpleado(emp.id)}
+                        aria-label={`Eliminar empleado ${emp.name}`} // Requisito a11y crítico para botones con solo iconos
+                      >
+                        <Trash2 size={18} className="trash-icon-v3" />
+                      </BotonGenerico>
+                    </div>
+                  </div>
+                </article>
+              ))
+              : null}
+
+            {!loading && !error && empleadosFiltrados.length === 0 && (
+              <div className="no-results">
+                <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
+              </div>
+            )}
           </div>
         )}
       </main>

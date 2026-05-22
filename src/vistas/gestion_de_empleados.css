@@ -581,15 +581,41 @@
   padding-top: 10px;
   border-top: 1px solid #f1f3f4;
 }
-.boton-eliminar{
-  background-color: #ffffff;
+
+/* Botón de eliminación Premium (SmartLot Design System) */
+.btn-eliminar-v3 {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9 !important; /* Fondo neutral claro por defecto */
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important; /* Radios moderados según la guía */
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.boton-eliminar:hover{
-  background-color: #f1f3f4;
+
+/* Modificadores de estado interactivo utilizando pseudo-clases nativas */
+.btn-eliminar-v3:hover {
+  background-color: #fee2e2 !important; /* Rojo sutil de advertencia al hacer hover */
+  border-color: #fca5a5 !important;
 }
-.trash-icon{
-  color: grey;
+
+.btn-eliminar-v3:hover .trash-icon-v3 {
+  color: #ef4444; /* El icono pasa a rojo intenso para denotar peligro */
 }
+
+.btn-eliminar-v3:focus-visible {
+  outline: 2px solid #ef4444; /* Anillo de enfoque accesible */
+  outline-offset: 2px;
+}
+
+.trash-icon-v3 {
+  color: #64748b; /* Gris sofisticado inicial */
+  transition: color 0.2s ease;
+}
+
 
 @keyframes empleados-skeleton-shimmer {
   100% {
