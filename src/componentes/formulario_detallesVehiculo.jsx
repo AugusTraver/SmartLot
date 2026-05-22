@@ -25,7 +25,7 @@ function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleDat
              value={vehicleData.id_modelo ?? ''}
              onChange={handleModeloChange}
            >
-             <option value="">Seleccionar modelo</option>
+             <option value=""></option>
              {modelos && modelos.map((m) => (
                <option key={m.id} value={m.id}>{m.nombre}</option>
              ))}

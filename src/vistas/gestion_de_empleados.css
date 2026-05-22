@@ -403,6 +403,7 @@
   color: #64748b; /* Slate-500 */
   pointer-events: none; /* CRÍTICO: el clic pasa a través del icono al select */
   transition: transform 0.2s ease;
+ 
 }
 
 /* Efecto visual al abrir (opcional, si usas un estado de open) */

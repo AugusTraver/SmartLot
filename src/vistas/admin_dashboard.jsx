@@ -19,14 +19,14 @@ return (
       <div className="dashboard-grid">
         <DashboardBoton  
           icono={<UserPlus/>}    
-          titulo="Gestionar de Empleados"
+          titulo="Gestión de Empleados"
           descripcion="Gestionar y agregar nuevos empleados"
           onClick={() => navigate("/gestion_de_empleados")}
         />
 
         <DashboardBoton
          icono={<Car/>}
-          titulo="Gestion de garages"
+          titulo="Gestión de garages"
           descripcion="Gestión y definición de nuevos garages"
           onClick={() => navigate("/gestion_garages")}
         />

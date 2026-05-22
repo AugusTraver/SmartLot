@@ -197,17 +197,7 @@ function AgregarEmpleado() {
           onChange={handleChange}
         />
 
-        <FormularioDetallesVehiculo
-          detallesVehiculoTitulo="Detalles del Vehículo"
-          labels={{
-            patente: 'Patente',
-            modelo: 'Modelo'
-          }}
-          vehicleData={{ patente: formData.patente, id_modelo: formData.id_modelo }}
-          modelos={modelos}
-          onChange={handleChange}
-        />
-
+       
         {error && <p className="form-error">{error}</p>}
 
         <div className="form-actions">
