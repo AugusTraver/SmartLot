@@ -17,6 +17,8 @@ import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosGetAll, UsuariosDelete } from "../servicies/API_Usuario";
+import { VehiculosGetAll } from "../servicies/API_Vehiculo";
+import { ModelosGetAll } from "../servicies/API_Modelo";
 
 gsap.registerPlugin(useGSAP);
 
@@ -45,15 +47,23 @@ const obtenerSede = (idSede) => {
   return `Sede ${idSede}`;
 };
 
-const normalizarEmpleado = (usuario) => ({
-  id: usuario.id ?? usuario.id_usuario ?? usuario._id,
-  name: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Empleado sin nombre",
-  role: obtenerRol(usuario.id_rol),
-  email: usuario.email || "Sin email",
-  parkingSpot: usuario.patente ? `Patente ${usuario.patente}` : "Sin vehiculo",
-  parkingLevel: obtenerSede(usuario.id_sede),
-  sede: obtenerSede(usuario.id_sede),
-});
+const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null) => {
+  const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
+  const patente = vehiculo?.patente || usuario.patente;
+  const modeloName = modeloNombre || usuario.modelo;
+  const modeloLabel = modeloName ? `Modelo ${modeloName}` : null;
+
+  return {
+    id,
+    name: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Empleado sin nombre",
+    role: obtenerRol(usuario.id_rol),
+    email: usuario.email || "Sin email",
+    parkingSpot: patente ? `Patente ${patente}` : "Sin vehículo",
+    parkingLevel: obtenerSede(usuario.id_sede),
+    sede: obtenerSede(usuario.id_sede),
+    vehicleModel: modeloLabel,
+  };
+};
 
 const EmpleadosActionSkeleton = () => ( // Muestra un botón esquelético para simular la carga de acciones disponibles
   <div className="animate-header btn-container-mobile">
@@ -120,17 +130,47 @@ const GestionEmpleados = () => {
       setLoading(true);
       setError("");
 
-      const response = await UsuariosGetAll();
+      const [responseUsuarios, responseVehiculos, responseModelos] = await Promise.all([
+        UsuariosGetAll(),
+        VehiculosGetAll(),
+        ModelosGetAll(),
+      ]);
 
       if (!estaMontado) return;
 
-      if (response.respuesta) {
-        const usuarios = obtenerListadoUsuarios(response.datos);
-        setEmpleados(usuarios.map(normalizarEmpleado));
-      } else {
+      if (!responseUsuarios.respuesta) {
         setError("No se pudieron cargar los empleados.");
+        setLoading(false);
+        return;
       }
 
+      const usuarios = obtenerListadoUsuarios(responseUsuarios.datos);
+      const vehiculos = responseVehiculos.respuesta
+        ? Array.isArray(responseVehiculos.datos)
+          ? responseVehiculos.datos
+          : obtenerListadoUsuarios(responseVehiculos.datos)
+        : [];
+      const modelos = responseModelos.respuesta
+        ? Array.isArray(responseModelos.datos)
+          ? responseModelos.datos
+          : obtenerListadoUsuarios(responseModelos.datos)
+        : [];
+
+      const vehiculosPorUsuario = new Map(
+        vehiculos.map((vehiculo) => [vehiculo.id_usuario, vehiculo])
+      );
+      const modeloNombrePorId = new Map(
+        modelos.map((modelo) => [modelo.id, modelo.nombre])
+      );
+
+      setEmpleados(
+        usuarios.map((usuario) => {
+          const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
+          const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
+
+          return normalizarEmpleado(usuario, vehiculo, modeloNombre);
+        })
+      );
       setLoading(false);
     };
 
@@ -323,12 +363,12 @@ const handleEliminarEmpleado = async (id, nombre) => {
                   </div>
 
                   <div className="parking-section-v3">
-                    <p className="parking-label-v3">ESTADO DE ESTACIONAMIENTO</p>
+                    <p className="parking-label-v3">VEHÍCULO</p>
                     <div className="parking-pill-v3">
-                      <div className="p-icon-box">P</div>
+                      <div className="p-icon-box">V</div>
                       <div className="parking-details-v3">
                         <span className="spot-v3">{emp.parkingSpot}</span>
-                        <span className="level-v3">{emp.parkingLevel}</span>
+                        <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
                       </div>
                     </div>
                   </div>
