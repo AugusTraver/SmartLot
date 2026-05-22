@@ -355,7 +355,7 @@ const handleEliminarEmpleado = async (id, nombre) => {
 
             {!loading && !error && empleadosFiltrados.length === 0 && (
               <div className="no-results">
-                <p>No hay resultados para "{searchTerm}" en {selectedSede}.</p>
+                <p>No hay empleados subidos aun</p>
               </div>
             )}
           </div>
