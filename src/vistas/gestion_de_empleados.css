@@ -581,6 +581,15 @@
   padding-top: 10px;
   border-top: 1px solid #f1f3f4;
 }
+.boton-eliminar{
+  background-color: #ffffff;
+}
+.boton-eliminar:hover{
+  background-color: #f1f3f4;
+}
+.trash-icon{
+  color: grey;
+}
 
 @keyframes empleados-skeleton-shimmer {
   100% {

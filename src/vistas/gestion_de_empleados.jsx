@@ -7,6 +7,7 @@ import {
   ChevronDown, 
   SlidersHorizontal,
   MapPin,
+  Trash2
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -303,6 +304,14 @@ const GestionEmpleados = () => {
                   </div>
                   <div className="footer-bottom-row">
                     <span className="email-v3">{emp.email}</span>
+                    <div>
+                       <Trash2 onClick={() => navigate ("/")} size={20} className="trash-icon" />
+                    </div>
+    
+
+                    < BotonGenerico className="boton-eliminar">
+                    <Trash2 size={20} className="trash-icon" />
+                   </BotonGenerico>
                   </div>
                 </div>
               </article>
