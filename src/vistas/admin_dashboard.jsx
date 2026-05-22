@@ -1,53 +1,98 @@
 import "./admin_dashboard.css";
 import DashboardBoton from "../componentes/admin_dashboard_boton";
-import {useNavigate } from "react-router-dom";
-import Header from "../componentes/header_admin";   
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
-import {UserPlus,Car,SlidersVertical,PersonStanding} from "lucide-react";
+import { UserPlus, Car, SlidersVertical, PersonStanding } from "lucide-react";
+
+const DashboardHeaderSkeleton = () => (
+  <section className="dashboard-header-skeleton" aria-label="Cargando dashboard">
+    <span className="dashboard-skeleton-line dashboard-skeleton-title" />
+    <span className="dashboard-skeleton-line dashboard-skeleton-subtitle" />
+  </section>
+);
+
+const DashboardSkeletonGrid = () => (
+  <div className="dashboard-grid" aria-label="Cargando acciones rapidas">
+    {Array.from({ length: 4 }).map((_, index) => (
+      <article className="dashboard-card dashboard-card-skeleton" key={index}>
+        <span className="dashboard-skeleton-icon" />
+
+        <div className="dashboard-card-content">
+          <span className="dashboard-skeleton-line dashboard-skeleton-card-title" />
+          <span className="dashboard-skeleton-line dashboard-skeleton-card-text" />
+        </div>
+
+        <span className="dashboard-skeleton-bg-icon" aria-hidden="true" />
+      </article>
+    ))}
+  </div>
+);
 
 function AdminDashboard() {
-    const navigate = useNavigate();   // esto sirve para poder navegar a otras paginas
-     
-return (
-  <>
-    <Header />
-    
-    <div className="admin-dashboard">
-      <h1>Acciones Rapidas</h1>
-      <p>Desde aquí puedes acceder a las funciones de mayor uso.</p>
+  const navigate = useNavigate(); // esto sirve para poder navegar a otras paginas
+  const [loading, setLoading] = useState(true);
 
-      <div className="dashboard-grid">
-        <DashboardBoton  
-          icono={<UserPlus/>}    
-          titulo="Gestión de Empleados"
-          descripcion="Gestionar y agregar nuevos empleados"
-          onClick={() => navigate("/gestion_de_empleados")}
-        />
+  useEffect(() => {
+    const timer = window.setTimeout(() => { //simula una carga de datos
+      setLoading(false); //desactiva el estado de carga después de 600ms
+    }, 600);
 
-        <DashboardBoton
-         icono={<Car/>}
-          titulo="Gestión de garages"
-          descripcion="Gestión y definición de nuevos garages"
-          onClick={() => navigate("/gestion_garages")}
-        />
+    return () => window.clearTimeout(timer); //limpia el timer si el componente se desmonta antes de que termine el tiempo
+  }, []);
 
-        <DashboardBoton
-          icono={<SlidersVertical/>}
-          titulo="Panel de control"
-          descripcion="Información de vital importancia"
-          onClick={() => navigate("/panel-control")}
-        />
+  return (
+    <>
+      <Header />
 
-        <DashboardBoton
-         icono={<PersonStanding/>}
-          titulo="Control de acceso"
-          descripcion="Control de entradas y salidas"
-          onClick={() => navigate("/control-acceso")}
-        />
+      <div className="admin-dashboard">
+        {loading ? (
+          <DashboardHeaderSkeleton />
+        ) : (
+          <>
+            <h1>Acciones Rápidas</h1>
+            <p>Desde aquí puedes acceder a las funciones de mayor uso.</p>
+          </>
+        )}
+
+        {loading ? (
+          <DashboardSkeletonGrid />
+        ) : (
+          <div className="dashboard-grid">
+            <DashboardBoton
+              icono={<UserPlus />}
+              titulo="Gestión de Empleados"
+              descripcion="Gestionar y agregar nuevos empleados"
+              onClick={() => navigate("/gestion_de_empleados")}
+            />
+
+            <DashboardBoton
+              icono={<Car />}
+              titulo="Gestión de garages"
+              descripcion="Gestión y definición de nuevos garages"
+              onClick={() => navigate("/gestion_garages")}
+            />
+
+            <DashboardBoton
+              icono={<SlidersVertical />}
+              titulo="Panel de control"
+              descripcion="Información de vital importancia"
+              onClick={() => navigate("/panel-control")}
+            />
+
+            <DashboardBoton
+              icono={<PersonStanding />}
+              titulo="Control de acceso"
+              descripcion="Control de entradas y salidas"
+              onClick={() => navigate("/control-acceso")}
+            />
+          </div>
+        )}
       </div>
-    </div>
-    <FooterAdmin/>
-  </>
-);
+      <FooterAdmin />
+    </>
+  );
 }
+
 export default AdminDashboard;
