@@ -7,7 +7,8 @@ import {
   ChevronDown,
   SlidersHorizontal,
   MapPin,
-  Trash2
+  Trash2,
+  Car
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -377,7 +378,7 @@ const handleEliminarEmpleado = async (id, nombre) => {
                   <div className="parking-section-v3">
                     <p className="parking-label-v3">VEHÍCULO</p>
                     <div className="parking-pill-v3">
-                      <div className="p-icon-box">V</div>
+                      <div className="p-icon-box"><Car size={25}/></div>
                       <div className="parking-details-v3">
                         <span className="spot-v3">{emp.parkingSpot}</span>
                         <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
