@@ -420,3 +420,5 @@ const handleEliminarEmpleado = async (id, nombre) => {
 };
 
 export default GestionEmpleados;
+
+
