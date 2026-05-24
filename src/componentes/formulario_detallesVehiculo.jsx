@@ -3,6 +3,7 @@ import "./formularios.css";
 import "./formulario_detallesVehiculo.css";
 
 function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleData, onChange, modelos }) {
+  const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
   const handleModeloChange = (e) => {
     const value = e.target.value;
     onChange('id_modelo', value !== '' ? Number(value) : null);
@@ -27,7 +28,7 @@ function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleDat
            >
              <option value=""></option>
              {modelos && modelos.map((m) => (
-               <option key={m.id} value={m.id}>{m.nombre}</option>
+               <option key={m.id} value={m.id}>{getDisplayName(m)}</option>
              ))}
            </select>
            <label>{labels.modelo}</label>
