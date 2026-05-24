@@ -19,6 +19,7 @@ import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosGetAll, UsuariosDelete } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
+import { SedesGetAll } from "../servicies/API_Sede";
 
 gsap.registerPlugin(useGSAP);
 
@@ -42,12 +43,12 @@ const obtenerRol = (idRol) => {
   return roles[Number(idRol)] || "Empleado";
 };
 
-const obtenerSede = (idSede) => {
+const obtenerSede = (idSede, sedesMap) => {
   if (!idSede) return "Sin sede";
-  return `Sede ${idSede}`;
+  return sedesMap[Number(idSede)] || `Sede ${idSede}`;
 };
 
-const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null) => {
+const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedesMap = {}) => {
   const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
   const patente = vehiculo?.patente || usuario.patente;
   const modeloName = modeloNombre || usuario.modelo;
@@ -59,8 +60,8 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null) => {
     role: obtenerRol(usuario.id_rol),
     email: usuario.email || "Sin email",
     parkingSpot: patente ? `Patente ${patente}` : "Sin vehículo",
-    parkingLevel: obtenerSede(usuario.id_sede),
-    sede: obtenerSede(usuario.id_sede),
+    parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
+    sede: obtenerSede(usuario.id_sede, sedesMap),
     vehicleModel: modeloLabel,
   };
 };
@@ -122,6 +123,7 @@ const GestionEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sedesMap, setSedesMap] = useState({});
 
   useEffect(() => {
     let estaMontado = true;
@@ -130,10 +132,11 @@ const GestionEmpleados = () => {
       setLoading(true);
       setError("");
 
-      const [responseUsuarios, responseVehiculos, responseModelos] = await Promise.all([
+      const [responseUsuarios, responseVehiculos, responseModelos, responseSedes] = await Promise.all([
         UsuariosGetAll(),
         VehiculosGetAll(),
         ModelosGetAll(),
+        SedesGetAll(),
       ]);
 
       if (!estaMontado) return;
@@ -155,6 +158,11 @@ const GestionEmpleados = () => {
           ? responseModelos.datos
           : obtenerListadoUsuarios(responseModelos.datos)
         : [];
+      const sedes = responseSedes.respuesta
+        ? Array.isArray(responseSedes.datos)
+          ? responseSedes.datos
+          : obtenerListadoUsuarios(responseSedes.datos)
+        : [];
 
       const vehiculosPorUsuario = new Map(
         vehiculos.map((vehiculo) => [vehiculo.id_usuario, vehiculo])
@@ -162,13 +170,17 @@ const GestionEmpleados = () => {
       const modeloNombrePorId = new Map(
         modelos.map((modelo) => [modelo.id, modelo.nombre])
       );
+      const sedeNombrePorId = Object.fromEntries(
+        sedes.map((sede) => [Number(sede.id), sede.nombre])
+      );
+      setSedesMap(sedeNombrePorId);
 
       setEmpleados(
         usuarios.map((usuario) => {
           const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
           const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
 
-          return normalizarEmpleado(usuario, vehiculo, modeloNombre);
+          return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId);
         })
       );
       setLoading(false);
