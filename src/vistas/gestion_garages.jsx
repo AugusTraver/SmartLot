@@ -179,7 +179,7 @@ function GestionGarages() {
               onClick={() => navigate("/agregar_zona")}
             >
               <CirclePlus size={20} />
-              <span>Nueva Zona</span>
+              <span>Nuevo Garage</span>
             </BotonGenerico>
           </section>
         )}

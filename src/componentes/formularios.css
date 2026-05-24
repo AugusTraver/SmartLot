@@ -26,7 +26,7 @@
     color: #2563eb;
 }
 
-/* --- LOGICA DE ANIMACION MANTENIENDO TU ESTILO --- */
+/* --- LÓGICA DE ANIMACIÓN UNIFICADA (INPUTS Y SELECTS) --- */
 
 .input-group {
     margin-bottom: 24px;
@@ -35,11 +35,13 @@
     position: relative; /* Necesario para que el label se posicione respecto al grupo */
 }
 
-.input-group input {
+/* Estilos compartidos para Inputs y Selects */
+.input-group input,
+.input-group select {
     background-color: #e2e8f0;
     border: 2px solid transparent;
     border-radius: 16px;
-    padding: 18px 18px 10px 18px; /* Ajuste de padding para dejar espacio al texto arriba */
+    padding: 18px 18px 10px 18px; /* Espacio superior calibrado para albergar el label flotante */
     font-size: 15px;
     color: #1e293b;
     transition: all 0.3s ease;
@@ -47,84 +49,50 @@
     box-sizing: border-box;
 }
 
+
+
+/* Estilo por defecto de la etiqueta (Label posicionado como Placeholder) */
 .input-group label {
     position: absolute;
     left: 18px;
-    top: 13px; /* Posición inicial del label dentro del input */
-    font-size: 13px; /* Tamaño inicial un poco más grande para que parezca placeholder */
+    top: 13px; 
+    font-size: 13px; 
     font-weight: 700;
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
-    pointer-events: none; /* Permite clickear el input a través del label */
+    pointer-events: none; /* Permite interactuar con el control inferior a través del texto */
 }
 
-/* Animación: Cuando el input está en foco o tiene texto */
-.input-group input:focus ~ label,
-.input-group input:not(:placeholder-shown) ~ label {
-    top: -2px; /* Sube por fuera del input */
-    left: 12px;
-    font-size: 11px;
-    color: #2563eb; /* Cambia al color de tu marca */
-    background-color: transparent; /* Para que la línea del fondo no lo cruce (opcional) */
-    padding: 0 4px;
-}
-
-/* Estilo de focus del input */
-.input-group input:focus {
+/* Estilo de enfoque (Focus) compartido */
+.input-group input:focus,
+.input-group select:focus {
     outline: none;
     background-color: #ffffff;
     border-color: #2563eb;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
-/* Asegurar que el placeholder nativo sea invisible */
+/* Asegurar que el placeholder nativo del input no interfiera visualmente */
 .input-group input::placeholder {
     color: transparent;
 }
 
-/* --- SELECT FIELDS --- */
 
-.input-group--select {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 24px;
-}
-
-.input-group--select .select-label {
-    position: static;
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label,
+.input-group select:focus ~ label,
+.input-group select:not([value=""]):not([value="0"]) ~ label {
+    top: -2px; /* Se desplaza hacia el margen superior de la tarjeta */
+    left: 12px;
     font-size: 11px;
-    font-weight: 700;
-    color: #2563eb;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    color: #2563eb; /* Pasa al azul corporativo activo */
+    background-color: transparent; 
     padding: 0 4px;
 }
 
-.input-group--select select {
-    background-color: #e2e8f0;
-    border: 2px solid transparent;
-    border-radius: 16px;
-    padding: 14px 18px;
-    font-size: 15px;
-    color: #1e293b;
-    transition: all 0.3s ease;
-    width: 100%;
-    box-sizing: border-box;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-}
-
-.input-group--select select:focus {
-    outline: none;
-    background-color: #ffffff;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+/* Mantiene el label arriba pero en gris neutral cuando pierde el foco si conserva un valor */
+.input-group select:not(:focus):not([value=""]):not([value="0"]) ~ label {
+    color: #94a3b8;
 }

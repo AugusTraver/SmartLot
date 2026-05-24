@@ -29,7 +29,7 @@ function AgregarEmpleado() {
     telefono: '',
     contraseña: '',
     id_rol: 2,
-    id_sede: 1,
+    id_sede: '',
     id_empresa: 1,
     patente: '',
     id_modelo: null

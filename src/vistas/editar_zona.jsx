@@ -14,6 +14,7 @@ import {
   WifiOff,
   Save,
   X,
+  PersonStanding,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import BotonGenerico from "../componentes/boton_generico";
@@ -331,6 +332,68 @@ function EditarZona() {
                 </div>
               </div>
             </div>
+          </section>
+
+          <section className="bloque-formulario">
+           <div className="bloque-titulo">
+              <span className="bloque-icono">
+                <PersonStanding size={20} />
+              </span>
+              <h3>Garagistas Encargados</h3>
+            </div>
+              <div className="campo-formulario">
+               <div className="grid-bento">
+
+            {error && (
+              <div className="empleados-feedback empleados-feedback-error">
+                <p>{error}</p>
+              </div>
+            )}
+
+            {!loading && !error && empleadosFiltrados.length > 0
+              ? empleadosFiltrados.map((emp) => (
+                <article key={emp.id} className="card-empleado-v3">
+                  <div className="card-header-v3">
+                    <h3 className="emp-name-v3">{emp.name}</h3>
+                    <span className="role-badge-v3">{emp.role}</span>
+                  </div>
+
+                  <div className="card-body-v3">
+                    <div className="empleado-sede-line">
+                      <MapPin size={14} />
+                      <span>{emp.sede}</span>
+                    </div>
+                  </div>
+
+                 
+                  <div className="card-footer-v3">
+                    <div className="status-indicator">
+                      <div className="green-dot"></div>
+                      <span>Activo hoy</span>
+                    </div>
+                    <div className="footer-bottom-row">
+                      <span className="email-v3">{emp.email}</span>
+                      <BotonGenerico
+                        className="btn-eliminar-v3"
+                        onClick={() => handleEliminarEmpleado(emp.id)}
+                        aria-label={`Eliminar empleado ${emp.name}`} // Requisito a11y crítico para botones con solo iconos
+                      >
+                        <Trash2 size={18} className="trash-icon-v3" />
+                      </BotonGenerico>
+                    </div>
+                  </div>
+                </article>
+              ))
+              : null}
+
+            {!loading && !error && empleadosFiltrados.length === 0 && (
+              <div className="no-results">
+                <p>No hay empleados subidos aun</p>
+              </div>
+            )}
+          </div>
+            </div>
+
           </section>
 
           {error && <div className="error-message" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', border: '1px solid #d32f2f' }}>{error}</div>}

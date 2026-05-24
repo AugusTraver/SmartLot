@@ -17,92 +17,79 @@ function FormularioInfoPersonal({
         { id: 3, nombre: 'garagista' }
     ];
 
-    return(
-     <section className="formulario-container">
-         <div className="form-header">
-             <Contact className="form-icon" size={24} />
-             <h2>{infoPersonalTitulo}</h2>
-         </div>
-         
-         <div className="input-group">
-            {/* El input va primero para usar el selector '+' o '~' en CSS */}
-            <input 
-                type="text" 
-                placeholder=" " 
-                value={formData.nombre} 
-                onChange={(e) => onChange('nombre', e.target.value)} 
-            />
-            <label>{labels.nombre}</label>
-          </div>
- 
-         <div className="input-group">
-            <input type="text" 
-                placeholder=" " 
-                value={formData.apellido} 
-                onChange={(e) => onChange('apellido', e.target.value)} 
-            />
-            <label>{labels.apellido}</label>
-         </div>
- 
-         <div className="input-group">
-            <input type="email" 
-                placeholder=" " 
-                value={formData.email} 
-                onChange={(e) => onChange('email', e.target.value)} 
-            />
-            <label>{labels.email}</label>
-         </div>
+    return (
+        <section className="formulario-container">
+            <div className="form-header">
+                <Contact className="form-icon" size={24} />
+                <h2>{infoPersonalTitulo}</h2>
+            </div>
 
-         <div className="input-group">
-            <input 
-                type="tel" 
-                placeholder=" " 
-                value={formData.telefono} 
-                onChange={(e) => onChange('telefono', e.target.value)} 
-            />
-            <label>{labels.telefono}</label>
-         </div>
+            <div className="input-group">
+                {/* El input va primero para usar el selector '+' o '~' en CSS */}
+                <input
+                    type="text"
+                    placeholder=" "
+                    value={formData.nombre}
+                    onChange={(e) => onChange('nombre', e.target.value)}
+                />
+                <label>{labels.nombre}</label>
+            </div>
 
-         <div className="input-group">
-            <input 
-                type="password" 
-                placeholder=" " 
-                value={formData.contraseña} 
-                onChange={(e) => onChange('contraseña', e.target.value)} 
-            />
-            <label>{labels.contraseña}</label>
-         </div>
+            <div className="input-group">
+                <input type="text"
+                    placeholder=" "
+                    value={formData.apellido}
+                    onChange={(e) => onChange('apellido', e.target.value)}
+                />
+                <label>{labels.apellido}</label>
+            </div>
 
-         <div className="input-group input-group--select">
-            <label className="select-label">{labels.sede}</label>
-            <select
-                value={formData.id_sede}
-                onChange={(e) => onChange('id_sede', Number(e.target.value))}
-            >
-                <option value="" disabled>Seleccionar sede...</option>
-                {sedes.map((sede) => (
-                    <option key={sede.id} value={sede.id}>
-                        {getDisplayName(sede)}
-                    </option>
-                ))}
-            </select>
-         </div>
+            <div className="input-group">
+                <input type="email"
+                    placeholder=" "
+                    value={formData.email}
+                    onChange={(e) => onChange('email', e.target.value)}
+                />
+                <label>{labels.email}</label>
+            </div>
 
-         <div className="input-group input-group--select">
-            <label className="select-label">{labels.rol}</label>
-            <select
-                value={formData.id_rol}
-                onChange={(e) => onChange('id_rol', Number(e.target.value))}
-            >
-                <option value="" disabled>Seleccionar rol...</option>
-                {fixedRoles.map((rol) => (
-                    <option key={rol.id} value={rol.id}>
-                        {getDisplayName(rol)}
-                    </option>
-                ))}
-            </select>
-         </div>
-      </section>
+            <div className="input-group">
+                <input
+                    type="tel"
+                    placeholder=" "
+                    value={formData.telefono}
+                    onChange={(e) => onChange('telefono', e.target.value)}
+                />
+                <label>{labels.telefono}</label>
+            </div>
+
+            <div className="input-group">
+                <input
+                    type="password"
+                    placeholder=" "
+                    value={formData.contraseña}
+                    onChange={(e) => onChange('contraseña', e.target.value)}
+                />
+                <label>{labels.contraseña}</label>
+            </div>
+
+                <div className="input-group ">
+                    <select
+                        value={formData.id_sede}
+                        onChange={(e) => onChange('id_sede', Number(e.target.value))}
+                    
+                    >
+                    <option value="" disabled hidden></option>
+                        {sedes.map((sede) => (
+                            <option key={sede.id} value={sede.id}>
+                                {getDisplayName(sede)}
+                            </option>
+                        ))}
+                    </select>
+
+                    <label>{labels.sede}</label>    
+                </div>
+        </section>
     )
 }
 export default FormularioInfoPersonal;
