@@ -9,6 +9,16 @@ import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
+import { RolesGetAll } from "../servicies/API_Rol";
+import { SedesGetAll } from "../servicies/API_Sede";
+
+const obtenerListado = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.value)) return datos.value;
+  return [];
+};
 
 function AgregarEmpleado() {
   const navigate = useNavigate();
@@ -27,15 +37,27 @@ function AgregarEmpleado() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [modelos, setModelos] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [sedes, setSedes] = useState([]);
 
   useEffect(() => {
-    const fetchModelos = async () => {
-      const res = await ModelosGetAll();
-      if (res.respuesta && Array.isArray(res.datos)) {
-        setModelos(res.datos);
+    const fetchData = async () => {
+      const [modelosRes, rolesRes, sedesRes] = await Promise.all([
+        ModelosGetAll(),
+        RolesGetAll(),
+        SedesGetAll(),
+      ]);
+      if (modelosRes.respuesta) {
+        setModelos(obtenerListado(modelosRes.datos));
+      }
+      if (rolesRes.respuesta) {
+        setRoles(obtenerListado(rolesRes.datos));
+      }
+      if (sedesRes.respuesta) {
+        setSedes(obtenerListado(sedesRes.datos));
       }
     };
-    fetchModelos();
+    fetchData();
   }, []);
 
   const handleChange = (field, value) => {
@@ -191,10 +213,14 @@ function AgregarEmpleado() {
             apellido: 'Apellido',
             email: 'Correo electrónico',
             telefono: 'Número de teléfono',
-            contraseña: 'Contraseña'
+            contraseña: 'Contraseña',
+            sede: 'Sede',
+            rol: 'Rol'
           }}
           formData={formData}
           onChange={handleChange}
+          sedes={sedes}
+          roles={roles}
         />
 
        
