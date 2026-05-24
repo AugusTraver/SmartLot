@@ -5,8 +5,17 @@ function FormularioInfoPersonal({
     infoPersonalTitulo,
     labels,
     formData,
-    onChange
+    onChange,
+    sedes = [],
+    roles = []
 }) {
+    const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
+
+    // Hardcoded roles: empleado (id 2) and garagista (id 3)
+    const fixedRoles = [
+        { id: 2, nombre: 'empleado' },
+        { id: 3, nombre: 'garagista' }
+    ];
 
     return(
      <section className="formulario-container">
@@ -62,6 +71,36 @@ function FormularioInfoPersonal({
                 onChange={(e) => onChange('contraseña', e.target.value)} 
             />
             <label>{labels.contraseña}</label>
+         </div>
+
+         <div className="input-group input-group--select">
+            <label className="select-label">{labels.sede}</label>
+            <select
+                value={formData.id_sede}
+                onChange={(e) => onChange('id_sede', Number(e.target.value))}
+            >
+                <option value="" disabled>Seleccionar sede...</option>
+                {sedes.map((sede) => (
+                    <option key={sede.id} value={sede.id}>
+                        {getDisplayName(sede)}
+                    </option>
+                ))}
+            </select>
+         </div>
+
+         <div className="input-group input-group--select">
+            <label className="select-label">{labels.rol}</label>
+            <select
+                value={formData.id_rol}
+                onChange={(e) => onChange('id_rol', Number(e.target.value))}
+            >
+                <option value="" disabled>Seleccionar rol...</option>
+                {fixedRoles.map((rol) => (
+                    <option key={rol.id} value={rol.id}>
+                        {getDisplayName(rol)}
+                    </option>
+                ))}
+            </select>
          </div>
       </section>
     )
