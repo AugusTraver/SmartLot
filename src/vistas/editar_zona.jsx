@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./editar_zona.css";
 import Header from "../componentes/header_admin";
 import {
@@ -15,20 +15,55 @@ import {
   Save,
   X,
   PersonStanding,
+  ShieldAlert,
+  Trash2, 
+  Mail
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import BotonGenerico from "../componentes/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
+import { UsuariosGetAll, UsuariosDelete } from '../servicies/API_Usuario';
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
   return false;
 };
 
+const obtenerListadoUsuarios = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  return [];
+};
+
 function EditarZona() {
+  const [usuarios, setUsuarios] = useState([]);
+  const [cargandoGarajistas, setCargandoGarajistas] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const garageData = location.state?.garage;
+
+  const handleEliminarEmpleado = async (id, nombre) => {
+    const confirmar = window.confirm(
+      `¿Estás seguro de que deseas eliminar a ${nombre || "este garajista"}? Esta acción no se puede deshacer.`
+    );
+    
+    if (!confirmar) return;
+
+    try {
+      const response = await UsuariosDelete(id); 
+
+      if (response.respuesta) {
+        setUsuarios((prev) => prev.filter((user) => (user.id ?? user.id_usuario) !== id));
+        alert("Garajista eliminado con éxito.");
+      } else {
+        alert("El servidor rechazó la solicitud. No se pudo eliminar al garajista.");
+      }
+    } catch (err) {
+      console.error("Error al eliminar el garajista en el servidor:", err);
+      alert("Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.");
+    }
+  };
 
   const [estadoActivo, setEstadoActivo] = useState(() => {
     return garageData ? parseEstadoBool(garageData.estado) : true;
@@ -51,7 +86,6 @@ function EditarZona() {
   const [ubicacion, setUbicacion] = useState(() => {
     return garageData ? (garageData.ubicacion || '') : '';
   });
-  console.log("[EditarZona] garageData.estado:", garageData?.estado, "→ parseEstadoBool:", parseEstadoBool(garageData?.estado));
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,6 +96,35 @@ function EditarZona() {
     }
   }, [garageData, navigate]);
 
+  useEffect(() => {
+    let estaMontado = true;
+
+    const cargarUsuariosDelSistema = async () => {
+      setCargandoGarajistas(true);
+      const response = await UsuariosGetAll();
+      
+      if (!estaMontado) return;
+
+      if (response.respuesta) {
+        const listaLimpia = obtenerListadoUsuarios(response.datos);
+        setUsuarios(listaLimpia);
+      }
+      setCargandoGarajistas(false);
+    };
+
+    cargarUsuariosDelSistema();
+
+    return () => {
+      estaMontado = false;
+    };
+  }, []);
+
+  const garajistasAsignados = useMemo(() => {
+    if (!garageData?.id_sede) return [];
+    return usuarios.filter(user => 
+      Number(user.id_rol) === 3 && Number(user.id_sede) === Number(garageData.id_sede)
+    );
+  }, [usuarios, garageData?.id_sede]);
 
   const volverAGarages = () => {
     navigate("/gestion_garages");
@@ -71,7 +134,6 @@ function EditarZona() {
     e.preventDefault();
     setError('');
 
-    // Validaciones personalizadas
     if (!nombreGarage.trim()) {
       setError('❌ El nombre del garage es requerido.');
       return;
@@ -165,8 +227,7 @@ function EditarZona() {
           <p>CONFIGURACIÓN</p>
           <h1>Edición de garage</h1>
           <span>
-            Ajusta la información operativa, el estado y la capacidad del garage
-            seleccionado.
+            Ajusta la información operativa, el estado y la capacidad del garage seleccionado.
           </span>
         </section>
 
@@ -234,7 +295,7 @@ function EditarZona() {
               <button
                 type="button"
                 className={`estado-btn estado-activo ${estadoActivo ? "activo" : ""}`}
-                onClick={() => { console.log("[Estado] Click Activo"); setEstadoActivo(true); }}
+                onClick={() => setEstadoActivo(true)}
               >
                 <CheckCircle2 size={21} />
                 <strong>Activo</strong>
@@ -243,7 +304,7 @@ function EditarZona() {
               <button
                 type="button"
                 className={`estado-btn estado-desconectado ${!estadoActivo ? "activo" : ""}`}
-                onClick={() => { console.log("[Estado] Click Inactivo"); setEstadoActivo(false); }}
+                onClick={() => setEstadoActivo(false)}
               >
                 <WifiOff size={21} />
                 <strong>Inactivo</strong>
@@ -271,7 +332,6 @@ function EditarZona() {
                   <div className="plaza-icon">
                     <Star size={18} />
                   </div>
-
                   <span className="plaza-tag">RESERVAS</span>
                 </div>
 
@@ -286,9 +346,7 @@ function EditarZona() {
                   >
                     <Minus size={16} />
                   </button>
-
                   <span>{capacidadReservas}</span>
-
                   <button
                     type="button"
                     onClick={() => setCapacidadReservas((valor) => valor + 1)}
@@ -303,7 +361,6 @@ function EditarZona() {
                   <div className="plaza-icon">
                     <CarFront size={18} />
                   </div>
-
                   <span className="plaza-tag">NO RESERVAS</span>
                 </div>
 
@@ -313,16 +370,12 @@ function EditarZona() {
                 <div className="contador">
                   <button
                     type="button"
-                    onClick={() =>
-                      setCapacidadNoReservas((valor) => Math.max(0, valor - 1))
-                    }
+                    onClick={() => setCapacidadNoReservas((valor) => Math.max(0, valor - 1))}
                     disabled={capacidadNoReservas === 0}
                   >
                     <Minus size={16} />
                   </button>
-
                   <span>{capacidadNoReservas}</span>
-
                   <button
                     type="button"
                     onClick={() => setCapacidadNoReservas((valor) => valor + 1)}
@@ -335,65 +388,66 @@ function EditarZona() {
           </section>
 
           <section className="bloque-formulario">
-           <div className="bloque-titulo">
-              <span className="bloque-icono">
-                <PersonStanding size={20} />
-              </span>
-              <h3>Garagistas Encargados</h3>
-            </div>
-              <div className="campo-formulario">
-               <div className="grid-bento">
-
-            {error && (
-              <div className="empleados-feedback empleados-feedback-error">
-                <p>{error}</p>
+            <div className="seccion-garajistas-zona">
+              <div className="bloque-titulo" style={{ marginBottom: '16px' }}>
+                <span className="bloque-icono">
+                  <PersonStanding size={20} />
+                </span>
+                <h3>Garajistas Asignados</h3>
               </div>
-            )}
 
-            {!loading && !error && empleadosFiltrados.length > 0
-              ? empleadosFiltrados.map((emp) => (
-                <article key={emp.id} className="card-empleado-v3">
-                  <div className="card-header-v3">
-                    <h3 className="emp-name-v3">{emp.name}</h3>
-                    <span className="role-badge-v3">{emp.role}</span>
-                  </div>
+              {cargandoGarajistas ? (
+                <div className="gz-no-results">
+                  <p>Buscando personal asignado en la base de datos...</p>
+                </div>
+              ) : garajistasAsignados.length > 0 ? (
+                /* CORRECCIÓN VISUAL: Grilla e identificación de clases 100% exclusivas e independientes */
+                <div className="gz-garajistas-grid">
+                  {garajistasAsignados.map((garajista) => {
+                    const nombreCompleto = `${garajista.nombre || ''} ${garajista.apellido || ''}`.trim() || "Garajista sin nombre";
+                    const garajistaId = garajista.id || garajista.id_usuario;
+                    return (
+                      <article key={garajistaId} className="gz-garajista-card">
+                        <div className="gz-card-header">
+                          <h3 className="gz-garajista-name">{nombreCompleto}</h3>
+                          <span className="gz-role-badge">Garajista</span>
+                        </div>
+                        
+                        <div className="gz-sede-line">
+                          <span>ID: #{garajistaId}</span>
+                        </div>
 
-                  <div className="card-body-v3">
-                    <div className="empleado-sede-line">
-                      <MapPin size={14} />
-                      <span>{emp.sede}</span>
-                    </div>
-                  </div>
+                        <div className="gz-parking-section">
+                          <p className="gz-parking-label">CONTACTO OPERATIVO</p>
+                          <div className="gz-parking-pill">
+                            <div className="gz-icon-box"><Mail size={16}/></div>
+                            <div className="gz-parking-details">
+                              <span className="gz-spot-text">{garajista.email || 'Sin email'}</span>
+                              <span className="gz-level-text">Tel: {garajista.telefono || 'Sin teléfono'}</span>
+                            </div>
+                          </div>
+                        </div>
 
-                 
-                  <div className="card-footer-v3">
-                    <div className="status-indicator">
-                      <div className="green-dot"></div>
-                      <span>Activo hoy</span>
-                    </div>
-                    <div className="footer-bottom-row">
-                      <span className="email-v3">{emp.email}</span>
-                      <BotonGenerico
-                        className="btn-eliminar-v3"
-                        onClick={() => handleEliminarEmpleado(emp.id)}
-                        aria-label={`Eliminar empleado ${emp.name}`} // Requisito a11y crítico para botones con solo iconos
-                      >
-                        <Trash2 size={18} className="trash-icon-v3" />
-                      </BotonGenerico>
-                    </div>
-                  </div>
-                </article>
-              ))
-              : null}
-
-            {!loading && !error && empleadosFiltrados.length === 0 && (
-              <div className="no-results">
-                <p>No hay empleados subidos aun</p>
-              </div>
-            )}
-          </div>
+                        <div className="gz-footer-row">
+                          <BotonGenerico
+                            className="gz-btn-eliminar"
+                            onClick={() => handleEliminarEmpleado(garajistaId, nombreCompleto)}
+                            aria-label={`Eliminar garajista ${nombreCompleto}`} 
+                          >
+                            <Trash2 size={16} className="gz-trash-icon" />
+                          </BotonGenerico>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="gz-no-results" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                  <ShieldAlert size={32} style={{ color: '#94a3b8' }} />
+                  <p>No hay ningún garajista asignado operando en este garage actualmente.</p>
+                </div>
+              )}
             </div>
-
           </section>
 
           {error && <div className="error-message" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', border: '1px solid #d32f2f' }}>{error}</div>}

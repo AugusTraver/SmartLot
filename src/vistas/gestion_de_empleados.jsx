@@ -402,7 +402,7 @@ const handleEliminarEmpleado = async (id, nombre) => {
                         <Trash2 size={18} className="trash-icon-v3" />
                       </BotonGenerico>
                     </div>
-                  </div>
+                  </div>  
                 </article>
               ))
               : null}
