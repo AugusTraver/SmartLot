@@ -79,7 +79,10 @@ function FormularioInfoPersonal({
                     <div className="input-group">
                         <select
                             value={formData.id_sede}
-                            onChange={(e) => onChange('id_sede', Number(e.target.value))}
+                            onChange={(e) => {
+                                const value = e.target.value === '' ? '' : Number(e.target.value);
+                                onChange('id_sede', value);
+                            }}
                             disabled={isSedeDisabled}
                             style={isSedeDisabled ? { opacity: 0.7, cursor: 'not-allowed', backgroundColor: '#f5f5f5' } : {}}
                         >

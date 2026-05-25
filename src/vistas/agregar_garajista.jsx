@@ -10,20 +10,15 @@ import { UsuariosCreate } from "../servicies/API_Usuario";
 function AgregarGarajista() {
   const navigate = useNavigate();
   const location = useLocation();
-  const idGarage = location.state?.id_garage ?? (
-    location.state?.garage?.id_garage ??
-    location.state?.garage?.idGarage ??
-    location.state?.garage?.id ??
-    location.state?.garage?._id
-  );
   const garage = location.state?.garage;
+  const garageId = Number(location.state?.id_garage ?? location.state?.garage?.id_garage ?? location.state?.garage?.id ?? location.state?.garage?.idGarage) || null;
 
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
     email: '',
     telefono: '',
-    contraseña: '',
+    contraseña: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -93,7 +88,7 @@ function AgregarGarajista() {
       }
     }
 
-    if (!idGarage) {
+    if (!garageId) {
       setError('❌ No se encontró el garage asociado. Vuelve a la zona e inténtalo de nuevo.');
       return;
     }
@@ -109,7 +104,7 @@ function AgregarGarajista() {
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
       id_empresa: 1,
-      id_garage: Number(idGarage),
+      id_garage: garageId,
     };
 
     const response = await UsuariosCreate(payload);
