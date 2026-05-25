@@ -13,7 +13,7 @@ function FormularioInfoPersonal({
     hideSede = false
 }) {
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
-    
+
     const [isOpenSede, setIsOpenSede] = useState(false);
     // Hardcoded roles: empleado (id 2) and garagista (id 3)
     const fixedRoles = [
@@ -29,7 +29,7 @@ function FormularioInfoPersonal({
             </div>
 
             <div className="input-group">
-                {/* El input va primero para usar el selector '+' o '~' en CSS */}
+                
                 <input
                     type="text"
                     placeholder=" "

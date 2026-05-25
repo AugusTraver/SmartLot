@@ -23,9 +23,9 @@ function FormularioCapacidad({
 
             <div className="bloque-formulario-capacidad">
 
-                <div className="grupo-input-capacidad">
+                <div className="input-group">
 
-                    <label>Capacidad total</label>
+
 
                     <input
                         type="number"
@@ -33,15 +33,15 @@ function FormularioCapacidad({
                         value={formData.capacidad}
                         onChange={(e) => onChange('capacidad', e.target.value)}
                     />
-
+                    <label>Capacidad total</label>
                 </div>
 
 
                 <div className="fila-capacidad">
 
-                    <div className="grupo-input-capacidad">
+                    <div className="input-group">
 
-                        <label>Reservas</label>
+
 
                         <input
                             type="number"
@@ -49,13 +49,13 @@ function FormularioCapacidad({
                             value={formData.capacidad_reservas}
                             onChange={(e) => onChange('capacidad_reservas', e.target.value)}
                         />
-
+                        <label>Reservas</label>
                     </div>
 
 
-                    <div className="grupo-input-capacidad">
+                    <div className="input-group">
 
-                        <label>No Reservas</label>
+
 
                         <input
                             type="number"
@@ -63,7 +63,7 @@ function FormularioCapacidad({
                             value={formData.capacidad_para_no_reservas}
                             onChange={(e) => onChange('capacidad_para_no_reservas', e.target.value)}
                         />
-
+                        <label>No Reservas</label>
                     </div>
 
                 </div>
