@@ -28,6 +28,28 @@ const UsuariosGetAll = async () => {
 
 
 
+const UsuariosGetByGarage = async (idGarage) => {
+
+    let returnObject = { respuesta: false, datos: [] };
+
+    let url = apiUrl + '/api/usuario/garage/' + idGarage;
+
+    try {
+
+        const response = await axios.get(url);
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
 const UsuariosGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
@@ -125,6 +147,7 @@ const UsuariosDelete = async (id) => {
 
 export {
     UsuariosGetAll,
+    UsuariosGetByGarage,
     UsuariosGetById,
     UsuariosCreate,
     UsuariosUpdate,

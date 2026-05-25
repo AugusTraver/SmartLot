@@ -7,7 +7,9 @@ function FormularioInfoPersonal({
     formData,
     onChange,
     sedes = [],
-    roles = []
+    roles = [],
+    isSedeDisabled = false,
+    hideSede = false
 }) {
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
 
@@ -73,22 +75,25 @@ function FormularioInfoPersonal({
                 <label>{labels.contraseña}</label>
             </div>
 
-                <div className="input-group ">
-                    <select
-                        value={formData.id_sede}
-                        onChange={(e) => onChange('id_sede', Number(e.target.value))}
-                    
-                    >
-                    <option value="" disabled hidden></option>
-                        {sedes.map((sede) => (
-                            <option key={sede.id} value={sede.id}>
-                                {getDisplayName(sede)}
-                            </option>
-                        ))}
-                    </select>
+                {!hideSede && (
+                    <div className="input-group">
+                        <select
+                            value={formData.id_sede}
+                            onChange={(e) => onChange('id_sede', Number(e.target.value))}
+                            disabled={isSedeDisabled}
+                            style={isSedeDisabled ? { opacity: 0.7, cursor: 'not-allowed', backgroundColor: '#f5f5f5' } : {}}
+                        >
+                        <option value="" disabled hidden></option>
+                            {sedes.map((sede) => (
+                                <option key={sede.id} value={sede.id}>
+                                    {getDisplayName(sede)}
+                                </option>
+                            ))}
+                        </select>
 
-                    <label>{labels.sede}</label>    
-                </div>
+                        <label>{labels.sede}</label>    
+                    </div>
+                )}
         </section>
     )
 }

@@ -1,26 +1,22 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import FormularioInfoPersonal from "../componentes/formulario_infoPersonal";
-import FormularioDetallesVehiculo from "../componentes/formulario_detallesVehiculo";
 import Header from "../componentes/header_admin";
 import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
 import BotonGenerico from "../componentes/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
-import { VehiculosCreate } from "../servicies/API_Vehiculo";
-import { ModelosGetAll } from "../servicies/API_Modelo";
-import { SedesGetAll } from "../servicies/API_Sede";
 
-const obtenerListado = (datos) => {
-  if (Array.isArray(datos)) return datos;
-  if (Array.isArray(datos?.datos)) return datos.datos;
-  if (Array.isArray(datos?.data)) return datos.data;
-  if (Array.isArray(datos?.value)) return datos.value;
-  return [];
-};
-
-function AgregarEmpleado() {
+function AgregarGarajista() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const idGarage = location.state?.id_garage ?? (
+    location.state?.garage?.id_garage ??
+    location.state?.garage?.idGarage ??
+    location.state?.garage?.id ??
+    location.state?.garage?._id
+  );
+  const garage = location.state?.garage;
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -28,40 +24,17 @@ function AgregarEmpleado() {
     email: '',
     telefono: '',
     contraseña: '',
-    id_sede: '',
-    id_empresa: 1,
-    patente: '',
-    id_modelo: null
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [modelos, setModelos] = useState([]);
-  const [sedes, setSedes] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const [modelosRes, sedesRes] = await Promise.all([
-        ModelosGetAll(),
-        SedesGetAll(),
-      ]);
-      if (modelosRes.respuesta) {
-        setModelos(obtenerListado(modelosRes.datos));
-      }
-      if (sedesRes.respuesta) {
-        setSedes(obtenerListado(sedesRes.datos));
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleGuardarEmpleado = async () => {
+  const handleGuardarGarajista = async () => {
     setError('');
 
-    // Validaciones personalizadas
     if (!formData.nombre || !formData.nombre.trim()) {
       setError('❌ El nombre es requerido.');
       return;
@@ -120,85 +93,47 @@ function AgregarEmpleado() {
       }
     }
 
-    // Validaciones de vehículo
-    const patenteIngresada = formData.patente && formData.patente.trim();
-    const modeloSeleccionado = formData.id_modelo;
-
-    if ((patenteIngresada && !modeloSeleccionado) || (!patenteIngresada && modeloSeleccionado)) {
-      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como seleccionar un modelo.');
+    if (!idGarage) {
+      setError('❌ No se encontró el garage asociado. Vuelve a la zona e inténtalo de nuevo.');
       return;
-    }
-
-    if (patenteIngresada && modeloSeleccionado) {
-      const patenteRegex = /^[a-zA-Z0-9]{6,8}$/;
-      if (!patenteRegex.test(patenteIngresada)) {
-        setError('❌ La patente debe ser alfanumérica y tener entre 6 y 8 caracteres (ej: AAA123 o AB123CD).');
-        return;
-      }
     }
 
     setLoading(true);
 
     const payload = {
-      id_rol: 2,
+      id_rol: 3,
       nombre: formData.nombre.trim(),
       apellido: formData.apellido.trim(),
-      id_sede: Number(formData.id_sede) || null,
+      id_sede: null,
       email: formData.email.trim(),
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
-      id_empresa: Number(formData.id_empresa) || null
+      id_empresa: 1,
+      id_garage: Number(idGarage),
     };
 
     const response = await UsuariosCreate(payload);
 
     if (!response.respuesta) {
       setLoading(false);
-      const serverMsg = response.datos?.message || response.datos || 'Error al crear el usuario.';
-      setError(typeof serverMsg === 'string' ? `❌ ${serverMsg}` : '❌ Error al crear el usuario.');
+      const serverMsg = response.datos?.message || response.datos || 'Error al crear el garajista.';
+      setError(typeof serverMsg === 'string' ? `❌ ${serverMsg}` : '❌ Error al crear el garajista.');
       return;
     }
 
-    if (response.respuesta) {
-      if (patenteIngresada && modeloSeleccionado) {
-        try {
-          const createdUser = response.datos;
-          const idUsuario = createdUser?.id || createdUser?.insertId || (Array.isArray(createdUser) ? createdUser[0]?.id : null);
-
-          if (idUsuario) {
-            const vehRes = await VehiculosCreate({
-              id_usuario: Number(idUsuario),
-              id_modelo: Number(modeloSeleccionado),
-              patente: patenteIngresada.toUpperCase()
-            });
-
-            if (!vehRes.respuesta) {
-              setLoading(false);
-              const msg = vehRes.datos?.message || vehRes.datos || 'Error al crear el vehículo.';
-              setError(typeof msg === 'string' ? `❌ ${msg}` : '❌ Error al crear el vehículo.');
-              return;
-            }
-          }
-        } catch (vehErr) {
-          console.error("Error al guardar el vehículo del empleado:", vehErr);
-          setLoading(false);
-          setError('❌ Error inesperado al guardar el vehículo. Revisa la consola.');
-          return;
-        }
-      }
-      setLoading(false);
-      navigate('/gestion_de_empleados', { replace: true });
+    setLoading(false);
+    if (garage) {
+      navigate('/editar_zona', { state: { garage }, replace: true });
     } else {
-      setLoading(false);
-      setError('❌ No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
+      navigate('/gestion_garages', { replace: true });
     }
   };
 
   return (
     <div className="agregar-empleado-page">
       <Header />
-      <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600" }}>Agregar Empleado</h3>
-      <p>Configuración de nuevos usuarios y sus privilegios</p>
+      <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600" }}>Agregar Garajista</h3>
+      <p>Registro de nuevo garajista para la zona</p>
       <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
         <FormularioInfoPersonal
           infoPersonalTitulo="Información Personal"
@@ -208,29 +143,33 @@ function AgregarEmpleado() {
             email: 'Correo electrónico',
             telefono: 'Número de teléfono',
             contraseña: 'Contraseña',
-            sede: 'Sede',
           }}
           formData={formData}
           onChange={handleChange}
-          sedes={sedes}
+          hideSede={true}
         />
 
-       
         {error && <p className="form-error">{error}</p>}
 
         <div className="form-actions">
           <BotonGenerico
-            onClick={handleGuardarEmpleado}
+            onClick={handleGuardarGarajista}
             disabled={loading}
             className="btn-guardar-grande"
           >
             <CircleCheck size={20} color="white" />
-            <span>{loading ? 'Guardando...' : 'Guardar empleado'}</span>
+            <span>{loading ? 'Guardando...' : 'Guardar garajista'}</span>
           </BotonGenerico>
 
           <BotonGenerico
             style={{ backgroundColor: "grey" }}
-            onClick={() => navigate('/gestion_de_empleados', { replace: true })}
+            onClick={() => {
+              if (garage) {
+                navigate('/editar_zona', { state: { garage }, replace: true });
+              } else {
+                navigate('/gestion_garages', { replace: true });
+              }
+            }}
             className="btn-cancelar-grande"
           >
             <span>Cancelar</span>
@@ -241,4 +180,4 @@ function AgregarEmpleado() {
   );
 }
 
-export default AgregarEmpleado;
+export default AgregarGarajista;

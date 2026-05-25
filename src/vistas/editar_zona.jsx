@@ -22,7 +22,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import BotonGenerico from "../componentes/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
-import { UsuariosGetAll, UsuariosDelete } from '../servicies/API_Usuario';
+import { UsuariosGetByGarage, UsuariosDelete } from '../servicies/API_Usuario';
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -65,6 +65,8 @@ function EditarZona() {
     }
   };
 
+  const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
+
   const [estadoActivo, setEstadoActivo] = useState(() => {
     return garageData ? parseEstadoBool(garageData.estado) : true;
   });
@@ -99,9 +101,12 @@ function EditarZona() {
   useEffect(() => {
     let estaMontado = true;
 
-    const cargarUsuariosDelSistema = async () => {
+    const cargarGarajistasDelGarage = async () => {
+      const garageId = obtenerIdGarage(garageData);
+      if (!garageId) return;
+
       setCargandoGarajistas(true);
-      const response = await UsuariosGetAll();
+      const response = await UsuariosGetByGarage(garageId);
       
       if (!estaMontado) return;
 
@@ -112,19 +117,16 @@ function EditarZona() {
       setCargandoGarajistas(false);
     };
 
-    cargarUsuariosDelSistema();
+    cargarGarajistasDelGarage();
 
     return () => {
       estaMontado = false;
     };
-  }, []);
+  }, [garageData]);
 
   const garajistasAsignados = useMemo(() => {
-    if (!garageData?.id_sede) return [];
-    return usuarios.filter(user => 
-      Number(user.id_rol) === 3 && Number(user.id_sede) === Number(garageData.id_sede)
-    );
-  }, [usuarios, garageData?.id_sede]);
+    return usuarios.filter(user => Number(user.id_rol) === 3);
+  }, [usuarios]);
 
   const volverAGarages = () => {
     navigate("/gestion_garages");
@@ -197,7 +199,7 @@ function EditarZona() {
        capacidad_para_no_reservas: Number(capacidadNoReservas)
     };
 
-    const id = garageData.id_garage ?? garageData.idGarage ?? garageData.id ?? garageData._id;
+    const id = obtenerIdGarage(garageData);
 
     const response = await GaragesUpdate(id, payload);
     setLoading(false);
@@ -389,11 +391,29 @@ function EditarZona() {
 
           <section className="bloque-formulario">
             <div className="seccion-garajistas-zona">
-              <div className="bloque-titulo" style={{ marginBottom: '16px' }}>
-                <span className="bloque-icono">
-                  <PersonStanding size={20} />
-                </span>
-                <h3>Garajistas Asignados</h3>
+              <div className="bloque-titulo" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <span className="bloque-icono">
+                    <PersonStanding size={20} />
+                  </span>
+                  <h3>Garajistas Asignados</h3>
+                </div>
+                <BotonGenerico
+                  type="button"
+                  className="btn-agregar-garajista-zona"
+                  onClick={() => {
+                    const garageId = obtenerIdGarage(garageData);
+                    navigate("/agregar_garajista", { 
+                      state: { 
+                        id_garage: garageId,
+                        garage: garageData
+                      } 
+                    })
+                  }}
+                >
+                  <Plus size={16} />
+                  <span>Agregar Garajista</span>
+                </BotonGenerico>
               </div>
 
               {cargandoGarajistas ? (
