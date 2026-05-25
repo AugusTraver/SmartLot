@@ -85,7 +85,6 @@ NEVER use generic AI-generated aesthetics such as:
 > NEVER converge on common choices (Space Grotesk, for example) across generations.
 
 ## 5. Match Complexity to Vision
-
 - Maximalist designs need elaborate code with extensive animations and effects.
 - Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details.
 - Elegance comes from executing the vision well.
