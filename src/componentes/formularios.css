@@ -26,22 +26,22 @@
     color: #2563eb;
 }
 
-/* --- LÓGICA DE ANIMACIÓN UNIFICADA (INPUTS Y SELECTS) --- */
+
 
 .input-group {
     margin-bottom: 24px;
     display: flex;
     flex-direction: column;
-    position: relative; /* Necesario para que el label se posicione respecto al grupo */
+    position: relative; /
 }
 
-/* Estilos compartidos para Inputs y Selects */
+
 .input-group input,
 .input-group select {
     background-color: #e2e8f0;
     border: 2px solid transparent;
     border-radius: 16px;
-    padding: 18px 18px 10px 18px; /* Espacio superior calibrado para albergar el label flotante */
+    padding: 18px 18px 10px 18px; 
     font-size: 15px;
     color: #1e293b;
     transition: all 0.3s ease;
@@ -51,7 +51,7 @@
 
 
 
-/* Estilo por defecto de la etiqueta (Label posicionado como Placeholder) */
+
 .input-group label {
     position: absolute;
     left: 18px;
@@ -62,10 +62,10 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
-    pointer-events: none; /* Permite interactuar con el control inferior a través del texto */
+    pointer-events: none; 
 }
 
-/* Estilo de enfoque (Focus) compartido */
+
 .input-group input:focus,
 .input-group select:focus {
     outline: none;
@@ -74,25 +74,31 @@
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
-/* Asegurar que el placeholder nativo del input no interfiera visualmente */
-.input-group input::placeholder {
-    color: transparent;
+.input-group select:not(:focus):invalid ~ label {
+    top: 13px;
+    left: 18px;
+    font-size: 13px;
+    color: #94a3b8;
 }
 
 
 .input-group input:focus ~ label,
 .input-group input:not(:placeholder-shown) ~ label,
 .input-group select:focus ~ label,
-.input-group select:not([value=""]):not([value="0"]) ~ label {
-    top: -2px; /* Se desplaza hacia el margen superior de la tarjeta */
+.input-group select:not(:placeholder-shown) ~ label {
+    top: -2px; 
     left: 12px;
     font-size: 11px;
-    color: #2563eb; /* Pasa al azul corporativo activo */
+    color: #2563eb; 
     background-color: transparent; 
     padding: 0 4px;
 }
 
-/* Mantiene el label arriba pero en gris neutral cuando pierde el foco si conserva un valor */
-.input-group select:not(:focus):not([value=""]):not([value="0"]) ~ label {
+.input-group select:not(:focus):invalid ~ label {
     color: #94a3b8;
+}
+
+
+.input-group select:not(:focus):valid ~ label {
+    color: #2563eb !important;
 }

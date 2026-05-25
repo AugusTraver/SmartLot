@@ -194,16 +194,16 @@ const GestionEmpleados = () => {
       estaMontado = false;
     };
   }, []);
-const handleEliminarEmpleado = async (id, nombre) => {
+  const handleEliminarEmpleado = async (id, nombre) => {
     const confirmar = window.confirm(
       `¿Estás seguro de que deseas eliminar a ${nombre || "este empleado"}? Esta acción no se puede deshacer.`
     );
-    
+
     if (!confirmar) return;
 
     try {
       // Invocamos la función importada directamente desde el servicio de axios
-      const response = await UsuariosDelete(id); 
+      const response = await UsuariosDelete(id);
 
       if (response.respuesta) {
         // Optimización por GPU: Animamos la tarjeta saliente con GSAP antes de removerla del estado
@@ -379,7 +379,7 @@ const handleEliminarEmpleado = async (id, nombre) => {
                   <div className="parking-section-v3">
                     <p className="parking-label-v3">VEHÍCULO</p>
                     <div className="parking-pill-v3">
-                      <div className="p-icon-box"><Car size={25}/></div>
+                      <div className="p-icon-box"><Car size={25} /></div>
                       <div className="parking-details-v3">
                         <span className="spot-v3">{emp.parkingSpot}</span>
                         <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
@@ -402,14 +402,18 @@ const handleEliminarEmpleado = async (id, nombre) => {
                         <Trash2 size={18} className="trash-icon-v3" />
                       </BotonGenerico>
                     </div>
-                  </div>  
+                  </div>
                 </article>
               ))
               : null}
 
             {!loading && !error && empleadosFiltrados.length === 0 && (
               <div className="no-results">
-                <p>No hay empleados subidos aun</p>
+                {searchTerm ? (
+                  <p>No se encontraron resultados para "{searchTerm}"</p>
+                ) : (
+                  <p>No hay empleados subidos aun</p>
+                )}
               </div>
             )}
           </div>

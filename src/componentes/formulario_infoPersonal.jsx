@@ -83,8 +83,8 @@ function FormularioInfoPersonal({
                                 const value = e.target.value === '' ? '' : Number(e.target.value);
                                 onChange('id_sede', value);
                             }}
-                            disabled={isSedeDisabled}
-                            style={isSedeDisabled ? { opacity: 0.7, cursor: 'not-allowed', backgroundColor: '#f5f5f5' } : {}}
+                            disabled={isSedeDisabled}required
+                            
                         >
                         <option value="" disabled hidden></option>
                             {sedes.map((sede) => (
