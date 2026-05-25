@@ -49,7 +49,8 @@
 }
 
 .grupo-input input,
-.grupo-input textarea {
+.grupo-input textarea,
+.grupo-input select {
   width: 100%;
   border: 1px solid #e2e8f0;
   background: #f8fafc;

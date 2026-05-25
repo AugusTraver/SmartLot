@@ -2,7 +2,8 @@ import "./formulario_zona.css";
 
 function FormularioZona({
     formData,
-    onChange
+    onChange,
+    sedes = []
 }) {
     return (
         <div className="formulario-zona">
@@ -35,6 +36,24 @@ function FormularioZona({
                             onChange={(e) => onChange('piso', e.target.value)}
                         />
                     </div>
+                </div>
+
+                <div className="grupo-input">
+                    <label>Sede</label>
+                    <select
+                        value={formData.id_sede}
+                        onChange={(e) => onChange('id_sede', e.target.value)}
+                    >
+                        {sedes.length === 0 ? (
+                            <option value="">Cargando sedes...</option>
+                        ) : (
+                            sedes.map((sede) => (
+                                <option key={sede.id} value={sede.id}>
+                                    {sede.nombre}
+                                </option>
+                            ))
+                        )}
+                    </select>
                 </div>
 
                 <div className="grupo-input">

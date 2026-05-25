@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./agregar_zona.css";
 import Header from "../componentes/header_admin";
@@ -6,7 +6,8 @@ import { CirclePlus, ArrowLeft } from "lucide-react";
 import FormularioZona from "../componentes/formulario_zona";
 import FormularioCapacidad from "../componentes/formulario_capacidad";
 import BotonGenerico from "../componentes/boton_generico";
-import { GaragesCreate } from "../servicies/API_Garage"; 
+import { GaragesCreate } from "../servicies/API_Garage";
+import { SedesGetAll } from "../servicies/API_Sede";
 
 function AgregarZona() {
   const navigate = useNavigate();
@@ -19,11 +20,33 @@ function AgregarZona() {
     capacidad: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
-    id_sede: 1
+    id_sede: ""
   });
-  
+  const [sedes, setSedes] = useState([]);
+  const [sedesLoading, setSedesLoading] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const cargarSedes = async () => {
+      setSedesLoading(true);
+      const response = await SedesGetAll();
+
+      if (response.respuesta && Array.isArray(response.datos) && response.datos.length > 0) {
+        setSedes(response.datos);
+        setFormData((prev) => ({
+          ...prev,
+          id_sede: prev.id_sede || String(response.datos[0].id)
+        }));
+      } else {
+        setError("❌ No se encontraron sedes. Crea una sede antes de agregar un garage.");
+      }
+
+      setSedesLoading(false);
+    };
+
+    cargarSedes();
+  }, []);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -31,6 +54,27 @@ function AgregarZona() {
 
   const handleCrearZona = async () => {
     setError("");
+
+    if (sedesLoading) {
+      setError("❌ Cargando sedes, espera un momento para continuar.");
+      return;
+    }
+
+    if (!formData.id_sede || formData.id_sede.toString().trim() === "") {
+      setError("❌ La sede es requerida.");
+      return;
+    }
+
+    const sedeId = Number(formData.id_sede);
+    if (isNaN(sedeId) || sedeId <= 0) {
+      setError("❌ La sede seleccionada no es válida.");
+      return;
+    }
+
+    if (!sedes.some((sede) => Number(sede.id) === sedeId)) {
+      setError("❌ La sede seleccionada no es válida.");
+      return;
+    }
 
     // Validaciones
     if (!formData.nombre || !formData.nombre.trim()) {
@@ -101,11 +145,10 @@ function AgregarZona() {
     setLoading(true);
 
     const garage = {
-      id_sede: Number(formData.id_sede) || 1,
+      id_sede: sedeId,
       nombre: formData.nombre.trim(),
       piso: formData.piso.trim(),
       ubicacion: formData.ubicacion.trim(),
-      // SOLUCIÓN: Mandamos un string ("activo" o "inactivo") en lugar de un booleano, ya que el backend espera eso
       estado: true, // Siempre activo al crear, ya no se maneja desde el formulario
       capacidad: cap,
       capacidad_para_no_reservas: capNoRes,
@@ -146,6 +189,7 @@ function AgregarZona() {
           <FormularioZona
             formData={formData}
             onChange={handleChange}
+            sedes={sedes}
           />
 
           <FormularioCapacidad
@@ -160,7 +204,7 @@ function AgregarZona() {
           <BotonGenerico
             className="btn-guardar-grande"
             onClick={handleCrearZona}
-            disabled={loading}
+            disabled={loading || sedesLoading || sedes.length === 0}
           >
             <CirclePlus size={22} />
             <span>{loading ? "Creando..." : "Crear Zona"}</span>

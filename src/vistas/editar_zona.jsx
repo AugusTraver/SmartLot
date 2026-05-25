@@ -348,7 +348,15 @@ function EditarZona() {
                   >
                     <Minus size={16} />
                   </button>
-                  <span>{capacidadReservas}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={capacidadReservas}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      setCapacidadReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
+                    }}
+                  />
                   <button
                     type="button"
                     onClick={() => setCapacidadReservas((valor) => valor + 1)}
@@ -377,7 +385,15 @@ function EditarZona() {
                   >
                     <Minus size={16} />
                   </button>
-                  <span>{capacidadNoReservas}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={capacidadNoReservas}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      setCapacidadNoReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
+                    }}
+                  />
                   <button
                     type="button"
                     onClick={() => setCapacidadNoReservas((valor) => valor + 1)}
