@@ -1,5 +1,6 @@
 import { Contact } from 'lucide-react';
 import "./formularios.css";
+import { useState } from 'react';
 
 function FormularioInfoPersonal({
     infoPersonalTitulo,
@@ -12,7 +13,8 @@ function FormularioInfoPersonal({
     hideSede = false
 }) {
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
-
+    
+    const [isOpenSede, setIsOpenSede] = useState(false);
     // Hardcoded roles: empleado (id 2) and garagista (id 3)
     const fixedRoles = [
         { id: 2, nombre: 'empleado' },
@@ -75,28 +77,48 @@ function FormularioInfoPersonal({
                 <label>{labels.contraseña}</label>
             </div>
 
-                {!hideSede && (
-                    <div className="input-group">
-                        <select
-                            value={formData.id_sede}
-                            onChange={(e) => {
-                                const value = e.target.value === '' ? '' : Number(e.target.value);
-                                onChange('id_sede', value);
-                            }}
-                            disabled={isSedeDisabled}required
-                            
-                        >
-                        <option value="" disabled hidden></option>
-                            {sedes.map((sede) => (
-                                <option key={sede.id} value={sede.id}>
-                                    {getDisplayName(sede)}
-                                </option>
-                            ))}
-                        </select>
+            {!hideSede && (
+                <div className={`input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
 
-                        <label>{labels.sede}</label>    
+                  
+                    <div
+                        className="dropdown-trigger-clean"
+                        onClick={() => !isSedeDisabled && setIsOpenSede(!isOpenSede)}
+                        style={isSedeDisabled ? { opacity: 0.5, cursor: 'not-allowed', backgroundColor: '#f5f5f5' } : {}}
+                    >
+                       
+                        <span className="selected-display-text">
+                            {formData.id_sede
+                                ? getDisplayName(sedes.find(s => s.id === formData.id_sede))
+                                : ''}
+                        </span>
+
+                       
+                        <svg className="chevron-arrow-svg" viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
+                        </svg>
                     </div>
-                )}
+
+                   
+                    <ul className="submenu-custom-list">
+                        {sedes.map((sede) => (
+                            <li
+                                key={sede.id}
+                                className="submenu-custom-option"
+                                onClick={() => {
+                                    onChange('id_sede', Number(sede.id));
+                                    setIsOpenSede(false); 
+                                }}
+                            >
+                                <span className="submenu-custom-link">
+                                    {getDisplayName(sede)}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                    <label>{labels.sede}</label>
+                </div>
+            )}
         </section>
     )
 }

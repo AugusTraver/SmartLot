@@ -26,18 +26,15 @@
     color: #2563eb;
 }
 
-
-
 .input-group {
     margin-bottom: 24px;
     display: flex;
     flex-direction: column;
-    position: relative; /
+    position: relative;
 }
 
-
 .input-group input,
-.input-group select {
+.dropdown-trigger-clean {
     background-color: #e2e8f0;
     border: 2px solid transparent;
     border-radius: 16px;
@@ -47,15 +44,137 @@
     transition: all 0.3s ease;
     width: 100%;
     box-sizing: border-box;
+    height: 54px;
 }
 
+.dropdown-trigger-clean {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
 
+.selected-display-text {
+    font-weight: 600;
+    color: #1e293b;
+}
 
+/* =========================================================================
+   ESTILIZACIÓN DE ANIMACIONES PREMIUM (ADAPTADO DE UIVERSE.IO)
+   ========================================================================= */
+
+.menu-dropdown-item {
+    position: relative;
+}
+
+.chevron-arrow-svg {
+    width: 20px;
+    height: 20px;
+    fill: #94a3b8;
+    transition: all 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.submenu-custom-list {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-12px);
+    transition: all 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 99;
+    pointer-events: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* Disparador de apertura controlado por clase de React */
+.dropdown-open .submenu-custom-list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    border-top: transparent;
+   
+}
+
+.dropdown-open .dropdown-trigger-clean {
+    color: black;
+    background-color: #e2e8f0;
+    border-radius: 16px 16px 0 0;
+}
+
+.dropdown-open .selected-display-text {
+    color: black;
+}
+
+.dropdown-open .chevron-arrow-svg {
+    fill: black;
+    color: black;
+    transform: rotate(-180deg);
+}
+
+.submenu-custom-option {
+    width: 100%;
+    transition: all 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+    list-style: none;
+}
+
+.submenu-custom-link {
+    display: block;
+    padding: 12px 24px;
+    width: 100%;
+    position: relative;
+    text-align: left;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.submenu-custom-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scaleX(0);
+    width: 100%;
+    height: 100%;
+    background-color: #2563eb; /* Unificado con tu azul corporativo */
+    z-index: -1;
+    transform-origin: left;
+    transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.submenu-custom-link:hover::before {
+    transform: scaleX(1);
+    transform-origin: right;
+}
+
+.submenu-custom-link:hover {
+    color: #ffffff;
+}
+
+/* =========================================================================
+   LÓGICA UNIFICADA DE LA ETIQUETA FLOTANTE (LABEL) - CORREGIDO
+   ========================================================================= */
 
 .input-group label {
     position: absolute;
     left: 18px;
-    top: 13px; 
+    top: 16px; 
     font-size: 13px; 
     font-weight: 700;
     color: #94a3b8;
@@ -65,27 +184,20 @@
     pointer-events: none; 
 }
 
-
-.input-group input:focus,
-.input-group select:focus {
+.input-group input:focus {
     outline: none;
     background-color: #ffffff;
     border-color: #2563eb;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
-.input-group select:not(:focus):invalid ~ label {
-    top: 13px;
-    left: 18px;
-    font-size: 13px;
-    color: #94a3b8;
+.input-group input::placeholder {
+    color: transparent;
 }
 
-
+/* 1. Animación de subida para inputs con foco o texto (Contraseña, Nombre, etc.) */
 .input-group input:focus ~ label,
-.input-group input:not(:placeholder-shown) ~ label,
-.input-group select:focus ~ label,
-.input-group select:not(:placeholder-shown) ~ label {
+.input-group input:not(:placeholder-shown) ~ label {
     top: -2px; 
     left: 12px;
     font-size: 11px;
@@ -94,11 +206,31 @@
     padding: 0 4px;
 }
 
-.input-group select:not(:focus):invalid ~ label {
-    color: #94a3b8;
+/* 2. Animación de subida para el Dropdown Custom cuando está ABIERTO */
+.menu-dropdown-item.dropdown-open label {
+    top: -2px; 
+    left: 12px;
+    font-size: 11px;
+    color: #2563eb; 
+    background-color: transparent; 
+    padding: 0 4px;
 }
 
+/* 3. LA SOLUCIÓN REAL: Cuando el menú se cierra pero YA TIENE UN VALOR, 
+      el label se queda arriba chiquito, fijo y con tu azul corporativo permanente */
+.menu-dropdown-item.has-selected-value label {
+    top: -2px !important; 
+    left: 12px !important;
+    font-size: 11px !important;
+    color: #2563eb !important; 
+    background-color: transparent !important; 
+    padding: 0 4px !important;
+}
 
-.input-group select:not(:focus):valid ~ label {
-    color: #2563eb !important;
+/* 4. Si el dropdown NO está abierto y tampoco tiene un valor, vuelve abajo al centro en gris */
+.menu-dropdown-item:not(.dropdown-open):not(.has-selected-value) label {
+    top: 16px;
+    left: 18px;
+    font-size: 13px;
+    color: #94a3b8;
 }
