@@ -156,6 +156,7 @@
     pointer-events: auto;
     border-top: transparent;
     border-color: transparent;
+    width: 99.7%;
 }
 
 .dropdown-open .dropdown-trigger-clean {
@@ -274,4 +275,7 @@
     font-size: 0.95rem;
     padding: 0.9rem;
   }
+  .dropdown-open .submenu-custom-list {
+    width: 99.3%;
+    }
 }
