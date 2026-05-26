@@ -448,10 +448,7 @@ function EditarZona() {
                           <h3 className="gz-garajista-name">{nombreCompleto}</h3>
                           <span className="gz-role-badge">Garajista</span>
                         </div>
-                        
-                        <div className="gz-sede-line">
-                          <span>ID: #{garajistaId}</span>
-                        </div>
+      
 
                         <div className="gz-parking-section">
                           <p className="gz-parking-label">CONTACTO OPERATIVO</p>
