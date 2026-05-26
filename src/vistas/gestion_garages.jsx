@@ -165,7 +165,7 @@ function GestionGarages() {
           </button>
 
           <div>
-            <p>PANEL DE CONTROL</p>
+            <p>CONTROL DE GARAGES</p>
             <h1>Configuracion de Garages</h1>
           </div>
         </section>

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Star, CarFront, Minus, Plus } from "lucide-react";
+import { Star, CarFront, Minus, Plus, Building2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "./formulario_capacidad.css";
@@ -17,7 +17,7 @@ function FormularioCapacidad({ formData = {}, onChange }) {
 
   // Animación de entrada fluida mediante hardware GPU (staggered cards)
   useGSAP(() => {
-    gsap.from(".plaza-item, .plazas-resumen", {
+    gsap.from(".plaza-item", {
       opacity: 0,
       y: 16,
       duration: 0.45,
@@ -38,13 +38,6 @@ function FormularioCapacidad({ formData = {}, onChange }) {
       [field]: sanitizedValue
     };
 
-    // Recalcular dinámicamente la capacidad total de forma reactiva (Side-effect limpio)
-    if (field === "capacidad_reservas") {
-      updatedFields.capacidad = sanitizedValue + capacidadNoReservas;
-    } else if (field === "capacidad_para_no_reservas") {
-      updatedFields.capacidad = capacidadReservas + sanitizedValue;
-    }
-
     onChange(updatedFields);
   };
 
@@ -55,13 +48,51 @@ function FormularioCapacidad({ formData = {}, onChange }) {
         <p>Configura la distribución de plazas disponibles en tiempo real.</p>
       </div>
       
-      {/* Resumen dinámico sincronizado */}
-      <div className="plazas-resumen">
-        <span>Capacidad total recalculada</span>
-        <strong>{capacidad} plazas</strong>
-      </div>
-
       <div className="plazas-grid">
+        {/* Tarjeta: Capacidad Total */}
+        <div className="plaza-item" style={{ gridColumn: "1 / -1" }}>
+          <div className="plaza-top">
+            <div className="plaza-icon" style={{ background: "rgba(21, 111, 229, 0.1)", color: "#156fe5" }}>
+              <Building2 size={18} />
+            </div>
+            <span className="plaza-tag" style={{ background: "#156fe5", color: "#fff" }}>TOTAL</span>
+          </div>
+
+          <h4>Capacidad Total</h4>
+          <p>Número total de plazas del establecimiento.</p>
+
+          <div className="contador">
+            <button
+              type="button"
+              className="btn-contador"
+              onClick={() => handleUpdate("capacidad", capacidad - 1)}
+              disabled={capacidad <= 0}
+              aria-label="Disminuir capacidad total"
+            >
+              <Minus size={16} />
+            </button>
+
+            <input
+              type="number"
+              min="0"
+              value={capacidad}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                handleUpdate("capacidad", Number.isNaN(value) ? 0 : value);
+              }}
+            />
+
+            <button
+              type="button"
+              className="btn-contador"
+              onClick={() => handleUpdate("capacidad", capacidad + 1)}
+              aria-label="Aumentar capacidad total"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+        </div>
+
         {/* Tarjeta: Reservas */}
         <div className="plaza-item">
           <div className="plaza-top">

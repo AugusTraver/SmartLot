@@ -39,7 +39,7 @@ function FormularioZona({
                             type="number"
                             placeholder=" "
                             value={formData.piso ?? ''}
-                            onChange={(e) => onChange('piso', e.target.value === '' ? '' : Number(e.target.value))}
+                            onChange={(e) => onChange('piso', e.target.value === '' ? '' : e.target.value)}
                         />
                         <label>Nivel / Planta</label>
                     </div>

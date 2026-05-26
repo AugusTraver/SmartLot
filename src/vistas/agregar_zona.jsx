@@ -49,7 +49,11 @@ function AgregarZona() {
   }, []);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (typeof field === "object" && field !== null) {
+      setFormData(field);
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleCrearZona = async () => {
@@ -147,7 +151,7 @@ function AgregarZona() {
     const garage = {
       id_sede: sedeId,
       nombre: formData.nombre.trim(),
-      piso: formData.piso.trim(),
+      piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
       estado: true, // Siempre activo al crear, ya no se maneja desde el formulario
       capacidad: cap,
