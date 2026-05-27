@@ -9,16 +9,20 @@ import {
   MapPin,
   Trash2,
   Car,
-  CarFront
+  CarFront,
+  Archive,
+  X,
+  RotateCcw
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import Swal from "sweetalert2";
 
 import "./gestion_de_empleados.css";
 import Header from "../componentes/header_admin";
 import FooterAdmin from "../componentes/footer_admin";
 import BotonGenerico from "../componentes/boton_generico";
-import { UsuariosGetAll, UsuariosDelete } from "../servicies/API_Usuario";
+import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
@@ -65,6 +69,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
     sede: obtenerSede(usuario.id_sede, sedesMap),
     vehicleModel: modeloLabel,
+    activo: usuario.activo !== false,
   };
 };
 
@@ -126,6 +131,7 @@ const GestionEmpleados = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sedesMap, setSedesMap] = useState({});
+  const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
     let estaMontado = true;
@@ -194,35 +200,109 @@ const GestionEmpleados = () => {
       estaMontado = false;
     };
   }, []);
-  const handleEliminarEmpleado = async (id, nombre) => {
-    const confirmar = window.confirm(
-      `¿Estás seguro de que deseas eliminar a ${nombre || "este empleado"}? Esta acción no se puede deshacer.`
-    );
+  useEffect(() => {
+    if (!showArchived) return;
+    const handleKey = (e) => {
+      if (e.key === "Escape") setShowArchived(false);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [showArchived]);
 
-    if (!confirmar) return;
+  const handleArchivarEmpleado = async (id, name) => {
+    const result = await Swal.fire({
+      title: "¿Archivar a este empleado?",
+      text: `${name || "Este empleado"} quedará inactivo y se moverá a archivados.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#2563EB",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, archivar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      // Invocamos la función importada directamente desde el servicio de axios
-      const response = await UsuariosDelete(id);
+      const response = await UsuariosPatchEstado(id, false);
 
       if (response.respuesta) {
-        // Optimización por GPU: Animamos la tarjeta saliente con GSAP antes de removerla del estado
         gsap.to(`.card-id-${id}`, {
           scale: 0.9,
           opacity: 0,
           duration: 0.25,
           ease: "power2.inOut",
           onComplete: () => {
-            // Remoción reactiva del estado local en memoria a 120fps
-            setEmpleados((prev) => prev.filter((emp) => emp.id !== id));
+            setEmpleados((prev) =>
+              prev.map((emp) =>
+                emp.id === id ? { ...emp, activo: false } : emp
+              )
+            );
           }
         });
       } else {
-        alert("El servidor rechazó la solicitud. No se pudo eliminar al empleado.");
+        Swal.fire("Error", "No se pudo archivar al empleado.", "error");
       }
     } catch (err) {
-      console.error("Error al eliminar el empleado en el servidor:", err);
-      alert("Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.");
+      console.error("Error al archivar el empleado:", err);
+      Swal.fire("Error de red", "Hubo un error al conectar con el servidor.", "error");
+    }
+  };
+
+  const handleRestaurarEmpleado = async (id, name) => {
+    try {
+      const response = await UsuariosPatchEstado(id, true);
+
+      if (response.respuesta) {
+        setEmpleados((prev) =>
+          prev.map((emp) =>
+            emp.id === id ? { ...emp, activo: true } : emp
+          )
+        );
+        Swal.fire({
+          title: "Restaurado",
+          text: `${name || "El empleado"} ha sido restaurado correctamente.`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire("Error", "No se pudo restaurar al empleado.", "error");
+      }
+    } catch (err) {
+      console.error("Error al restaurar el empleado:", err);
+      Swal.fire("Error de red", "Hubo un error al conectar con el servidor.", "error");
+    }
+  };
+
+  const handleEliminarPermanente = async (id, name) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar permanentemente?",
+      text: `${name || "Este empleado"} será eliminado del sistema. Esta acción no se puede deshacer.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await UsuariosDelete(id);
+
+      if (response.respuesta) {
+        setEmpleados((prev) => prev.filter((emp) => emp.id !== id));
+        Swal.fire("Eliminado", "El empleado ha sido eliminado permanentemente.", "success");
+      } else {
+        Swal.fire("Error", "No se pudo eliminar al empleado.", "error");
+      }
+    } catch (err) {
+      console.error("Error al eliminar el empleado:", err);
+      Swal.fire("Error de red", "Hubo un error al conectar con el servidor.", "error");
     }
   };
   const sedesDisponibles = useMemo(
@@ -241,9 +321,14 @@ const GestionEmpleados = () => {
 
       const coincideSede = selectedSede === "Todas" || emp.sede === selectedSede;
 
-      return coincideBusqueda && coincideSede;
+      return coincideBusqueda && coincideSede && emp.activo !== false;
     });
   }, [searchTerm, selectedSede, empleados]);
+
+  const empleadosArchivados = useMemo(
+    () => empleados.filter((emp) => emp.activo === false),
+    [empleados]
+  );
 
   useGSAP(
     () => {
@@ -274,6 +359,21 @@ const GestionEmpleados = () => {
     }
   }, [empleadosFiltrados]);
 
+  useGSAP(() => {
+    if (showArchived) {
+      gsap.fromTo(
+        ".modal-archive-overlay",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        ".modal-archive-panel",
+        { y: 30, opacity: 0, scale: 0.97 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
+      );
+    }
+  }, [showArchived]);
+
   return (
     <div className="gestion-empleados" ref={containerRef}>
       <Header />
@@ -294,7 +394,18 @@ const GestionEmpleados = () => {
           {loading ? (
             <EmpleadosActionSkeleton />
           ) : (
-            <div className="animate-header btn-container-mobile">
+            <div className="animate-header btn-container-mobile header-actions-group">
+              <BotonGenerico
+                className="btn-archivados"
+                onClick={() => setShowArchived(true)}
+                aria-label="Ver empleados archivados"
+              >
+                <Archive size={20} />
+                <span>Archivados</span>
+                {empleadosArchivados.length > 0 && (
+                  <span className="archived-count-badge">{empleadosArchivados.length}</span>
+                )}
+              </BotonGenerico>
               <BotonGenerico
                 className="btn-primario"
                 onClick={() => navigate("/agregar_empleado")}
@@ -363,7 +474,7 @@ const GestionEmpleados = () => {
 
             {!loading && !error && empleadosFiltrados.length > 0
               ? empleadosFiltrados.map((emp) => (
-                <article key={emp.id} className="card-empleado-v3">
+                <article key={emp.id} className={`card-empleado-v3 card-id-${emp.id}`}>
                   <div className="card-header-v3">
                     <h3 className="emp-name-v3">{emp.name}</h3>
                     <span className="role-badge-v3">{emp.role}</span>
@@ -396,8 +507,8 @@ const GestionEmpleados = () => {
                       <span className="email-v3">{emp.email}</span>
                       <BotonGenerico
                         className="btn-eliminar-v3"
-                        onClick={() => handleEliminarEmpleado(emp.id)}
-                        aria-label={`Eliminar empleado ${emp.name}`} // Requisito a11y crítico para botones con solo iconos
+                        onClick={() => handleArchivarEmpleado(emp.id, emp.name)}
+                        aria-label={`Archivar empleado ${emp.name}`}
                       >
                         <Trash2 size={18} className="trash-icon-v3" />
                       </BotonGenerico>
@@ -419,6 +530,93 @@ const GestionEmpleados = () => {
           </div>
         )}
       </main>
+
+      {showArchived && (
+        <div className="modal-archive-overlay" onClick={() => setShowArchived(false)}>
+          <div className="modal-archive-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-archive-header">
+              <div className="modal-archive-title-group">
+                <Archive size={24} />
+                <h2>Empleados Archivados</h2>
+              </div>
+              <button
+                className="modal-archive-close"
+                onClick={() => setShowArchived(false)}
+                aria-label="Cerrar archivados"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="modal-archive-body">
+              {empleadosArchivados.length === 0 ? (
+                <div className="empty-archived">
+                  <Archive size={48} className="empty-archived-icon" />
+                  <p className="empty-archived-text">No hay empleados archivados</p>
+                  <p className="empty-archived-sub">
+                    Los empleados que archives aparecerán aquí.
+                  </p>
+                </div>
+              ) : (
+                empleadosArchivados.map((emp) => (
+                  <article key={emp.id} className="card-archivado">
+                    <div className="card-archivado-top">
+                      <div className="card-archivado-info">
+                        <h3 className="archivado-name">{emp.name}</h3>
+                        <span className="role-badge-v3">{emp.role}</span>
+                      </div>
+                      <span className="badge-archivado">Archivado</span>
+                    </div>
+
+                    <div className="empleado-sede-line">
+                      <MapPin size={14} />
+                      <span>{emp.sede}</span>
+                    </div>
+
+                    <div className="parking-section-v3">
+                      <p className="parking-label-v3">VEHÍCULO</p>
+                      <div className="parking-pill-v3">
+                        <div className="p-icon-box"><Car size={25} /></div>
+                        <div className="parking-details-v3">
+                          <span className="spot-v3">{emp.parkingSpot}</span>
+                          <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card-footer-v3">
+                      <div className="status-indicator archived-status">
+                        <div className="gray-dot"></div>
+                        <span>Inactivo</span>
+                      </div>
+                      <div className="footer-bottom-row">
+                        <span className="email-v3">{emp.email}</span>
+                        <div className="archivado-actions">
+                          <BotonGenerico
+                            className="btn-restaurar"
+                            onClick={() => handleRestaurarEmpleado(emp.id, emp.name)}
+                            aria-label={`Restaurar empleado ${emp.name}`}
+                          >
+                            <RotateCcw size={16} />
+                            <span>Restaurar</span>
+                          </BotonGenerico>
+                          <BotonGenerico
+                            className="btn-eliminar-archivado"
+                            onClick={() => handleEliminarPermanente(emp.id, emp.name)}
+                            aria-label={`Eliminar permanentemente ${emp.name}`}
+                          >
+                            <Trash2 size={16} />
+                          </BotonGenerico>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <FooterAdmin />
     </div>

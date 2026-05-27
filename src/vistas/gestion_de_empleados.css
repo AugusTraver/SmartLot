@@ -674,3 +674,345 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* HEADER ACTIONS GROUP */
+.header-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ARCHIVE BUTTON */
+.btn-archivados {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 20px;
+  background: #ffffff !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  color: #1E293B !important;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+  white-space: nowrap;
+  position: relative;
+}
+
+.btn-archivados:hover {
+  background: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.btn-archivados:active {
+  transform: scale(0.97);
+}
+
+.archived-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: #2563EB;
+  color: white;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ARCHIVE MODAL OVERLAY */
+.modal-archive-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+/* ARCHIVE MODAL PANEL */
+.modal-archive-panel {
+  width: 100%;
+  max-width: 720px;
+  max-height: 82vh;
+  background: #ffffff;
+  border-radius: 32px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* MODAL HEADER */
+.modal-archive-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 1px solid #F1F3F4;
+  flex-shrink: 0;
+}
+
+.modal-archive-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1E293B;
+}
+
+.modal-archive-title-group h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1A1C1E;
+  letter-spacing: -0.01em;
+}
+
+.modal-archive-title-group svg {
+  color: #2563EB;
+}
+
+.modal-archive-close {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 12px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-archive-close:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+  transform: rotate(90deg);
+}
+
+/* MODAL BODY */
+.modal-archive-body {
+  padding: 20px 28px 28px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ARCHIVED EMPLOYEE CARD */
+.card-archivado {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 20px;
+  border: 1px solid #F1F3F4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.card-archivado:hover {
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.card-archivado-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.card-archivado-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.archivado-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1A1C1E;
+  margin: 0;
+}
+
+.badge-archivado {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: #F1F5F9;
+  color: #64748B;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ARCHIVED STATUS INDICATOR */
+.archived-status span {
+  color: #94A3B8;
+}
+
+.gray-dot {
+  width: 10px;
+  height: 10px;
+  background: #CBD5E1;
+  border-radius: 50%;
+}
+
+/* ARCHIVED ACTION BUTTONS */
+.archivado-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-restaurar {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  background: #EFF6FF !important;
+  border: 1px solid #BFDBFE !important;
+  border-radius: 10px !important;
+  color: #2563EB !important;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+  white-space: nowrap;
+}
+
+.btn-restaurar:hover {
+  background: #DBEAFE !important;
+  border-color: #93C5FD !important;
+  transform: translateY(-1px);
+}
+
+.btn-restaurar:active {
+  transform: scale(0.96);
+}
+
+.btn-eliminar-archivado {
+  width: 34px;
+  height: 34px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #FEF2F2 !important;
+  border: 1px solid #FECACA !important;
+  border-radius: 10px !important;
+  color: #EF4444 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.btn-eliminar-archivado:hover {
+  background: #FEE2E2 !important;
+  border-color: #FCA5A5 !important;
+  transform: translateY(-1px);
+}
+
+.btn-eliminar-archivado:active {
+  transform: scale(0.96);
+}
+
+/* EMPTY ARCHIVED STATE */
+.empty-archived {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-archived-icon {
+  color: #CBD5E1;
+  margin-bottom: 16px;
+}
+
+.empty-archived-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: #64748B;
+  margin: 0 0 6px;
+}
+
+.empty-archived-sub {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* RESPONSIVE: ARCHIVE MODAL */
+@media (max-width: 768px) {
+  .modal-archive-panel {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 24px;
+  }
+
+  .modal-archive-header {
+    padding: 18px 20px;
+  }
+
+  .modal-archive-body {
+    padding: 16px 20px 20px;
+  }
+
+  .card-archivado-top {
+    flex-direction: column;
+  }
+
+  .btn-archivados {
+    height: 48px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .header-actions-group {
+    width: 100%;
+  }
+
+  .header-actions-group .btn-archivados,
+  .header-actions-group .btn-primario {
+    flex: 1;
+  }
+
+  .btn-restaurar {
+    font-size: 12px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .archivado-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .btn-restaurar {
+    width: 100%;
+    justify-content: center;
+  }
+}

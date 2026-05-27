@@ -120,6 +120,22 @@ const UsuariosUpdate = async (id, usuario) => {
     }
 };
 
+const UsuariosPatchEstado = async (id, activo) => {
+    let returnObject = { respuesta: false, datos: null };
+    let url = apiUrl + '/api/usuario/' + id + '/estado';
+
+    try {
+        // Se envía un objeto solo con el campo "activo"
+        const response = await axios.patch(url, { activo });
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+        return returnObject;
+    } catch (error) {
+        console.log(error);
+        return returnObject;
+    }
+};
+
 
 
 const UsuariosDelete = async (id) => {
@@ -151,5 +167,6 @@ export {
     UsuariosGetById,
     UsuariosCreate,
     UsuariosUpdate,
-    UsuariosDelete
+    UsuariosDelete,
+    UsuariosPatchEstado
 };
