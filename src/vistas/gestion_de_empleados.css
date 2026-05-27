@@ -638,36 +638,62 @@
   .envoltorio-contenido {
     padding: 20px 16px;
   }
-  .input-moderno{
-    width: 85% !important;
-    margin-top: 4%;
-    height: 50px;
-  }
-   .search-icon{
-   margin-top: 2%;
-   }
 
   .header-seccion {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-left-group {
+    align-items: flex-start;
+  }
+
+  .input-moderno{
+    width: 100% !important;
+    margin-top: 0;
+    height: 50px;
+  }
+
+  .search-icon {
+    margin-top: 0;
   }
 
   .titulo-vista {
     font-size: 33px;
   }
 
-  
   .barra-herramientas {
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .contenedor-busqueda {
+    width: 100%;
   }
 
   .filtros-grupo {
     width: 100%;
-    gap:2%
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .select-wrapper {
+    flex: 1;
+    min-width: 0;
   }
 
   .btn-selector-sede {
     flex: 1;
-    margin-left: 0%;
+    width: 100%;
+    min-width: 0;
+    height: 50px;
+    margin-left: 0;
+  }
+
+  .btn-icon-filtros {
+    width: 54px;
+    height: 50px;
+    flex: 0 0 54px;
   }
 
   .empleados-btn-skeleton {
