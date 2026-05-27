@@ -70,9 +70,6 @@ function EditarZona() {
   const [estadoActivo, setEstadoActivo] = useState(() => {
     return garageData ? parseEstadoBool(garageData.estado) : true;
   });
-  const [capacidad, setCapacidad] = useState(() => {
-    return garageData ? Number(garageData.capacidad || 0) : 0;
-  });
   const [capacidadReservas, setCapacidadReservas] = useState(() => {
     return garageData ? Number(garageData.capacidad_reservas || 0) : 0;
   });
@@ -91,6 +88,7 @@ function EditarZona() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const capacidad = capacidadReservas + capacidadNoReservas;
 
   useEffect(() => {
     if (!garageData) {
@@ -164,20 +162,18 @@ function EditarZona() {
       return;
     }
 
+    if (
+      !Number.isInteger(capacidadReservas) ||
+      !Number.isInteger(capacidadNoReservas) ||
+      capacidadReservas < 0 ||
+      capacidadNoReservas < 0
+    ) {
+      setError('❌ Las capacidades de reservas y no reservas deben ser números enteros mayores o iguales a 0.');
+      return;
+    }
+
     if (capacidad <= 0) {
       setError('❌ La capacidad total debe ser mayor a 0.');
-      return;
-    }
-
-    if (capacidadReservas < 0 || capacidadNoReservas < 0) {
-      setError('❌ Las capacidades no pueden ser negativas.');
-      return;
-    }
-
-    if (capacidadReservas + capacidadNoReservas !== capacidad) {
-      setError(
-        `❌ SUMA INVÁLIDA: La capacidad total (${capacidad}) debe ser exactamente igual a la suma de reservas (${capacidadReservas}) y no reservas (${capacidadNoReservas}).`
-      );
       return;
     }
 
@@ -252,26 +248,14 @@ function EditarZona() {
               />
             </div>
 
-            <div className="campos-grid">
-              <div className="campo-formulario">
-                <label>Nivel / Planta</label>
-                <input
-                  type="text"
-                  value={piso}
-                  onChange={(e) => setPiso(e.target.value)}
-                  placeholder="Ej: Piso 1, Subsuelo"
-                />
-              </div>
-
-              <div className="campo-formulario">
-                <label>Total de plazas</label>
-                <input
-                  type="number"
-                  value={capacidad === 0 ? '' : capacidad}
-                  onChange={(e) => setCapacidad(Number(e.target.value) || 0)}
-                  min="1"
-                />
-              </div>
+            <div className="campo-formulario">
+              <label>Nivel / Planta</label>
+              <input
+                type="text"
+                value={piso}
+                onChange={(e) => setPiso(e.target.value)}
+                placeholder="Ej: Piso 1, Subsuelo"
+              />
             </div>
 
             <div className="campo-formulario">

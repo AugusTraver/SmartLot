@@ -17,7 +17,6 @@ function AgregarZona() {
     nombre: "",
     piso: "",
     ubicacion: "",
-    capacidad: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
     id_sede: ""
@@ -109,16 +108,6 @@ function AgregarZona() {
       return;
     }
 
-    if (formData.capacidad === undefined || formData.capacidad === null || formData.capacidad.toString().trim() === "") {
-      setError("❌ La capacidad total es requerida.");
-      return;
-    }
-    const cap = Number(formData.capacidad);
-    if (isNaN(cap) || cap <= 0 || !Number.isInteger(cap)) {
-      setError("❌ La capacidad total debe ser un número entero mayor a 0.");
-      return;
-    }
-
     if (formData.capacidad_reservas === undefined || formData.capacidad_reservas === null || formData.capacidad_reservas.toString().trim() === "") {
       setError("❌ La capacidad de reservas es requerida.");
       return;
@@ -139,10 +128,9 @@ function AgregarZona() {
       return;
     }
 
-    if (capRes + capNoRes !== cap) {
-      setError(
-        `❌ SUMA INVÁLIDA: La capacidad total (${cap}) debe ser exactamente igual a la suma de reservas (${capRes}) y no reservas (${capNoRes}).`
-      );
+    const cap = capRes + capNoRes;
+    if (cap <= 0) {
+      setError("❌ La capacidad total debe ser mayor a 0.");
       return;
     }
 
