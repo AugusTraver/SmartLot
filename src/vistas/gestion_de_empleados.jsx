@@ -202,11 +202,19 @@ const GestionEmpleados = () => {
   }, []);
   useEffect(() => {
     if (!showArchived) return;
+
+    const previousOverflow = document.body.style.overflow; // Guarda el valor original del overflow para restaurarlo después
+    document.body.style.overflow = "hidden"; // Evita el scroll del fondo cuando el modal de archivados está abierto
+
     const handleKey = (e) => {
-      if (e.key === "Escape") setShowArchived(false);
+      if (e.key === "Escape") setShowArchived(false); // Permite cerrar el modal de archivados con la tecla Escape
     };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
+    document.addEventListener("keydown", handleKey); 
+
+    return () => { // Al cerrar el modal, restauramos el overflow original y removemos el listener de teclado
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKey);
+    };
   }, [showArchived]);
 
   const handleArchivarEmpleado = async (id, name) => {
