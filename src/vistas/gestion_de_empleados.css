@@ -63,7 +63,7 @@
 .subtitulo-vista {
   font-size: 16px;
   color: #64748b;
-  margin-top: 4px;
+  margin-top: 8px;
   line-height: 1.4;
   text-align: left;
   margin-bottom: 0;
@@ -659,7 +659,7 @@
   }
 
   .titulo-vista {
-    font-size: 33px;
+    font-size: 28px;
   }
 
   .barra-herramientas {
