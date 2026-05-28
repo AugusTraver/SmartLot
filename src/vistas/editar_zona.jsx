@@ -20,9 +20,10 @@ import {
   Mail
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 import BotonGenerico from "../componentes/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
-import { UsuariosGetByGarage, UsuariosDelete } from '../servicies/API_Usuario';
+import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -43,25 +44,43 @@ function EditarZona() {
   const location = useLocation();
   const garageData = location.state?.garage;
 
-  const handleEliminarEmpleado = async (id, nombre) => {
-    const confirmar = window.confirm(
-      `¿Estás seguro de que deseas eliminar a ${nombre || "este garajista"}? Esta acción no se puede deshacer.`
-    );
-    
-    if (!confirmar) return;
+  const handleArchivarEmpleado = async (id, nombre) => {
+    const result = await Swal.fire({
+      title: "¿Archivar a este garajista?",
+      text: `${nombre || "Este garajista"} quedará inactivo y se moverá a archivados.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#2563EB",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, archivar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const response = await UsuariosDelete(id); 
+      const response = await UsuariosPatchEstado(id, false);
 
       if (response.respuesta) {
-        setUsuarios((prev) => prev.filter((user) => (user.id ?? user.id_usuario) !== id));
-        alert("Garajista eliminado con éxito.");
+        setUsuarios((prev) =>
+          prev.map((user) =>
+            (user.id ?? user.id_usuario) === id ? { ...user, activo: false } : user
+          )
+        );
+        Swal.fire({
+          title: "Garajista archivado",
+          text: "El garajista ahora está inactivo y se puede restaurar más tarde.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
-        alert("El servidor rechazó la solicitud. No se pudo eliminar al garajista.");
+        Swal.fire("Error", "No se pudo archivar al garajista.", "error");
       }
     } catch (err) {
-      console.error("Error al eliminar el garajista en el servidor:", err);
-      alert("Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.");
+      console.error("Error al archivar el garajista en el servidor:", err);
+      Swal.fire("Error de red", "Hubo un error de red o de servidor. Por favor, inténtalo de nuevo.", "error");
     }
   };
 
@@ -123,7 +142,9 @@ function EditarZona() {
   }, [garageData]);
 
   const garajistasAsignados = useMemo(() => {
-    return usuarios.filter(user => Number(user.id_rol) === 3);
+    return usuarios.filter(
+      (user) => Number(user.id_rol) === 3 && user.activo !== false
+    );
   }, [usuarios]);
 
   const volverAGarages = () => {
@@ -448,8 +469,8 @@ function EditarZona() {
                         <div className="gz-footer-row">
                           <BotonGenerico
                             className="gz-btn-eliminar"
-                            onClick={() => handleEliminarEmpleado(garajistaId, nombreCompleto)}
-                            aria-label={`Eliminar garajista ${nombreCompleto}`} 
+                            onClick={() => handleArchivarEmpleado(garajistaId, nombreCompleto)}
+                            aria-label={`Archivar garajista ${nombreCompleto}`} 
                           >
                             <Trash2 size={16} className="gz-trash-icon" />
                           </BotonGenerico>
