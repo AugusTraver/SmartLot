@@ -9,7 +9,6 @@ import {
   MapPin,
   Trash2,
   Car,
-  CarFront,
   Archive,
   X,
   RotateCcw
@@ -29,7 +28,6 @@ import { SedesGetAll } from "../servicies/API_Sede";
 
 gsap.registerPlugin(useGSAP);
 
-
 const obtenerListadoUsuarios = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
@@ -45,7 +43,6 @@ const obtenerRol = (idRol) => {
     2: "Empleado",
     3: "Garagista",
   };
-
   return roles[Number(idRol)] || "Empleado";
 };
 
@@ -67,22 +64,22 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     email: usuario.email || "Sin email",
     parkingSpot: patente ? `Patente ${patente}` : "Sin vehículo",
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
+    textoSede: obtenerSede(usuario.id_sede, sedesMap), 
     sede: obtenerSede(usuario.id_sede, sedesMap),
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
   };
 };
 
-const EmpleadosActionSkeleton = () => ( // Muestra un botón esquelético para simular la carga de acciones disponibles
+const EmpleadosActionSkeleton = () => (
   <div className="animate-header btn-container-mobile">
     <span className="empleados-btn-skeleton" />
   </div>
 );
 
-const EmpleadosToolbarSkeleton = () => (  // Muestra un conjunto de elementos esqueléticos para simular la carga de la barra de herramientas de empleados
+const EmpleadosToolbarSkeleton = () => (
   <section className="barra-herramientas animate-toolbar" aria-label="Cargando filtros de empleados">
     <div className="empleados-search-skeleton" />
-
     <div className="filtros-grupo">
       <span className="empleados-select-skeleton" />
       <span className="empleados-filter-skeleton" />
@@ -90,7 +87,7 @@ const EmpleadosToolbarSkeleton = () => (  // Muestra un conjunto de elementos es
   </section>
 );
 
-const EmpleadosSkeletonGrid = () => ( // Muestra 6 tarjetas esqueléticas para simular la carga de empleados
+const EmpleadosSkeletonGrid = () => (
   <div className="grid-bento" aria-label="Cargando empleados">
     {Array.from({ length: 6 }).map((_, index) => (
       <article className="card-empleado-skeleton" key={index}>
@@ -98,9 +95,7 @@ const EmpleadosSkeletonGrid = () => ( // Muestra 6 tarjetas esqueléticas para s
           <span className="empleado-skeleton-line empleado-skeleton-name" />
           <span className="empleado-skeleton-badge" />
         </div>
-
         <span className="empleado-skeleton-line empleado-skeleton-sede" />
-
         <div className="empleado-skeleton-parking">
           <span className="empleado-skeleton-line empleado-skeleton-label" />
           <div className="empleado-skeleton-pill">
@@ -111,7 +106,6 @@ const EmpleadosSkeletonGrid = () => ( // Muestra 6 tarjetas esqueléticas para s
             </div>
           </div>
         </div>
-
         <div className="empleado-skeleton-footer">
           <span className="empleado-skeleton-line empleado-skeleton-status" />
           <span className="empleado-skeleton-line empleado-skeleton-email" />
@@ -126,6 +120,7 @@ const GestionEmpleados = () => {
   const containerRef = useRef(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchArchivedTerm, setSearchArchivedTerm] = useState(""); 
   const [selectedSede, setSelectedSede] = useState("Todas");
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,58 +135,65 @@ const GestionEmpleados = () => {
       setLoading(true);
       setError("");
 
-      const [responseUsuarios, responseVehiculos, responseModelos, responseSedes] = await Promise.all([
-        UsuariosGetAll(),
-        VehiculosGetAll(),
-        ModelosGetAll(),
-        SedesGetAll(),
-      ]);
+      try {
+        const [responseUsuarios, responseVehiculos, responseModelos, responseSedes] = await Promise.all([
+          UsuariosGetAll(),
+          VehiculosGetAll(),
+          ModelosGetAll(),
+          SedesGetAll(),
+        ]);
 
-      if (!estaMontado) return;
+        if (!estaMontado) return;
 
-      if (!responseUsuarios.respuesta) {
-        setError("No se pudieron cargar los empleados.");
-        setLoading(false);
-        return;
+        if (!responseUsuarios.respuesta) {
+          setError("No se pudieron cargar los empleados.");
+          setLoading(false);
+          return;
+        }
+
+        const usuarios = obtenerListadoUsuarios(responseUsuarios.datos);
+        const vehiculos = responseVehiculos.respuesta
+          ? Array.isArray(responseVehiculos.datos)
+            ? responseVehiculos.datos
+            : obtenerListadoUsuarios(responseVehiculos.datos)
+          : [];
+        const modelos = responseModelos.respuesta
+          ? Array.isArray(responseModelos.datos)
+            ? responseModelos.datos
+            : obtenerListadoUsuarios(responseModelos.datos)
+          : [];
+        const sedes = responseSedes.respuesta
+          ? Array.isArray(responseSedes.datos)
+            ? responseSedes.datos
+            : obtenerListadoUsuarios(responseSedes.datos)
+          : [];
+
+        // CORRECCIÓN: Instanciación limpia y sin closures erróneos para los Mapas
+        const vehiculosPorUsuario = new Map(
+          vehiculos.map((v) => [v.id_usuario, v])
+        );
+        const modeloNombrePorId = new Map(
+          modelos.map((m) => [m.id, m.nombre])
+        );
+        const sedeNombrePorId = Object.fromEntries(
+          sedes.map((s) => [Number(s.id), s.nombre])
+        );
+        
+        setSedesMap(sedeNombrePorId);
+
+        setEmpleados(
+          usuarios.map((usuario) => {
+            const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
+            const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
+            return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId);
+          })
+        );
+      } catch (err) {
+        console.error("Error crítico en la carga de datos:", err);
+        setError("Ocurrió un error inesperado al procesar la información.");
+      } finally {
+        if (estaMontado) setLoading(false);
       }
-
-      const usuarios = obtenerListadoUsuarios(responseUsuarios.datos);
-      const vehiculos = responseVehiculos.respuesta
-        ? Array.isArray(responseVehiculos.datos)
-          ? responseVehiculos.datos
-          : obtenerListadoUsuarios(responseVehiculos.datos)
-        : [];
-      const modelos = responseModelos.respuesta
-        ? Array.isArray(responseModelos.datos)
-          ? responseModelos.datos
-          : obtenerListadoUsuarios(responseModelos.datos)
-        : [];
-      const sedes = responseSedes.respuesta
-        ? Array.isArray(responseSedes.datos)
-          ? responseSedes.datos
-          : obtenerListadoUsuarios(responseSedes.datos)
-        : [];
-
-      const vehiculosPorUsuario = new Map(
-        vehiculos.map((vehiculo) => [vehiculo.id_usuario, vehiculo])
-      );
-      const modeloNombrePorId = new Map(
-        modelos.map((modelo) => [modelo.id, modelo.nombre])
-      );
-      const sedeNombrePorId = Object.fromEntries(
-        sedes.map((sede) => [Number(sede.id), sede.nombre])
-      );
-      setSedesMap(sedeNombrePorId);
-
-      setEmpleados(
-        usuarios.map((usuario) => {
-          const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
-          const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
-
-          return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId);
-        })
-      );
-      setLoading(false);
     };
 
     cargarEmpleados();
@@ -200,18 +202,22 @@ const GestionEmpleados = () => {
       estaMontado = false;
     };
   }, []);
+  
   useEffect(() => {
-    if (!showArchived) return;
+    if (!showArchived) {
+      setSearchArchivedTerm(""); 
+      return;
+    }
 
-    const previousOverflow = document.body.style.overflow; // Guarda el valor original del overflow para restaurarlo después
-    document.body.style.overflow = "hidden"; // Evita el scroll del fondo cuando el modal de archivados está abierto
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     const handleKey = (e) => {
-      if (e.key === "Escape") setShowArchived(false); // Permite cerrar el modal de archivados con la tecla Escape
+      if (e.key === "Escape") setShowArchived(false);
     };
     document.addEventListener("keydown", handleKey); 
 
-    return () => { // Al cerrar el modal, restauramos el overflow original y removemos el listener de teclado
+    return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKey);
     };
@@ -313,6 +319,7 @@ const GestionEmpleados = () => {
       Swal.fire("Error de red", "Hubo un error al conectar con el servidor.", "error");
     }
   };
+
   const sedesDisponibles = useMemo(
     () => Array.from(new Set(empleados.map((emp) => emp.sede))).filter(Boolean),
     [empleados]
@@ -333,8 +340,23 @@ const GestionEmpleados = () => {
     });
   }, [searchTerm, selectedSede, empleados]);
 
-  const empleadosArchivados = useMemo(
-    () => empleados.filter((emp) => emp.activo === false),
+  const empleadosArchivados = useMemo(() => {
+    const query = searchArchivedTerm.toLowerCase().trim();
+    return empleados.filter((emp) => {
+      const esInactivo = emp.activo === false;
+      if (!query) return esInactivo;
+
+      const coincideBusqueda =
+        emp.name.toLowerCase().includes(query) ||
+        emp.email.toLowerCase().includes(query) ||
+        emp.role.toLowerCase().includes(query);
+
+      return esInactivo && coincideBusqueda;
+    });
+  }, [searchArchivedTerm, empleados]);
+
+  const totalArchivadosReal = useMemo(
+    () => empleados.filter((emp) => emp.activo === false).length,
     [empleados]
   );
 
@@ -393,14 +415,16 @@ const GestionEmpleados = () => {
               <ArrowLeft size={24} />
             </button>
             <div className="textos-titulos">
-              <h1 className="titulo-vista">Gestion de Empleados</h1>
+              <h1 className="titulo-vista">Gestión de Empleados</h1>
               <p className="subtitulo-vista">
                 Administra el acceso y roles de todo el personal.
               </p>
             </div>
           </div>
           {loading ? (
-            <EmpleadosActionSkeleton />
+            <BotonGenerico className="btn-archivados" style={{ opacity: 0.5, pointerEvents: 'none' }}>
+              <span>Cargando...</span>
+            </BotonGenerico>
           ) : (
             <div className="animate-header btn-container-mobile header-actions-group">
               <BotonGenerico
@@ -410,8 +434,8 @@ const GestionEmpleados = () => {
               >
                 <Archive size={20} />
                 <span>Archivados</span>
-                {empleadosArchivados.length > 0 && (
-                  <span className="archived-count-badge">{empleadosArchivados.length}</span>
+                {totalArchivadosReal > 0 && (
+                  <span className="archived-count-badge">{totalArchivadosReal}</span>
                 )}
               </BotonGenerico>
               <BotonGenerico
@@ -426,7 +450,7 @@ const GestionEmpleados = () => {
         </header>
 
         {loading ? (
-          <EmpleadosToolbarSkeleton /> // Muestra la barra de herramientas esquelética mientras se cargan los empleados
+          <EmpleadosToolbarSkeleton />
         ) : (
           <section className="barra-herramientas animate-toolbar">
             <div className="contenedor-busqueda">
@@ -473,7 +497,6 @@ const GestionEmpleados = () => {
           <EmpleadosSkeletonGrid />
         ) : (
           <div className="grid-bento">
-
             {error && (
               <div className="empleados-feedback empleados-feedback-error">
                 <p>{error}</p>
@@ -531,7 +554,7 @@ const GestionEmpleados = () => {
                 {searchTerm ? (
                   <p>No se encontraron resultados para "{searchTerm}"</p>
                 ) : (
-                  <p>No hay empleados subidos aun</p>
+                  <p>No hay empleados subidos aún</p>
                 )}
               </div>
             )}
@@ -556,14 +579,31 @@ const GestionEmpleados = () => {
               </button>
             </div>
 
+            <div className="modal-archive-search-container" style={{ padding: "16px 24px", borderBottom: "1px solid var(--border-color, #e2e8f0)" }}>
+              <div className="contenedor-busqueda" style={{ width: "100%" }}>
+                <Search className="search-icon" size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar archivados por nombre, email o cargo..."
+                  className="input-moderno"
+                  value={searchArchivedTerm}
+                  onChange={(e) => setSearchArchivedTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="modal-archive-body">
-              {empleadosArchivados.length === 0 ? (
+              {totalArchivadosReal === 0 ? (
                 <div className="empty-archived">
                   <Archive size={48} className="empty-archived-icon" />
                   <p className="empty-archived-text">No hay empleados archivados</p>
                   <p className="empty-archived-sub">
                     Los empleados que archives aparecerán aquí.
                   </p>
+                </div>
+              ) : empleadosArchivados.length === 0 ? (
+                <div className="no-results" style={{ padding: "40px 20px", textAlign: "center" }}>
+                  <p>No se encontraron archivados para "{searchArchivedTerm}"</p>
                 </div>
               ) : (
                 empleadosArchivados.map((emp) => (
@@ -632,5 +672,3 @@ const GestionEmpleados = () => {
 };
 
 export default GestionEmpleados;
-
-
