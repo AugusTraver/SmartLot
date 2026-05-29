@@ -418,7 +418,7 @@ const GestionEmpleados = () => {
             <div className="textos-titulos">
               <h1 className="titulo-vista">Gestión de Empleados</h1>
               <p className="subtitulo-vista">
-                Administra el acceso y roles de todo el personal.
+                Administra todo el personal.
               </p>
             </div>
           </div>
