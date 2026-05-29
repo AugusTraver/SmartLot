@@ -16,7 +16,6 @@ import {
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
-Swal.setDefaults({ scrollbarPadding: false });
 
 
 import "./gestion_de_empleados.css";
