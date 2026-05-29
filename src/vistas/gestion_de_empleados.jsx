@@ -122,7 +122,7 @@ const GestionEmpleados = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState(""); 
-  const [selectedSede, setSelectedSede] = useState("Todas");
+  const [selectedSede, setSelectedSede] = useState("");
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -335,7 +335,7 @@ const GestionEmpleados = () => {
         emp.email.toLowerCase().includes(query) ||
         emp.role.toLowerCase().includes(query);
 
-      const coincideSede = selectedSede === "Todas" || emp.sede === selectedSede;
+      const coincideSede = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
 
       return coincideBusqueda && coincideSede && emp.activo !== false;
     });
@@ -472,6 +472,7 @@ const GestionEmpleados = () => {
                   value={selectedSede}
                   onChange={(e) => setSelectedSede(e.target.value)}
                 >
+                  <option value="">Filtrar por sede</option>
                   <option value="Todas">Todas las sedes</option>
                   {sedesDisponibles.map((sede) => (
                     <option key={sede} value={sede}>
@@ -485,7 +486,7 @@ const GestionEmpleados = () => {
               <button
                 className="btn-icon-filtros"
                 type="button"
-                onClick={() => setSelectedSede("Todas")}
+                onClick={() => setSelectedSede("")}
                 aria-label="Restablecer filtros de sede"
               >
                 <SlidersHorizontal size={18} strokeWidth={2.5} />
