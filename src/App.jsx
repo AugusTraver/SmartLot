@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AdminDashboard from "./vistas/admin_dashboard";   
-import GestionEmpleados from "./vistas/gestion_de_empleados";
-import GestionGarages from "./vistas/gestion_garages";
-import EditarZona from "./vistas/editar_zona";
-import AgregarEmpleado from "./vistas/agregar_empleado";
-import AgregarGarajista from "./vistas/agregar_garajista";
-import AgregarZona from "./vistas/agregar_zona";
+import AdminDashboard from "./vistasAdmin/admin_dashboard";   
+import GestionEmpleados from "./vistasAdmin/gestion_de_empleados";
+import GestionGarages from "./vistasAdmin/gestion_garages";
+import EditarZona from "./vistasAdmin/editar_zona";
+import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
+import AgregarGarajista from "./vistasAdmin/agregar_garajista";
+import AgregarZona from "./vistasAdmin/agregar_zona";
 //import PanelControl from "./vistas/PanelControl";
 //import ControlAcceso from "./vistas/ControlAcceso";
 

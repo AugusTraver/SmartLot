@@ -19,9 +19,9 @@ import Swal from "sweetalert2";
 
 
 import "./gestion_de_empleados.css";
-import Header from "../componentes/header_admin";
-import FooterAdmin from "../componentes/footer_admin";
-import BotonGenerico from "../componentes/boton_generico";
+import Header from "../componentesAdmin/header_admin";
+import FooterAdmin from "../componentesAdmin/footer_admin";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";

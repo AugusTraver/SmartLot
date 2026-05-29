@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FormularioInfoPersonal from "../componentes/formulario_infoPersonal";
-import FormularioDetallesVehiculo from "../componentes/formulario_detallesVehiculo";
-import Header from "../componentes/header_admin";
+import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
+import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
+import Header from "../componentesAdmin/header_admin";
 import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
-import BotonGenerico from "../componentes/boton_generico";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
