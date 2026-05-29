@@ -17,7 +17,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 
-
 import "./gestion_de_empleados.css";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
@@ -26,6 +25,7 @@ import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicie
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
+import { GaragesGetAll } from "../servicies/API_Garage"; 
 
 gsap.registerPlugin(useGSAP);
 
@@ -52,7 +52,13 @@ const obtenerSede = (idSede, sedesMap) => {
   return sedesMap[Number(idSede)] || `Sede ${idSede}`;
 };
 
-const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedesMap = {}) => {
+// HELPER CORREGIDO: Fuerza la conversión explícita a tipo primitivo Number para evitar fallos de tipo String/Number
+const obtenerGarage = (idGarage, garagesMap) => {
+  if (!idGarage) return "Sin garage";
+  return garagesMap[Number(idGarage)] || `Garage ${idGarage}`;
+};
+
+const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedesMap = {}, garagesMap = {}) => {
   const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
   const patente = vehiculo?.patente || usuario.patente;
   const modeloName = modeloNombre || usuario.modelo;
@@ -68,6 +74,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
     textoSede: obtenerSede(usuario.id_sede, sedesMap),
     sede: obtenerSede(usuario.id_sede, sedesMap),
+    garage: obtenerGarage(usuario.id_garage, garagesMap), 
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
   };
@@ -124,12 +131,19 @@ const GestionEmpleados = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
   const [selectedSede, setSelectedSede] = useState("");
+  const [selectedGarage, setSelectedGarage] = useState(""); 
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sedesMap, setSedesMap] = useState({});
+  const [garagesMap, setGaragesMap] = useState({}); 
   const [showArchived, setShowArchived] = useState(false);
   const [filtroRolSwitch, setFiltroRolSwitch] = useState("Empleado");
+
+  useEffect(() => {
+    setSelectedSede("");
+    setSelectedGarage("");
+  }, [filtroRolSwitch]);
 
   useEffect(() => {
     let estaMontado = true;
@@ -139,11 +153,12 @@ const GestionEmpleados = () => {
       setError("");
 
       try {
-        const [responseUsuarios, responseVehiculos, responseModelos, responseSedes] = await Promise.all([
+        const [responseUsuarios, responseVehiculos, responseModelos, responseSedes, responseGarages] = await Promise.all([
           UsuariosGetAll(),
           VehiculosGetAll(),
           ModelosGetAll(),
           SedesGetAll(),
+          GaragesGetAll(), 
         ]);
 
         if (!estaMontado) return;
@@ -155,39 +170,32 @@ const GestionEmpleados = () => {
         }
 
         const usuarios = obtenerListadoUsuarios(responseUsuarios.datos);
-        const vehiculos = responseVehiculos.respuesta
-          ? Array.isArray(responseVehiculos.datos)
-            ? responseVehiculos.datos
-            : obtenerListadoUsuarios(responseVehiculos.datos)
-          : [];
-        const modelos = responseModelos.respuesta
-          ? Array.isArray(responseModelos.datos)
-            ? responseModelos.datos
-            : obtenerListadoUsuarios(responseModelos.datos)
-          : [];
-        const sedes = responseSedes.respuesta
-          ? Array.isArray(responseSedes.datos)
-            ? responseSedes.datos
-            : obtenerListadoUsuarios(responseSedes.datos)
-          : [];
+        const vehiculos = responseVehiculos.respuesta ? obtenerListadoUsuarios(responseVehiculos.datos) : [];
+        const modelos = responseModelos.respuesta ? obtenerListadoUsuarios(responseModelos.datos) : [];
+        const sedes = responseSedes.respuesta ? obtenerListadoUsuarios(responseSedes.datos) : [];
+        const garages = obtenerListadoUsuarios(responseGarages.datos);
 
-        const vehiculosPorUsuario = new Map(
-          vehiculos.map((v) => [v.id_usuario, v])
-        );
-        const modeloNombrePorId = new Map(
-          modelos.map((m) => [m.id, m.nombre])
-        );
-        const sedeNombrePorId = Object.fromEntries(
-          sedes.map((s) => [Number(s.id), s.nombre])
-        );
-
+        const vehiculosPorUsuario = new Map(vehiculos.map((v) => [v.id_usuario, v]));
+        const modeloNombrePorId = new Map(modelos.map((m) => [m.id, m.nombre]));
+        
+        const sedeNombrePorId = Object.fromEntries(sedes.map((s) => [Number(s.id), s.nombre]));
         setSedesMap(sedeNombrePorId);
+
+        // CORRECCIÓN RELACIONAL DE DICCIONARIO: Creamos un objeto puro usando mapeos forzados a índices numéricos reales
+        const mapaDeGarajesIndexado = {};
+        garages.forEach((g) => {
+          const idLimpio = g.id ?? g.id_garage ?? g._id;
+          if (idLimpio !== undefined && idLimpio !== null) {
+            mapaDeGarajesIndexado[Number(idLimpio)] = g.nombre || g.descripcion || `Garage ${idLimpio}`;
+          }
+        });
+        setGaragesMap(mapaDeGarajesIndexado);
 
         setEmpleados(
           usuarios.map((usuario) => {
             const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
             const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
-            return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId);
+            return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId, mapaDeGarajesIndexado);
           })
         );
       } catch (err) {
@@ -322,12 +330,18 @@ const GestionEmpleados = () => {
     }
   };
 
-  // CORRECCIÓN 1: Filtra para mapear únicamente las sedes que pertenecen a los Empleados activos
   const sedesDisponibles = useMemo(() => {
     const empleadosDeRol = empleados.filter(
       (emp) => emp.role === "Empleado" && emp.activo !== false && emp.sede !== "Sin sede"
     );
     return Array.from(new Set(empleadosDeRol.map((emp) => emp.sede))).filter(Boolean);
+  }, [empleados]);
+
+  const garagesDisponibles = useMemo(() => {
+    const garajistasActivos = empleados.filter(
+      (emp) => emp.role === "Garagista" && emp.activo !== false && emp.garage !== "Sin garage"
+    );
+    return Array.from(new Set(garajistasActivos.map((emp) => emp.garage))).filter(Boolean);
   }, [empleados]);
 
   const empleadosFiltrados = useMemo(() => {
@@ -339,13 +353,18 @@ const GestionEmpleados = () => {
         emp.email.toLowerCase().includes(query) ||
         emp.role.toLowerCase().includes(query);
 
-      const coincideSede = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
-
+      let coincideUbicacion = true;
+      if (filtroRolSwitch === "Empleado") {
+        coincideUbicacion = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
+      } else {
+        coincideUbicacion = !selectedGarage || (selectedGarage === "Todas" && emp.garage !== "Sin garage") || emp.garage === selectedGarage;
+      }
+      
       const coincideRolSwitch = emp.role === filtroRolSwitch;
 
-      return coincideBusqueda && coincideSede && coincideRolSwitch && emp.activo !== false;
+      return coincideBusqueda && coincideUbicacion && coincideRolSwitch && emp.activo !== false;
     });
-  }, [searchTerm, selectedSede, filtroRolSwitch, empleados]);
+  }, [searchTerm, selectedSede, selectedGarage, filtroRolSwitch, empleados]);
 
   const empleadosArchivados = useMemo(() => {
     const query = searchArchivedTerm.toLowerCase().trim();
@@ -434,7 +453,7 @@ const GestionEmpleados = () => {
             </BotonGenerico>
           ) : (
             <div className="animate-header btn-container-mobile header-actions-group">
-
+              
               <BotonGenerico
                 className="btn-archivados"
                 onClick={() => setShowArchived(true)}
@@ -449,14 +468,14 @@ const GestionEmpleados = () => {
 
               <div className="role-switch-container">
                 <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
-                <button
+                <button 
                   type="button"
                   className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
                   onClick={() => setFiltroRolSwitch("Empleado")}
                 >
                   <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
                 </button>
-                <button
+                <button 
                   type="button"
                   className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
                   onClick={() => setFiltroRolSwitch("Garagista")}
@@ -493,29 +512,47 @@ const GestionEmpleados = () => {
 
             <div className="filtros-grupo">
               <div className="select-wrapper">
-                <select
-                  className="btn-selector-sede"
-                  value={selectedSede}
-                  onChange={(e) => setSelectedSede(e.target.value)}
-                >
-                  <option value="">Filtrar por sede</option>
-                  <option value="Todas">Todas las sedes</option>
-                  {sedesDisponibles.map((sede) => (
-                    <option key={sede} value={sede}>
-                      {sede}
-                    </option>
-                  ))}
-                </select>
+                {filtroRolSwitch === "Empleado" ? (
+                  <select
+                    className="btn-selector-sede"
+                    value={selectedSede}
+                    onChange={(e) => setSelectedSede(e.target.value)}
+                  >
+                    <option value="">Filtrar por sede</option>
+                    <option value="Todas">Todas las sedes</option>
+                    {sedesDisponibles.map((sede) => (
+                      <option key={sede} value={sede}>
+                        {sede}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    className="btn-selector-sede"
+                    value={selectedGarage}
+                    onChange={(e) => setSelectedGarage(e.target.value)}
+                  >
+                    <option value="">Filtrar por garage</option>
+                    <option value="Todas">Todos los garages</option>
+                    {garagesDisponibles.map((garage) => (
+                      <option key={garage} value={garage}>
+                        {garage}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <ChevronDown size={18} className="chevron-select-icon" />
               </div>
 
-              {/* CORRECCIÓN 2: Renderizado condicional. La X solo aparece si selectedSede tiene un valor real */}
-              {selectedSede && (
+              {((filtroRolSwitch === "Empleado" && selectedSede) || (filtroRolSwitch === "Garagista" && selectedGarage)) && (
                 <button
                   className="btn-icon-filtros"
                   type="button"
-                  onClick={() => setSelectedSede("")}
-                  aria-label="Restablecer filtros de sede"
+                  onClick={() => {
+                    setSelectedSede("");
+                    setSelectedGarage("");
+                  }}
+                  aria-label="Restablecer filtros"
                 >
                   <X size={18} strokeWidth={2.5} />
                 </button>
@@ -545,7 +582,8 @@ const GestionEmpleados = () => {
                   <div className="card-body-v3">
                     <div className="empleado-sede-line">
                       <MapPin size={14} />
-                      <span>{emp.sede}</span>
+                      {/* MUTACIÓN OPERATIVA ADAPTADA: Dice Sede para los empleados y Garage para los garagistas */}
+                      <span>{filtroRolSwitch === "Empleado" ? emp.sede : emp.garage}</span>
                     </div>
                   </div>
 
@@ -653,18 +691,20 @@ const GestionEmpleados = () => {
 
                     <div className="empleado-sede-line">
                       <MapPin size={14} />
-                      <span>{emp.sede}</span>
+                      <span>{emp.role === "Empleado" ? emp.sede : emp.garage}</span>
                     </div>
 
-                    <div className="parking-section-v3">
-                      <div className="parking-pill-v3">
-                        <div className="p-icon-box"><Car size={25} /></div>
-                        <div className="parking-details-v3">
-                          <span className="spot-v3">{emp.parkingSpot}</span>
-                          <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
+                    {emp.role === "Empleado" && (
+                      <div className="parking-section-v3">
+                        <div className="parking-pill-v3">
+                          <div className="p-icon-box"><Car size={25} /></div>
+                          <div className="parking-details-v3">
+                            <span className="spot-v3">{emp.parkingSpot}</span>
+                            <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="card-footer-v3">
                       <div className="status-indicator archived-status">
