@@ -63,9 +63,10 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     name: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Empleado sin nombre",
     role: obtenerRol(usuario.id_rol),
     email: usuario.email || "Sin email",
+    tel: usuario.telefono || "Sin teléfono",
     parkingSpot: patente ? `Patente ${patente}` : "Sin vehículo",
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
-    textoSede: obtenerSede(usuario.id_sede, sedesMap), 
+    textoSede: obtenerSede(usuario.id_sede, sedesMap),
     sede: obtenerSede(usuario.id_sede, sedesMap),
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
@@ -121,13 +122,14 @@ const GestionEmpleados = () => {
   const containerRef = useRef(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchArchivedTerm, setSearchArchivedTerm] = useState(""); 
+  const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
   const [selectedSede, setSelectedSede] = useState("");
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sedesMap, setSedesMap] = useState({});
   const [showArchived, setShowArchived] = useState(false);
+  const [filtroRolSwitch, setFiltroRolSwitch] = useState("Empleado");
 
   useEffect(() => {
     let estaMontado = true;
@@ -169,7 +171,6 @@ const GestionEmpleados = () => {
             : obtenerListadoUsuarios(responseSedes.datos)
           : [];
 
-        // CORRECCIÓN: Instanciación limpia y sin closures erróneos para los Mapas
         const vehiculosPorUsuario = new Map(
           vehiculos.map((v) => [v.id_usuario, v])
         );
@@ -179,7 +180,7 @@ const GestionEmpleados = () => {
         const sedeNombrePorId = Object.fromEntries(
           sedes.map((s) => [Number(s.id), s.nombre])
         );
-        
+
         setSedesMap(sedeNombrePorId);
 
         setEmpleados(
@@ -203,10 +204,10 @@ const GestionEmpleados = () => {
       estaMontado = false;
     };
   }, []);
-  
+
   useEffect(() => {
     if (!showArchived) {
-      setSearchArchivedTerm(""); 
+      setSearchArchivedTerm("");
       return;
     }
 
@@ -216,7 +217,7 @@ const GestionEmpleados = () => {
     const handleKey = (e) => {
       if (e.key === "Escape") setShowArchived(false);
     };
-    document.addEventListener("keydown", handleKey); 
+    document.addEventListener("keydown", handleKey);
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -321,10 +322,13 @@ const GestionEmpleados = () => {
     }
   };
 
-  const sedesDisponibles = useMemo(
-    () => Array.from(new Set(empleados.map((emp) => emp.sede))).filter(Boolean),
-    [empleados]
-  );
+  // CORRECCIÓN 1: Filtra para mapear únicamente las sedes que pertenecen a los Empleados activos
+  const sedesDisponibles = useMemo(() => {
+    const empleadosDeRol = empleados.filter(
+      (emp) => emp.role === "Empleado" && emp.activo !== false && emp.sede !== "Sin sede"
+    );
+    return Array.from(new Set(empleadosDeRol.map((emp) => emp.sede))).filter(Boolean);
+  }, [empleados]);
 
   const empleadosFiltrados = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
@@ -337,9 +341,11 @@ const GestionEmpleados = () => {
 
       const coincideSede = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
 
-      return coincideBusqueda && coincideSede && emp.activo !== false;
+      const coincideRolSwitch = emp.role === filtroRolSwitch;
+
+      return coincideBusqueda && coincideSede && coincideRolSwitch && emp.activo !== false;
     });
-  }, [searchTerm, selectedSede, empleados]);
+  }, [searchTerm, selectedSede, filtroRolSwitch, empleados]);
 
   const empleadosArchivados = useMemo(() => {
     const query = searchArchivedTerm.toLowerCase().trim();
@@ -428,6 +434,7 @@ const GestionEmpleados = () => {
             </BotonGenerico>
           ) : (
             <div className="animate-header btn-container-mobile header-actions-group">
+
               <BotonGenerico
                 className="btn-archivados"
                 onClick={() => setShowArchived(true)}
@@ -439,6 +446,25 @@ const GestionEmpleados = () => {
                   <span className="archived-count-badge">{totalArchivadosReal}</span>
                 )}
               </BotonGenerico>
+
+              <div className="role-switch-container">
+                <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
+                <button
+                  type="button"
+                  className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
+                  onClick={() => setFiltroRolSwitch("Empleado")}
+                >
+                  <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
+                </button>
+                <button
+                  type="button"
+                  className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
+                  onClick={() => setFiltroRolSwitch("Garagista")}
+                >
+                  <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
+                </button>
+              </div>
+
               <BotonGenerico
                 className="btn-primario"
                 onClick={() => navigate("/agregar_empleado")}
@@ -483,14 +509,17 @@ const GestionEmpleados = () => {
                 <ChevronDown size={18} className="chevron-select-icon" />
               </div>
 
-              <button
-                className="btn-icon-filtros"
-                type="button"
-                onClick={() => setSelectedSede("")}
-                aria-label="Restablecer filtros de sede"
-              >
-                <SlidersHorizontal size={18} strokeWidth={2.5} />
-              </button>
+              {/* CORRECCIÓN 2: Renderizado condicional. La X solo aparece si selectedSede tiene un valor real */}
+              {selectedSede && (
+                <button
+                  className="btn-icon-filtros"
+                  type="button"
+                  onClick={() => setSelectedSede("")}
+                  aria-label="Restablecer filtros de sede"
+                >
+                  <X size={18} strokeWidth={2.5} />
+                </button>
+              )}
             </div>
           </section>
         )}
@@ -520,16 +549,17 @@ const GestionEmpleados = () => {
                     </div>
                   </div>
 
-                  <div className="parking-section-v3">
-                    <p className="parking-label-v3">VEHÍCULO</p>
-                    <div className="parking-pill-v3">
-                      <div className="p-icon-box"><Car size={25} /></div>
-                      <div className="parking-details-v3">
-                        <span className="spot-v3">{emp.parkingSpot}</span>
-                        <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
+                  {filtroRolSwitch === "Empleado" && (
+                    <div className="parking-section-v3">
+                      <div className="parking-pill-v3">
+                        <div className="p-icon-box"><Car size={25} /></div>
+                        <div className="parking-details-v3">
+                          <span className="spot-v3">{emp.parkingSpot}</span>
+                          <span className="level-v3">{emp.vehicleModel || emp.parkingLevel}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="card-footer-v3">
                     <div className="status-indicator">
@@ -537,7 +567,10 @@ const GestionEmpleados = () => {
                       <span>Activo hoy</span>
                     </div>
                     <div className="footer-bottom-row">
-                      <span className="email-v3">{emp.email}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <span className="email-v3">{emp.email}</span>
+                        <span className="empTel">Tel: {emp.tel}</span>
+                      </div>
                       <BotonGenerico
                         className="btn-eliminar-v3"
                         onClick={() => handleArchivarEmpleado(emp.id, emp.name)}
@@ -556,7 +589,7 @@ const GestionEmpleados = () => {
                 {searchTerm ? (
                   <p>No se encontraron resultados para "{searchTerm}"</p>
                 ) : (
-                  <p>No hay empleados subidos aún</p>
+                  <p>No hay personal cargado bajo esta categoría</p>
                 )}
               </div>
             )}
@@ -624,7 +657,6 @@ const GestionEmpleados = () => {
                     </div>
 
                     <div className="parking-section-v3">
-                      <p className="parking-label-v3">VEHÍCULO</p>
                       <div className="parking-pill-v3">
                         <div className="p-icon-box"><Car size={25} /></div>
                         <div className="parking-details-v3">
@@ -640,7 +672,10 @@ const GestionEmpleados = () => {
                         <span>Inactivo</span>
                       </div>
                       <div className="footer-bottom-row">
-                        <span className="email-v3">{emp.email}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                          <span className="email-v3">{emp.email}</span>
+                          <span className="empTel">Tel: {emp.tel}</span>
+                        </div>
                         <div className="archivado-actions">
                           <BotonGenerico
                             className="btn-restaurar"

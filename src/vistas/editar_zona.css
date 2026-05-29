@@ -340,7 +340,7 @@
   font-size: 1.15rem;
   color: #191c1e;
   outline: none;
-  -moz-appearance: textfield;
+  
 }
 
 .contador input[type="number"]::-webkit-outer-spin-button,
