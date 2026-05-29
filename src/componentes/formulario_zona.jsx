@@ -84,8 +84,8 @@ function FormularioZona({
                 </div>
 
                 <div className="input-group">
-                    <textarea
-                        rows="4"
+                    <input
+                        type="text"
                         placeholder=" "
                         value={formData.ubicacion || ''}
                         onChange={(e) => onChange('ubicacion', e.target.value)}

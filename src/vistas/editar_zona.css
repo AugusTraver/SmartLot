@@ -150,6 +150,11 @@
   min-height: 110px;
 }
 
+.bloque-formulario input {
+  min-height: auto !important;
+  height: auto !important;
+}
+
 .bloque-formulario input:focus,
 .bloque-formulario select:focus,
 .bloque-formulario textarea:focus {

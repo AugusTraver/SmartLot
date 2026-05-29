@@ -281,8 +281,8 @@ function EditarZona() {
 
             <div className="campo-formulario">
               <label>Ubicación</label>
-              <textarea
-                rows="4"
+              <input
+                type="text"
                 placeholder="Ubicación del garage"
                 value={ubicacion}
                 onChange={(e) => setUbicacion(e.target.value)}

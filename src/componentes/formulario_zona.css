@@ -71,6 +71,11 @@
     resize: none;
 }
 
+.input-group input {
+    height: 54px !important;
+    min-height: 54px !important;
+}
+
 .dropdown-trigger-clean {
     display: flex;
     align-items: center;
