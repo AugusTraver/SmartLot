@@ -199,7 +199,7 @@ function AgregarZona() {
             disabled={loading || sedesLoading || sedes.length === 0}
           >
             <CirclePlus size={22} />
-            <span>{loading ? "Creando..." : "Crear Zona"}</span>
+            <span>{loading ? "Creando..." : "Crear Garage"}</span>
           </BotonGenerico>
 
           <BotonGenerico

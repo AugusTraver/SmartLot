@@ -21,7 +21,7 @@ import "./gestion_de_empleados.css";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
-import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
+import { UsuariosGetAll, UsuariosGetByGarage, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
@@ -34,6 +34,7 @@ const obtenerListadoUsuarios = (datos) => {
   if (Array.isArray(datos?.datos)) return datos.datos;
   if (Array.isArray(datos?.data)) return datos.data;
   if (Array.isArray(datos?.usuarios)) return datos.usuarios;
+  if (Array.isArray(datos?.garages)) return datos.garages;
   if (Array.isArray(datos?.value)) return datos.value;
   return [];
 };
@@ -47,19 +48,55 @@ const obtenerRol = (idRol) => {
   return roles[Number(idRol)] || "Empleado";
 };
 
+const obtenerIdUsuario = (usuario) => usuario.id ?? usuario.id_usuario ?? usuario._id;
+
 const obtenerSede = (idSede, sedesMap) => {
   if (!idSede) return "Sin sede";
   return sedesMap[Number(idSede)] || `Sede ${idSede}`;
 };
 
 // HELPER CORREGIDO: Fuerza la conversión explícita a tipo primitivo Number para evitar fallos de tipo String/Number
-const obtenerGarage = (idGarage, garagesMap) => {
-  if (!idGarage) return "Sin garage";
+const obtenerIdGarageUsuario = (usuario) =>
+  usuario.id_garage ??
+  usuario.idGarage ??
+  usuario.garage_id ??
+  usuario.garageId ??
+  usuario.garage?.id_garage ??
+  usuario.garage?.idGarage ??
+  usuario.garage?.id ??
+  usuario.garage?._id;
+
+const obtenerNombreGarageUsuario = (usuario) =>
+  usuario.garage_nombre ??
+  usuario.nombre_garage ??
+  usuario.nombreGarage ??
+  usuario.garage?.nombre ??
+  usuario.garage?.descripcion;
+
+const obtenerGarage = (usuario, garagesMap) => {
+  const nombreGarage = obtenerNombreGarageUsuario(usuario);
+  if (nombreGarage) return nombreGarage;
+
+  const idGarage = obtenerIdGarageUsuario(usuario);
+  if (idGarage === undefined || idGarage === null || idGarage === "") return "Sin garage";
+
   return garagesMap[Number(idGarage)] || `Garage ${idGarage}`;
 };
 
+const completarGarageUsuario = (usuario, garagesPorUsuario) => {
+  const idUsuario = obtenerIdUsuario(usuario);
+  const idGarageAsignado = garagesPorUsuario.get(Number(idUsuario));
+
+  if (!idGarageAsignado || obtenerIdGarageUsuario(usuario)) return usuario;
+
+  return {
+    ...usuario,
+    id_garage: idGarageAsignado,
+  };
+};
+
 const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedesMap = {}, garagesMap = {}) => {
-  const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
+  const id = obtenerIdUsuario(usuario);
   const patente = vehiculo?.patente || usuario.patente;
   const modeloName = modeloNombre || usuario.modelo;
   const modeloLabel = modeloName ? `Modelo ${modeloName}` : null;
@@ -74,7 +111,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
     textoSede: obtenerSede(usuario.id_sede, sedesMap),
     sede: obtenerSede(usuario.id_sede, sedesMap),
-    garage: obtenerGarage(usuario.id_garage, garagesMap), 
+    garage: obtenerGarage(usuario, garagesMap), 
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
   };
@@ -183,19 +220,45 @@ const GestionEmpleados = () => {
 
         // CORRECCIÓN RELACIONAL DE DICCIONARIO: Creamos un objeto puro usando mapeos forzados a índices numéricos reales
         const mapaDeGarajesIndexado = {};
+        const idsGarages = [];
         garages.forEach((g) => {
-          const idLimpio = g.id ?? g.id_garage ?? g._id;
+          const idLimpio = g.id_garage ?? g.idGarage ?? g.id ?? g._id;
           if (idLimpio !== undefined && idLimpio !== null) {
-            mapaDeGarajesIndexado[Number(idLimpio)] = g.nombre || g.descripcion || `Garage ${idLimpio}`;
+            const idGarage = Number(idLimpio);
+            idsGarages.push(idGarage);
+            mapaDeGarajesIndexado[idGarage] = g.nombre || g.descripcion || `Garage ${idLimpio}`;
           }
         });
         setGaragesMap(mapaDeGarajesIndexado);
 
+        const garagistasPorGarage = await Promise.all(
+          idsGarages.map(async (idGarage) => {
+            const response = await UsuariosGetByGarage(idGarage);
+            return {
+              idGarage,
+              usuarios: response.respuesta ? obtenerListadoUsuarios(response.datos) : [],
+            };
+          })
+        );
+
+        if (!estaMontado) return;
+
+        const garagesPorUsuario = new Map();
+        garagistasPorGarage.forEach(({ idGarage, usuarios: usuariosGarage }) => {
+          usuariosGarage.forEach((usuarioGarage) => {
+            const idUsuario = obtenerIdUsuario(usuarioGarage);
+            if (idUsuario !== undefined && idUsuario !== null) {
+              garagesPorUsuario.set(Number(idUsuario), idGarage);
+            }
+          });
+        });
+
         setEmpleados(
           usuarios.map((usuario) => {
-            const vehiculo = vehiculosPorUsuario.get(usuario.id ?? usuario.id_usuario ?? usuario._id);
+            const usuarioConGarage = completarGarageUsuario(usuario, garagesPorUsuario);
+            const vehiculo = vehiculosPorUsuario.get(obtenerIdUsuario(usuarioConGarage));
             const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
-            return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId, mapaDeGarajesIndexado);
+            return normalizarEmpleado(usuarioConGarage, vehiculo, modeloNombre, sedeNombrePorId, mapaDeGarajesIndexado);
           })
         );
       } catch (err) {
