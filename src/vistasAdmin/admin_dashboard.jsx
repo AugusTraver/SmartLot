@@ -1,9 +1,9 @@
 import "./admin_dashboard.css";
-import DashboardBoton from "../componentes/admin_dashboard_boton";
+import DashboardBoton from "../componentesAdmin/admin_dashboard_boton";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../componentes/header_admin";
-import FooterAdmin from "../componentes/footer_admin";
+import Header from "../componentesAdmin/header_admin";
+import FooterAdmin from "../componentesAdmin/footer_admin";
 import { UserPlus, Car, SlidersVertical, PersonStanding } from "lucide-react";
 
 const DashboardHeaderSkeleton = () => (

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./agregar_zona.css";
-import Header from "../componentes/header_admin";
+import Header from "../componentesAdmin/header_admin";
 import { CirclePlus, ArrowLeft } from "lucide-react";
-import FormularioZona from "../componentes/formulario_zona";
-import FormularioCapacidad from "../componentes/formulario_capacidad";
-import BotonGenerico from "../componentes/boton_generico";
+import FormularioZona from "../componentesAdmin/formulario_zona";
+import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
 

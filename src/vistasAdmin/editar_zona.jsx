@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import "./editar_zona.css";
-import Header from "../componentes/header_admin";
+import Header from "../componentesAdmin/header_admin";
 import {
   ArrowLeft,
   Star,
@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import BotonGenerico from "../componentes/boton_generico";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
 

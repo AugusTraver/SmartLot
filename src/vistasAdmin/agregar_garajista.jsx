@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import FormularioInfoPersonal from "../componentes/formulario_infoPersonal";
-import Header from "../componentes/header_admin";
+import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
+import Header from "../componentesAdmin/header_admin";
 import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
-import BotonGenerico from "../componentes/boton_generico";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 
 function AgregarGarajista() {
