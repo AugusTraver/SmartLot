@@ -55,7 +55,6 @@ const obtenerSede = (idSede, sedesMap) => {
   return sedesMap[Number(idSede)] || `Sede ${idSede}`;
 };
 
-// HELPER CORREGIDO: Fuerza la conversión explícita a tipo primitivo Number para evitar fallos de tipo String/Number
 const obtenerIdGarageUsuario = (usuario) =>
   usuario.id_garage ??
   usuario.idGarage ??
@@ -131,6 +130,11 @@ const EmpleadosToolbarSkeleton = () => (
       <span className="empleados-filter-skeleton" />
     </div>
   </section>
+);
+
+// SKELETON COMPACTO ADAPTADO PARA TU INTERRUPTOR
+const RoleSwitchSkeleton = () => (
+  <div className="role-switch-skeleton" />
 );
 
 const EmpleadosSkeletonGrid = () => (
@@ -218,7 +222,6 @@ const GestionEmpleados = () => {
         const sedeNombrePorId = Object.fromEntries(sedes.map((s) => [Number(s.id), s.nombre]));
         setSedesMap(sedeNombrePorId);
 
-        // CORRECCIÓN RELACIONAL DE DICCIONARIO: Creamos un objeto puro usando mapeos forzados a índices numéricos reales
         const mapaDeGarajesIndexado = {};
         const idsGarages = [];
         garages.forEach((g) => {
@@ -298,7 +301,7 @@ const GestionEmpleados = () => {
 
   const handleArchivarEmpleado = async (id, name) => {
     const result = await Swal.fire({
-      title: "¿Archivar a este empleado?",
+      title: "@Archivar a este empleado?",
       text: `${name || "Este empleado"} quedará inactivo y se moverá a archivados.`,
       icon: "question",
       showCancelButton: true,
@@ -365,7 +368,7 @@ const GestionEmpleados = () => {
 
   const handleEliminarPermanente = async (id, name) => {
     const result = await Swal.fire({
-      title: "¿Eliminar permanentemente?",
+      title: "@Eliminar permanentemente?",
       text: `${name || "Este empleado"} será eliminado del sistema. Esta acción no se puede deshacer.`,
       icon: "warning",
       showCancelButton: true,
@@ -510,52 +513,27 @@ const GestionEmpleados = () => {
               </p>
             </div>
           </div>
-          {loading ? (
-            <BotonGenerico className="btn-archivados" style={{ opacity: 0.5, pointerEvents: 'none' }}>
-              <span>Cargando...</span>
+          <div className="animate-header btn-container-mobile header-actions-group">
+            <BotonGenerico
+              className="btn-archivados"
+              onClick={() => setShowArchived(true)}
+              aria-label="Ver empleados archivados"
+            >
+              <Archive size={20} />
+              <span>Archivados</span>
+              {totalArchivadosReal > 0 && (
+                <span className="archived-count-badge">{totalArchivadosReal}</span>
+              )}
             </BotonGenerico>
-          ) : (
-            <div className="animate-header btn-container-mobile header-actions-group">
-              
-              <BotonGenerico
-                className="btn-archivados"
-                onClick={() => setShowArchived(true)}
-                aria-label="Ver empleados archivados"
-              >
-                <Archive size={20} />
-                <span>Archivados</span>
-                {totalArchivadosReal > 0 && (
-                  <span className="archived-count-badge">{totalArchivadosReal}</span>
-                )}
-              </BotonGenerico>
 
-              <div className="role-switch-container">
-                <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
-                <button 
-                  type="button"
-                  className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
-                  onClick={() => setFiltroRolSwitch("Empleado")}
-                >
-                  <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
-                </button>
-                <button 
-                  type="button"
-                  className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
-                  onClick={() => setFiltroRolSwitch("Garagista")}
-                >
-                  <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
-                </button>
-              </div>
-
-              <BotonGenerico
-                className="btn-primario"
-                onClick={() => navigate("/agregar_empleado")}
-              >
-                <UserPlus size={20} />
-                <span>Agregar empleado</span>
-              </BotonGenerico>
-            </div>
-          )}
+            <BotonGenerico
+              className="btn-primario"
+              onClick={() => navigate("/agregar_empleado")}
+            >
+              <UserPlus size={20} />
+              <span>Agregar empleado</span>
+            </BotonGenerico>
+          </div>
         </header>
 
         {loading ? (
@@ -623,6 +601,29 @@ const GestionEmpleados = () => {
             </div>
           </section>
         )}
+        
+        {/* POSICIÓN FIJA ORIGINAL: El renderizado condicional del Switch o su Skeleton según la API */}
+        {loading ? (
+          <RoleSwitchSkeleton />
+        ) : (
+          <div className="role-switch-container">
+            <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
+            <button 
+              type="button"
+              className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
+              onClick={() => setFiltroRolSwitch("Empleado")}
+            >
+              <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
+            </button>
+            <button 
+              type="button"
+              className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
+              onClick={() => setFiltroRolSwitch("Garagista")}
+            >
+              <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
+            </button>
+          </div>
+        )}
 
         {loading ? (
           <EmpleadosSkeletonGrid />
@@ -645,7 +646,6 @@ const GestionEmpleados = () => {
                   <div className="card-body-v3">
                     <div className="empleado-sede-line">
                       <MapPin size={14} />
-                      {/* MUTACIÓN OPERATIVA ADAPTADA: Dice Sede para los empleados y Garage para los garagistas */}
                       <span>{filtroRolSwitch === "Empleado" ? emp.sede : emp.garage}</span>
                     </div>
                   </div>

@@ -889,7 +889,9 @@
   border: 1px solid #E2E8F0;
   min-width: 240px;
   user-select: none;
-  
+  width: 20%;
+    margin-top: -2%;
+    margin-bottom: 1%;
 }
 
 /* El fondo deslizante (Cápsula Blanca Activa) */
@@ -933,6 +935,30 @@
 /* El botón seleccionado pasa a color oscuro destacado */
 .role-switch-btn.active {
   color: #1a1c1e;
+}
+.role-switch-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 14px;
+  width: 240px; /* Misma anchura exacta que el switch real */
+  height: 52px; /* Misma altura exacta */
+  margin-bottom: 2%;
+  margin-top: -2%;
+}
+
+.role-switch-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: empleados-skeleton-shimmer 1.35s infinite;
 }
 
 /* =========================================================================
