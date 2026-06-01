@@ -890,7 +890,7 @@
   min-width: 240px;
   user-select: none;
   width: 20%;
-  margin-top: -2%;
+  margin-top: -1%;
   margin-bottom: 1%;
 }
 
@@ -971,7 +971,7 @@
     width: 100%;
     flex: 1 0 100%;
     margin-top: -8%;
-    margin-bottom: 2%;
+    margin-bottom: 4%;
   }
 }
 
