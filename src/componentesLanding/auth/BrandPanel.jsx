@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 
-export default function BrandPanel({ isLogin, onToggle }) {
+export default function BrandPanel() {
   return (
-    <div className="relative flex flex-col items-center text-center px-8 md:px-16 w-full h-full justify-center">
+    <div className="relative flex flex-col items-center text-center px-8 md:px-16 w-full h-full justify-center bg-brand-deep">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-brand-sky/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" aria-hidden="true">
@@ -29,19 +29,9 @@ export default function BrandPanel({ isLogin, onToggle }) {
         SmartLot
       </h2>
 
-      <p className="text-white/60 text-base md:text-lg max-w-xs leading-relaxed mb-12 relative z-10">
-        {isLogin
-          ? '¿Todavía no tenés cuenta? Unite a la gestión inteligente de estacionamientos.'
-          : '¿Ya tenés cuenta? Ingresá a tu panel de gestión y controlá todo.'}
+      <p className="text-white/60 text-base md:text-lg max-w-xs leading-relaxed relative z-10">
+        Gestioná tu estacionamiento con inteligencia artificial desde un solo panel.
       </p>
-
-      <button
-        type="button"
-        onClick={onToggle}
-        className="relative z-10 px-8 py-3.5 border-2 border-white/20 text-white rounded-xl font-bold text-base shadow-lg transition-all duration-300 hover:bg-white/10 hover:border-white/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-deep"
-      >
-        {isLogin ? 'Crear Cuenta' : 'Iniciar Sesión'}
-      </button>
     </div>
   );
 }

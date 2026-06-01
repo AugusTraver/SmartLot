@@ -1,4 +1,22 @@
-export default function LoginForm({ onToggle }) {
+import { useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
+
+export default function LoginForm() {
+  const pathRef = useRef();
+  const buttonRef = useRef();
+
+  useGSAP(() => {
+    gsap.to(pathRef.current, {
+      strokeDashoffset: -150,
+      duration: 4.5,
+      ease: "none",
+      repeat: -1,
+    });
+  }, { scope: buttonRef });
+
   return (
     <div className="w-full max-w-sm">
       <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-1" style={{ fontFamily: 'var(--font-display)' }}>
@@ -9,46 +27,101 @@ export default function LoginForm({ onToggle }) {
       </p>
 
       <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
-        <div className="auth-stagger flex flex-col gap-1.5">
-          <label className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-muted" style={{ fontFamily: 'var(--font-body)' }}>
-            Correo electrónico
-          </label>
+        <div className="auth-stagger relative">
           <input
             type="email"
-            placeholder="tu@empresa.com"
-            className="w-full px-5 py-3.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base placeholder:text-brand-muted/50 outline-none transition-all duration-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
+            id="email"
+            required
+            placeholder=" "
+            className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
           />
+          <label
+            htmlFor="email"
+            className="absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
+              peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
+              peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
+              peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
+            style={{ fontFamily: 'var(--font-body)' }}
+          >
+            Correo electrónico
+          </label>
         </div>
 
-        <div className="auth-stagger flex flex-col gap-1.5">
-          <label className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-muted" style={{ fontFamily: 'var(--font-body)' }}>
-            Contraseña
-          </label>
+        <div className="auth-stagger relative">
           <input
             type="password"
-            placeholder="••••••••"
-            className="w-full px-5 py-3.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base placeholder:text-brand-muted/50 outline-none transition-all duration-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
+            id="password"
+            required
+            placeholder=" "
+            className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
           />
+          <label
+            htmlFor="password"
+            className="absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
+              peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
+              peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
+              peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
+            style={{ fontFamily: 'var(--font-body)' }}
+          >
+            Contraseña
+          </label>
         </div>
 
         <button
+          ref={buttonRef}
           type="submit"
-          className="auth-stagger w-full mt-2 px-8 py-4 bg-brand-blue text-white rounded-xl font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 hover:bg-brand-deep hover:shadow-brand-deep/25 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+          className="auth-stagger group relative w-full mt-2 rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
         >
-          Ingresar
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <rect
+              fill="none"
+              stroke="url(#btn-beam-glow)"
+              strokeWidth="12"
+              rx="5"
+              strokeDasharray="30 120"
+              strokeDashoffset="150"
+              opacity="0.6"
+            />
+            <rect
+              ref={pathRef}
+              x="0" y="0" width="100" height="100"
+              rx="5"
+              fill="none"
+              stroke="url(#btn-beam)"
+              strokeWidth="3"
+              strokeDasharray="30 120"
+              strokeDashoffset="150"
+            />
+            <defs>
+              <linearGradient id="btn-beam" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
+                <stop offset="20%" stopColor="#2A5CBF" stopOpacity="0.3" />
+                <stop offset="35%" stopColor="#FFFFFF" stopOpacity="1" />
+                <stop offset="50%" stopColor="#6BA3E8" stopOpacity="0.9" />
+                <stop offset="65%" stopColor="#FFFFFF" stopOpacity="1" />
+                <stop offset="80%" stopColor="#2A5CBF" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="btn-beam-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
+                <stop offset="25%" stopColor="#2A5CBF" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#6BA3E8" stopOpacity="0.6" />
+                <stop offset="75%" stopColor="#2A5CBF" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <div className="relative m-[2px] rounded-[10px] bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 group-hover:bg-brand-deep group-hover:shadow-brand-deep/25 group-active:scale-[0.97]">
+            Ingresar
+          </div>
         </button>
       </form>
-
-      <p className="auth-stagger mt-8 text-center text-sm text-brand-muted">
-        ¿No tenés cuenta?{' '}
-        <button
-          type="button"
-          onClick={onToggle}
-          className="font-semibold text-brand-blue transition-colors duration-300 hover:text-brand-deep focus-visible:outline-none focus-visible:underline"
-        >
-          Registrarse
-        </button>
-      </p>
     </div>
   );
 }

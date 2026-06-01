@@ -42,25 +42,12 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-3">
-
-
-          <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="hidden md:inline-flex px-5 py-2.5 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold text-sm hover:bg-brand-blue hover:text-white active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
-            >
-              Iniciar Sesión
-            </Link>
-            <Link
-              to="/register"
-              className="px-5 py-2.5 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
-            >
-              Registrarse
-            </Link>
-          
-          </div>
-        </div>
+        <Link
+          to="/login"
+          className="px-5 py-2.5 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
+        >
+          Iniciar Sesión
+        </Link>
 
       </div>
     </header>
