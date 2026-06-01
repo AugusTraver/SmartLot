@@ -20,6 +20,14 @@
   /* ── Font Families ── */
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
+
+  /* ── Animations ── */
+  --animate-border-spin: border-spin 10s linear infinite;
+}
+
+@keyframes border-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

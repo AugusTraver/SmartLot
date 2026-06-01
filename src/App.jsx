@@ -21,12 +21,6 @@ function App()
           <Route path="/" element={<LandingPage />} /> 
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
-          {/*Empleado*/}
-           <Route path="/empleados_dashboard" element={<EmpleadoDashboard />} />
-           <Route path="/nueva_reserva" element={<NuevaReserva />} />
-            
-          {/*Admin} */}
-            
 
           {/* Rutas para gestión de empleados */}
           <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
