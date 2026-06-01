@@ -6,6 +6,7 @@ import EditarZona from "./vistasAdmin/editar_zona";
 import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
 import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
+import LandingPage from "./vistasLanding/Landing"
 //import PanelControl from "./vistas/PanelControl";
 //import ControlAcceso from "./vistas/ControlAcceso";
 
@@ -17,7 +18,9 @@ function App()
     
     <BrowserRouter>            {/*  esto es el contenedor principal para manejar las rutas de smartLot */}
       <Routes>
-        <Route path="/" element={<AdminDashboard />} />   {/*ruta principal que muestra el dashboard*/ }
+    
+          <Route path="/" element={<LandingPage />} /> 
+          {/* <Route path="" element={<AdminDashboard />} />   {/*ruta principal que muestra el dashboard*/ }
 
           {/* Rutas para gestión de empleados */}
           <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
