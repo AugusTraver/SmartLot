@@ -2,9 +2,9 @@ import { useRef, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import LoginForm from '../components/auth/LoginForm';
-import RegisterForm from '../components/auth/RegisterForm';
-import BrandPanel from '../components/auth/BrandPanel';
+import LoginForm from '../componentesLanding/auth/LoginForm';
+import RegisterForm from '../componentesLanding/auth/RegisterForm';
+import BrandPanel from '../componentesLanding/auth/BrandPanel';
 
 export default function Auth() {
   const location = useLocation();

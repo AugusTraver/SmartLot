@@ -1,13 +1,13 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import Navbar from '../components/landing/Navbar';
-import Hero from '../components/landing/Hero';
-import StatsTicker from '../components/landing/StatsTicker';
-import InteractiveBackground from '../components/landing/InteractiveBackground';
-import IntroAnimation from '../components/landing/IntroAnimation';
+import Navbar from '../componentesLanding/landing/Navbar';
+import Hero from '../componentesLanding/landing/Hero';
+import StatsTicker from '../componentesLanding/landing/StatsTicker';
+import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
+import IntroAnimation from '../componentesLanding/landing/IntroAnimation';
 
-const BentoGrid = lazy(() => import('../components/landing/BentoGrid'));
-const Demo = lazy(() => import('../components/landing/Demo'));
-const Contact = lazy(() => import('../components/landing/Contact'));
+const BentoGrid = lazy(() => import('../componentesLanding/landing/BentoGrid'));
+const Demo = lazy(() => import('../componentesLanding/landing/Demo'));
+const Contact = lazy(() => import('../componentesLanding/landing/Contact'));
 
 function SkeletonFallback() {
   return (
