@@ -5,6 +5,9 @@
 p {
     font-size: 88%;
 }
+.textoAgregarEmpleado{
+    margin-top: 3%;
+}
 
 .form-actions {
     display: flex;

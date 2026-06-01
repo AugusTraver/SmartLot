@@ -25,7 +25,7 @@ import { UsuariosGetAll, UsuariosGetByGarage, UsuariosDelete, UsuariosPatchEstad
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
-import { GaragesGetAll } from "../servicies/API_Garage"; 
+import { GaragesGetAll } from "../servicies/API_Garage";
 
 gsap.registerPlugin(useGSAP);
 
@@ -110,7 +110,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     parkingLevel: obtenerSede(usuario.id_sede, sedesMap),
     textoSede: obtenerSede(usuario.id_sede, sedesMap),
     sede: obtenerSede(usuario.id_sede, sedesMap),
-    garage: obtenerGarage(usuario, garagesMap), 
+    garage: obtenerGarage(usuario, garagesMap),
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
   };
@@ -172,12 +172,12 @@ const GestionEmpleados = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
   const [selectedSede, setSelectedSede] = useState("");
-  const [selectedGarage, setSelectedGarage] = useState(""); 
+  const [selectedGarage, setSelectedGarage] = useState("");
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sedesMap, setSedesMap] = useState({});
-  const [garagesMap, setGaragesMap] = useState({}); 
+  const [garagesMap, setGaragesMap] = useState({});
   const [showArchived, setShowArchived] = useState(false);
   const [filtroRolSwitch, setFiltroRolSwitch] = useState("Empleado");
 
@@ -199,7 +199,7 @@ const GestionEmpleados = () => {
           VehiculosGetAll(),
           ModelosGetAll(),
           SedesGetAll(),
-          GaragesGetAll(), 
+          GaragesGetAll(),
         ]);
 
         if (!estaMontado) return;
@@ -218,7 +218,7 @@ const GestionEmpleados = () => {
 
         const vehiculosPorUsuario = new Map(vehiculos.map((v) => [v.id_usuario, v]));
         const modeloNombrePorId = new Map(modelos.map((m) => [m.id, m.nombre]));
-        
+
         const sedeNombrePorId = Object.fromEntries(sedes.map((s) => [Number(s.id), s.nombre]));
         setSedesMap(sedeNombrePorId);
 
@@ -425,7 +425,7 @@ const GestionEmpleados = () => {
       } else {
         coincideUbicacion = !selectedGarage || (selectedGarage === "Todas" && emp.garage !== "Sin garage") || emp.garage === selectedGarage;
       }
-      
+
       const coincideRolSwitch = emp.role === filtroRolSwitch;
 
       return coincideBusqueda && coincideUbicacion && coincideRolSwitch && emp.activo !== false;
@@ -551,6 +551,30 @@ const GestionEmpleados = () => {
               />
             </div>
 
+
+
+            {/* POSICIÓN FIJA ORIGINAL: El renderizado condicional del Switch o su Skeleton según la API */}
+            {loading ? (
+              <RoleSwitchSkeleton />
+            ) : (
+              <div className="role-switch-container">
+                <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
+                <button
+                  type="button"
+                  className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
+                  onClick={() => setFiltroRolSwitch("Empleado")}
+                >
+                  <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
+                </button>
+                <button
+                  type="button"
+                  className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
+                  onClick={() => setFiltroRolSwitch("Garagista")}
+                >
+                  <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
+                </button>
+              </div>
+            )}
             <div className="filtros-grupo">
               <div className="select-wrapper">
                 {filtroRolSwitch === "Empleado" ? (
@@ -601,29 +625,7 @@ const GestionEmpleados = () => {
             </div>
           </section>
         )}
-        
-        {/* POSICIÓN FIJA ORIGINAL: El renderizado condicional del Switch o su Skeleton según la API */}
-        {loading ? (
-          <RoleSwitchSkeleton />
-        ) : (
-          <div className="role-switch-container">
-            <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
-            <button 
-              type="button"
-              className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
-              onClick={() => setFiltroRolSwitch("Empleado")}
-            >
-              <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
-            </button>
-            <button 
-              type="button"
-              className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
-              onClick={() => setFiltroRolSwitch("Garagista")}
-            >
-              <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
-            </button>
-          </div>
-        )}
+
 
         {loading ? (
           <EmpleadosSkeletonGrid />
