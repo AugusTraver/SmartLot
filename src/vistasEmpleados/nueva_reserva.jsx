@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
 import { ReservasCreate } from "../servicies/API_Reserva";
+import "./nueva_reserva.css"; 
 
 const NuevaReserva = () => {
   const navigate = useNavigate();

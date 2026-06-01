@@ -1,106 +1,140 @@
 /* ==========================================================================
-   ESTILOS AISLADOS DEL COMPONENTE FORMULARIO (Estética SmartLot)
+   ESTILOS PREMIUM SMARTLOT - PALETA DE TONOS CLAROS Y SUAVES (SIN NEGROS)
    ========================================================================== */
 
+/* Contenedor principal del formulario (La tarjeta o caja) */
 .reserva-form-card {
-  background-color: #18181b; 
-  border: 1px solid #27272a;  
-  border-radius: 8px;        
+  background-color: #ffffff;       /* Blanco puro para destacar la tarjeta */
+  border: 1px solid #e4e4e7;        /* Borde gris zinc muy suave y limpio */
+  border-radius: 8px;              /* Bordes redondeados sutiles */
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  will-change: transform, opacity; /* Hint de optimización para el compositor de la GPU */
+  gap: 20px;                       /* Espaciado uniforme entre campos */
+  box-shadow: 0 4px 12px rgba(161, 161, 170, 0.08); /* Sombra clara y difuminada */
+  will-change: transform, opacity;
 }
 
+/* Agrupador de etiqueta + input */
 .form-field-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 6px;                        /* Espacio entre la etiqueta y el campo */
 }
 
+/* Etiquetas superiores (Labels) siempre visibles */
 .form-field-label {
-  color: #a1a1aa;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  color: #71717a;                  /* Gris medio para una lectura descansada y clara */
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding-left: 2px;
 }
 
+/* Contenedor relativo para posicionar el icono adentro del campo */
 .form-input-icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
+/* Iconos integrados a la izquierda de cada input */
 .form-input-icon {
   position: absolute;
   left: 14px;
-  color: #71717a;
+  color: #a1a1aa;                  /* Gris claro para el icono en estado pasivo */
   pointer-events: none;
+  transition: color 0.15s ease;
 }
 
+/* Inputs de texto, selectores de fecha/hora y dropdowns unificados */
 .form-text-input,
 .form-dropdown-select {
   width: 100%;
-  background-color: #09090b;
-  border: 1px solid #27272a;
-  border-radius: 6px; 
-  padding: 12px 14px 12px 42px;
-  color: #f4f4f5;
+  background-color: #fafafa;       /* Fondo gris off-white muy suave interno */
+  border: 1px solid #e4e4e7;        /* Borde gris claro por defecto */
+  border-radius: 6px;              /* Redondeado clásico premium */
+  padding: 12px 14px 12px 44px;    /* Espacio izquierdo para el icono */
+  color: #27272a;                  /* Gris zinc intenso para el texto escrito (sin usar negro) */
   font-size: 14px;
   font-weight: 500;
-  outline: none;
+  outline: none;                   /* Removemos el contorno nativo del navegador */
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
+/* Cambio de color de icono cuando el input recibe el foco */
+.form-input-icon-wrapper:focus-within .form-input-icon {
+  color: #2563eb;                  /* El icono se ilumina en el azul de marca */
+}
+
+/* ==========================================================================
+   ESTADO DE ENFOQUE (FOCUS GLOW EFFECT CLARO) - IDENTICO A LA IMAGEN
+   ========================================================================== */
 .form-text-input:focus,
 .form-dropdown-select:focus {
-  border-color: #3f3f46;
-  box-shadow: 0 0 0 2px rgba(63, 63, 70, 0.4);
+  background-color: #ffffff;       /* Se vuelve blanco puro al escribir */
+  border-color: #2563eb;           /* Borde azul eléctrico nítido */
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18); /* Anillo difuminado azul de la captura */
 }
 
+/* Fila especial para los campos de Hora Inicio y Hora Fin en paralelo */
 .form-time-fields-row {
   display: grid;
-  grid-template-cols: 1fr 1fr;
-  gap: 16px;
+  grid-template-cols: 1fr 1fr;     /* Divide el espacio exactamente a la mitad */
+  gap: 16px;                       /* Separación perfecta entre las cajas de hora */
 }
 
+/* Estilo para el elemento Select */
 .form-dropdown-select {
   cursor: pointer;
+  appearance: none;                /* Quita la flecha nativa del sistema */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;             /* Margen para que el texto no tape la flecha */
 }
 
+/* ==========================================================================
+   BOTÓN DE CONFIRMACIÓN PRINCIPAL (Contraste Inverso Azul)
+   ========================================================================== */
 .form-submit-container {
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .submit-reservation-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 8px;                        /* Espacio entre el icono de "+" y el texto */
   width: 100%;
-  background-color: #ffffff; 
-  color: #09090b;
+  background-color: #2563eb;       /* Fondo azul eléctrico premium para destacar la acción */
+  color: #ffffff;                  /* Texto blanco puro para legibilidad total */
   border: none;
-  border-radius: 6px;
+  border-radius: 6px;              /* Match con los inputs */
   padding: 14px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
   transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
+/* Micro-interacciones premium */
 .submit-reservation-button:hover:not(:disabled) {
-  background-color: #e4e4e7;
+  background-color: #1d4ed8;       /* Azul un punto más intenso al pasar el cursor */
 }
 
+/* Feedback táctil al presionarlo en dispositivos móviles o clicks */
 .submit-reservation-button:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.985);         /* Pequeña compresión física reactiva */
 }
 
+/* Estado de deshabilitado (cuando se está ejecutando la API de reserva) */
 .submit-reservation-button:disabled {
-  background-color: #27272a;
-  color: #52525b;
+  background-color: #f4f4f5;
+  color: #a1a1aa;
   cursor: not-allowed;
+  box-shadow: none;
 }
