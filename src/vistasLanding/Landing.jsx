@@ -1,0 +1,69 @@
+import { useState, useEffect, lazy, Suspense } from 'react';
+import Navbar from '../components/landing/Navbar';
+import Hero from '../components/landing/Hero';
+import StatsTicker from '../components/landing/StatsTicker';
+import InteractiveBackground from '../components/landing/InteractiveBackground';
+import IntroAnimation from '../components/landing/IntroAnimation';
+
+const BentoGrid = lazy(() => import('../components/landing/BentoGrid'));
+const Demo = lazy(() => import('../components/landing/Demo'));
+const Contact = lazy(() => import('../components/landing/Contact'));
+
+function SkeletonFallback() {
+  return (
+    <div className="w-full h-96 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-brand-blue border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
+
+export default function LandingPage() {
+  const [isIntroComplete, setIsIntroComplete] = useState(false);
+  const [startHero, setStartHero] = useState(false);
+
+  const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    document.body.classList.toggle('no-scroll', !isIntroComplete);
+    return () => document.body.classList.remove('no-scroll');
+  }, [isIntroComplete]);
+
+  if (prefersReducedMotion) {
+    return (
+      <div className="min-h-screen relative overflow-x-hidden bg-noise">
+        <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
+        <Navbar />
+        <main id="main-content" className="relative z-10">
+          <Hero startAnimation={true} />
+          <StatsTicker />
+          <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
+          <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
+        </main>
+        <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {!isIntroComplete && (
+        <IntroAnimation
+          onComplete={() => setIsIntroComplete(true)}
+          onOpenDoors={() => setStartHero(true)}
+        />
+      )}
+      <div className="min-h-screen relative overflow-x-hidden bg-noise">
+        <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
+        <Navbar />
+        <main id="main-content" className="relative z-10">
+          <Hero startAnimation={startHero} />
+          <StatsTicker />
+          <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
+          <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
+        </main>
+        <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+      </div>
+    </>
+  );
+}

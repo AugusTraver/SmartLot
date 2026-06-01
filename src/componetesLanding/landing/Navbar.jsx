@@ -1,0 +1,68 @@
+import { useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+export default function Navbar() {
+  const navRef = useRef();
+  const location = useLocation();
+  const isLanding = location.pathname === '/';
+
+  useGSAP(() => {
+    let mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.from(navRef.current, {
+        yPercent: -100,
+        autoAlpha: 0,
+        duration: 1.2,
+        ease: "power4.out",
+        delay: 0.3
+      });
+    });
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set(navRef.current, { autoAlpha: 1 });
+    });
+  });
+
+  return (
+    <header
+      ref={navRef}
+      className="fixed top-0 left-0 w-full z-50 glass-nav"
+    >
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        <Link to="/" className="flex items-center gap-3 group">
+          <img
+            src="/logo.png"
+            alt="SmartLot Logo"
+            className="h-12 md:h-14 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
+          />
+          <span className="text-2xl md:text-3xl font-extrabold text-brand-warm tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            SmartLot
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="hidden md:inline-flex px-5 py-2.5 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold text-sm hover:bg-brand-blue hover:text-white active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
+            >
+              Iniciar Sesión
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2.5 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
+            >
+              Registrarse
+            </Link>
+          
+          </div>
+        </div>
+
+      </div>
+    </header>
+  );
+}
