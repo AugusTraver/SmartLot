@@ -10,6 +10,7 @@ import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
+import GaragistaDashboard from "./vistasGaragista/garagista_dashboard";
 
 function App() 
 {                              
@@ -25,6 +26,9 @@ function App()
             {/* Rutas para empleados  */}
              <Route path="/empleados_dashboard" element={<EmpleadoDashboard />} />
             <Route path="/nueva_reserva" element={<NuevaReserva />} />
+
+            {/* Rutas para garagista  */}
+            <Route path="/garagista_dashboard" element={<GaragistaDashboard />} />
           
             {/* Rutas para Admin  */}
            <Route path="/admin_dashboard" element={<AdminDashboard />} />

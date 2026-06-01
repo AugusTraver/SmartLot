@@ -159,7 +159,27 @@ const UsuariosDelete = async (id) => {
     }
 };
 
+const UsuariosLogin = async (email, contraseña) => {
 
+    let returnObject = { respuesta: false, datos: null };
+
+    let url = apiUrl + '/api/usuario/login';
+
+    try {
+
+        const response = await axios.post(url, { email, contraseña });
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
 
 export {
     UsuariosGetAll,
@@ -168,5 +188,6 @@ export {
     UsuariosCreate,
     UsuariosUpdate,
     UsuariosDelete,
-    UsuariosPatchEstado
+    UsuariosPatchEstado,
+    UsuariosLogin
 };

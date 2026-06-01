@@ -1,12 +1,17 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { UsuariosLogin } from '../../servicies/API_Usuario';
 
 gsap.registerPlugin(useGSAP);
 
 export default function LoginForm() {
   const pathRef = useRef();
   const buttonRef = useRef();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useGSAP(() => {
     gsap.to(pathRef.current, {
@@ -26,12 +31,41 @@ export default function LoginForm() {
         Ingresá a tu panel de gestión
       </p>
 
-      <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+      <form className="flex flex-col gap-5" onSubmit={async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+        try {
+          const res = await UsuariosLogin(email, password);
+          if (res.respuesta && res.datos) {
+            const datos = res.datos;
+            const usuario = datos.usuario;
+            if (usuario) localStorage.setItem('usuario', JSON.stringify(usuario));
+            if (datos.token) localStorage.setItem('token', datos.token);
+            const rutas = {
+              1: '/admin_dashboard',
+              2: '/empleados_dashboard',
+              3: '/garagista_dashboard',
+            };
+            const ruta = rutas[Number(usuario?.id_rol)] || '/';
+            window.location.href = ruta;
+          } else {
+            setError('Credenciales incorrectas.');
+          }
+        } catch (err) {
+          console.error(err);
+          setError('Error al conectarse al servidor.');
+        } finally {
+          setLoading(false);
+        }
+      }}>
         <div className="auth-stagger relative">
           <input
             type="email"
             id="email"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder=" "
             className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
           />
@@ -52,6 +86,8 @@ export default function LoginForm() {
             type="password"
             id="password"
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder=" "
             className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
           />
@@ -118,9 +154,10 @@ export default function LoginForm() {
           </svg>
 
           <div className="relative m-[2px] rounded-[10px] bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 group-hover:bg-brand-deep group-hover:shadow-brand-deep/25 group-active:scale-[0.97]">
-            Ingresar
+            {loading ? 'Ingresando...' : 'Ingresar'}
           </div>
         </button>
+        {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       </form>
     </div>
   );
