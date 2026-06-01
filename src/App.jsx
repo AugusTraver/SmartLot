@@ -8,6 +8,8 @@ import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
 import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
+import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
+import NuevaReserva from "./vistasEmpleados/nueva_reserva";
 
 function App() 
 {                              
@@ -19,6 +21,12 @@ function App()
           <Route path="/" element={<LandingPage />} /> 
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
+          {/*Empleado*/}
+           <Route path="/empleados_dashboard" element={<EmpleadoDashboard />} />
+           <Route path="/nueva_reserva" element={<NuevaReserva />} />
+            
+          {/*Admin} */}
+            
 
           {/* Rutas para gestión de empleados */}
           <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
