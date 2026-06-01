@@ -1,40 +1,55 @@
 @import "tailwindcss";
 
-html {
-  overflow-y: scroll;
+/* ═══════════════════════════════════════════════════════════════════
+   Tailwind v4 Theme — Brand Design Tokens
+   All brand-* utility classes (text-brand-deep, bg-brand-blue, etc.)
+   are generated from these @theme definitions.
+   ═══════════════════════════════════════════════════════════════════ */
+@theme {
+  /* ── Brand Colors ── */
+  --color-brand-deep:    #0C1E3F;
+  --color-brand-navy:    #0C1E3F;
+  --color-brand-blue:    #2A5CBF;
+  --color-brand-sky:     #6C93D6;
+  --color-brand-bg:      #F7F4EF;
+  --color-brand-surface: #FDFCF9;
+  --color-brand-warm:    #0E121B;
+  --color-brand-muted:   #5A6B8A;
+  --color-brand-cream:   #F7F4EF;
+
+  /* ── Font Families ── */
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* Evita scroll horizontal accidental */
-  background: var(--bg);
-}
-
-body[style*="padding-right"] {
-  padding-right: 0 !important;
-}
-
+/* ═══════════════════════════════════════════════════════════════════
+   CSS Custom Properties (used in inline styles via var(--xxx))
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
+  /* Font aliases for inline style={{ fontFamily: 'var(--font-display)' }} */
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  /* Existing design tokens */
+  --text:   #5A6B8A;
+  --text-h: #0E121B;
+  --bg:     #F7F4EF;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #2563EB;
-  --accent-hover: #156FE5;
-  --accent-bg: rgba(37, 99, 235, 0.1);
-  --accent-border: rgba(37, 99, 235, 0.5);
+  --accent: #2A5CBF;
+  --accent-hover: #1E4A9E;
+  --accent-bg: rgba(42, 92, 191, 0.1);
+  --accent-border: rgba(42, 92, 191, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'DM Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Archivo', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -47,62 +62,91 @@ body[style*="padding-right"] {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #60A5FA;
-    --accent-hover: #3B82F6;
-    --accent-bg: rgba(96, 165, 250, 0.15);
-    --accent-border: rgba(96, 165, 250, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* ═══════════════════════════════════════════════════════════════════
+   Global Resets
+   ═══════════════════════════════════════════════════════════════════ */
+html {
+  overflow-y: scroll;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+body[style*="padding-right"] {
+  padding-right: 0 !important;
 }
 
 #root {
- width: 100%; 
-  max-width: 100vw; /* Asegura que no pase del ancho de la ventana */
+  width: 100%;
+  max-width: 100vw;
   margin: 0;
   text-align: center;
-  
-  /* Eliminamos el borde que lo hacía ver como una caja */
-  border-inline: none; 
-  
-  min-height: 100vh; /* Cambiado de 100svh para mejor compatibilidad */
+  border-inline: none;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
-.envoltorio-contenido, 
-.admin-dashboard,
-.gestion-garages-container {
-  width: 100%;
-  max-width: none !important; /* Forzamos a que no haya límite cuadrado */
-  margin: 0;
-  padding: 40px 4%; /* Damos un margen interno sutil a los lados */
-  box-sizing: border-box;
+
+/* ═══════════════════════════════════════════════════════════════════
+   Utility Classes (used in components)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Body scroll lock during intro animation */
+.no-scroll {
+  overflow: hidden !important;
+  height: 100vh !important;
 }
 
-h1,
-h2 {
+/* Subtle film-grain noise texture overlay */
+.bg-noise::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Glassmorphism navbar */
+.glass-nav {
+  background: rgba(247, 244, 239, 0.7);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid rgba(12, 30, 63, 0.06);
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(253, 252, 249, 0.65);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(12, 30, 63, 0.08);
+}
+
+/* Content visibility optimization */
+.content-visibility-auto {
+  content-visibility: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Typography overrides — scoped so they don't conflict with
+   Tailwind utilities (using lower specificity via :where)
+   ═══════════════════════════════════════════════════════════════════ */
+:where(h1, h2) {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
 
-h1 {
+:where(h1) {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
@@ -111,7 +155,8 @@ h1 {
     margin: 20px 0;
   }
 }
-h2 {
+
+:where(h2) {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
@@ -120,21 +165,35 @@ h2 {
     font-size: 20px;
   }
 }
-p {
+
+:where(p) {
   margin: 0;
 }
 
-code,
-.counter {
+:where(code),
+:where(.counter) {
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
   color: var(--text-h);
 }
 
-code {
+:where(code) {
   font-size: 15px;
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Admin layout helpers (preserved from original)
+   ═══════════════════════════════════════════════════════════════════ */
+.envoltorio-contenido,
+.admin-dashboard,
+.gestion-garages-container {
+  width: 100%;
+  max-width: none !important;
+  margin: 0;
+  padding: 40px 4%;
+  box-sizing: border-box;
 }

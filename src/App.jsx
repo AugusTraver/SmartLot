@@ -6,11 +6,8 @@ import EditarZona from "./vistasAdmin/editar_zona";
 import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
 import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
-import LandingPage from "./vistasLanding/Landing"
-//import PanelControl from "./vistas/PanelControl";
-//import ControlAcceso from "./vistas/ControlAcceso";
-
-//importo todas las vitas para poder defintirles sus rutas 
+import LandingPage from "./vistasLanding/Landing";
+import Auth from "./vistasLanding/Auth";
 
 function App() 
 {                              
@@ -20,7 +17,8 @@ function App()
       <Routes>
     
           <Route path="/" element={<LandingPage />} /> 
-          {/* <Route path="" element={<AdminDashboard />} />   {/*ruta principal que muestra el dashboard*/ }
+          <Route path="/login" element={<Auth />} />
+          <Route path="/register" element={<Auth />} />
 
           {/* Rutas para gestión de empleados */}
           <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
@@ -31,11 +29,6 @@ function App()
          <Route path="/gestion_garages" element={<GestionGarages />} />
           <Route path="/agregar_zona" element={<AgregarZona />} /> 
          <Route path="/editar_zona" element={<EditarZona />} />
-
-          {/*
-         <Route path="/panel-control" element={<PanelControl />} />
-         <Route path="/control-acceso" element={<ControlAcceso />} />
-         */}
       </Routes>
     </BrowserRouter>
   );
