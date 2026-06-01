@@ -17,10 +17,18 @@ function App()
     
     <BrowserRouter>            {/*  esto es el contenedor principal para manejar las rutas de smartLot */}
       <Routes>
-    
+             {/* Rutas para la página de inicio y autenticación */}
           <Route path="/" element={<LandingPage />} /> 
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
+
+            {/* Rutas para empleados  */}
+             <Route path="/empleados_dashboard" element={<EmpleadoDashboard />} />
+            <Route path="/nueva_reserva" element={<NuevaReserva />} />
+          
+            {/* Rutas para Admin  */}
+           <Route path="/admin_dashboard" element={<AdminDashboard />} />
+         
 
           {/* Rutas para gestión de empleados */}
           <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
