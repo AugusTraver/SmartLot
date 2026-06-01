@@ -6,7 +6,7 @@
 .reserva-form-card {
   background-color: #ffffff;       /* Blanco puro para destacar la tarjeta */
   border: 1px solid #e4e4e7;        /* Borde gris zinc muy suave y limpio */
-  border-radius: 8px;              /* Bordes redondeados sutiles */
+  border-radius:32px;              /* Bordes redondeados sutiles */
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,7 @@
   width: 100%;
   background-color: #fafafa;       /* Fondo gris off-white muy suave interno */
   border: 1px solid #e4e4e7;        /* Borde gris claro por defecto */
-  border-radius: 6px;              /* Redondeado clásico premium */
+  border-radius: 15px;              /* Redondeado clásico premium */
   padding: 12px 14px 12px 44px;    /* Espacio izquierdo para el icono */
   color: #27272a;                  /* Gris zinc intenso para el texto escrito (sin usar negro) */
   font-size: 14px;

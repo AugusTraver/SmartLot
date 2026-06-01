@@ -1,3 +1,131 @@
-.nuevaReserva-contenedor{
-    background-color: #F7F9FB;
+/* ==========================================================================
+   ESTILOS DE VISTA: NUEVA RESERVA (ALINEACIÓN IZQUIERDA + FORM CENTRADO)
+   ========================================================================== */
+
+/* Fondo global controlado desde el layout */
+.nuevaReserva-contenedor {
+  background-color: #F7F9FB;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor centralizado para la interfaz */
+.nuevaReserva-contenido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* Mantiene los bloques de sección estructurados en el centro */
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+/* Contenedor de la animación del botón de regreso */
+.animate-back {
+  width: 100%;
+  max-width: 440px;       /* Ajusta el límite al mismo ancho que el formulario */
+  display: flex;
+  justify-content: flex-start; /* Fuerza la alineación estricta a la izquierda */
+}
+
+/* Botón Volver posicionado elegantemente a la izquierda */
+.boton-back {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff !important;
+  color: #191c1e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;     /* Centra el icono verticalmente dentro de su caja */
+  justify-content: center;  /* Centra el icono horizontalmente dentro de su caja */
+  box-shadow: 0 20px 24px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 24px;     /* Reemplazado % por px fijo para consistencia en UI */
+}
+
+.boton-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+/* Bloque de Textos e Instructivos alineados a la izquierda en sintonía con el formulario */
+.textosTitulos {
+  width: 100%;
+  max-width: 440px;       /* Alineación vertical perfecta con la tarjeta del formulario */
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.textosTitulos h1 {
+  color: #18181b; 
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+}
+
+.textosTitulos p {
+  color: #71717a;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   SOLUCIÓN AL CENTRADO DEL FORMULARIO Y RESPONSIVIDAD (MÁXIMA PRIORIDAD)
+   ========================================================================== */
+.formularioReserva {
+  width: 100%;
+  max-width: 440px; 
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Alertas de retroalimentación de la API */
+.form-feedback {
+  width: 100%;
+  max-width: 440px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.alert-success {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.alert-error {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
+
+/* Ajustes fluidos para dispositivos móviles */
+@media (max-width: 640px) {
+  .nuevaReserva-contenido {
+    padding: 24px 16px;
+    align-items: flex-start; /* Cambio de 'left' por el estándar CSS flex-start */
+  }
+  
+  .animate-back,
+  .textosTitulos,
+  .formularioReserva, 
+  .form-feedback {
+    max-width: 100%; /* Rompe el límite de desktop para acoplarse al celular */
+  }
+
+  .textosTitulos h1 {
+    font-size: 24px;
+  }
 }

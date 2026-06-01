@@ -197,8 +197,11 @@ function AgregarEmpleado() {
   return (
     <div className="agregar-empleado-page">
       <Header />
-      <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600" }}>Agregar Empleado</h3>
+      <div className="textoAgregarEmpleado">
+         <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600",  }}>Agregar Empleado</h3>
       <p>Configuración de nuevos usuarios y sus privilegios</p>
+      </div>
+      
       <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
         <FormularioInfoPersonal
           infoPersonalTitulo="Información Personal"
