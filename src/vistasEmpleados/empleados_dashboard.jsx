@@ -1,5 +1,6 @@
 import "./empleados_dashboard.css";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
+import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import { useNavigate } from "react-router-dom";
 
 function EmpleadoDashboard() {
@@ -34,32 +35,16 @@ function EmpleadoDashboard() {
           </div>
 
           <p className="empleado-companeros">
-            compañeros ya aparcados
+            compañeros que ya estacionarion hoy
           </p>
         </section>
 
-        <section className="empleado-reservas-section">
           <div className="empleado-reservas-header">
             <h2>Mis Reservas Actuales</h2>
             <button>Ver todas</button>
           </div>
 
-          <article className="empleado-reserva-card">
-            <div className="empleado-reserva-plaza">
-              <strong>P12</strong>
-              <span>NIVEL 2</span>
-            </div>
-
-            <div className="empleado-reserva-info">
-              <h3>Sede Central - Zona A</h3>
-              <p>08:30 - 18:00 · Hoy</p>
-            </div>
-
-            <div className="empleado-reserva-icon">
-              🚘
-            </div>
-          </article>
-        </section>
+          <TarjetaReserva to="/nueva_reserva" />
 
         <button
           className="empleado-nueva-reserva-btn"
