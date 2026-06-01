@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const ModelosGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/modelo';
+    let url = '/api/modelo';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const ModelosGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/modelo/' + id;
+    let url = '/api/modelo/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const ModelosCreate = async (modelo) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/modelo';
+    let url = '/api/modelo';
 
     try {
 
-        const response = await axios.post(url, modelo);
+        const response = await apiClient.post(url, modelo);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const ModelosUpdate = async (id, modelo) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/modelo/' + id;
+    let url = '/api/modelo/' + id;
 
     try {
 
-        const response = await axios.put(url, modelo);
+        const response = await apiClient.put(url, modelo);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const ModelosDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/modelo/' + id;
+    let url = '/api/modelo/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

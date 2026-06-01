@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const EmpresasGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/empresa';
+    let url = '/api/empresa';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const EmpresasGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/empresa/' + id;
+    let url = '/api/empresa/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const EmpresasCreate = async (empresa) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/empresa';
+    let url = '/api/empresa';
 
     try {
 
-        const response = await axios.post(url, empresa);
+        const response = await apiClient.post(url, empresa);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const EmpresasUpdate = async (id, empresa) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/empresa/' + id;
+    let url = '/api/empresa/' + id;
 
     try {
 
-        const response = await axios.put(url, empresa);
+        const response = await apiClient.put(url, empresa);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const EmpresasDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/empresa/' + id;
+    let url = '/api/empresa/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

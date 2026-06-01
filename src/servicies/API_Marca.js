@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const MarcasGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/marca';
+    let url = '/api/marca';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const MarcasGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/marca/' + id;
+    let url = '/api/marca/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const MarcasCreate = async (marca) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/marca';
+    let url = '/api/marca';
 
     try {
 
-        const response = await axios.post(url, marca);
+        const response = await apiClient.post(url, marca);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const MarcasUpdate = async (id, marca) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/marca/' + id;
+    let url = '/api/marca/' + id;
 
     try {
 
-        const response = await axios.put(url, marca);
+        const response = await apiClient.put(url, marca);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const MarcasDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/marca/' + id;
+    let url = '/api/marca/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

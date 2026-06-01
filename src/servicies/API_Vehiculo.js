@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const VehiculosGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/vehiculo';
+    let url = '/api/vehiculo';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const VehiculosGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/vehiculo/' + id;
+    let url = '/api/vehiculo/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const VehiculosCreate = async (vehiculo) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/vehiculo';
+    let url = '/api/vehiculo';
 
     try {
 
-        const response = await axios.post(url, vehiculo);
+        const response = await apiClient.post(url, vehiculo);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const VehiculosUpdate = async (id, vehiculo) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/vehiculo/' + id;
+    let url = '/api/vehiculo/' + id;
 
     try {
 
-        const response = await axios.put(url, vehiculo);
+        const response = await apiClient.put(url, vehiculo);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const VehiculosDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/vehiculo/' + id;
+    let url = '/api/vehiculo/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

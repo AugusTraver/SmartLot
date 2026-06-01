@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const SedesGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/sede';
+    let url = '/api/sede';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const SedesGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/sede/' + id;
+    let url = '/api/sede/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const SedesCreate = async (sede) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/sede';
+    let url = '/api/sede';
 
     try {
 
-        const response = await axios.post(url, sede);
+        const response = await apiClient.post(url, sede);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const SedesUpdate = async (id, sede) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/sede/' + id;
+    let url = '/api/sede/' + id;
 
     try {
 
-        const response = await axios.put(url, sede);
+        const response = await apiClient.put(url, sede);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const SedesDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/sede/' + id;
+    let url = '/api/sede/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

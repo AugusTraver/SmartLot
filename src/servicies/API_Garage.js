@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -8,11 +8,11 @@ const GaragesGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/garage';
+    let url = '/api/garage';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +32,11 @@ const GaragesGetOcupacionReserva = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/garage/ocupacion_reserva/' + id;
+    let url = '/api/garage/ocupacion_reserva/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +56,11 @@ const GaragesGetOcupacionNoReserva = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/garage/ocupacion_no_reserva/' + id;
+    let url = '/api/garage/ocupacion_no_reserva/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +80,11 @@ const GaragesGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/garage/' + id;
+    let url = '/api/garage/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,7 +104,7 @@ const GaragesCreate = async (garage) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/garage';
+    let url = '/api/garage';
 
     console.group('[API_Garage.GaragesCreate]');
     console.log('🔵 URL:', url);
@@ -113,7 +113,7 @@ const GaragesCreate = async (garage) => {
 
     try {
 
-        const response = await axios.post(url, garage);
+        const response = await apiClient.post(url, garage);
 
         console.log('[API_Garage.GaragesCreate] ✅ Respuesta exitosa (Status:', response.status, ')');
         console.log('[API_Garage.GaragesCreate] Datos retornados:', response.data);
@@ -140,11 +140,11 @@ const GaragesUpdate = async (id, garage) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/garage/' + id;
+    let url = '/api/garage/' + id;
 
     try {
 
-        const response = await axios.put(url, garage);
+        const response = await apiClient.put(url, garage);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -169,11 +169,11 @@ const GaragesDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/garage/' + id;
+    let url = '/api/garage/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 

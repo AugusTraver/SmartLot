@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 
 
@@ -8,11 +7,11 @@ const UsuariosGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/usuario';
+    let url = '/api/usuario';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const UsuariosGetByGarage = async (idGarage) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/usuario/garage/' + idGarage;
+    let url = '/api/usuario/garage/' + idGarage;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -54,11 +53,11 @@ const UsuariosGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/usuario/' + id;
+    let url = '/api/usuario/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -78,11 +77,11 @@ const UsuariosCreate = async (usuario) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/usuario';
+    let url = '/api/usuario';
 
     try {
 
-        const response = await axios.post(url, usuario);
+        const response = await apiClient.post(url, usuario);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -102,11 +101,11 @@ const UsuariosUpdate = async (id, usuario) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/usuario/' + id;
+    let url = '/api/usuario/' + id;
 
     try {
 
-        const response = await axios.put(url, usuario);
+        const response = await apiClient.put(url, usuario);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -122,11 +121,11 @@ const UsuariosUpdate = async (id, usuario) => {
 
 const UsuariosPatchEstado = async (id, activo) => {
     let returnObject = { respuesta: false, datos: null };
-    let url = apiUrl + '/api/usuario/' + id + '/estado';
+    let url = '/api/usuario/' + id + '/estado';
 
     try {
         // Se envía un objeto solo con el campo "activo"
-        const response = await axios.patch(url, { activo });
+        const response = await apiClient.patch(url, { activo });
         returnObject.respuesta = true;
         returnObject.datos = response.data;
         return returnObject;
@@ -142,11 +141,11 @@ const UsuariosDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/usuario/' + id;
+    let url = '/api/usuario/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 
@@ -163,11 +162,11 @@ const UsuariosLogin = async (email, contraseña) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/usuario/login';
+    let url = '/api/usuario/login';
 
     try {
 
-        const response = await axios.post(url, { email, contraseña });
+        const response = await apiClient.post(url, { email, contraseña });
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;

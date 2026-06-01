@@ -1,6 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const apiUrl = import.meta.env.VITE_API_URL;
 
 
 
@@ -8,11 +7,11 @@ const RolesGetAll = async () => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/rol';
+    let url = '/api/rol';
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -32,11 +31,11 @@ const RolesGetById = async (id) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
-    let url = apiUrl + '/api/rol/' + id;
+    let url = '/api/rol/' + id;
 
     try {
 
-        const response = await axios.get(url);
+        const response = await apiClient.get(url);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -56,11 +55,11 @@ const RolesCreate = async (rol) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/rol';
+    let url = '/api/rol';
 
     try {
 
-        const response = await axios.post(url, rol);
+        const response = await apiClient.post(url, rol);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -80,11 +79,11 @@ const RolesUpdate = async (id, rol) => {
 
     let returnObject = { respuesta: false, datos: null };
 
-    let url = apiUrl + '/api/rol/' + id;
+    let url = '/api/rol/' + id;
 
     try {
 
-        const response = await axios.put(url, rol);
+        const response = await apiClient.put(url, rol);
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -104,11 +103,11 @@ const RolesDelete = async (id) => {
 
     let returnObject = { respuesta: false };
 
-    let url = apiUrl + '/api/rol/' + id;
+    let url = '/api/rol/' + id;
 
     try {
 
-        await axios.delete(url);
+        await apiClient.delete(url);
 
         returnObject.respuesta = true;
 
