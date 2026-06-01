@@ -1,0 +1,106 @@
+/* ==========================================================================
+   ESTILOS AISLADOS DEL COMPONENTE FORMULARIO (Estética SmartLot)
+   ========================================================================== */
+
+.reserva-form-card {
+  background-color: #18181b; 
+  border: 1px solid #27272a;  
+  border-radius: 8px;        
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  will-change: transform, opacity; /* Hint de optimización para el compositor de la GPU */
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field-label {
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.form-input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #71717a;
+  pointer-events: none;
+}
+
+.form-text-input,
+.form-dropdown-select {
+  width: 100%;
+  background-color: #09090b;
+  border: 1px solid #27272a;
+  border-radius: 6px; 
+  padding: 12px 14px 12px 42px;
+  color: #f4f4f5;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-text-input:focus,
+.form-dropdown-select:focus {
+  border-color: #3f3f46;
+  box-shadow: 0 0 0 2px rgba(63, 63, 70, 0.4);
+}
+
+.form-time-fields-row {
+  display: grid;
+  grid-template-cols: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-dropdown-select {
+  cursor: pointer;
+}
+
+.form-submit-container {
+  padding-top: 8px;
+}
+
+.submit-reservation-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background-color: #ffffff; 
+  color: #09090b;
+  border: none;
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.submit-reservation-button:hover:not(:disabled) {
+  background-color: #e4e4e7;
+}
+
+.submit-reservation-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submit-reservation-button:disabled {
+  background-color: #27272a;
+  color: #52525b;
+  cursor: not-allowed;
+}
