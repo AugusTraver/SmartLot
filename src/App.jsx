@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AdminDashboard from "./vistasAdmin/admin_dashboard";   
+import AdminDashboard from "./vistasAdmin/admin_dashboard";
 import GestionEmpleados from "./vistasAdmin/gestion_de_empleados";
 import GestionGarages from "./vistasAdmin/gestion_garages";
 import EditarZona from "./vistasAdmin/editar_zona";
@@ -11,42 +11,86 @@ import Auth from "./vistasLanding/Auth";
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
 import GaragistaDashboard from "./vistasGaragista/garagista_dashboard";
+import Register from "./pages/Register";
+import Logout from "./pages/Logout";
+import Unauthorized from "./pages/Unauthorized";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./contexts/useAuth";
 
-function App() 
-{                              
-  return (               
-    
-    <BrowserRouter>            {/*  esto es el contenedor principal para manejar las rutas de smartLot */}
+function App() {
+  const { usuario, loading } = useAuth();
+
+  if (loading) return null;
+
+  return (
+    <BrowserRouter>
       <Routes>
-             {/* Rutas para la página de inicio y autenticación */}
-          <Route path="/" element={<LandingPage />} /> 
-          <Route path="/login" element={<Auth />} />
-          <Route path="/register" element={<Auth />} />
+        {/* Rutas públicas */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/register" element={<Auth />} />
+        <Route path="/register-form" element={<Register />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Rutas para empleados  */}
-             <Route path="/empleados_dashboard" element={<EmpleadoDashboard />} />
-            <Route path="/nueva_reserva" element={<NuevaReserva />} />
+        {/* Rutas protegidas - Empleados */}
+        <Route path="/empleados_dashboard" element={
+          <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
+            <EmpleadoDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/nueva_reserva" element={
+          <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
+            <NuevaReserva />
+          </ProtectedRoute>
+        } />
 
-            {/* Rutas para garagista  */}
-            <Route path="/garagista_dashboard" element={<GaragistaDashboard />} />
-          
-            {/* Rutas para Admin  */}
-           <Route path="/admin_dashboard" element={<AdminDashboard />} />
-         
+        {/* Rutas protegidas - Garagista */}
+        <Route path="/garagista_dashboard" element={
+          <ProtectedRoute allowedRoles={[3]} usuario={usuario}>
+            <GaragistaDashboard />
+          </ProtectedRoute>
+        } />
 
-          {/* Rutas para gestión de empleados */}
-          <Route path="/gestion_de_empleados" element={<GestionEmpleados />} />
-          <Route path="/agregar_empleado" element={<AgregarEmpleado/>} />
-          <Route path="/agregar_garajista" element={<AgregarGarajista/>} />
-          
-          {/* Rutas para gestión de garages */}
-         <Route path="/gestion_garages" element={<GestionGarages />} />
-          <Route path="/agregar_zona" element={<AgregarZona />} /> 
-         <Route path="/editar_zona" element={<EditarZona />} />
+        {/* Rutas protegidas - Admin */}
+        <Route path="/admin_dashboard" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/gestion_de_empleados" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <GestionEmpleados />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_empleado" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <AgregarEmpleado />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_garajista" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <AgregarGarajista />
+          </ProtectedRoute>
+        } />
+        <Route path="/gestion_garages" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <GestionGarages />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_zona" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <AgregarZona />
+          </ProtectedRoute>
+        } />
+        <Route path="/editar_zona" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <EditarZona />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );
-
 }
 
 export default App

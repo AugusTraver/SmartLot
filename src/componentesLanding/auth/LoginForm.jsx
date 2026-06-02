@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { UsuariosLogin } from '../../servicies/API_Usuario';
+import apiClient from '../../api/client';
+import { setToken } from '../../api/token';
 
 gsap.registerPlugin(useGSAP);
 
@@ -12,6 +13,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
   useGSAP(() => {
     gsap.to(pathRef.current, {
@@ -22,43 +24,62 @@ export default function LoginForm() {
     });
   }, { scope: buttonRef });
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) { clearInterval(id); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [cooldown]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim()) { setError('El email es requerido.'); return; }
+    if (cooldown > 0) { setError(`Espere ${cooldown}s antes de reintentar.`); return; }
+
+    setLoading(true);
+    try {
+      const res = await apiClient.post('/api/usuario/login', {
+        email: email.trim(),
+        contraseña: password,
+      });
+      setToken(res.data.token);
+      const usuario = res.data.usuario;
+      const rutas = {
+        1: '/admin_dashboard',
+        2: '/empleados_dashboard',
+        3: '/garagista_dashboard',
+      };
+      const ruta = rutas[Number(usuario?.id_rol)] || '/';
+      window.location.href = ruta;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error de conexión.';
+      setError(msg);
+
+      if (err.response?.status === 429) {
+        const retryAfter = parseInt(err.response?.headers?.['retry-after'] || '900', 10);
+        setCooldown(retryAfter);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-sm">
-      <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-1" style={{ fontFamily: 'var(--font-display)' }}>
+      <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-1 font-display">
         Iniciar Sesión
       </h1>
       <p className="auth-stagger text-brand-muted text-sm md:text-base mb-8 leading-relaxed">
         Ingresá a tu panel de gestión
       </p>
 
-      <form className="flex flex-col gap-5" onSubmit={async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-        try {
-          const res = await UsuariosLogin(email, password);
-          if (res.respuesta && res.datos) {
-            const datos = res.datos;
-            const usuario = datos.usuario;
-            if (usuario) localStorage.setItem('usuario', JSON.stringify(usuario));
-            if (datos.token) localStorage.setItem('token', datos.token);
-            const rutas = {
-              1: '/admin_dashboard',
-              2: '/empleados_dashboard',
-              3: '/garagista_dashboard',
-            };
-            const ruta = rutas[Number(usuario?.id_rol)] || '/';
-            window.location.href = ruta;
-          } else {
-            setError('Credenciales incorrectas.');
-          }
-        } catch (err) {
-          console.error(err);
-          setError('Error al conectarse al servidor.');
-        } finally {
-          setLoading(false);
-        }
-      }}>
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
         <div className="auth-stagger relative">
           <input
             type="email"
@@ -71,11 +92,10 @@ export default function LoginForm() {
           />
           <label
             htmlFor="email"
-            className="absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
+            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
               peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
               peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
               peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
-            style={{ fontFamily: 'var(--font-body)' }}
           >
             Correo electrónico
           </label>
@@ -93,11 +113,10 @@ export default function LoginForm() {
           />
           <label
             htmlFor="password"
-            className="absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
+            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
               peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
               peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
               peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
-            style={{ fontFamily: 'var(--font-body)' }}
           >
             Contraseña
           </label>
@@ -106,7 +125,8 @@ export default function LoginForm() {
         <button
           ref={buttonRef}
           type="submit"
-          className="auth-stagger group relative w-full mt-2 rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+          disabled={loading || cooldown > 0}
+          className="auth-stagger group relative w-full mt-2 rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -154,7 +174,9 @@ export default function LoginForm() {
           </svg>
 
           <div className="relative m-[2px] rounded-[10px] bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 group-hover:bg-brand-deep group-hover:shadow-brand-deep/25 group-active:scale-[0.97]">
-            {loading ? 'Ingresando...' : 'Ingresar'}
+            {cooldown > 0
+              ? `Espere ${cooldown}s`
+              : loading ? 'Ingresando...' : 'Ingresar'}
           </div>
         </button>
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}

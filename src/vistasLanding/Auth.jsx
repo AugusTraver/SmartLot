@@ -64,7 +64,7 @@ export default function Auth() {
                 className="h-8 w-auto brightness-0 invert"
               />
             </Link>
-            <span className="text-xl font-extrabold text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            <span className="text-xl font-extrabold text-white tracking-tight font-display">
               SmartLot
             </span>
           </div>

@@ -139,6 +139,15 @@ body[style*="padding-right"] {
   border: 1px solid rgba(12, 30, 63, 0.08);
 }
 
+/* CSP-compliant font utilities (replaces inline style={{ fontFamily }} ) */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
 /* Content visibility optimization */
 .content-visibility-auto {
   content-visibility: auto;

@@ -87,7 +87,7 @@ export default function Contact() {
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 
             <div className="relative z-10 flex flex-col items-center">
-              <h2 className="cta-content text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-brand-warm" style={{ fontFamily: 'var(--font-display)' }}>
+              <h2 className="cta-content text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-brand-warm font-display">
                 ¿Listo para modernizar <br className="hidden md:block"/> tu estacionamiento?
               </h2>
               
@@ -116,7 +116,7 @@ export default function Contact() {
                 className="relative h-10 md:h-12 w-auto grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
               />
             </div>
-            <span className="text-xl md:text-2xl font-bold text-brand-muted/60 group-hover:text-brand-warm transition-colors duration-300" style={{ fontFamily: 'var(--font-display)' }}>
+            <span className="text-xl md:text-2xl font-bold text-brand-muted/60 group-hover:text-brand-warm transition-colors duration-300 font-display">
               SmartLot
             </span>
           </div>

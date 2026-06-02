@@ -84,7 +84,7 @@ export default function BentoGrid() {
           <span className="bento-header-text text-brand-navy font-semibold tracking-wide uppercase text-sm mb-3 block">
             Ecosistema Integral
           </span>
-          <h2 className="bento-header-text text-5xl md:text-7xl font-extrabold text-brand-warm tracking-tight mb-6" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="bento-header-text text-5xl md:text-7xl font-extrabold text-brand-warm tracking-tight mb-6" className="font-display">
             Todo el control en un <br className="hidden md:block" /> solo lugar.
           </h2>
           <p className="bento-header-text text-brand-muted text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">

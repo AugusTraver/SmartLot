@@ -43,7 +43,7 @@ export default function StatsTicker() {
                 key={stat.label} 
                 className="flex items-center gap-6 min-w-0 group"
               >
-                <span className="text-5xl md:text-6xl font-black text-white group-hover:text-brand-blue transition-colors duration-300 tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
+                <span className="text-5xl md:text-6xl font-black text-white group-hover:text-brand-blue transition-colors duration-300 tabular-nums" className="font-display">
                   {stat.value}
                 </span>
                 <span className="text-sm md:text-base text-white/50 uppercase tracking-widest font-semibold leading-tight whitespace-pre-line group-hover:text-white/70 transition-colors duration-300">

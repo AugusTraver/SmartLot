@@ -56,7 +56,7 @@ export default function Hero({ startAnimation }) {
               SmartLot App
             </span>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold leading-none mb-8 text-brand-warm" style={{ fontFamily: 'var(--font-display)' }}>
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold leading-none mb-8 text-brand-warm" className="font-display">
               <div className="overflow-hidden py-1"><span className="word inline-block">Gestioná.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block">Optimizá.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block text-brand-blue">Escalá.</span></div>

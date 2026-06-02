@@ -25,7 +25,7 @@ export default function BrandPanel() {
         />
       </Link>
 
-      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-5 relative z-10 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-5 relative z-10 tracking-tight" className="font-display">
         SmartLot
       </h2>
 

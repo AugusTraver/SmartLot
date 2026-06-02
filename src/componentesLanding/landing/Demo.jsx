@@ -46,7 +46,7 @@ export default function Demo() {
       <div className="max-w-6xl mx-auto px-6 text-center">
         
         <div className="mb-16 flex flex-col items-center text-center">
-          <h2 className="demo-header text-5xl md:text-7xl font-extrabold mb-6 text-brand-warm tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="demo-header text-5xl md:text-7xl font-extrabold mb-6 text-brand-warm tracking-tight" className="font-display">
             Experimentá el <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-navy to-brand-blue">futuro hoy</span>
           </h2>
           <p className="demo-header text-lg md:text-xl text-brand-muted max-w-2xl mx-auto text-center leading-relaxed">
