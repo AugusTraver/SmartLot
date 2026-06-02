@@ -6,16 +6,16 @@
    are generated from these @theme definitions.
    ═══════════════════════════════════════════════════════════════════ */
 @theme {
-  /* ── Brand Colors ── */
+  /* ── Brand Colors (aligned with design.md) ── */
   --color-brand-deep:    #0C1E3F;
   --color-brand-navy:    #0C1E3F;
-  --color-brand-blue:    #2A5CBF;
+  --color-brand-blue:    #2563EB;
   --color-brand-sky:     #6C93D6;
-  --color-brand-bg:      #F7F4EF;
-  --color-brand-surface: #FDFCF9;
-  --color-brand-warm:    #0E121B;
-  --color-brand-muted:   #5A6B8A;
-  --color-brand-cream:   #F7F4EF;
+  --color-brand-bg:      #F5F7FB;
+  --color-brand-surface: #FFFFFF;
+  --color-brand-warm:    #1E293B;
+  --color-brand-muted:   #64748B;
+  --color-brand-cream:   #F5F7FB;
 
   /* ── Font Families ── */
   --font-display: 'Archivo', system-ui, sans-serif;
@@ -39,15 +39,15 @@
   --font-body:    'DM Sans', system-ui, sans-serif;
 
   /* Existing design tokens */
-  --text:   #5A6B8A;
-  --text-h: #0E121B;
-  --bg:     #F7F4EF;
-  --border: #e5e4e7;
+  --text:   #64748B;
+  --text-h: #1E293B;
+  --bg:     #F5F7FB;
+  --border: #E2E8F0;
   --code-bg: #f4f3ec;
-  --accent: #2A5CBF;
-  --accent-hover: #1E4A9E;
-  --accent-bg: rgba(42, 92, 191, 0.1);
-  --accent-border: rgba(42, 92, 191, 0.5);
+  --accent: #2563EB;
+  --accent-hover: #156FE5;
+  --accent-bg: rgba(37, 99, 235, 0.1);
+  --accent-border: rgba(37, 99, 235, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 

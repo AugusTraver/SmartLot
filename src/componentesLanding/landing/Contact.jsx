@@ -46,11 +46,11 @@ export default function Contact() {
   }, { scope: container });
 
   return (
-    <footer ref={container} className="bg-transparent pt-24 pb-12 relative overflow-hidden">
+    <footer ref={container} className="bg-transparent pt-32 pb-16 relative overflow-hidden">
       
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-brand-navy/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true"></div>
 
-      <div className="max-w-5xl mx-auto px-6 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
 
         <div className="cta-box relative rounded-[2.5rem] p-[1px] mb-24 overflow-hidden group shadow-[0_8px_30px_rgba(12,30,63,0.04)]">
           
@@ -82,20 +82,20 @@ export default function Contact() {
             </defs>
           </svg>
 
-          <div className="relative z-10 w-full h-full bg-white/70 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-20 text-center border border-white/80">
+          <div className="relative z-10 w-full h-full bg-white/70 backdrop-blur-2xl rounded-[2.5rem] p-12 md:p-24 text-center border border-white/80">
             
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 
             <div className="relative z-10 flex flex-col items-center">
-              <h2 className="cta-content text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-brand-warm font-display">
+              <h2 className="cta-content text-7xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight text-brand-warm font-display">
                 ¿Listo para modernizar <br className="hidden md:block"/> tu estacionamiento?
               </h2>
               
-              <p className="cta-content text-brand-muted text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="cta-content text-brand-muted text-6xl lg:text-7xl mb-16 max-w-5xl mx-auto leading-snug">
                 Dejá de perder tiempo gestionando planillas. Implementá SmartLot hoy mismo y mejorá la experiencia de tu equipo.
               </p>
               
-              <button className="cta-content group flex items-center gap-2 px-10 py-5 bg-brand-blue text-white rounded-2xl font-bold text-lg hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 shadow-xl shadow-brand-deep/20">
+              <button className="cta-content group flex items-center gap-3 px-10 py-5 bg-brand-blue text-white rounded-2xl font-bold text-xl hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 shadow-xl shadow-brand-deep/20">
                 <span>Contactar a Ventas</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" aria-hidden="true" />
               </button>

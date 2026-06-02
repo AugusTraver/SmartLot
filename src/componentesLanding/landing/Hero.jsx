@@ -52,21 +52,21 @@ export default function Hero({ startAnimation }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           <div className="text-left relative z-20">
-            <span className="hero-badge inline-block px-4 py-1.5 mb-6 text-sm font-semibold tracking-wide text-brand-navy uppercase bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-brand-navy/10">
+            <span className="hero-badge inline-block px-4 py-1.5 mb-8 text-sm font-semibold tracking-wider text-brand-navy uppercase bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-brand-navy/10">
               SmartLot App
             </span>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold leading-none mb-8 text-brand-warm" className="font-display">
-              <div className="overflow-hidden py-1"><span className="word inline-block">Gestioná.</span></div>
-              <div className="overflow-hidden py-1"><span className="word inline-block">Optimizá.</span></div>
-              <div className="overflow-hidden py-1"><span className="word inline-block text-brand-blue">Escalá.</span></div>
+            <h1 className="text-[12rem] md:text-[22rem] lg:text-[38rem] xl:text-[48rem] font-extrabold leading-[0.72] mb-16 text-brand-warm font-display tracking-tighter">
+              <div className="overflow-hidden py-3"><span className="word inline-block" style={{ fontSize: '6rem', fontWeight: 900 }}>Gestioná.</span></div>
+              <div className="overflow-hidden py-3"><span className="word inline-block" style={{ fontSize: '6rem', fontWeight: 900 }}>Optimizá.</span></div>
+              <div className="overflow-hidden py-3"><span className="word inline-block text-brand-blue" style={{ fontSize: '6rem', fontWeight: 900 }}>Escalá.</span></div>
             </h1>
             
-            <p className="hero-p text-lg md:text-xl text-brand-muted max-w-lg mb-10 leading-relaxed">
+            <p className="hero-p text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-brand-muted max-w-4xl mb-16 leading-[1.1] font-light">
               La plataforma SaaS que redefine el control de accesos y estacionamientos corporativos con IA.
             </p>
             
-            <button className="hero-btn px-8 py-4 bg-brand-blue text-white rounded-xl font-bold text-lg hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 hover:shadow-xl shadow-lg shadow-brand-deep/20">
+            <button className="hero-btn px-12 py-6 bg-brand-blue text-white rounded-xl font-bold text-2xl hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 hover:shadow-xl shadow-lg shadow-brand-deep/20">
               Solicitar Demo Gratis
             </button>
           </div>

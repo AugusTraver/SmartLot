@@ -55,7 +55,7 @@ export default function Navbar() {
             alt="SmartLot Logo"
             className="h-12 md:h-14 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
           />
-          <span className="text-2xl md:text-3xl font-extrabold text-brand-warm tracking-tight" className="font-display">
+          <span className="text-2xl md:text-3xl font-extrabold text-brand-warm tracking-tight font-display">
             SmartLot
           </span>
         </Link>
