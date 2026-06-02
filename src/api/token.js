@@ -1,38 +1,10 @@
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY ;
-const JWT_EXPIRES_IN = import.meta.env.VITE_JWT_EXPIRES_IN || '2h';
+import apiClient from './client';
 
-export function getToken() {
-  return sessionStorage.getItem(TOKEN_KEY);
-}
-
-export function setToken(token) {
-  sessionStorage.setItem(TOKEN_KEY, token);
-}
-
-export function clearToken() {
-  sessionStorage.removeItem(TOKEN_KEY);
-}
-
-export function isTokenExpired(token) {
+export async function clearToken() {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return Date.now() >= payload.exp * 1000;
+    await apiClient.post('/api/usuario/logout');
   } catch {
-    return true;
+    // backend clears the cookie either way
   }
-}
-
-export function getTokenExpiryInfo() {
-  const token = getToken();
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return {
-      exp: payload.exp,
-      expiresIn: JWT_EXPIRES_IN,
-      remainingMs: payload.exp * 1000 - Date.now(),
-    };
-  } catch {
-    return null;
-  }
+  window.location.href = '/login';
 }

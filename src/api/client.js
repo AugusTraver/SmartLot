@@ -1,6 +1,5 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { getToken, clearToken, isTokenExpired } from './token';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -24,23 +23,8 @@ function showToast(message, icon = 'error') {
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = getToken();
-
-  if (token && isTokenExpired(token)) {
-    clearToken();
-    window.location.href = '/login';
-    return Promise.reject(new Error('Token expirado'));
-  }
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
 });
 
 apiClient.interceptors.response.use(
@@ -52,8 +36,9 @@ apiClient.interceptors.response.use(
 
     switch (status) {
       case 401:
-        clearToken();
-        window.location.href = '/login';
+        if (!error.config?._skipAuthRedirect) {
+          window.location.href = '/login';
+        }
         break;
       case 403:
         showToast(message, 'warning');

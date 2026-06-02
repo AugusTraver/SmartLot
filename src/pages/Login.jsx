@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/client';
-import { setToken } from '../api/token';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,11 +28,10 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/api/usuario/login', {
+      await apiClient.post('/api/usuario/login', {
         email: email.trim(),
         contraseña: password,
-      });
-      setToken(res.data.token);
+      }, { _skipAuthRedirect: true });
       window.location.href = '/dashboard';
     } catch (err) {
       const msg = err.response?.data?.message || 'Error de conexión.';

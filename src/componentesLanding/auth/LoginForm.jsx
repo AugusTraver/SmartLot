@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import apiClient from '../../api/client';
-import { setToken } from '../../api/token';
 
 gsap.registerPlugin(useGSAP);
 
@@ -47,8 +46,7 @@ export default function LoginForm() {
       const res = await apiClient.post('/api/usuario/login', {
         email: email.trim(),
         contraseña: password,
-      });
-      setToken(res.data.token);
+      }, { _skipAuthRedirect: true });
       const usuario = res.data.usuario;
       const rutas = {
         1: '/admin_dashboard',
