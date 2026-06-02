@@ -92,14 +92,14 @@ export default function BentoGrid() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[180px] md:auto-rows-[220px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[230px] md:auto-rows-[250px]">
           {features.map((f, i) => (
             <div 
               key={i} 
               className={`
                 bento-card group relative ${f.size} 
                 overflow-hidden glass-card
-                p-8 rounded-[2rem] flex flex-col justify-between 
+                min-h-[230px] p-8 rounded-[2rem] flex flex-col justify-between 
                 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_rgba(12,30,63,0.08)] 
                 transition-all duration-500 hover:-translate-y-1
               `}
