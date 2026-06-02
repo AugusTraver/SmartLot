@@ -11,13 +11,13 @@ function EmpleadoDashboard() {
       <HeaderEmpleado />
 
       <main className="empleado-dashboard-main">
-        <button className="empleado-back-button">
-          ←
-        </button>
-
-        <h1 className="empleado-dashboard-title">
-          Sebastian Lopez
-        </h1>
+        <div className="empleado-dashboard-intro">
+          <span className="empleado-dashboard-kicker">Hoy</span>
+          <h1 className="empleado-dashboard-title">Hola, Sebastian</h1>
+          <p className="empleado-dashboard-subtitle">
+            Tu reserva y disponibilidad del estacionamiento.
+          </p>
+        </div>
 
         <section className="empleado-disponibilidad-card">
           <div className="empleado-disponibilidad-top">
@@ -26,7 +26,7 @@ function EmpleadoDashboard() {
           </div>
 
           <p className="empleado-disponibilidad-text">
-            Disponibilidad en Tiempo Real
+            Disponibilidad en tiempo real
           </p>
 
           <div className="empleado-plazas-libres">
@@ -35,22 +35,31 @@ function EmpleadoDashboard() {
           </div>
 
           <p className="empleado-companeros">
-            compañeros que ya estacionarion hoy
+            compañeros que ya estacionaron hoy
           </p>
+
+          <div className="empleado-disponibilidad-metrics">
+            <span>Ocupación baja</span>
+            <span>Acceso habilitado</span>
+          </div>
         </section>
 
-          <div className="empleado-reservas-header">
+        <div className="empleado-reservas-header">
+          <div>
+            <span>Agenda</span>
             <h2>Mis Reservas Actuales</h2>
-            <button>Ver todas</button>
           </div>
+          <button type="button">Ver todas</button>
+        </div>
 
-          <TarjetaReserva to="/nueva_reserva" />
+        <TarjetaReserva to="/nueva_reserva" />
 
         <button
+          type="button"
           className="empleado-nueva-reserva-btn"
           onClick={() => navigate("/nueva_reserva")}
         >
-          + Nueva Reserva
+          Nueva reserva
         </button>
       </main>
     </div>

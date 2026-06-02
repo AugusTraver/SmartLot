@@ -1,63 +1,95 @@
 .empleado-dashboard-page {
   min-height: 100vh;
-  background-color: #f5f8fc;
-  font-family: "Inter", "Poppins", Arial, sans-serif;
-  color: #1f2328;
+  overflow-x: hidden;
+  background: #f5f7fb;
+  font-family: var(--font-body), "DM Sans", system-ui, sans-serif;
+  color: #191C1E;
+}
+
+.empleado-dashboard-page .header {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: none;
+}
+
+.empleado-dashboard-page .logo-smartlot img {
+  width: 132px;
+}
+
+.empleado-dashboard-page .header-right {
+  gap: 14px;
+  color: #1E293B;
+}
+
+.empleado-dashboard-page .header-right svg {
+  width: 25px;
+  height: 25px;
 }
 
 .empleado-dashboard-main {
-  width: 100%;
-  max-width: 430px;
+  width: min(100%, 440px);
   margin: 0 auto;
-  padding: 22px 24px 120px;
+  padding: 24px 18px 88px;
+  text-align: left;
 }
 
-/* BOTÓN VOLVER */
-
-.empleado-back-button {
-  border: none;
-  background: transparent;
-  color: #006ee6;
-  font-size: 34px;
-  cursor: pointer;
-  padding: 0;
-  margin: 8px 0 18px;
-  line-height: 1;
+.empleado-dashboard-intro {
+  margin-bottom: 22px;
 }
 
-/* TÍTULO */
+.empleado-dashboard-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .empleado-dashboard-title {
-  margin: 0 0 24px;
+  margin: 0;
+  color: #191C1E;
+  font-family: var(--font-display), "Archivo", system-ui, sans-serif;
   font-size: 34px;
-  line-height: 1.1;
+  line-height: 1;
   font-weight: 900;
-  letter-spacing: -1.2px;
-  color: #20242a;
+  letter-spacing: 0;
 }
 
-/* CARD DISPONIBILIDAD */
+.empleado-dashboard-subtitle {
+  max-width: 300px;
+  margin: 10px 0 0;
+  color: #64748B;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
 
 .empleado-disponibilidad-card {
-  background-color: #ffffff;
-  border-radius: 30px;
-  padding: 28px;
-  margin-bottom: 24px;
-  min-height: 250px;
   position: relative;
+  min-height: 238px;
+  margin-bottom: 26px;
+  padding: 22px;
   overflow: hidden;
-  box-shadow: 0 18px 40px rgba(40, 70, 110, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .empleado-disponibilidad-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: -14px;
-  width: 112px;
-  height: 112px;
-  background-color: #f2f8ff;
-  border-bottom-left-radius: 100px;
+  content: none;
+}
+
+.empleado-disponibilidad-top,
+.empleado-disponibilidad-text,
+.empleado-plazas-libres,
+.empleado-companeros,
+.empleado-disponibilidad-metrics {
+  position: relative;
+  z-index: 1;
 }
 
 .empleado-disponibilidad-top {
@@ -65,138 +97,195 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 26px;
-  position: relative;
-  z-index: 2;
 }
 
 .empleado-parking-icon {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background-color: #eafff4;
-  color: #009c64;
+  background: #DBEAFE;
+  color: #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 25px;
   font-weight: 900;
 }
 
 .empleado-live-badge {
-  background-color: #eafff4;
-  color: #009c64;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
   border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  position: relative;
-  z-index: 2;
+  background: #eafaf2;
+  color: #087a52;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.empleado-live-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #20b46b;
 }
 
 .empleado-disponibilidad-text {
-  margin: 0 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-  color: #535b68;
+  margin: 0 0 7px;
+  color: #64748B;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .empleado-plazas-libres {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-bottom: 28px;
+  gap: 9px;
+  margin-bottom: 10px;
 }
 
 .empleado-plazas-libres strong {
-  font-size: 46px;
-  line-height: 1;
+  color: #1E293B;
+  font-family: var(--font-display), "Archivo", system-ui, sans-serif;
+  font-size: 58px;
+  line-height: 0.95;
   font-weight: 900;
-  color: #20242a;
+  letter-spacing: 0;
 }
 
 .empleado-plazas-libres span {
-  font-size: 20px;
-  font-weight: 800;
-  color: #009c64;
+  color: #087a52;
+  font-size: 17px;
+  font-weight: 900;
 }
 
 .empleado-companeros {
   margin: 0;
+  color: #64748B;
   font-size: 13px;
-  color: #596272;
+  font-weight: 650;
 }
 
-/* RESERVAS */
+.empleado-disponibilidad-metrics {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.empleado-disponibilidad-metrics::-webkit-scrollbar {
+  display: none;
+}
+
+.empleado-disponibilidad-metrics span {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #1E293B;
+  font-size: 12px;
+  font-weight: 850;
+}
 
 .empleado-reservas-header {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.empleado-reservas-header span {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .empleado-reservas-header h2 {
   margin: 0;
+  color: #191C1E;
+  font-family: var(--font-display), "Archivo", system-ui, sans-serif;
   font-size: 21px;
+  line-height: 1.1;
   font-weight: 900;
-  color: #20242a;
+  letter-spacing: 0;
 }
 
 .empleado-reservas-header button {
   border: none;
+  border-radius: 999px;
   background: transparent;
-  color: #006ee6;
+  color: #2563eb;
+  padding: 6px 0;
   font-size: 12px;
   font-weight: 900;
-  text-transform: uppercase;
   cursor: pointer;
 }
 
-/* CARD RESERVA */
-
-/* BOTÓN NUEVA RESERVA */
-
 .empleado-nueva-reserva-btn {
+  position: fixed;
+  left: 18px;
+  right: 18px;
+  bottom: 34px;
+  z-index: 20;
+  max-width: 404px;
+  min-height: 56px;
+  margin: 0 auto;
   border: none;
-  background-color: #006ee6;
+  border-radius: 18px;
+  background: #0544e2;
   color: #ffffff;
-  border-radius: 16px;
-  padding: 18px 24px;
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 900;
   cursor: pointer;
-  margin-top: 18px;
-  float: right;
-  box-shadow: 0 14px 30px rgba(0, 110, 230, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  
 }
 
 .empleado-nueva-reserva-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(0, 110, 230, 0.42);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.34);
 }
 
 .empleado-nueva-reserva-btn:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
 }
 
-/* RESPONSIVE */
+.empleado-nueva-reserva-btn:focus-visible,
+.empleado-reservas-header button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.24);
+  outline-offset: 4px;
+}
 
-@media (max-width: 480px) {
+@media (max-width: 380px) {
   .empleado-dashboard-main {
-    padding: 20px 20px 120px;
+    padding-inline: 16px;
   }
 
   .empleado-dashboard-title {
-    font-size: 32px;
+    font-size: 31px;
   }
 
   .empleado-disponibilidad-card {
-    padding: 26px;
+    padding: 20px;
   }
 
-  .empleado-nueva-reserva-btn {
-    margin-top: 16px;
+  .empleado-plazas-libres {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .empleado-plazas-libres strong {
+    font-size: 54px;
   }
 }
