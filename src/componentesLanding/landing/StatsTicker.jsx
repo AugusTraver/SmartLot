@@ -33,23 +33,23 @@ export default function StatsTicker() {
   }, { scope: tickerRef });
 
   return (
-    <div ref={tickerRef} className="w-full bg-brand-deep py-4 overflow-hidden border-y border-white/5" aria-label="Estadísticas de la plataforma">
+    <div ref={tickerRef} className="w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label="Estadísticas de la plataforma">
       <div className="ticker-track flex whitespace-nowrap w-fit" aria-hidden="true">
         
         {[...Array(2)].map((_, idx) => (
-          <div key={idx} className="flex items-center gap-8 px-4">
+          <div key={idx} className="flex items-center gap-12 px-6">
             {stats.map((stat) => (
               <div 
                 key={stat.label} 
                 className="flex items-center gap-6 min-w-0 group"
               >
-                <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white group-hover:text-brand-blue transition-colors duration-300 tabular-nums font-display">
+                <span className="text-5xl md:text-6xl font-black text-white group-hover:text-brand-blue transition-colors duration-300 tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
                   {stat.value}
                 </span>
                 <span className="text-sm md:text-base text-white/50 uppercase tracking-widest font-semibold leading-tight whitespace-pre-line group-hover:text-white/70 transition-colors duration-300">
                   {stat.label.split(' ').join('\n')}
                 </span>
-                <div className="h-6 w-[1px] bg-white/10 ml-8 hidden md:block"></div>
+                <div className="h-8 w-[1px] bg-white/10 ml-12 hidden md:block"></div>
               </div>
             ))}
           </div>

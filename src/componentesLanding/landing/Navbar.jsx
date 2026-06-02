@@ -47,7 +47,7 @@ export default function Navbar() {
       ref={navRef}
       className="fixed top-0 left-0 w-full z-50 glass-nav"
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
 
         <Link to="/" className="flex items-center gap-3 group">
           <img
