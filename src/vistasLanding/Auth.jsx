@@ -1,12 +1,23 @@
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import LoginForm from '../componentesLanding/auth/LoginForm';
 import BrandPanel from '../componentesLanding/auth/BrandPanel';
+import { useAuth } from '../contexts/useAuth';
 
 export default function Auth() {
+  const { usuario } = useAuth();
   const container = useRef(null);
+
+  if (usuario) {
+    const rutas = {
+      1: '/admin_dashboard',
+      2: '/empleados_dashboard',
+      3: '/garagista_dashboard',
+    };
+    return <Navigate to={rutas[Number(usuario.id_rol)] || '/'} replace />;
+  }
 
   useGSAP(() => {
     const mm = gsap.matchMedia();

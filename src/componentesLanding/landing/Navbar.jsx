@@ -1,12 +1,30 @@
 import { useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { useAuth } from '../../contexts/useAuth';
+import { showToast } from '../../helpers/toast';
 
 export default function Navbar() {
+  const { usuario } = useAuth();
+  const navigate = useNavigate();
   const navRef = useRef();
   const location = useLocation();
   const isLanding = location.pathname === '/';
+
+  const handleLoginClick = (e) => {
+    if (usuario) {
+      e.preventDefault();
+      showToast('Ya tenés una sesión activa. Redirigiendo a tu panel…', 'info');
+      const rutas = {
+        1: '/admin_dashboard',
+        2: '/empleados_dashboard',
+        3: '/garagista_dashboard',
+      };
+      const ruta = rutas[Number(usuario.id_rol)] || '/';
+      setTimeout(() => navigate(ruta), 1500);
+    }
+  };
 
   useGSAP(() => {
     let mm = gsap.matchMedia();
@@ -44,6 +62,7 @@ export default function Navbar() {
 
         <Link
           to="/login"
+          onClick={handleLoginClick}
           className="px-5 py-2.5 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
         >
           Iniciar Sesión

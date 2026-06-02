@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "./vistasAdmin/admin_dashboard";
 import GestionEmpleados from "./vistasAdmin/gestion_de_empleados";
 import GestionGarages from "./vistasAdmin/gestion_garages";
@@ -87,6 +87,11 @@ function App() {
           <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
             <EditarZona />
           </ProtectedRoute>
+        } />
+
+        {/* Catch-all: redirigir a /login si no hay sesión */}
+        <Route path="*" element={
+          !usuario ? <Navigate to="/login" /> : <Navigate to="/" />
         } />
       </Routes>
     </BrowserRouter>
