@@ -1,4 +1,5 @@
 import apiClient from './client';
+import { navigateTo } from './navigation';
 
 export async function clearToken() {
   try {
@@ -6,5 +7,5 @@ export async function clearToken() {
   } catch {
     // backend clears the cookie either way
   }
-  window.location.href = '/login';
+  navigateTo('/login');
 }

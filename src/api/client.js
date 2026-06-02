@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { navigateTo } from './navigation';
 
 const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
 
@@ -37,7 +38,7 @@ apiClient.interceptors.response.use(
     switch (status) {
       case 401:
         if (!error.config?._skipAuthRedirect) {
-          window.location.href = '/login';
+          navigateTo('/login');
         }
         break;
       case 403:

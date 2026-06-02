@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import AdminDashboard from "./vistasAdmin/admin_dashboard";
 import GestionEmpleados from "./vistasAdmin/gestion_de_empleados";
 import GestionGarages from "./vistasAdmin/gestion_garages";
@@ -16,15 +17,20 @@ import Logout from "./pages/Logout";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/useAuth";
+import { setNavigate } from "./api/navigation";
 
-function App() {
+function AppRoutes() {
+  const navigate = useNavigate();
   const { usuario, loading } = useAuth();
+
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
 
   if (loading) return null;
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Auth />} />
@@ -94,6 +100,13 @@ function App() {
           !usuario ? <Navigate to="/login" /> : <Navigate to="/" />
         } />
       </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
