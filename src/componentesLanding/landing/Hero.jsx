@@ -51,12 +51,12 @@ export default function Hero({ startAnimation }) {
       <div className="max-w-6xl mx-auto px-6 w-full relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           
-          <div className="text-left relative z-20">
+          <div className="text-left relative z-20 lg:pl-8">
             <span className="hero-badge inline-block px-4 py-1.5 mb-6 text-sm font-semibold tracking-wider text-brand-navy uppercase bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-brand-navy/10">
               SmartLot App
             </span>
             
-            <h1 className="mb-8 text-brand-warm">
+            <h1 className="pb-8 text-brand-warm">
               <div className="overflow-hidden py-1"><span className="word inline-block">Gestioná.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block">Optimizá.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block text-brand-blue">Escalá.</span></div>
