@@ -18,7 +18,7 @@ export default function InteractiveBackground({
   const containerRef = useRef();
   const particlesRef = useRef([]);
 
-  const particleData = useMemo(() =>
+ const particleData = useMemo(() =>
     [...Array(count)].map((_, i) => ({
       top: `${seededRandom(i * 13) * 100}vh`,
       left: `${seededRandom(i * 17) * 100}vw`,
@@ -91,7 +91,7 @@ export default function InteractiveBackground({
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-brand-bg">
+    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-brand-bg">
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_20%_20%,rgba(30,144,255,0.04)_0%,transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(135,206,235,0.03)_0%,transparent_50%)]"></div>
       
       <div 

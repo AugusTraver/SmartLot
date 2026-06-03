@@ -32,17 +32,19 @@ export default function LandingPage() {
 
   if (prefersReducedMotion) {
     return (
-      <div className="min-h-screen relative overflow-x-hidden bg-noise landing-page">
+      <>
         <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
-        <Navbar />
-        <main id="main-content" className="relative z-10">
-          <Hero startAnimation={true} />
-          <StatsTicker />
-          <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
-          <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
-        </main>
-        <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
-      </div>
+        <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
+          <Navbar />
+          <main id="main-content" className="relative z-10">
+            <Hero startAnimation={true} />
+            <StatsTicker />
+            <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
+            <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
+          </main>
+          <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+        </div>
+      </>
     );
   }
 
@@ -54,8 +56,8 @@ export default function LandingPage() {
           onOpenDoors={() => setStartHero(true)}
         />
       )}
-      <div className="min-h-screen relative overflow-x-hidden bg-noise landing-page">
-        <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
+      <InteractiveBackground count={90} interactionRadius={150} repelForce={80} />
+      <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
         <Navbar />
         <main id="main-content" className="relative z-10">
           <Hero startAnimation={startHero} />
