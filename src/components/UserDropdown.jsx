@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Swal from 'sweetalert2';
-import { LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import apiClient from '../api/client';
 
@@ -47,10 +47,11 @@ export default function UserDropdown() {
 
   const fullName = usuario
     ? `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim()
-    : 'Usuario';
+    : '';
+  const displayName = fullName || usuario?.email?.split('@')[0] || 'Usuario';
   const roleLabel = ROLE_LABELS[usuario?.id_rol] || 'Usuario';
-  const initial = getInitial(usuario?.nombre);
-  const gradient = getAvatarGradient(usuario?.nombre);
+  const initial = getInitial(displayName);
+  const gradient = getAvatarGradient(displayName);
 
   useGSAP(() => {
     if (!panelRef.current) return;
@@ -58,12 +59,12 @@ export default function UserDropdown() {
     if (isOpen) {
       gsap.fromTo(
         panelRef.current,
-        { opacity: 0, scale: 0.95, y: -8, transformOrigin: 'top right' },
+        { opacity: 0, scale: 0.96, y: -8, transformOrigin: 'top right' },
         {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 0.25,
+          duration: 0.24,
           ease: 'power3.out',
         }
       );
@@ -110,7 +111,7 @@ export default function UserDropdown() {
       toast: true,
       position: 'top-end',
       icon: 'info',
-      title: 'Cerrando sesión de forma segura...',
+      title: 'Cerrando sesion de forma segura...',
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
@@ -119,7 +120,7 @@ export default function UserDropdown() {
     try {
       await apiClient.post('/api/usuario/logout');
     } catch {
-      // Emergency exit: clear local state regardless
+      // Exit locally even if the server logout request fails.
     }
 
     setUsuario(null);
@@ -131,25 +132,33 @@ export default function UserDropdown() {
       <button
         ref={triggerRef}
         onClick={handleToggle}
-        className="flex items-center gap-2.5 p-1.5 rounded-xl transition-colors duration-200 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/50"
+        className={`group flex items-center gap-1.5 rounded-lg border px-1.5 py-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 ${
+          isOpen
+            ? 'border-brand-blue/10 bg-brand-blue/5'
+            : 'border-transparent hover:border-brand-blue/8 hover:bg-brand-blue/4'
+        }`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label={`Menú de usuario: ${fullName}`}
+        aria-label={`Menu de usuario: ${displayName}`}
       >
         <div
-          className={`w-9 h-9 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-sm font-display font-semibold shadow-sm`}
+          className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-[11px] font-bold text-white shadow-sm ring-1 ring-white/60`}
         >
           {initial}
         </div>
-        <div className="hidden md:block text-left">
-          <p className="text-sm font-medium text-brand-warm leading-tight">
-            {fullName}
-          </p>
-          <p className="text-xs text-brand-muted leading-tight">{roleLabel}</p>
+
+        <div className="hidden text-left md:block">
+          <div className="inline-flex items-center gap-0.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-slate-500">
+            <ShieldCheck size={9} />
+            <span>{roleLabel}</span>
+          </div>
         </div>
+
         <ChevronDown
-          size={16}
-          className={`hidden md:block text-brand-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          size={14}
+          className={`hidden text-brand-muted transition-transform duration-200 group-hover:text-brand-blue md:block ${
+            isOpen ? 'rotate-180 text-brand-blue' : ''
+          }`}
         />
       </button>
 
@@ -157,52 +166,74 @@ export default function UserDropdown() {
         <div
           ref={panelRef}
           role="menu"
-          className="absolute right-0 top-full mt-2 w-64 rounded-2xl overflow-hidden z-[1100]"
+          className="absolute right-0 top-full z-[1100] mt-2 w-60 overflow-hidden rounded-xl"
           style={{
-            background: 'rgba(253, 252, 249, 0.75)',
-            backdropFilter: 'blur(20px) saturate(1.5)',
-            WebkitBackdropFilter: 'blur(20px) saturate(1.5)',
-            border: '1px solid rgba(12, 30, 63, 0.08)',
+            background: 'rgba(255, 255, 255, 0.92)',
+            backdropFilter: 'blur(18px) saturate(1.35)',
+            WebkitBackdropFilter: 'blur(18px) saturate(1.35)',
+            border: '1px solid rgba(37, 99, 235, 0.08)',
             boxShadow:
-              '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 4px 8px -2px rgba(0, 0, 0, 0.05)',
+              '0 18px 42px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(37, 99, 235, 0.05)',
           }}
         >
-          <div className="md:hidden px-4 pt-4 pb-3">
-            <p className="text-sm font-medium text-brand-warm">{fullName}</p>
-            <p className="text-xs text-brand-muted">{usuario?.email || ''}</p>
-            <p className="text-xs text-brand-muted mt-0.5">{roleLabel}</p>
-          </div>
-          <div className="md:hidden h-px bg-gradient-to-r from-transparent via-black/5 to-transparent mx-3" />
+          <div className="px-3 pb-2.5 pt-3">
+            <div className="flex items-center gap-2.5">
+              <div
+                className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-sm font-black text-white shadow-sm`}
+              >
+                {initial}
+              </div>
 
-          <div className="py-2">
+              <div className="min-w-0">
+                <p className="truncate text-xs font-black text-brand-warm">{displayName}</p>
+                <p className="truncate text-[11px] text-brand-muted">{usuario?.email || ''}</p>
+              </div>
+            </div>
+
+            <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-brand-blue/8 bg-brand-blue/5 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-brand-blue">
+              <ShieldCheck size={11} />
+              <span>{roleLabel}</span>
+            </div>
+          </div>
+
+          <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-brand-blue/10 to-transparent" />
+
+          <div className="p-1.5">
             <button
               role="menuitem"
-              className="dropdown-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-brand-warm hover:bg-black/5 transition-colors duration-150 text-left"
+              className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
               onClick={() => setIsOpen(false)}
             >
-              <User size={16} className="text-brand-muted shrink-0" />
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
+                <User size={14} />
+              </span>
               <span>Perfil</span>
             </button>
+
             <button
               role="menuitem"
-              className="dropdown-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-brand-warm hover:bg-black/5 transition-colors duration-150 text-left"
+              className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
               onClick={() => setIsOpen(false)}
             >
-              <Settings size={16} className="text-brand-muted shrink-0" />
-              <span>Configuración</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
+                <Settings size={14} />
+              </span>
+              <span>Configuracion</span>
             </button>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-black/5 to-transparent mx-3" />
+          <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-black/5 to-transparent" />
 
-          <div className="py-2">
+          <div className="p-1.5">
             <button
               role="menuitem"
-              className="dropdown-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors duration-150 text-left font-medium"
+              className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-bold text-rose-600 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-700"
               onClick={handleLogout}
             >
-              <LogOut size={16} className="shrink-0" />
-              <span>Cerrar Sesión</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                <LogOut size={14} />
+              </span>
+              <span>Cerrar sesion</span>
             </button>
           </div>
         </div>
