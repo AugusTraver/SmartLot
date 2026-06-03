@@ -12,7 +12,7 @@ function Header() {
         <div className="logo-smartlot" >
 
            
-              <img onClick={() => navigate ("/")} src={logo} alt="logo SmartLot"  style={{ cursor: 'pointer' }}/>
+              <img onClick={() => navigate ("/admin_dashboard")} src={logo} alt="logo SmartLot"  style={{ cursor: 'pointer' }}/>
           
           </div>
         
