@@ -50,7 +50,7 @@ export default function Contact() {
       
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-brand-navy/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true"></div>
 
-      <div className="max-w-5xl mx-auto px-6 relative z-10">
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
 
         <div className="cta-box relative rounded-[2.5rem] p-[1px] mb-24 overflow-hidden group shadow-[0_8px_30px_rgba(12,30,63,0.04)]">
           
@@ -82,16 +82,16 @@ export default function Contact() {
             </defs>
           </svg>
 
-          <div className="relative z-10 w-full h-full bg-white/70 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-20 text-center border border-white/80">
+          <div className="relative z-10 w-full h-full bg-white/70 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-center border border-white/80">
             
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 
-            <div className="relative z-10 flex flex-col items-center">
-              <h2 className="cta-content text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight text-brand-warm font-display">
+            <div className="relative z-10 flex flex-col items-center gap-8">
+              <h2 className="cta-content text-brand-warm">
                 ¿Listo para modernizar <br className="hidden md:block"/> tu estacionamiento?
               </h2>
               
-              <p className="cta-content text-brand-muted text-base md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="cta-content text-brand-muted max-w-2xl mx-auto">
                 Dejá de perder tiempo gestionando planillas. Implementá SmartLot hoy mismo y mejorá la experiencia de tu equipo.
               </p>
               
@@ -116,16 +116,16 @@ export default function Contact() {
                 className="relative h-10 md:h-12 w-auto grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
               />
             </div>
-            <span className="text-xl md:text-2xl font-bold text-brand-muted/60 group-hover:text-brand-warm transition-colors duration-300 font-display">
+            <span className="text-base md:text-lg font-bold text-brand-muted/40 group-hover:text-brand-warm transition-colors duration-300 font-display">
               SmartLot
             </span>
           </div>
           
           <div className="flex flex-col md:items-end gap-2">
-            <p className="text-brand-muted/70 text-sm font-medium">
+            <p className="text-brand-muted/40 text-[1px] font-medium">
               © {new Date().getFullYear()} SmartLot. El estacionamiento del futuro.
             </p>
-            <p className="text-brand-muted/50 text-xs">
+            <p className="text-brand-muted/30 text-[1px]">
               Digitalización de espacios B2B sin hardware.
             </p>
           </div>

@@ -46,10 +46,10 @@ export default function Demo() {
       <div className="max-w-6xl mx-auto px-6 text-center">
         
         <div className="mb-16 flex flex-col items-center text-center">
-          <h2 className="demo-header text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none mb-6 text-gray-900 font-display">
+          <h2 className="demo-header mb-6 text-gray-900">
             Experimentá el <span className="text-blue-600">futuro hoy</span>
           </h2>
-          <p className="demo-header text-lg md:text-xl font-normal text-gray-500 max-w-3xl mx-auto text-center leading-relaxed mt-6">
+          <p className="demo-header text-gray-500 max-w-3xl mx-auto text-center mt-6">
             Interactuá con nuestro prototipo funcional y descubrí lo fácil que es gestionar espacios con SmartLot.
           </p>
         </div>

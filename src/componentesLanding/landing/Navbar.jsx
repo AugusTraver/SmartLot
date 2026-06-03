@@ -47,15 +47,15 @@ export default function Navbar() {
       ref={navRef}
       className="fixed top-0 left-0 w-full z-50 glass-nav"
     >
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto px-6 py-3.5 flex justify-between items-center">
 
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-2 group">
           <img
             src="/logo.png"
             alt="SmartLot Logo"
-            className="h-12 md:h-14 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
+            className="h-10 md:h-12 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
           />
-          <span className="text-2xl md:text-3xl font-extrabold text-brand-warm tracking-tight font-display">
+          <span className="text-xl md:text-2xl font-extrabold text-brand-warm tracking-tight font-display">
             SmartLot
           </span>
         </Link>
@@ -63,7 +63,7 @@ export default function Navbar() {
         <Link
           to="/login"
           onClick={handleLoginClick}
-          className="px-5 py-2.5 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDFCF9]"
+          className="px-4 py-2 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
         >
           Iniciar Sesión
         </Link>

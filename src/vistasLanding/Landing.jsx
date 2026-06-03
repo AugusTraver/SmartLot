@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from '../componentesLanding/landing/Navbar';
 import Hero from '../componentesLanding/landing/Hero';
+import '../componentesLanding/landing/landing.css';
 import StatsTicker from '../componentesLanding/landing/StatsTicker';
 import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
 import IntroAnimation from '../componentesLanding/landing/IntroAnimation';
@@ -31,7 +32,7 @@ export default function LandingPage() {
 
   if (prefersReducedMotion) {
     return (
-      <div className="min-h-screen relative overflow-x-hidden bg-noise">
+      <div className="min-h-screen relative overflow-x-hidden bg-noise landing-page">
         <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
         <Navbar />
         <main id="main-content" className="relative z-10">
@@ -53,7 +54,7 @@ export default function LandingPage() {
           onOpenDoors={() => setStartHero(true)}
         />
       )}
-      <div className="min-h-screen relative overflow-x-hidden bg-noise">
+      <div className="min-h-screen relative overflow-x-hidden bg-noise landing-page">
         <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
         <Navbar />
         <main id="main-content" className="relative z-10">

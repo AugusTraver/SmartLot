@@ -77,29 +77,29 @@ export default function BentoGrid() {
   }, { scope: container });
 
   return (
-    <section id="solucion" ref={container} className="relative z-10 pt-32 pb-12 bg-transparent content-visibility-auto">
+    <section id="solucion" ref={container} className="relative z-10 pt-16 pb-8 bg-transparent content-visibility-auto">
       <div className="max-w-6xl mx-auto px-6">
         
-        <div className="mb-20 text-center relative z-20 flex flex-col items-center">
+        <div className="mb-12 text-center relative z-20 flex flex-col items-center">
           <span className="bento-header-text text-brand-navy font-semibold tracking-[0.2em] uppercase text-sm mb-3 block">
             Ecosistema Integral
           </span>
-          <h2 className="bento-header-text text-5xl md:text-7xl lg:text-[5.25rem] font-black text-brand-warm tracking-[-0.035em] leading-[1.05] mb-6 font-display">
+          <h2 className="bento-header-text text-brand-warm mb-6">
             Todo el control en un <br className="hidden md:block" /> solo lugar.
           </h2>
-          <p className="bento-header-text text-brand-muted text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
+          <p className="bento-header-text text-brand-muted max-w-2xl mx-auto">
             Una plataforma diseñada para eliminar el caos y modernizar la gestión de tus espacios, sin complicaciones de hardware.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[180px] md:auto-rows-[220px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px] md:auto-rows-[260px]">
           {features.map((f, i) => (
             <div 
               key={i} 
               className={`
                 bento-card group relative ${f.size} 
                 overflow-hidden glass-card
-                p-8 rounded-[2rem] flex flex-col justify-between text-left
+                p-6 rounded-[1.5rem] flex flex-col justify-between text-left
                 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_rgba(12,30,63,0.08)] 
                 transition-all duration-500 hover:-translate-y-1
               `}
@@ -107,7 +107,7 @@ export default function BentoGrid() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
               <div className="flex justify-between items-start relative z-10">
-                <div className={`w-14 h-14 ${f.iconBg} rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-sm`}>
+                <div className={`w-14 h-14 ${f.iconBg} rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 shadow-sm`}>
                   {f.icon}
                 </div>
                 {f.badge && (
@@ -118,10 +118,10 @@ export default function BentoGrid() {
               </div>
 
               <div className="relative z-10 mt-6">
-                <h3 className="text-[1.3rem] font-bold text-brand-warm mb-2 tracking-tight leading-snug">
+                <h3 className="text-[1.25rem] font-bold text-brand-warm mb-1 tracking-tight leading-snug">
                   {f.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-brand-muted">
+                <p className="text-xs leading-relaxed text-brand-muted">
                   {f.desc}
                 </p>
               </div>

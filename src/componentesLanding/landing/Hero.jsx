@@ -56,13 +56,13 @@ export default function Hero({ startAnimation }) {
               SmartLot App
             </span>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] mb-8 text-brand-warm font-display tracking-tight">
+            <h1 className="mb-8 text-brand-warm">
               <div className="overflow-hidden py-1"><span className="word inline-block">Gestioná.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block">Optimizá.</span></div>
               <div className="overflow-hidden py-1"><span className="word inline-block text-brand-blue">Escalá.</span></div>
             </h1>
             
-            <p className="hero-p text-base md:text-lg text-brand-muted max-w-lg mb-10 leading-relaxed">
+            <p className="hero-p text-brand-muted max-w-lg mb-10">
               La plataforma SaaS que redefine el control de accesos y estacionamientos corporativos con IA.
             </p>
             
