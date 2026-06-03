@@ -1,31 +1,38 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { Calendar, Clock, Car, Plus } from "lucide-react";
-import "./Form_reserva.css"; // Estilos específicos del componente
+import { Calendar, Car, Clock, Plus } from "lucide-react";
+import "./form_reserva.css";
 
-// Registrar el hook oficial de GSAP
 gsap.registerPlugin(useGSAP);
 
-export default function FormularioReserva({ onSubmit, loading }) {
-  const formScopeRef = useRef(null);
+const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 
-  // Estado interno aislado para evitar re-renders en la vista padre
+const obtenerEtiquetaVehiculo = (vehiculo) => {
+  const marca = vehiculo?.marca?.nombre ?? vehiculo?.marca_nombre ?? vehiculo?.marca;
+  const modelo = vehiculo?.modelo?.nombre ?? vehiculo?.modelo_nombre ?? vehiculo?.modelo;
+  const patente = vehiculo?.patente ?? vehiculo?.placa ?? vehiculo?.matricula;
+  const nombre = [marca, modelo].filter(Boolean).join(" ").trim() || "Vehiculo";
+  return patente ? `${nombre} (${patente})` : nombre;
+};
+
+export default function FormularioReserva({ onSubmit, loading, vehiculos = [] }) {
+  const formScopeRef = useRef(null);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fecha: "",
     horaInicio: "",
     horaFin: "",
-    idVehiculo: ""
+    idVehiculo: "",
   });
 
-  // Animación premium de entrada optimizada por GPU
   useGSAP(() => {
     gsap.from(".animate-card-target", {
       opacity: 0,
       yPercent: 10,
       duration: 0.7,
       ease: "power3.out",
-      clearProps: "all" // Limpia los estilos inline al finalizar la animación
+      clearProps: "all",
     });
   }, { scope: formScopeRef });
 
@@ -36,22 +43,27 @@ export default function FormularioReserva({ onSubmit, loading }) {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    // Enviamos los datos limpios al manejador del padre
+
+    if (formData.horaInicio >= formData.horaFin) {
+      setError("La hora de fin debe ser posterior a la hora de inicio.");
+      return;
+    }
+
+    setError("");
     onSubmit({
       fecha: formData.fecha,
       horaInicio: formData.horaInicio,
       horaFin: formData.horaFin,
-      idVehiculo: parseInt(formData.idVehiculo, 10)
+      idVehiculo: parseInt(formData.idVehiculo, 10),
     });
   };
 
   return (
-    <form 
-      ref={formScopeRef} 
-      onSubmit={handleFormSubmit} 
+    <form
+      ref={formScopeRef}
+      onSubmit={handleFormSubmit}
       className="reserva-form-card animate-card-target"
     >
-      {/* Campo: Fecha de Reserva */}
       <div className="form-field-group">
         <label className="form-field-label" htmlFor="fecha">Fecha de Reserva</label>
         <div className="form-input-icon-wrapper">
@@ -68,9 +80,7 @@ export default function FormularioReserva({ onSubmit, loading }) {
         </div>
       </div>
 
-      {/* Fila de Horas (Inicio y Fin) */}
       <div className="form-time-fields-row">
-        {/* Hora Inicio */}
         <div className="form-field-group">
           <label className="form-field-label" htmlFor="horaInicio">Hora Inicio</label>
           <div className="form-input-icon-wrapper">
@@ -87,7 +97,6 @@ export default function FormularioReserva({ onSubmit, loading }) {
           </div>
         </div>
 
-        {/* Hora Fin */}
         <div className="form-field-group">
           <label className="form-field-label" htmlFor="horaFin">Hora Fin</label>
           <div className="form-input-icon-wrapper">
@@ -105,9 +114,8 @@ export default function FormularioReserva({ onSubmit, loading }) {
         </div>
       </div>
 
-      {/* Campo: Vehículo Select */}
       <div className="form-field-group">
-        <label className="form-field-label" htmlFor="idVehiculo">Vehículo</label>
+        <label className="form-field-label" htmlFor="idVehiculo">Vehiculo</label>
         <div className="form-input-icon-wrapper">
           <Car className="form-input-icon" size={18} />
           <select
@@ -118,18 +126,24 @@ export default function FormularioReserva({ onSubmit, loading }) {
             onChange={handleChange}
             required
           >
-            <option value="" disabled hidden>Seleccioná un vehículo</option>
-            <option value="1">Audi A4 (2841-LMN)</option>
-            <option value="2">Tesla Model 3 (9921-XYZ)</option>
+            <option value="" disabled hidden>Selecciona un vehiculo</option>
+            {vehiculos.map((vehiculo) => (
+              <option key={obtenerIdVehiculo(vehiculo)} value={obtenerIdVehiculo(vehiculo)}>
+                {obtenerEtiquetaVehiculo(vehiculo)}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
-      {/* Botón de acción principal */}
+      {error && <p className="form-error-message" role="alert">{error}</p>}
+
       <div className="form-submit-container">
-        <button type="submit" className="submit-reservation-button" disabled={loading}>
+        <button type="submit" className="submit-reservation-button" disabled={loading || vehiculos.length === 0}>
           <Plus size={18} />
-          <span>{loading ? "Procesando..." : "Confirmar reserva"}</span>
+          <span>
+            {loading ? "Procesando..." : vehiculos.length === 0 ? "Sin vehiculos disponibles" : "Confirmar reserva"}
+          </span>
         </button>
       </div>
     </form>

@@ -103,6 +103,13 @@
   padding-top: 6px;
 }
 
+.form-error-message {
+  margin: -6px 0 0;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .submit-reservation-button {
   display: flex;
   align-items: center;

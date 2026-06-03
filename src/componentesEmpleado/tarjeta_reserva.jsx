@@ -1,29 +1,27 @@
-import { useNavigate } from "react-router-dom";
 import "./tarjeta_reserva.css";
 
-function TarjetaReserva({ to = "/nueva_reserva" }) {
-  const navigate = useNavigate();
-
+function TarjetaReserva({ reserva }) {
   return (
     <section className="empleado-reservas-section">
       <button
         type="button"
         className="empleado-reserva-card"
-       // onClick={() => navigate("/historial_reservas")}
-        aria-label="Abrir detalle de reserva en Sede Central - Zona A"
+        aria-label={`Reserva en ${reserva.ubicacion}`}
       >
         <div className="empleado-reserva-plaza">
-          <strong>P12</strong>
-          <span>NIVEL 2</span>
+          <strong>{reserva.plaza}</strong>
+          <span>{reserva.nivel}</span>
         </div>
 
         <div className="empleado-reserva-info">
-          <h3>Sede Central - Zona A</h3>
-          <p>08:30 - 18:00 · Hoy</p>
+          <h3>{reserva.ubicacion}</h3>
+          <p>
+            {reserva.horario} - {reserva.fechaLabel}
+          </p>
         </div>
 
         <div className="empleado-reserva-icon" aria-hidden="true">
-          <span>→</span>
+          <span>{">"}</span>
         </div>
       </button>
     </section>
