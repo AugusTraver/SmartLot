@@ -7,6 +7,13 @@ import EditarZona from "./vistasAdmin/editar_zona";
 import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
 import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
+import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
+import GestionUsuarios from "./vistasSuperadmin/gestion_usuarios";
+import AgregarUsuario from "./vistasSuperadmin/agregar_usuario";
+import GestionEmpresas from "./vistasSuperadmin/gestion_empresas";
+import AgregarEmpresa from "./vistasSuperadmin/agregar_empresa";
+import GestionSedes from "./vistasSuperadmin/gestion_sedes";
+import AgregarSede from "./vistasSuperadmin/agregar_sede";
 import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
@@ -92,6 +99,43 @@ function AppRoutes() {
         <Route path="/editar_zona" element={
           <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
             <EditarZona />
+          </ProtectedRoute>
+        } />
+
+        {/* Rutas protegidas - Superadmin */}
+        <Route path="/superadmin_dashboard" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <SuperadminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/gestion_usuarios" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <GestionUsuarios />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/agregar_usuario" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <AgregarUsuario />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/gestion_empresas" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <GestionEmpresas />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/agregar_empresa" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <AgregarEmpresa />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/gestion_sedes" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <GestionSedes />
+          </ProtectedRoute>
+        } />
+        <Route path="/superadmin/agregar_sede" element={
+          <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+            <AgregarSede />
           </ProtectedRoute>
         } />
 

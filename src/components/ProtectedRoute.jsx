@@ -11,7 +11,7 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
       navigate('/login', { replace: true });
       return;
     }
-    if (!allowedRoles.includes(usuario.id_rol)) {
+    if (!allowedRoles.includes(usuario.id_rol) && Number(usuario.id_rol) !== 4) {
       if (!toastShown.current) {
         showToast('No tenés permisos para acceder a esta URL con tu rol.', 'warning');
         toastShown.current = true;
@@ -20,6 +20,7 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
         1: '/admin_dashboard',
         2: '/empleados_dashboard',
         3: '/garagista_dashboard',
+        4: '/superadmin_dashboard',
       };
       const ruta = rutas[Number(usuario.id_rol)] || '/';
       navigate(ruta, { replace: true });
@@ -27,6 +28,6 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
   }, [usuario, allowedRoles, navigate]);
 
   if (!usuario) return null;
-  if (!allowedRoles.includes(usuario.id_rol)) return null;
+  if (!allowedRoles.includes(usuario.id_rol) && Number(usuario.id_rol) !== 4) return null;
   return children;
 }

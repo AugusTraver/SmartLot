@@ -15,6 +15,7 @@ export default function Auth() {
       1: '/admin_dashboard',
       2: '/empleados_dashboard',
       3: '/garagista_dashboard',
+      4: '/superadmin_dashboard',
     };
     return <Navigate to={rutas[Number(usuario.id_rol)] || '/'} replace />;
   }

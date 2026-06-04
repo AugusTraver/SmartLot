@@ -1,0 +1,125 @@
+.agregar-empresa-page {
+  background-color: #f5f7fb;
+  min-height: 100vh;
+  font-family: "DM Sans", sans-serif;
+}
+
+.agregar-empresa-main {
+  padding: 20px 4%;
+  padding-bottom: 120px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.agregar-empresa-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.agregar-empresa-top .boton-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0F1A2E;
+  transition: all 0.2s;
+}
+
+.agregar-empresa-top .boton-back:hover {
+  background: #1A2744;
+  color: #ffffff;
+}
+
+.agregar-empresa-top p {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #F59E0B;
+  margin: 0 0 2px;
+}
+
+.agregar-empresa-top h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F1A2E;
+  margin: 0;
+}
+
+.agregar-empresa-form {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group-superadmin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group-superadmin label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.input-group-superadmin input,
+.input-group-superadmin textarea,
+.input-group-superadmin select {
+  padding: 12px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1E293B;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group-superadmin input:focus,
+.input-group-superadmin textarea:focus,
+.input-group-superadmin select:focus {
+  border-color: #F59E0B;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.input-group-superadmin textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.input-group-superadmin select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.form-error-superadmin {
+  color: #EF4444;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.agregar-empresa-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}

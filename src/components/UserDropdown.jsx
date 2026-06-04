@@ -11,6 +11,7 @@ const ROLE_LABELS = {
   1: 'Admin',
   2: 'Empleado',
   3: 'Garagista',
+  4: 'Superadmin',
 };
 
 const AVATAR_GRADIENTS = [

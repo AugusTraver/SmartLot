@@ -1,0 +1,741 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search,
+  UserPlus,
+  ArrowLeft,
+  ChevronDown,
+  X,
+  Archive,
+  RotateCcw,
+  Trash2,
+  MapPin,
+  Building2,
+  Car,
+  ShieldCheck,
+} from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import Swal from "sweetalert2";
+
+import "./gestion_usuarios.css";
+import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
+import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
+import BotonGenerico from "../componentesAdmin/boton_generico";
+import {
+  UsuariosGetAll,
+  UsuariosDelete,
+  UsuariosPatchEstado,
+} from "../servicies/API_Usuario";
+import { EmpresasGetAll } from "../servicies/API_Empresa";
+import { SedesGetAll } from "../servicies/API_Sede";
+import { GaragesGetAll } from "../servicies/API_Garage";
+
+gsap.registerPlugin(useGSAP);
+
+const obtenerListado = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
+  return [];
+};
+
+const ROLE_LABELS = {
+  1: "Admin",
+  2: "Empleado",
+  3: "Garagista",
+  4: "Superadmin",
+};
+
+const ROLE_CLASSES = {
+  1: "role-admin",
+  2: "role-empleado",
+  3: "role-garagista",
+  4: "role-superadmin",
+};
+
+const ROLE_ORDER = [1, 4, 2, 3];
+
+function UserCardSkeleton() {
+  return (
+    <div className="usuario-card-skeleton">
+      <div className="skeleton-usuario-header">
+        <span className="skeleton-line skeleton-usuario-avatar" />
+        <span className="skeleton-line skeleton-usuario-name" />
+      </div>
+      <div className="skeleton-usuario-body">
+        <span className="skeleton-line skeleton-usuario-email" />
+        <span className="skeleton-line skeleton-usuario-extra" />
+      </div>
+      <div className="skeleton-usuario-footer">
+        <span className="skeleton-line skeleton-usuario-status" />
+      </div>
+    </div>
+  );
+}
+
+const normalizarUsuario = (usuario, empresaMap, sedeMap, garageMap) => {
+  const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
+  const nombreEmpresa = empresaMap[Number(usuario.id_empresa)] || null;
+  const nombreSede = sedeMap[Number(usuario.id_sede)] || null;
+  const idGarage = usuario.id_garage;
+  const nombreGarage = idGarage ? garageMap[Number(idGarage)] || null : null;
+
+  return {
+    id,
+    nombre: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Usuario sin nombre",
+    email: usuario.email || "Sin email",
+    telefono: usuario.telefono || "",
+    id_rol: Number(usuario.id_rol),
+    role: ROLE_LABELS[Number(usuario.id_rol)] || "Desconocido",
+    empresa: nombreEmpresa,
+    sede: nombreSede,
+    garage: nombreGarage,
+    activo: usuario.activo !== false,
+  };
+};
+
+const GestionUsuarios = () => {
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
+
+  const [usuarios, setUsuarios] = useState([]);
+  const [empresaMap, setEmpresaMap] = useState({});
+  const [sedeMap, setSedeMap] = useState({});
+  const [garageMap, setGarageMap] = useState({});
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
+  const [selectedRol, setSelectedRol] = useState("");
+  const [selectedEmpresa, setSelectedEmpresa] = useState("");
+  const [selectedSede, setSelectedSede] = useState("");
+  const [selectedGarage, setSelectedGarage] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+
+  useEffect(() => {
+    setSelectedEmpresa("");
+    setSelectedSede("");
+    setSelectedGarage("");
+  }, [selectedRol]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const [usuRes, empRes, sedRes, garRes] = await Promise.all([
+          UsuariosGetAll(),
+          EmpresasGetAll(),
+          SedesGetAll(),
+          GaragesGetAll(),
+        ]);
+
+        if (!mounted) return;
+
+        if (!usuRes.respuesta) {
+          setError("No se pudieron cargar los usuarios.");
+          setLoading(false);
+          return;
+        }
+
+        const usuariosRaw = obtenerListado(usuRes.datos);
+        const empresas = empRes.respuesta ? obtenerListado(empRes.datos) : [];
+        const sedes = sedRes.respuesta ? obtenerListado(sedRes.datos) : [];
+        const garages = garRes.respuesta ? obtenerListado(garRes.datos) : [];
+
+        const eMap = Object.fromEntries(empresas.map((e) => [Number(e.id), e.nombre]));
+        const sMap = Object.fromEntries(sedes.map((s) => [Number(s.id), s.nombre]));
+        const gMap = {};
+        garages.forEach((g) => {
+          const id = g.id_garage ?? g.id ?? g._id;
+          if (id != null) gMap[Number(id)] = g.nombre || `Garage ${id}`;
+        });
+
+        setEmpresaMap(eMap);
+        setSedeMap(sMap);
+        setGarageMap(gMap);
+        setUsuarios(usuariosRaw.map((u) => normalizarUsuario(u, eMap, sMap, gMap)));
+      } catch (err) {
+        console.error("Error loading user data:", err);
+        setError("Ocurrió un error inesperado.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!showArchived) {
+      setSearchArchivedTerm("");
+      return;
+    }
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKey = (e) => {
+      if (e.key === "Escape") setShowArchived(false);
+    };
+    document.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [showArchived]);
+
+  const empresasDisponibles = useMemo(() => {
+    return Array.from(
+      new Set(
+        usuarios
+          .filter((u) => {
+            if (!selectedRol) return true;
+            return u.id_rol === Number(selectedRol);
+          })
+          .map((u) => u.empresa)
+          .filter(Boolean)
+      )
+    );
+  }, [usuarios, selectedRol]);
+
+  const sedesDisponibles = useMemo(() => {
+    return Array.from(
+      new Set(
+        usuarios
+          .filter((u) => {
+            if (!selectedRol) return true;
+            return u.id_rol === Number(selectedRol);
+          })
+          .map((u) => u.sede)
+          .filter(Boolean)
+      )
+    );
+  }, [usuarios, selectedRol]);
+
+  const garagesDisponibles = useMemo(() => {
+    return Array.from(
+      new Set(
+        usuarios
+          .filter((u) => u.id_rol === 3)
+          .map((u) => u.garage)
+          .filter(Boolean)
+      )
+    );
+  }, [usuarios]);
+
+  const usuariosFiltrados = useMemo(() => {
+    const query = searchTerm.toLowerCase().trim();
+
+    return usuarios.filter((u) => {
+      if (u.activo === false) return false;
+
+      const coincideBusqueda =
+        !query ||
+        u.nombre.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query);
+
+      const coincideRol = !selectedRol || u.id_rol === Number(selectedRol);
+
+      const coincideEmpresa = !selectedEmpresa || u.empresa === selectedEmpresa;
+
+      const coincideSede = !selectedSede || u.sede === selectedSede;
+
+      const coincideGarage = !selectedGarage || u.garage === selectedGarage;
+
+      return coincideBusqueda && coincideRol && coincideEmpresa && coincideSede && coincideGarage;
+    });
+  }, [searchTerm, selectedRol, selectedEmpresa, selectedSede, selectedGarage, usuarios]);
+
+  const usuariosArchivados = useMemo(() => {
+    const query = searchArchivedTerm.toLowerCase().trim();
+    return usuarios.filter((u) => {
+      if (u.activo !== false) return false;
+      if (!query) return true;
+      return (
+        u.nombre.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query)
+      );
+    });
+  }, [searchArchivedTerm, usuarios]);
+
+  const totalArchivados = useMemo(
+    () => usuarios.filter((u) => u.activo === false).length,
+    [usuarios]
+  );
+
+  const handleArchivar = async (id, nombre) => {
+    const result = await Swal.fire({
+      title: "Archivar a este usuario?",
+      text: `${nombre} quedará inactivo.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#2563EB",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, archivar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await UsuariosPatchEstado(id, false);
+      if (response.respuesta) {
+        gsap.to(`.usuario-card-id-${id}`, {
+          scale: 0.9,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.inOut",
+          onComplete: () => {
+            setUsuarios((prev) =>
+              prev.map((u) => (u.id === id ? { ...u, activo: false } : u))
+            );
+          },
+        });
+      } else {
+        Swal.fire("Error", "No se pudo archivar.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    }
+  };
+
+  const handleRestaurar = async (id, nombre) => {
+    try {
+      const response = await UsuariosPatchEstado(id, true);
+      if (response.respuesta) {
+        setUsuarios((prev) =>
+          prev.map((u) => (u.id === id ? { ...u, activo: true } : u))
+        );
+        Swal.fire({
+          title: "Restaurado",
+          text: `${nombre} ha sido restaurado.`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire("Error", "No se pudo restaurar.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    }
+  };
+
+  const handleEliminar = async (id, nombre) => {
+    const result = await Swal.fire({
+      title: "Eliminar permanentemente?",
+      text: `${nombre} será eliminado del sistema.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await UsuariosDelete(id);
+      if (response.respuesta) {
+        setUsuarios((prev) => prev.filter((u) => u.id !== id));
+        Swal.fire("Eliminado", "Usuario eliminado permanentemente.", "success");
+      } else {
+        Swal.fire("Error", "No se pudo eliminar.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    }
+  };
+
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
+      tl.from(".usuarios-animate-header", { y: 30, opacity: 0 }).from(
+        ".usuarios-animate-toolbar",
+        { y: 20, opacity: 0 },
+        "-=0.5"
+      );
+    },
+    { scope: containerRef }
+  );
+
+  useGSAP(() => {
+    if (usuariosFiltrados.length > 0) {
+      gsap.fromTo(
+        ".usuario-card",
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.04,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: "auto",
+        }
+      );
+    }
+  }, [usuariosFiltrados]);
+
+  useGSAP(() => {
+    if (showArchived) {
+      gsap.fromTo(
+        ".modal-archivados-overlay",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        ".modal-archivados-panel",
+        { y: 30, opacity: 0, scale: 0.97 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
+      );
+    }
+  }, [showArchived]);
+
+  return (
+    <div className="gestion-usuarios-page" ref={containerRef}>
+      <HeaderSuperadmin />
+
+      <main className="gestion-usuarios-main">
+        <header className="gestion-usuarios-header">
+          <div className="usuarios-header-left usuarios-animate-header">
+            <button className="boton-back" onClick={() => navigate("/superadmin_dashboard")}>
+              <ArrowLeft size={24} />
+            </button>
+            <div className="usuarios-titulos">
+              <h1>Gestión de Usuarios</h1>
+              <p>Administra todos los usuarios del sistema.</p>
+            </div>
+          </div>
+          <div className="usuarios-animate-header usuarios-header-actions">
+            <BotonGenerico
+              className="btn-archivados"
+              onClick={() => setShowArchived(true)}
+            >
+              <Archive size={20} />
+              <span>Archivados</span>
+              {totalArchivados > 0 && (
+                <span className="archivados-count-badge">{totalArchivados}</span>
+              )}
+            </BotonGenerico>
+
+            <BotonGenerico
+              className="btn-primario"
+              onClick={() => navigate("/superadmin/agregar_usuario")}
+            >
+              <UserPlus size={20} />
+              <span>Agregar usuario</span>
+            </BotonGenerico>
+          </div>
+        </header>
+
+        {loading ? (
+          <>
+            <div className="usuarios-toolbar-skeleton">
+              <div className="skeleton-search" />
+              <div className="skeleton-role-pills" />
+              <div className="skeleton-filters" />
+            </div>
+            <div className="usuarios-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <UserCardSkeleton key={i} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <section className="usuarios-toolbar usuarios-animate-toolbar">
+            <div className="usuarios-search">
+              <Search className="search-icon" size={20} />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, email o rol..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="usuarios-role-pills">
+              <button
+                className={`role-pill ${!selectedRol ? "active" : ""}`}
+                onClick={() => setSelectedRol("")}
+              >
+                Todos
+              </button>
+              {ROLE_ORDER.map((rid) => (
+                <button
+                  key={rid}
+                  className={`role-pill ${ROLE_CLASSES[rid]} ${Number(selectedRol) === rid ? "active" : ""}`}
+                  onClick={() => setSelectedRol(String(rid))}
+                >
+                  {ROLE_LABELS[rid]}
+                </button>
+              ))}
+            </div>
+
+            <div className="usuarios-filtros">
+              <div className="select-wrapper">
+                <select
+                  value={selectedEmpresa}
+                  onChange={(e) => {
+                    setSelectedEmpresa(e.target.value);
+                    setSelectedSede("");
+                  }}
+                >
+                  <option value="">Filtrar por empresa</option>
+                  {empresasDisponibles.map((emp) => (
+                    <option key={emp} value={emp}>
+                      {emp}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="chevron-select" />
+              </div>
+
+              <div className="select-wrapper">
+                <select
+                  value={selectedSede}
+                  onChange={(e) => setSelectedSede(e.target.value)}
+                >
+                  <option value="">Filtrar por sede</option>
+                  {sedesDisponibles.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="chevron-select" />
+              </div>
+
+              <div className="select-wrapper">
+                <select
+                  value={selectedGarage}
+                  onChange={(e) => setSelectedGarage(e.target.value)}
+                >
+                  <option value="">Filtrar por garage</option>
+                  {garagesDisponibles.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="chevron-select" />
+              </div>
+
+              {(selectedEmpresa || selectedSede || selectedGarage) && (
+                <button
+                  className="btn-limpiar-filtros"
+                  onClick={() => {
+                    setSelectedEmpresa("");
+                    setSelectedSede("");
+                    setSelectedGarage("");
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+          </section>
+        )}
+
+        {!loading && (
+          <div className="usuarios-grid">
+            {error && <div className="usuarios-feedback-error">{error}</div>}
+
+            {!error && usuariosFiltrados.length > 0
+              ? usuariosFiltrados.map((u) => (
+                  <article
+                    key={u.id}
+                    className={`usuario-card usuario-card-id-${u.id}`}
+                  >
+                    <div className="usuario-card-top">
+                      <div className="usuario-avatar">
+                        {u.nombre.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="usuario-info">
+                        <h3>{u.nombre}</h3>
+                        <span className={`usuario-role-badge ${ROLE_CLASSES[u.id_rol]}`}>
+                          <ShieldCheck size={12} />
+                          {u.role}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="usuario-card-body">
+                      <p className="usuario-email">{u.email}</p>
+                      {u.telefono && <p className="usuario-tel">{u.telefono}</p>}
+
+                      <div className="usuario-metas">
+                        {u.empresa && (
+                          <span className="usuario-meta">
+                            <Building2 size={13} />
+                            {u.empresa}
+                          </span>
+                        )}
+                        {u.sede && (
+                          <span className="usuario-meta">
+                            <MapPin size={13} />
+                            {u.sede}
+                          </span>
+                        )}
+                        {u.garage && (
+                          <span className="usuario-meta">
+                            <Car size={13} />
+                            {u.garage}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="usuario-card-footer">
+                      <div className="usuario-status">
+                        <div className="status-dot active"></div>
+                        <span>Activo</span>
+                      </div>
+
+                      {u.id_rol !== 4 && (
+                        <button
+                          className="usuario-archive-btn"
+                          onClick={() => handleArchivar(u.id, u.nombre)}
+                          aria-label={`Archivar a ${u.nombre}`}
+                        >
+                          <Archive size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                ))
+              : null}
+
+            {!error && usuariosFiltrados.length === 0 && (
+              <div className="usuarios-no-results">
+                {searchTerm ? (
+                  <p>No se encontraron resultados para "{searchTerm}"</p>
+                ) : (
+                  <p>No hay usuarios registrados en esta categoría.</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {showArchived && (
+        <div
+          className="modal-archivados-overlay"
+          onClick={() => setShowArchived(false)}
+        >
+          <div
+            className="modal-archivados-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-archivados-header">
+              <div className="modal-archivados-title-group">
+                <Archive size={24} />
+                <h2>Usuarios Archivados</h2>
+              </div>
+              <button
+                className="modal-archivados-close"
+                onClick={() => setShowArchived(false)}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="modal-archivados-search">
+              <div className="usuarios-search" style={{ width: "100%" }}>
+                <Search className="search-icon" size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar archivados..."
+                  value={searchArchivedTerm}
+                  onChange={(e) => setSearchArchivedTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="modal-archivados-body">
+              {totalArchivados === 0 ? (
+                <div className="empty-archivados">
+                  <Archive size={48} />
+                  <p className="empty-text">No hay usuarios archivados</p>
+                  <p className="empty-sub">
+                    Los usuarios que archives aparecerán aquí.
+                  </p>
+                </div>
+              ) : usuariosArchivados.length === 0 ? (
+                <div className="usuarios-no-results" style={{ padding: "40px 20px" }}>
+                  <p>No se encontraron archivados para "{searchArchivedTerm}"</p>
+                </div>
+              ) : (
+                usuariosArchivados.map((u) => (
+                  <article key={u.id} className="usuario-archivado-card">
+                    <div className="usuario-archivado-top">
+                      <div className="usuario-archivado-info">
+                        <div className="usuario-avatar">{u.nombre.charAt(0).toUpperCase()}</div>
+                        <div>
+                          <h3>{u.nombre}</h3>
+                          <span className={`usuario-role-badge ${ROLE_CLASSES[u.id_rol]}`}>
+                            <ShieldCheck size={12} />
+                            {u.role}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="badge-archivado">Archivado</span>
+                    </div>
+
+                    <p className="usuario-email">{u.email}</p>
+
+                    {u.empresa && (
+                      <p className="usuario-meta">
+                        <Building2 size={13} />
+                        {u.empresa}
+                      </p>
+                    )}
+
+                    <div className="usuario-archivado-actions">
+                      {u.id_rol !== 4 && (
+                        <>
+                          <BotonGenerico
+                            className="btn-restaurar"
+                            onClick={() => handleRestaurar(u.id, u.nombre)}
+                          >
+                            <RotateCcw size={16} />
+                            <span>Restaurar</span>
+                          </BotonGenerico>
+                          <BotonGenerico
+                            className="btn-eliminar-archivado"
+                            onClick={() => handleEliminar(u.id, u.nombre)}
+                          >
+                            <Trash2 size={16} />
+                          </BotonGenerico>
+                        </>
+                      )}
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <FooterSuperadmin />
+    </div>
+  );
+};
+
+export default GestionUsuarios;

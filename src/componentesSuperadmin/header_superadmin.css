@@ -1,0 +1,59 @@
+.header-superadmin {
+  height: 70px;
+  background: #0F1A2E;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-superadmin-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-superadmin-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 22px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.2s;
+}
+
+.header-superadmin-right:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.logo-superadmin img {
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  background: transparent;
+}
+
+.logo-superadmin {
+  width: 130px;
+  background: transparent;
+  border-color: transparent;
+}
+
+.header-superadmin-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  white-space: nowrap;
+}

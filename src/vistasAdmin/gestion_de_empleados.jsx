@@ -44,6 +44,7 @@ const obtenerRol = (idRol) => {
     1: "Admin",
     2: "Empleado",
     3: "Garagista",
+    4: "Superadmin",
   };
   return roles[Number(idRol)] || "Empleado";
 };
