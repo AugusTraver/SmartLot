@@ -1,3 +1,4 @@
+// src/components/UserDropdown.jsx
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
@@ -105,6 +106,20 @@ export default function UserDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  // LÓGICA DE DIRECCIONAMIENTO EXCLUSIVO:
+  // Cierra el panel de forma segura y empuja la URL registrada en App.jsx
+  const handleNavegacionPerfil = useCallback(() => {
+    setIsOpen(false);
+    
+    if (usuario?.id_rol === 2) {
+      // Apunta exactamente al string del 'path' configurado en tu archivo de rutas principal
+      navigate('/perfil_empleado');
+    } else {
+      // Fallback seguro por si un admin u otro rol interactúa con este botón
+      navigate('/empleados_dashboard');
+    }
+  }, [navigate, usuario]);
+
   const handleLogout = useCallback(async () => {
     setIsOpen(false);
 
@@ -200,10 +215,11 @@ export default function UserDropdown() {
           <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-brand-blue/10 to-transparent" />
 
           <div className="p-1.5">
+            {/* Vinculado al manejador dinámico por ruteo virtual */}
             <button
               role="menuitem"
               className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
-              onClick={() => setIsOpen(false)}
+              onClick={handleNavegacionPerfil}
             >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
                 <User size={14} />

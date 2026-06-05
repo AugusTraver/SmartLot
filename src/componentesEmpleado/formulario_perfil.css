@@ -1,0 +1,227 @@
+.perfilUsuario-Contenedor {
+  background-color: var(--sl-bg-main);
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+.perfilUsuario-contenido {
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Barra de Navegación Superior --- */
+.top-navigation-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.boton-back {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--sl-bg-card);
+  border: 1px solid var(--sl-border-color);
+  color: var(--sl-text-main);
+  cursor: pointer;
+  box-shadow: var(--sl-shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+}
+
+.boton-back:hover {
+  background-color: var(--sl-input-bg);
+}
+
+.boton-back:active {
+  transform: scale(0.94);
+}
+
+.textosTitulosPerfil {
+  display: flex;
+  flex-direction: column;
+}
+
+.textosTitulosPerfil h1 {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--sl-text-main);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.subtitulo-dinamico {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sl-text-muted);
+  margin: 0.25rem 0 0 0;
+}
+
+/* --- Estructura del Formulario --- */
+.perfil-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Tarjetas de Sección (Bento Style) --- */
+.formulario-seccion {
+  background-color: var(--sl-bg-card);
+  border-radius: 16px;
+  padding: 1.75rem;
+  border: 1px solid var(--sl-border-color);
+  box-shadow: var(--sl-shadow-md);
+  box-sizing: border-box;
+}
+
+/* Optimizaciones de Render para GSAP (Aceleración por GPU) */
+.animate-section,
+.animate-actions,
+.animate-back,
+.textosTitulosPerfil {
+  will-change: transform, opacity;
+}
+
+/* --- Grid de Inputs --- */
+.formulario-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+/* Responsive Breakpoint para Desktop */
+@media (min-width: 480px) {
+  .formulario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.formulario-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formulario-grupo label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sl-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Controles de Entrada (Inputs) --- */
+.formulario-input {
+  height: 48px;
+  background-color: var(--sl-input-bg);
+  border: 1px solid var(--sl-input-border);
+  border-radius: 12px;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--sl-text-main);
+  box-sizing: border-box;
+  transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.25s ease,
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.formulario-input::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.formulario-input:focus {
+  outline: none;
+  background-color: var(--sl-bg-card);
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.08);
+}
+
+/* Subtítulos internos personalizados */
+.formulario-subtitulo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--sl-text-main);
+  letter-spacing: -0.01em;
+}
+
+/* --- Badges de Estado (Vehículo) --- */
+.access-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.badge-dot.active {
+  background-color: var(--sl-accent-green);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.badge-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sl-text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* --- Botonera de Acciones del Panel --- */
+.action-buttons-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn-primary-action, 
+.btn-secondary-action {
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.1s ease;
+}
+
+.btn-primary-action {
+  background-color: var(--sl-accent-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+}
+
+.btn-primary-action:hover {
+  background-color: var(--sl-accent-blue-hover);
+}
+
+.btn-secondary-action {
+  background-color: var(--sl-button-secondary-bg);
+  color: var(--sl-button-secondary-text);
+}
+
+.btn-secondary-action:hover {
+  background-color: var(--sl-button-secondary-hover);
+}
+
+.btn-primary-action:active,
+.btn-secondary-action:active {
+  transform: scale(0.98);
+}
