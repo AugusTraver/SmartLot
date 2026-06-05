@@ -22,7 +22,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.footer-item {
+.footer-superadmin .footer-item {
   flex: 1;
   max-width: 150px;
   height: 60px;
@@ -35,17 +35,17 @@
   transition: all 0.25s ease;
 }
 
-.footer-item.active {
+.footer-superadmin .footer-item.active {
   background: rgba(245, 158, 11, 0.1);
 }
 
-.footer-item svg {
+.footer-superadmin .footer-item svg {
   color: rgba(255, 255, 255, 0.4);
   margin-bottom: 6px;
   transition: 0.2s;
 }
 
-.footer-item span {
+.footer-superadmin .footer-item span {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -53,16 +53,16 @@
   text-align: center;
 }
 
-.footer-item.active svg,
-.footer-item.active span {
+.footer-superadmin .footer-item.active svg,
+.footer-superadmin .footer-item.active span {
   color: #F59E0B;
 }
 
-.footer-item:hover {
+.footer-superadmin .footer-item:hover {
   transform: translateY(-2px);
 }
 
-.footer-item:hover svg {
+.footer-superadmin .footer-item:hover svg {
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -72,15 +72,15 @@
     border-radius: 26px;
   }
 
-  .footer-item {
+  .footer-superadmin .footer-item {
     height: 55px;
   }
 
-  .footer-item span {
+  .footer-superadmin .footer-item span {
     font-size: 12px;
   }
 
-  .footer-item svg {
+  .footer-superadmin .footer-item svg {
     width: 24px;
     height: 24px;
   }
@@ -95,17 +95,17 @@
     padding: 0 6px;
   }
 
-  .footer-item {
+  .footer-superadmin .footer-item {
     height: 50px;
     border-radius: 18px;
   }
 
-  .footer-item span {
+  .footer-superadmin .footer-item span {
     font-size: 10px;
     letter-spacing: 0.5px;
   }
 
-  .footer-item svg {
+  .footer-superadmin .footer-item svg {
     width: 20px;
     height: 20px;
     margin-bottom: 4px;
@@ -117,11 +117,11 @@
     height: 68px;
   }
 
-  .footer-item span {
+  .footer-superadmin .footer-item span {
     font-size: 9px;
   }
 
-  .footer-item svg {
+  .footer-superadmin .footer-item svg {
     width: 18px;
     height: 18px;
   }

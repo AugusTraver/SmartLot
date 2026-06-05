@@ -427,7 +427,7 @@
   line-height: 1.4;
 }
 
-.btn-primario {
+.gestion-usuarios-page .btn-primario {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
@@ -442,7 +442,7 @@
   transition: background 0.2s !important;
 }
 
-.btn-primario:hover {
+.gestion-usuarios-page .btn-primario:hover {
   background: #0F1A2E !important;
 }
 

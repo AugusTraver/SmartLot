@@ -1,22 +1,19 @@
 /* ESTILO BASE (Desktop) */
 .btn-primario {
-  /* Sobrescribimos el estilo base del botón genérico si es necesario */
   background-color: #1A73E8 !important;
-  border-radius: 14px !important;
-  height: 52px;
-  padding: 0 24px;
+  border-radius: 12px !important;
+  height: 42px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: white;
   font-weight: 600;
+  font-size: 14px;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
-   margin-top: 29%
-
-;
 }
 
 .btn-primario:hover {
@@ -43,11 +40,11 @@
 
   .btn-primario {
     width: 100% !important; 
-    height: 42px ; 
+    height: 40px; 
     justify-content: center;
-    border-radius: 14px !important;
-    font-size: 16px;
-    margin-top: 0%
+    border-radius: 12px !important;
+    font-size: 14px;
+    margin-top: 0;
   }
   
 
