@@ -1,0 +1,93 @@
+.footer-empleado {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: min(95%, 440px);
+  height: 74px;
+  padding: 0 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.footer-empleado .footer-item {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-empleado .footer-item svg {
+  width: 22px;
+  height: 22px;
+  color: currentColor;
+  flex: 0 0 auto;
+}
+
+.footer-empleado .footer-item span {
+  max-width: 100%;
+  overflow: hidden;
+  color: currentColor;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer-empleado .footer-item.active {
+  background: #edf2ff;
+  color: #2563eb;
+}
+
+.footer-empleado .footer-item:hover {
+  transform: translateY(-2px);
+}
+
+@media (min-width: 700px) {
+  .footer-empleado {
+    height: 82px;
+    width: min(90%, 560px);
+    border-radius: 28px;
+  }
+
+  .footer-empleado .footer-item {
+    height: 62px;
+  }
+
+  .footer-empleado .footer-item svg {
+    width: 25px;
+    height: 25px;
+  }
+
+  .footer-empleado .footer-item span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-empleado {
+    position: static;
+    transform: none;
+    width: min(95%, 440px);
+    margin: 0 auto 12px;
+  }
+}
