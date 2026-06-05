@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
 import Header from "../componentesAdmin/header_admin";
 import "./agregar_empleado.css"
@@ -10,6 +11,7 @@ import { UsuariosCreate } from "../servicies/API_Usuario";
 function AgregarGarajista() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { usuario } = useAuth();
   const garage = location.state?.garage;
   const garageId = Number(location.state?.id_garage ?? location.state?.garage?.id_garage ?? location.state?.garage?.id ?? location.state?.garage?.idGarage) || null;
 
@@ -103,7 +105,7 @@ function AgregarGarajista() {
       email: formData.email.trim(),
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
-      id_empresa: 1,
+      id_empresa: usuario?.id_empresa ?? 1,
       id_garage: garageId,
     };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import "./agregar_zona.css";
 import Header from "../componentesAdmin/header_admin";
 import { CirclePlus, ArrowLeft } from "lucide-react";
@@ -11,6 +12,7 @@ import { SedesGetAll } from "../servicies/API_Sede";
 
 function AgregarZona() {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
   
   // Eliminamos 'estado' de aquí, ya no lo maneja el usuario
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ function AgregarZona() {
     ubicacion: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
-    id_sede: ""
+    id_sede: usuario?.id_sede ?? ""
   });
   const [sedes, setSedes] = useState([]);
   const [sedesLoading, setSedesLoading] = useState(true);
@@ -32,11 +34,19 @@ function AgregarZona() {
       const response = await SedesGetAll();
 
       if (response.respuesta && Array.isArray(response.datos) && response.datos.length > 0) {
-        setSedes(response.datos);
-        setFormData((prev) => ({
-          ...prev,
-          id_sede: prev.id_sede || String(response.datos[0].id)
-        }));
+        const sedesFiltradas = response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+        setSedes(sedesFiltradas);
+        if (usuario?.id_sede) {
+          setFormData((prev) => ({
+            ...prev,
+            id_sede: String(usuario.id_sede)
+          }));
+        } else if (sedesFiltradas.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            id_sede: prev.id_sede || String(sedesFiltradas[0].id)
+          }));
+        }
       } else {
         setError("❌ No se encontraron sedes. Crea una sede antes de agregar un garage.");
       }
@@ -45,7 +55,7 @@ function AgregarZona() {
     };
 
     cargarSedes();
-  }, []);
+  }, [usuario]);
 
   const handleChange = (field, value) => {
     if (typeof field === "object" && field !== null) {

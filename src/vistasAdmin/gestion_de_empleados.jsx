@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import {
   Search,
   UserPlus,
@@ -169,6 +170,7 @@ const EmpleadosSkeletonGrid = () => (
 const GestionEmpleados = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const { usuario } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
@@ -211,11 +213,24 @@ const GestionEmpleados = () => {
           return;
         }
 
-        const usuarios = obtenerListadoUsuarios(responseUsuarios.datos);
+        const todosLosUsuarios = obtenerListadoUsuarios(responseUsuarios.datos);
         const vehiculos = responseVehiculos.respuesta ? obtenerListadoUsuarios(responseVehiculos.datos) : [];
         const modelos = responseModelos.respuesta ? obtenerListadoUsuarios(responseModelos.datos) : [];
-        const sedes = responseSedes.respuesta ? obtenerListadoUsuarios(responseSedes.datos) : [];
-        const garages = obtenerListadoUsuarios(responseGarages.datos);
+        const todasLasSedes = responseSedes.respuesta ? obtenerListadoUsuarios(responseSedes.datos) : [];
+        const todosLosGarages = obtenerListadoUsuarios(responseGarages.datos);
+
+        const usuarios = todosLosUsuarios.filter((u) => {
+          const idSede = u.id_sede ?? u.idSede;
+          const idRol = Number(u.id_rol);
+          return Number(idSede) === Number(usuario?.id_sede) && idRol !== 1 && idRol !== 4;
+        });
+
+        const sedes = todasLasSedes.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+
+        const garages = todosLosGarages.filter((g) => {
+          const idSede = g.id_sede ?? g.idSede;
+          return Number(idSede) === Number(usuario?.id_sede);
+        });
 
         const vehiculosPorUsuario = new Map(vehiculos.map((v) => [v.id_usuario, v]));
         const modeloNombrePorId = new Map(modelos.map((m) => [m.id, m.nombre]));

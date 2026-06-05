@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import { ArrowLeft, CirclePlus, MapPinned, BarChart3 } from "lucide-react";
 import "./gestion_garages.css";
 import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
@@ -112,6 +113,7 @@ const GarageActionSkeleton = () => (
 
 function GestionGarages() {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
   const [garages, setGarages] = useState([]); // Estado para almacenar la lista de garages
   const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
   const [error, setError] = useState("");
@@ -128,7 +130,12 @@ function GestionGarages() {
       if (!estaMontado) return;
 
       if (response.respuesta) {    // si la repuesta es positiva, se obtiene la lista de garages y se actualiza el estado
-        setGarages(obtenerListadoGarages(response.datos));
+        const todosLosGarages = obtenerListadoGarages(response.datos);
+        const garagesDeSede = todosLosGarages.filter((g) => {
+          const idSede = g.id_sede ?? g.idSede;
+          return Number(idSede) === Number(usuario?.id_sede);
+        });
+        setGarages(garagesDeSede);
       } else {
         setError("No se pudieron cargar los garages.");
       }

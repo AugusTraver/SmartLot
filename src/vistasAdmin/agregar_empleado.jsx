@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
 import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
 import Header from "../componentesAdmin/header_admin";
@@ -21,6 +22,7 @@ const obtenerListado = (datos) => {
 
 function AgregarEmpleado() {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -28,8 +30,8 @@ function AgregarEmpleado() {
     email: '',
     telefono: '',
     contraseña: '',
-    id_sede: '',
-    id_empresa: 1,
+    id_sede: usuario?.id_sede ?? '',
+    id_empresa: usuario?.id_empresa ?? 1,
     patente: '',
     id_modelo: null
   });
@@ -48,11 +50,20 @@ function AgregarEmpleado() {
         setModelos(obtenerListado(modelosRes.datos));
       }
       if (sedesRes.respuesta) {
-        setSedes(obtenerListado(sedesRes.datos));
+        const todas = obtenerListado(sedesRes.datos);
+        const sedeAdmin = todas.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+        setSedes(sedeAdmin);
+        if (usuario?.id_sede) {
+          setFormData((prev) => ({
+            ...prev,
+            id_sede: Number(usuario.id_sede),
+            id_empresa: Number(usuario.id_empresa) || 1,
+          }));
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [usuario]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -203,20 +214,21 @@ function AgregarEmpleado() {
       </div>
       
       <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
-        <FormularioInfoPersonal
-          infoPersonalTitulo="Información Personal"
-          labels={{
-            nombre: 'Nombre',
-            apellido: 'Apellido',
-            email: 'Correo electrónico',
-            telefono: 'Número de teléfono',
-            contraseña: 'Contraseña',
-            sede: 'Sede',
-          }}
-          formData={formData}
-          onChange={handleChange}
-          sedes={sedes}
-        />
+          <FormularioInfoPersonal
+            infoPersonalTitulo="Información Personal"
+            labels={{
+              nombre: 'Nombre',
+              apellido: 'Apellido',
+              email: 'Correo electrónico',
+              telefono: 'Número de teléfono',
+              contraseña: 'Contraseña',
+              sede: 'Sede',
+            }}
+            formData={formData}
+            onChange={handleChange}
+            sedes={sedes}
+            isSedeDisabled={true}
+          />
 
        
         {error && <p className="form-error">{error}</p>}
