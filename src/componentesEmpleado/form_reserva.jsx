@@ -17,12 +17,19 @@ const obtenerEtiquetaVehiculo = (vehiculo) => {
 
 export default function FormularioReserva({ onSubmit, loading, vehiculos = [] }) {
   const formScopeRef = useRef(null);
+  const preferencias = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
+    } catch {
+      return {};
+    }
+  })();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fecha: "",
-    horaInicio: "",
-    horaFin: "",
-    idVehiculo: "",
+    horaInicio: preferencias.horaInicio || "",
+    horaFin: preferencias.horaFin || "",
+    idVehiculo: preferencias.vehiculoPredeterminado || "",
   });
 
   // Animación de entrada premium optimizada para la GPU

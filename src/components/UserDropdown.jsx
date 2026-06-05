@@ -1,6 +1,6 @@
 // src/components/UserDropdown.jsx
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Swal from 'sweetalert2';
@@ -42,6 +42,7 @@ function getInitial(name) {
 export default function UserDropdown() {
   const { usuario, setUsuario } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const panelRef = useRef(null);
@@ -230,7 +231,13 @@ export default function UserDropdown() {
             <button
               role="menuitem"
               className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                navigate(
+                  usuario?.id_rol === 2 ? '/configuracion_empleado' : '/empleados_dashboard',
+                  { state: { from: location.pathname } }
+                );
+              }}
             >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
                 <Settings size={14} />

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
 import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
-import "./perfil_empleado.css"
+import "../componentesEmpleado/formulario_perfil.css";
 // Registro obligatorio del ciclo de vida de animación para React
 gsap.registerPlugin(useGSAP);
 
