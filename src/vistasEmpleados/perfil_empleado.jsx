@@ -4,18 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
-// Hooks y Contextos de SmartLot
-import { useAuth } from "../contexts/useAuth";
-
-// IMPORTACIONES CORREGIDAS AL 100% (Alineadas con la firma real de tus archivos)
-import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
-import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
-
-// Estilos unificados del módulo de empleado
-import "../componentesEmpleado/formulario_perfilPersonal.css";
-
-// Registro obligatorio del motor de animación
+import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
+import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
+import "./perfil_empleado.css"
+// Registro obligatorio del ciclo de vida de animación para React
 gsap.registerPlugin(useGSAP);
 
 const esNombreGenerico = (nombre) => {

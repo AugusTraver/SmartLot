@@ -37,8 +37,8 @@ function FooterEmpleado() {
       <FooterBottonEmpleado
         titulo="PERFIL"
         icono={<UserRound size={28} />}
-        onClick={() => navigate("/perfil")}
-        isActive={isPathActive("/perfil")}
+        onClick={() => navigate("/perfil_empleado")}
+        isActive={isPathActive("/perfil_empleado")}
       />
     </footer>
   );

@@ -1,9 +1,25 @@
 import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "../componentesAdmin/header_admin.css";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UserDropdown from "../components/UserDropdown";
+
+const aplicarTemaEmpleado = () => {
+  try {
+    const config = JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
+    document.documentElement.dataset.empleadoTheme = config.tema === "oscuro" ? "oscuro" : "claro";
+  } catch {
+    document.documentElement.dataset.empleadoTheme = "claro";
+  }
+};
+
 function HeaderEmpleado() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    aplicarTemaEmpleado();
+  }, []);
+
   return (
 
     <div className="header">
