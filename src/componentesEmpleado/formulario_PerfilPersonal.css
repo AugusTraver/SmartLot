@@ -1,3 +1,29 @@
+/* ==========================================================================
+   SMARTLOT DESIGN SYSTEM - CONFIGURACIÓN DEL PERFIL DE EMPLEADO (FIEL A LA UI)
+   ========================================================================== */
+
+:root {
+  /* Paleta Cromática SaaS Base */
+  --sl-bg-main: #f8fafc;
+  --sl-bg-card: #ffffff;
+  --sl-text-main: #0f172a;
+  --sl-text-muted: #64748b;
+  --sl-accent-blue: #3b82f6;
+  --sl-accent-blue-hover: #2563eb;
+  --sl-accent-green: #10b981;
+  --sl-border-color: #f1f5f9;
+  --sl-input-bg: #f8fafc;
+  --sl-input-border: #e2e8f0;
+  --sl-button-secondary-bg: #e2e8f0;
+  --sl-button-secondary-text: #475569;
+  --sl-button-secondary-hover: #cbd5e1;
+
+  /* Sombras Bento */
+  --sl-shadow-sm: 0 2px 6px rgba(59, 130, 246, 0.04);
+  --sl-shadow-md: 0 4px 18px rgba(15, 23, 42, 0.03);
+}
+
+/* --- Contenedor Estructural de la Vista --- */
 .perfilUsuario-Contenedor {
   background-color: var(--sl-bg-main);
   min-height: 100vh;
@@ -13,7 +39,7 @@
   flex-direction: column;
 }
 
-/* --- Barra de Navegación Superior --- */
+/* --- Barra Superior de Navegación --- */
 .top-navigation-bar {
   display: flex;
   align-items: center;
@@ -64,14 +90,14 @@
   margin: 0.25rem 0 0 0;
 }
 
-/* --- Estructura del Formulario --- */
+/* --- Wrapper del Formulario --- */
 .perfil-form-wrapper {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* --- Tarjetas de Sección (Bento Style) --- */
+/* --- Tarjetas Bento (Secciones de Formularios) --- */
 .formulario-seccion {
   background-color: var(--sl-bg-card);
   border-radius: 16px;
@@ -81,25 +107,31 @@
   box-sizing: border-box;
 }
 
-/* Optimizaciones de Render para GSAP (Aceleración por GPU) */
+/* Aceleración por GPU para animaciones de GSAP */
 .animate-section,
-.animate-actions,
+.action-buttons-group,
 .animate-back,
 .textosTitulosPerfil {
   will-change: transform, opacity;
 }
 
-/* --- Grid de Inputs --- */
+/* --- Grilla Vertical Fiel a la Imagen --- */
 .formulario-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* Estricto una sola columna contenedora */
   gap: 1.25rem;
 }
 
-/* Responsive Breakpoint para Desktop */
-@media (min-width: 480px) {
-  .formulario-grid {
-    grid-template-columns: repeat(2, 1fr);
+/* --- Fila Especial para Nombre y Apellido Compartido --- */
+.formulario-fila-doble {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columnas paralelas exactas en escritorio */
+  gap: 1.25rem;
+}
+
+@media (max-width: 440px) {
+  .formulario-fila-doble {
+    grid-template-columns: 1fr; /* Se colapsa uno abajo del otro en pantallas muy chicas */
   }
 }
 
@@ -115,11 +147,13 @@
   color: var(--sl-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  text-align: left;
 }
 
-/* --- Controles de Entrada (Inputs) --- */
+/* --- Controles de Entrada Corregidos (100% del Ancho) --- */
 .formulario-input {
   height: 48px;
+  width: 100%; /* CORREGIDO: Se elimina el 80% defectuoso para ocupar toda la tarjeta simétricamente */
   background-color: var(--sl-input-bg);
   border: 1px solid var(--sl-input-border);
   border-radius: 12px;
@@ -134,7 +168,7 @@
 }
 
 .formulario-input::placeholder {
-  color: #a0aec0;
+  color: #cbd5e1;
   font-weight: 400;
 }
 
@@ -142,10 +176,9 @@
   outline: none;
   background-color: var(--sl-bg-card);
   border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.08);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
 }
 
-/* Subtítulos internos personalizados */
 .formulario-subtitulo {
   font-size: 1.125rem;
   font-weight: 600;
@@ -153,7 +186,7 @@
   letter-spacing: -0.01em;
 }
 
-/* --- Badges de Estado (Vehículo) --- */
+/* --- Badges de Estado --- */
 .access-status-badge {
   display: flex;
   align-items: center;
@@ -178,7 +211,7 @@
   letter-spacing: 0.03em;
 }
 
-/* --- Botonera de Acciones del Panel --- */
+/* --- Botonera de Acciones --- */
 .action-buttons-group {
   display: flex;
   flex-direction: column;
@@ -205,7 +238,7 @@
 .btn-primary-action {
   background-color: var(--sl-accent-blue);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .btn-primary-action:hover {

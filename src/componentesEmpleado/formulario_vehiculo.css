@@ -1,0 +1,101 @@
+/* ==========================================================================
+   SMARTLOT DESIGN SYSTEM - DETALLES DEL VEHÍCULO (BENTO COMPONENT)
+   ========================================================================== */
+
+/* --- Contenedor de la Tarjeta del Vehículo --- */
+.vehiculo-card-seccion {
+  background-color: var(--sl-bg-card, #ffffff);
+  border-radius: 16px;
+  padding: 1.75rem;
+  border: 1px solid var(--sl-border-color, #f1f5f9);
+  box-shadow: var(--sl-shadow-md);
+  box-sizing: border-box;
+}
+
+/* --- Grilla Horizontal de Inputs (Fiel a la captura) --- */
+.formulario-grid-vehiculo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dos columnas perfectas en paralelo */
+  gap: 1.25rem; /* Separación rítmica unificada */
+  margin-bottom: 0.5rem;
+}
+
+/* Adaptación responsiva elástica para dispositivos móviles angostos */
+@media (max-width: 480px) {
+  .formulario-grid-vehiculo {
+    grid-template-columns: 1fr; /* Pasa a un solo renglón si no hay espacio */
+  }
+}
+
+/* --- Variación de Inputs con Placeholder Flotante o Interno --- */
+.vehiculo-input-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vehiculo-input-grupo label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #3a475e; /* Tonalidad plata/azulada oscura de la captura */
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* --- Badge Inferior de Estado (Permiso Activo) --- */
+.access-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--sl-border-color, #f1f5f9); /* Separador sutil */
+}
+
+.badge-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+
+.badge-dot.active {
+  background-color: var(--sl-accent-green, #10b981);
+}
+
+/* Animación por GPU para el pulso del indicador activo (Sin alterar el Layout) */
+.badge-dot.active::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--sl-accent-green, #10b981);
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0.4;
+  animation: pulse-gpu 2s infinite cubic-bezier(0.24, 0, 0.38, 1);
+  will-change: transform, opacity; /* Aislamiento de capa en la GPU */
+}
+
+.badge-text {
+  font-size: 0.813rem;
+  font-weight: 700;
+  color: #4a5568; /* Contraste óptimo contra el fondo slate */
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- Definición de la Animación de Alto Rendimiento --- */
+@keyframes pulse-gpu {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}

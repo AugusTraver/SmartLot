@@ -1,51 +1,92 @@
-// src/componentesAdmin/formulario_detallesVehiculo.jsx
+// src/componentesEmpleado/formulario_info_personal.jsx
 import React from "react";
-import { Car } from "lucide-react";
-import "./formulario_perfil.css"
-
-export default function FormularioDetallesVehiculo({ data = {}, onChange }) {
+import { User } from "lucide-react";
+import "./formulario_PerfilPersonal.css"
+export default function FormularioInfoPersonal({ data = {}, onChange }) {
   return (
-    <section className="formulario-seccion animate-section">
+    <fieldset 
+      className="formulario-seccion animate-section" 
+      style={{ border: "none", padding: 0, margin: 0 }}
+    >
+      {/* Accesibilidad de alto estándar para lectores de pantalla */}
+      <legend className="sr-only" style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", border: 0 }}>
+        Formulario de Información Personal del Empleado
+      </legend>
+
+      {/* Encabezado con Icono Premium (Sintaxis corregida) */}
       <div className="form-card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#f0fdf4", borderRadius: "10px", display: "flex", alignItems: "center", justify: "center" }}>
-          <Car size={20} style={{ color: "#10b981" }} />
+        <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#eff6ff", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <User size={20} style={{ color: "#3b82f6" }} />
         </div>
-        <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>Detalles del Vehículo</h3>
+        <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
+          Información Personal
+        </h3>
       </div>
 
+      {/* Contenedor principal vertical */}
       <div className="formulario-grid">
+        
+        {/* Fila unificada: Nombre y Apellido */}
+        <div className="formulario-fila-doble">
+          <div className="formulario-grupo">
+            <label htmlFor="nombre">Nombre</label>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              className="formulario-input"
+              value={data.nombre || ""}
+              onChange={onChange}
+              placeholder="Ej. Juan"
+              autoComplete="given-name"
+            />
+          </div>
+
+          <div className="formulario-grupo">
+            <label htmlFor="apellido">Apellido</label>
+            <input
+              type="text"
+              id="apellido"
+              name="apellido"
+              className="formulario-input"
+              value={data.apellido || ""}
+              onChange={onChange}
+              placeholder="Ej. Pérez"
+              autoComplete="family-name"
+            />
+          </div>
+        </div>
+
+
         <div className="formulario-grupo">
-          <label htmlFor="modelo">Modelo del Vehículo</label>
+          <label htmlFor="email">Correo Electrónico</label>
           <input
-            type="text"
-            id="modelo"
-            name="modelo"
+            type="email"
+            id="email"
+            name="email"
             className="formulario-input"
-            value={data.modelo || ""}
+            value={data.email || ""}
             onChange={onChange}
-            placeholder="Ej. Toyota Corolla"
+            placeholder="juan.perez@empresa.com"
+            autoComplete="email"
           />
         </div>
 
         <div className="formulario-grupo">
-          <label htmlFor="patente">Matrícula / Patente</label>
+          <label htmlFor="telefono">Teléfono</label>
           <input
-            type="text"
-            id="patente"
-            name="patente"
+            type="tel"
+            id="telefono"
+            name="telefono"
             className="formulario-input"
-            value={data.patente || ""}
+            value={data.telefono || ""}
             onChange={onChange}
-            placeholder="Ej. ABC 123 ó AA 123 BB"
+            placeholder="Ej. +54 11 2345 6789"
+            autoComplete="tel"
+            inputMode="tel" 
           />
         </div>
       </div>
-
-      {/* Badge de estado premium adaptado a la estética de SmartLot */}
-      <div className="access-status-badge" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "1.5rem", paddingTop: "1.25rem", borderTop: "1px solid #f0f0f0" }}>
-        <span className="badge-dot active" style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10b981" }}></span>
-        <span className="badge-text" style={{ fontSize: "0.75rem", fontWeight: "700", color: "#64748b", letterSpacing: "0.02em" }}>PERMISO DE ACCESO ACTIVO</span>
-      </div>
-    </section>
+    </fieldset>
   );
 }
