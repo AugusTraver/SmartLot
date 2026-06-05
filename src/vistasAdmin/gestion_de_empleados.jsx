@@ -219,10 +219,21 @@ const GestionEmpleados = () => {
         const todasLasSedes = responseSedes.respuesta ? obtenerListadoUsuarios(responseSedes.datos) : [];
         const todosLosGarages = obtenerListadoUsuarios(responseGarages.datos);
 
+        const garagesDeSedeIds = new Set(
+          todosLosGarages
+            .filter((g) => Number(g.id_sede ?? g.idSede) === Number(usuario?.id_sede))
+            .map((g) => Number(g.id_garage ?? g.idGarage ?? g.id ?? g._id))
+        );
+
         const usuarios = todosLosUsuarios.filter((u) => {
           const idSede = u.id_sede ?? u.idSede;
           const idRol = Number(u.id_rol);
-          return Number(idSede) === Number(usuario?.id_sede) && idRol !== 1 && idRol !== 4;
+          if (idRol === 1 || idRol === 4) return false;
+          if (idRol === 3) {
+            const idGarage = Number(obtenerIdGarageUsuario(u));
+            return !isNaN(idGarage) && garagesDeSedeIds.has(idGarage);
+          }
+          return Number(idSede) === Number(usuario?.id_sede);
         });
 
         const sedes = todasLasSedes.filter((s) => Number(s.id) === Number(usuario?.id_sede));
@@ -263,11 +274,17 @@ const GestionEmpleados = () => {
         if (!estaMontado) return;
 
         const garagesPorUsuario = new Map();
+        const idsUsuariosEnLista = new Set(usuarios.map((u) => Number(obtenerIdUsuario(u))));
         garagistasPorGarage.forEach(({ idGarage, usuarios: usuariosGarage }) => {
           usuariosGarage.forEach((usuarioGarage) => {
             const idUsuario = obtenerIdUsuario(usuarioGarage);
             if (idUsuario !== undefined && idUsuario !== null) {
-              garagesPorUsuario.set(Number(idUsuario), idGarage);
+              const idNum = Number(idUsuario);
+              garagesPorUsuario.set(idNum, idGarage);
+              if (!idsUsuariosEnLista.has(idNum)) {
+                idsUsuariosEnLista.add(idNum);
+                usuarios.push(usuarioGarage);
+              }
             }
           });
         });
