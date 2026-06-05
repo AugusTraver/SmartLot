@@ -4,76 +4,59 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
-import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
-import "./perfil_empleado.css"
-// Registro obligatorio del ciclo de vida de animación para React
+import Swal from "sweetalert2";
+
+// Contexto Global de Autenticación
+import { useAuth } from "../contexts/useAuth";
+import apiClient from "../servicies/apiClient";
+
+// Importación de submódulos
+import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
+import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
+
+import "../componentesEmpleado/formulario_PerfilPersonal.css";
+
 gsap.registerPlugin(useGSAP);
-
-const esNombreGenerico = (nombre) => {
-  const genericos = ["user", "usuario", "admin", "empleado"];
-  return genericos.includes(nombre?.toLowerCase().trim());
-};
-
-const obtenerNombreUsuario = (usuario) => {
-  const nombre = esNombreGenerico(usuario?.nombre) ? "" : usuario?.nombre;
-  const nombreCompleto = [nombre, usuario?.apellido].filter(Boolean).join(" ").trim();
-  
-  return (
-    nombreCompleto ||
-    usuario?.nombre_usuario ||
-    usuario?.nombreUsuario ||
-    usuario?.username ||
-    usuario?.email?.split("@")[0] ||
-    "Empleado"
-  );
-};
 
 export default function PerfilEmpleado() {
   const navigate = useNavigate();
   const mainScopeRef = useRef(null);
   
-  // Consumimos el estado global real de la sesión
-  const { usuario, loading } = useAuth();
+  // Extraemos los datos de sesión y el mutador global de estado
+  const { usuario, setUsuario, loading } = useAuth();
 
-  // Estado local blindado contra nulos
-  const [empleadoData, setEmpleadoData] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    telefono: "",
-    modelo: "",
-    patente: ""
-  });
+  // Estados locales independientes
+  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
+  const [vehiculoData, setVehiculoData] = useState({ modelo: "", patente: "" });
+  const [guardando, setGuardando] = useState(false);
 
-  // Sincronización segura de los datos una vez que la API responde
+  // Sincronización robusta con la sesión del empleado
   useEffect(() => {
     if (usuario) {
-      setEmpleadoData({
+      setPersonalData({
         nombre: usuario.nombre || "",
         apellido: usuario.apellido || "",
         email: usuario.email || "",
-        telefono: usuario.telefono || "",
-        // Soporte tanto para campos planos como anidados de la base de datos de SmartLot
-        modelo: usuario.modelo || usuario.vehiculo?.modelo || "",
-        patente: usuario.patente || usuario.vehiculo?.patente || ""
+        telefono: usuario.telefono || ""
+      });
+
+      // Mapeo seguro si el vehículo viene anidado en el objeto de sesión de SmartLot
+      setVehiculoData({
+        modelo: usuario.vehiculo?.modelo || usuario.modelo || "",
+        patente: usuario.vehiculo?.patente || usuario.patente || ""
       });
     }
   }, [usuario]);
 
-  // Memoización premium para evitar lag en el re-render de inputs
-  const nombreIdentificador = useMemo(() => obtenerNombreUsuario(empleadoData), [empleadoData]);
-
-  // Handler genérico reactivo
-  const handleInputChange = (e) => {
+  // Handler reactivo exclusivo para las propiedades del vehículo mutables
+  const handleVehiculoChange = (e) => {
     const { name, value } = e.target;
-    setEmpleadoData((prev) => ({ ...prev, [name]: value }));
+    setVehiculoData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Orquestación secuencial de GSAP con salvaguarda para estados de carga asíncronos
+  // Orquestación limpia de animaciones GSAP
   useGSAP(() => {
-    if (loading || !usuario) return; // Evitamos capturar selectores inexistentes durante la carga
-
+    if (loading || !usuario) return;
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
     tl.fromTo(".animate-back", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4 })
@@ -82,13 +65,90 @@ export default function PerfilEmpleado() {
       .fromTo(".action-buttons-group", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
   }, { dependencies: [loading, usuario], scope: mainScopeRef });
 
-  const handleGuardarCambios = (e) => {
+  // Lógica Funcional: Persistir o Actualizar el Auto en la BD mediante API
+  const handleGuardarCambios = async (e) => {
     e.preventDefault();
-    console.log("Payload unificado enviado a SmartLot API (Node/MySQL):", empleadoData);
-    // Aquí puedes meter tu llamada asíncrona mediante tu apiClient.put o post
+    if (guardando) return;
+    setGuardando(true);
+
+    try {
+      let response;
+      const tieneVehiculoPrevio = usuario?.id_vehiculo || usuario?.vehiculo?.id;
+
+      if (tieneVehiculoPrevio) {
+        // RUTA 1: Actualización (PUT) si el empleado ya tenía un coche registrado
+        const idVehiculo = usuario.id_vehiculo || usuario.vehiculo.id;
+        response = await apiClient.put(`/api/vehiculo/${idVehiculo}`, {
+          modelo: vehiculoData.modelo,
+          patente: vehiculoData.patente
+        });
+      } else {
+        // RUTA 2: Creación (POST) si es un vehículo completamente nuevo para el usuario
+        response = await apiClient.post('/api/vehiculo', {
+          modelo: vehiculoData.modelo,
+          patente: vehiculoData.patente,
+          id_usuario: usuario.id // Asociamos al id del empleado autenticado
+        });
+      }
+
+      // Sincronizamos el estado global de la sesión con los datos nuevos
+      const vehiculoActualizado = response.data?.vehiculo || { 
+        id: tieneVehiculoPrevio || response.data?.id,
+        modelo: vehiculoData.modelo, 
+        patente: vehiculoData.patente 
+      };
+
+      setUsuario((prev) => ({
+        ...prev,
+        id_vehiculo: vehiculoActualizado.id,
+        vehiculo: vehiculoActualizado
+      }));
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Vehículo guardado correctamente',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
+
+    } catch (error) {
+      console.error("Error al guardar el vehículo:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de sincronización',
+        text: error.response?.data?.message || 'No se pudo conectar con el servidor de SmartLot.',
+        confirmButtonColor: '#3b82f6'
+      });
+    } finally {
+      setGuardando(false);
+    }
   };
 
-  // Render condicional ergonómico para evitar que la UI destelle vacía
+  // Cierre de sesión asíncrono y seguro integrado al Contexto de tu Dropdown
+  const handleCerrarSesion = async () => {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cerrando sesión de forma segura...',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+
+    try {
+      await apiClient.post('/api/usuario/logout');
+    } catch (err) {
+      // Forzamos salida local aunque el endpoint del servidor falle o expire
+    }
+
+    setUsuario(null);
+    navigate('/login', { replace: true });
+  };
+
   if (loading) {
     return (
       <div className="perfilUsuario-Contenedor" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -107,7 +167,7 @@ export default function PerfilEmpleado() {
             <button
               className="boton-back"
               onClick={() => navigate("/empleados_dashboard")}
-              aria-label="Volver al panel principal"
+              aria-label="Volver al panel"
               type="button"
             >
               <ArrowLeft size={20} />
@@ -115,30 +175,42 @@ export default function PerfilEmpleado() {
           </div>
           
           <header className="textosTitulosPerfil">
-            <h1>Perfil de Empleado</h1>
-            <p className="subtitulo-dinamico">Gestionando a: {nombreIdentificador}</p>
+            <h1>Mi Perfil</h1>
+            <p className="subtitulo-dinamico">
+              Sesión activa: {personalData.nombre} {personalData.apellido}
+            </p>
           </header>
         </div>
 
-        {/* Formulario unificado */}
+        {/* Formulario Maestro */}
         <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
           
-          {/* Subcomponentes puros modulares independientes */}
-          <FormularioInfoPersonal data={empleadoData} onChange={handleInputChange} />
+          {/* Subcomponente Puro (Muestra los datos fijos de lectura) */}
+          <FormularioInfoPersonal data={personalData} />
           
-          <FormularioDetallesVehiculo data={empleadoData} onChange={handleInputChange} />
+          {/* Subcomponente Mutable (Modifica o añade el Auto) */}
+          <FormularioDetallesVehiculo 
+            vehiculoData={vehiculoData} 
+            onChange={handleVehiculoChange} 
+          />
 
           {/* Botonera Premium integrada */}
           <div className="action-buttons-group">
-            <button type="submit" className="btn-primary-action">
+            <button 
+              type="submit" 
+              className="btn-primary-action"
+              disabled={guardando}
+              style={{ opacity: guardando ? 0.7 : 1 }}
+            >
               <Save size={18} />
-              <span>Guardar Cambios</span>
+              <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
             </button>
 
             <button 
               type="button" 
               className="btn-secondary-action" 
-              onClick={() => navigate("/logout")}
+              onClick={handleCerrarSesion}
+              style={{ color: '#e11d48', backgroundColor: '#fff1f2' }} // Rojo premium para logout visual claro
             >
               <LogOut size={18} />
               <span>Cerrar Sesión</span>
