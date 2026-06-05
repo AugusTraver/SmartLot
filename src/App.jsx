@@ -26,7 +26,7 @@ import Auth from "./vistasLanding/Auth";
 // Vistas de Empleados (Conexión corregida del perfil de empleado)
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
-import PerfilEmpleado from "./vistasEmpleados/perfil_empelado"; // RUTA EXTRACTED SIN ERRORES
+import PerfilEmpleado from "./vistasEmpleados/perfil_empleado"; // RUTA EXTRACTED SIN ERRORES
 
 // Vistas Adicionales y Utilidades
 import GaragistaDashboard from "./vistasGaragista/garagista_dashboard";
