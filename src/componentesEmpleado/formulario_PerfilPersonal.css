@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SMARTLOT DESIGN SYSTEM - CONFIGURACIÓN DEL PERFIL DE EMPLEADO (FIEL A LA UI)
+   SMARTLOT DESIGN SYSTEM - CONFIGURACIÓN VISTA PERFIL DE EMPLEADO (FIEL A LA UI)
    ========================================================================== */
 
 :root {
@@ -14,24 +14,28 @@
   --sl-border-color: #f1f5f9;
   --sl-input-bg: #f8fafc;
   --sl-input-border: #e2e8f0;
-  --sl-button-secondary-bg: #e2e8f0;
-  --sl-button-secondary-text: #475569;
-  --sl-button-secondary-hover: #cbd5e1;
+  
+  /* Paleta Exclusiva para Destrucción de Sesión (Logout Premium) */
+  --sl-logout-bg: #fff1f2;
+  --sl-logout-text: #e11d48;
+  --sl-logout-hover: #ffe4e6;
 
   /* Sombras Bento */
   --sl-shadow-sm: 0 2px 6px rgba(59, 130, 246, 0.04);
   --sl-shadow-md: 0 4px 18px rgba(15, 23, 42, 0.03);
 }
 
-/* --- Contenedor Estructural de la Vista --- */
+/* --- Contenedor Base de toda la pantalla --- */
 .perfilUsuario-Contenedor {
   background-color: var(--sl-bg-main);
   min-height: 100vh;
-  padding: 2.5rem 1rem;
+  padding: 1.5rem 1rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   box-sizing: border-box;
+  
 }
 
+/* --- Envoltorio Compacto del Contenido --- */
 .perfilUsuario-contenido {
   max-width: 540px;
   margin: 0 auto;
@@ -39,33 +43,35 @@
   flex-direction: column;
 }
 
-/* --- Barra Superior de Navegación --- */
+/* --- Barra Superior (Navegación y Título Dinámico) --- */
 .top-navigation-bar {
-  display: flex;
+  
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
 .boton-back {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: var(--sl-bg-card);
-  border: 1px solid var(--sl-border-color);
-  color: var(--sl-text-main);
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff !important;
+  color: #191c1e;
   cursor: pointer;
-  box-shadow: var(--sl-shadow-sm);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+  display: flex;
+  align-items: center;     /* Centra el icono verticalmente dentro de su caja */
+  justify-content: center;  /* Centra el icono horizontalmente dentro de su caja */
+  box-shadow: 0 20px 24px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 24px;     /* Reemplazado % por px fijo para consistencia en UI */
 }
 
 .boton-back:hover {
-  background-color: var(--sl-input-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
 }
-
 .boton-back:active {
   transform: scale(0.94);
 }
@@ -76,11 +82,12 @@
 }
 
 .textosTitulosPerfil h1 {
-  font-size: 1.625rem;
+  font-size: 195%;
   font-weight: 700;
   color: var(--sl-text-main);
   margin: 0;
   letter-spacing: -0.025em;
+  text-align: left;
 }
 
 .subtitulo-dinamico {
@@ -90,11 +97,11 @@
   margin: 0.25rem 0 0 0;
 }
 
-/* --- Wrapper del Formulario --- */
+/* --- Wrapper del Formulario Principal --- */
 .perfil-form-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.5rem; /* Separación simétrica perfecta entre las tarjetas Bento */
 }
 
 /* --- Tarjetas Bento (Secciones de Formularios) --- */
@@ -107,31 +114,31 @@
   box-sizing: border-box;
 }
 
-/* Aceleración por GPU para animaciones de GSAP */
-.animate-section,
-.action-buttons-group,
+/* --- Preparación de Capas para Animaciones GSAP (Aceleración Gráfica) --- */
 .animate-back,
-.textosTitulosPerfil {
+.textosTitulosPerfil,
+.formulario-seccion,
+.action-buttons-group {
   will-change: transform, opacity;
 }
 
 /* --- Grilla Vertical Fiel a la Imagen --- */
 .formulario-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Estricto una sola columna contenedora */
+  grid-template-columns: 1fr; /* Estricto una sola columna contenedora principal */
   gap: 1.25rem;
 }
 
 /* --- Fila Especial para Nombre y Apellido Compartido --- */
 .formulario-fila-doble {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columnas paralelas exactas en escritorio */
+  grid-template-columns: repeat(2, 1fr); /* 2 columnas paralelas simétricas exactas */
   gap: 1.25rem;
 }
 
 @media (max-width: 440px) {
   .formulario-fila-doble {
-    grid-template-columns: 1fr; /* Se colapsa uno abajo del otro en pantallas muy chicas */
+    grid-template-columns: 1fr; /* Se apila verticalmente en móviles compactos */
   }
 }
 
@@ -144,16 +151,16 @@
 .formulario-grupo label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--sl-text-muted);
+  color:#3a475e;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: left;
 }
 
-/* --- Controles de Entrada Corregidos (100% del Ancho) --- */
+/* --- Controles de Entrada Corregidos (100% del Ancho Simétrico) --- */
 .formulario-input {
   height: 48px;
-  width: 100%; /* CORREGIDO: Se elimina el 80% defectuoso para ocupar toda la tarjeta simétricamente */
+  width: 100%; /* El 100% expande los inputs hasta los márgenes reales de la card */
   background-color: var(--sl-input-bg);
   border: 1px solid var(--sl-input-border);
   border-radius: 12px;
@@ -172,7 +179,7 @@
   font-weight: 400;
 }
 
-.formulario-input:focus {
+.formulario-input:focus:not(:read-only) {
   outline: none;
   background-color: var(--sl-bg-card);
   border-color: #cbd5e1;
@@ -186,32 +193,7 @@
   letter-spacing: -0.01em;
 }
 
-/* --- Badges de Estado --- */
-.access-status-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.badge-dot.active {
-  background-color: var(--sl-accent-green);
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-}
-
-.badge-text {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--sl-text-muted);
-  letter-spacing: 0.03em;
-}
-
-/* --- Botonera de Acciones --- */
+/* --- Botonera Inferior de Acciones --- */
 .action-buttons-group {
   display: flex;
   flex-direction: column;
@@ -232,29 +214,48 @@
   cursor: pointer;
   border: none;
   transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.1s ease;
+              transform 0.1s ease,
+              opacity 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
 }
 
+/* Botón de Guardado principal de SmartLot */
 .btn-primary-action {
   background-color: var(--sl-accent-blue);
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
-.btn-primary-action:hover {
+.btn-primary-action:hover:not(:disabled) {
   background-color: var(--sl-accent-blue-hover);
 }
 
+/* Botón Destructivo Elegante de Logout */
 .btn-secondary-action {
-  background-color: var(--sl-button-secondary-bg);
-  color: var(--sl-button-secondary-text);
+  background-color: var(--sl-logout-bg);
+  color: var(--sl-logout-text);
 }
 
 .btn-secondary-action:hover {
-  background-color: var(--sl-button-secondary-hover);
+  background-color: var(--sl-logout-hover);
 }
 
-.btn-primary-action:active,
+/* Micro-interacción física táctil */
+.btn-primary-action:active:not(:disabled),
 .btn-secondary-action:active {
   transform: scale(0.98);
+}
+
+.btn-primary-action:disabled {
+  cursor: not-allowed;
+}
+
+.inforpersonal-contenedor{
+  background-color: var(--sl-bg-card, #ffffff);
+  border-radius: 16px;
+  padding: 1.75rem !important;
+  border: 1px solid var(--sl-border-color, #f1f5f9);
+  box-shadow: var(--sl-shadow-md);
+  box-sizing: border-box;
 }

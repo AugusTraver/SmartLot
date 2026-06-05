@@ -5,6 +5,7 @@ import { ArrowLeft, Save, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
+import Header from "../componentesEmpleado/header_empleado"
 
 // Contexto Global de Autenticación
 import { useAuth } from "../contexts/useAuth";
@@ -14,7 +15,7 @@ import apiClient from "../servicies/apiClient";
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
 import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
 
-import "../componentesEmpleado/formulario_PerfilPersonal.css";
+import "./perfil_empleado.css";
 
 gsap.registerPlugin(useGSAP);
 
@@ -158,7 +159,10 @@ export default function PerfilEmpleado() {
   }
 
   return (
+    <div>
+    <Header/>
     <div className="perfilUsuario-Contenedor" ref={mainScopeRef}>
+      
       <main className="perfilUsuario-contenido">
         
         {/* Top bar de navegación */}
@@ -175,10 +179,8 @@ export default function PerfilEmpleado() {
           </div>
           
           <header className="textosTitulosPerfil">
-            <h1>Mi Perfil</h1>
-            <p className="subtitulo-dinamico">
-              Sesión activa: {personalData.nombre} {personalData.apellido}
-            </p>
+            <h1> Perfil de {personalData.nombre} {personalData.apellido} </h1>
+            
           </header>
         </div>
 
@@ -219,5 +221,6 @@ export default function PerfilEmpleado() {
         </form>
       </main>
     </div>
+      </div>
   );
 }

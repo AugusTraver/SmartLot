@@ -40,6 +40,7 @@
   color: #3a475e; /* Tonalidad plata/azulada oscura de la captura */
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  text-align: left;
 }
 
 /* --- Badge Inferior de Estado (Permiso Activo) --- */

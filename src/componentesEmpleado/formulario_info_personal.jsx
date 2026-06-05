@@ -4,12 +4,10 @@ import { User } from "lucide-react";
 
 export default function FormularioInfoPersonal({ data = {} }) {
   return (
-    <fieldset 
-      className="formulario-seccion animate-section" 
+    <section
+      className=" inforpersonal-contenedor formulario-seccion animate-section" 
       style={{ border: "none", padding: 0, margin: 0 }}
     >
-      <legend className="sr-only">Información Personal del Empleado</legend>
-
       <div className="form-card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
         <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#eff6ff", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <User size={20} style={{ color: "#3b82f6" }} />
@@ -74,6 +72,6 @@ export default function FormularioInfoPersonal({ data = {} }) {
           />
         </div>
       </div>
-    </fieldset>
+    </section>
   );
 }
