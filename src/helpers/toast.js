@@ -7,7 +7,7 @@ export function showToast(message, icon = 'error') {
     icon,
     title: message,
     showConfirmButton: false,
-    timer: 4000,
+    timer: 2000,
     timerProgressBar: true,
   });
 }
