@@ -69,6 +69,7 @@ const ReservasCreate = async (reserva) => {
     } catch (error) {
 
         console.log(error);
+        returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
 };

@@ -99,6 +99,34 @@
   box-sizing: border-box;
 }
 
+.nuevaReserva-contenedor .nuevaReserva-contenido {
+  flex: 1;
+  padding-bottom: 18px;
+}
+
+.nuevaReserva-contenedor .footer-empleado {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin: 22px auto 18px;
+}
+
+@media (max-width: 640px) {
+  .nuevaReserva-contenedor .nuevaReserva-contenido {
+    padding-bottom: 14px;
+  }
+
+  .nuevaReserva-contenedor .footer-empleado {
+    margin-top: 22px;
+    margin-bottom: 10px;
+  }
+}
+
+.nuevaReserva-contenedor .footer-empleado {
+  bottom: 6px;
+}
+
 .alert-success {
   background-color: #ecfdf5;
   border: 1px solid #a7f3d0;
@@ -127,5 +155,34 @@
 
   .textosTitulos h1 {
     font-size: 24px;
+  }
+
+  .nuevaReserva-contenedor .footer-empleado {
+    margin-top: 10px;
+    margin-bottom: 6px;
+  }
+}
+
+.nuevaReserva-contenedor .nuevaReserva-contenido {
+  flex: 1;
+  padding-bottom: 18px;
+}
+
+.nuevaReserva-contenedor .footer-empleado {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin: 28px auto 18px;
+}
+
+@media (max-width: 640px) {
+  .nuevaReserva-contenedor .nuevaReserva-contenido {
+    padding-bottom: 14px;
+  }
+
+  .nuevaReserva-contenedor .footer-empleado {
+    margin-top: 28px;
+    margin-bottom: 10px;
   }
 }
