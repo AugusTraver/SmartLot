@@ -70,16 +70,6 @@ function GestionSedes() {
     return () => { mounted = false; };
   }, []);
 
-  useGSAP(() => {
-    if (!loading && sedesFiltradas.length > 0) {
-      gsap.fromTo(
-        ".sede-card",
-        { y: 16, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.06, duration: 0.4, ease: "power2.out" }
-      );
-    }
-  }, [loading, sedesFiltradas]);
-
   const sedesFiltradas = useMemo(() => {
     if (!filtroEmpresa) return sedes;
     return sedes.filter((s) => Number(s.id_empresa) === Number(filtroEmpresa));
@@ -145,6 +135,16 @@ function GestionSedes() {
     () => Array.from(new Set(sedes.map((s) => Number(s.id_empresa)))),
     [sedes]
   );
+
+  useGSAP(() => {
+    if (!loading && sedesFiltradas.length > 0) {
+      gsap.fromTo(
+        ".sede-card",
+        { y: 16, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.06, duration: 0.4, ease: "power2.out" }
+      );
+    }
+  }, [loading, sedesFiltradas]);
 
   return (
     <div className="gestion-sedes-page">

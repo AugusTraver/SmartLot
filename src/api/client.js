@@ -28,16 +28,57 @@ const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+function processQueue(error) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
     const data = error.response?.data;
     const status = data?.statusCode ?? error.response?.status ?? 0;
     const message = data?.message ?? 'Error de conexión con el servidor.';
 
+    // 401 → intentar refresh automático (excepto si es el propio refresh)
+    if (status === 401 && !originalRequest._isRetry && !originalRequest.url?.includes('/refresh')) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(() => apiClient(originalRequest));
+      }
+
+      originalRequest._isRetry = true;
+      isRefreshing = true;
+
+      try {
+        await apiClient.post('/api/usuario/refresh', {}, { _skipAuthRedirect: true, _isRetry: true });
+        processQueue(null);
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError);
+        if (!originalRequest._skipAuthRedirect) {
+          navigateTo('/login');
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
     switch (status) {
       case 401:
-        if (!error.config?._skipAuthRedirect) {
+        if (!originalRequest._skipAuthRedirect) {
           navigateTo('/login');
         }
         break;
@@ -48,7 +89,7 @@ apiClient.interceptors.response.use(
         showToast(message, 'warning');
         break;
       case 413:
-        showToast('El archivo o datos enviados son demasiado grandes.', 'error');
+        showToast('El archivo o datos enviados son demasiados grandes.', 'error');
         break;
       case 500:
         showToast('Error interno del servidor. Intente nuevamente.', 'error');

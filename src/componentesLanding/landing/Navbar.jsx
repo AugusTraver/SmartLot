@@ -20,6 +20,7 @@ export default function Navbar() {
         1: '/admin_dashboard',
         2: '/empleados_dashboard',
         3: '/garagista_dashboard',
+        4: '/superadmin_dashboard',
       };
       const ruta = rutas[Number(usuario.id_rol)] || '/';
       setTimeout(() => navigate(ruta), 1500);
