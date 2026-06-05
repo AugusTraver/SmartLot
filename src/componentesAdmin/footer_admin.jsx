@@ -8,7 +8,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom"; // Importamos useLocation
 import FooterBotton from "./admin_dashboard_boton_footer";
 
-function FooterAdmin() {
+function FooterEmpleado() {
     const navigate = useNavigate();
     const location = useLocation(); // Obtenemos la ruta actual
 
@@ -20,8 +20,8 @@ function FooterAdmin() {
             <FooterBotton    
                 titulo="DASHBOARD"
                 icono={<House size={28}/>} 
-                onClick={() => navigate("/")}
-                isActive={isPathActive("/")} // Se activa si estamos en la raíz
+                onClick={() => navigate("/admin_dashboard")}
+                isActive={isPathActive("/admin_dashboard")} // Se activa si estamos en la raíz
             />
             <FooterBotton
                 titulo="GARAGE"
@@ -45,4 +45,4 @@ function FooterAdmin() {
     );
 }
 
-export default FooterAdmin;
+export default FooterEmpleado;

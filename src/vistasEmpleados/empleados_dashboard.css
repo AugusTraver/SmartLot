@@ -30,7 +30,7 @@
 .empleado-dashboard-main {
   width: min(100%, 440px);
   margin: 0 auto;
-  padding: 24px 18px 88px;
+  padding: 24px 18px 120px;
   text-align: left;
 }
 
@@ -250,16 +250,13 @@
 }
 
 .empleado-nueva-reserva-btn {
-  position: fixed;
-  left: 18px;
-  right: 18px;
-  bottom: 34px;
-  z-index: 20;
+  width: 100%;
   max-width: 404px;
   min-height: 56px;
-  margin: 0 auto;
+  margin: 22px auto 0;
   border: none;
   border-radius: 18px;
+  padding: 0 22px;
   background: #0544e2;
   color: #ffffff;
   font-size: 15px;
@@ -306,5 +303,15 @@
 
   .empleado-plazas-libres strong {
     font-size: 54px;
+  }
+}
+
+@media (max-width: 600px) {
+  .empleado-dashboard-main {
+    padding-bottom: 18px;
+  }
+
+  .empleado-nueva-reserva-btn {
+    margin-bottom: 18px;
   }
 }

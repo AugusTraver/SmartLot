@@ -9,6 +9,7 @@ import { ReservasCreate } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
+import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -90,7 +91,7 @@ const NuevaReserva = () => {
   return (
     <div className="nuevaReserva-contenedor" ref={containerRef}>
       <HeaderEmpleado />
-
+      <FooterEmpleado/>
       <main className="nuevaReserva-contenido" role="main">
         <div className="animate-back">
           <button

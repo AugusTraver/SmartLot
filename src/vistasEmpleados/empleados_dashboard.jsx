@@ -8,6 +8,7 @@ import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
+import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -195,7 +196,6 @@ function EmpleadoDashboard() {
   return (
     <div className="empleado-dashboard-page">
       <HeaderEmpleado />
-
       <main className="empleado-dashboard-main">
         <div className="empleado-dashboard-intro">
           <span className="empleado-dashboard-kicker">Hoy</span>
@@ -270,6 +270,7 @@ function EmpleadoDashboard() {
           Nueva reserva
         </button>
       </main>
+      <FooterEmpleado />
     </div>
   );
 }

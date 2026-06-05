@@ -167,7 +167,7 @@ function GestionGarages() {
 
       <main className="gestion-garages-main">
         <section className="gestion-garages-top">
-          <button className="boton-back" onClick={() => navigate("/")}>
+          <button className="boton-back" onClick={() => navigate("/admin_dashboard")}>
             <ArrowLeft size={20} />
           </button>
 
