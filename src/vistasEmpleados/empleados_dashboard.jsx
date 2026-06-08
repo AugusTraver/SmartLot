@@ -97,6 +97,50 @@ const normalizarReserva = (reserva, vehiculosPorId, garageUsuario) => {
   };
 };
 
+const EmpleadoDashboardIntroSkeleton = () => (
+  <div className="empleado-dashboard-intro empleado-dashboard-intro-skeleton" aria-label="Cargando datos del empleado">
+    <span className="empleado-skeleton-line empleado-skeleton-kicker" />
+    <span className="empleado-skeleton-line empleado-skeleton-title" />
+    <span className="empleado-skeleton-line empleado-skeleton-subtitle" />
+  </div>
+);
+
+const EmpleadoDisponibilidadSkeleton = () => (
+  <section className="empleado-disponibilidad-card empleado-disponibilidad-skeleton" aria-label="Cargando disponibilidad">
+    <div className="empleado-disponibilidad-top">
+      <span className="empleado-skeleton-block empleado-skeleton-parking" />
+      <span className="empleado-skeleton-block empleado-skeleton-live" />
+    </div>
+    <span className="empleado-skeleton-line empleado-skeleton-disponibilidad-label" />
+    <div className="empleado-skeleton-availability-row">
+      <span className="empleado-skeleton-line empleado-skeleton-big-number" />
+      <span className="empleado-skeleton-line empleado-skeleton-capacity-label" />
+    </div>
+    <span className="empleado-skeleton-line empleado-skeleton-occupancy" />
+    <div className="empleado-skeleton-metrics">
+      <span className="empleado-skeleton-block empleado-skeleton-chip" />
+      <span className="empleado-skeleton-block empleado-skeleton-chip empleado-skeleton-chip-short" />
+    </div>
+  </section>
+);
+
+const EmpleadoReservasSkeleton = () => (
+  <div className="empleado-reservas-skeleton-list" aria-label="Cargando reservas">
+    {Array.from({ length: 1 }).map((_, index) => (
+      <section className="empleado-reservas-section" key={index}>
+        <article className="empleado-reserva-card empleado-reserva-card-skeleton">
+          <span className="empleado-skeleton-block empleado-skeleton-reserva-plaza" />
+          <div className="empleado-skeleton-reserva-info">
+            <span className="empleado-skeleton-line empleado-skeleton-reserva-title" />
+            <span className="empleado-skeleton-line empleado-skeleton-reserva-text" />
+          </div>
+          <span className="empleado-skeleton-block empleado-skeleton-reserva-action" />
+        </article>
+      </section>
+    ))}
+  </div>
+);
+  
 function EmpleadoDashboard() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
@@ -197,40 +241,49 @@ function EmpleadoDashboard() {
     <div className="empleado-dashboard-page">
       <HeaderEmpleado />
       <main className="empleado-dashboard-main">
-        <div className="empleado-dashboard-intro">
-          <span className="empleado-dashboard-kicker">Hoy</span>
-          <h1 className="empleado-dashboard-title">
-            Hola{nombre ? ` ${nombre}` : ""}
-          </h1>
-          <p className="empleado-dashboard-subtitle">
-            Tu reserva y disponibilidad del estacionamiento.
-          </p>
-        </div>
+        {loading ? (
+          <>
+            <EmpleadoDashboardIntroSkeleton />
+            <EmpleadoDisponibilidadSkeleton />
+          </>
+        ) : (
+          <>
+            <div className="empleado-dashboard-intro">
+              <span className="empleado-dashboard-kicker">Hoy</span>
+              <h1 className="empleado-dashboard-title">
+                Hola{nombre ? ` ${nombre}` : ""}
+              </h1>
+              <p className="empleado-dashboard-subtitle">
+                Tu reserva y disponibilidad del estacionamiento.
+              </p>
+            </div>
 
-        <section className="empleado-disponibilidad-card">
-          <div className="empleado-disponibilidad-top">
-            <div className="empleado-parking-icon">P</div>
-            <span className="empleado-live-badge">EN VIVO</span>
-          </div>
+            <section className="empleado-disponibilidad-card">
+              <div className="empleado-disponibilidad-top">
+                <div className="empleado-parking-icon">P</div>
+                <span className="empleado-live-badge">EN VIVO</span>
+              </div>
 
-          <p className="empleado-disponibilidad-text">
-            Disponibilidad en tiempo real
-          </p>
+              <p className="empleado-disponibilidad-text">
+                Disponibilidad en tiempo real
+              </p>
 
-          <div className="empleado-plazas-libres">
-            <strong>{loading ? "..." : plazasLibres ?? "--"}</strong>
-            <span>Plazas Libres</span>
-          </div>
+              <div className="empleado-plazas-libres">
+                <strong>{plazasLibres ?? "--"}</strong>
+                <span>Plazas Libres</span>
+              </div>
 
-          <p className="empleado-companeros">
-            {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
-          </p>
+              <p className="empleado-companeros">
+                {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
+              </p>
 
-          <div className="empleado-disponibilidad-metrics">
-            <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
-            <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
-          </div>
-        </section>
+              <div className="empleado-disponibilidad-metrics">
+                <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
+                <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
+              </div>
+            </section>
+          </>
+        )}
 
         <div className="empleado-reservas-header">
           <div>
@@ -251,7 +304,7 @@ function EmpleadoDashboard() {
         )}
 
         {loading ? (
-          <div className="empleado-dashboard-feedback">Cargando reservas...</div>
+          <EmpleadoReservasSkeleton />
         ) : reservasVisibles.length > 0 ? (
           reservasVisibles.map((reserva) => (
             <TarjetaReserva key={reserva.id} reserva={reserva} />
