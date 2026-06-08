@@ -101,7 +101,7 @@ function AppRoutes() {
       {/* Ruta del Perfil del Admin protegida */}
       <Route path="/perfil_admin" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
-          <PerfilEmpleado />
+          <PerfilAdmin />
         </ProtectedRoute>
       } />
       <Route path="/gestion_de_empleados" element={
