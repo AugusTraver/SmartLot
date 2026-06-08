@@ -22,6 +22,7 @@ import AgregarSede from "./vistasSuperadmin/agregar_sede";
 // Vistas Landing & Base
 import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
+import AuthCallback from "./vistasLanding/AuthCallback";
 
 // Vistas de Empleados (Conexión corregida del perfil de empleado)
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
@@ -57,6 +58,7 @@ function AppRoutes() {
       <Route path="/register-form" element={<Register />} />
       <Route path="/logout" element={<Logout />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
       {/* Rutas protegidas - Empleados */}
       <Route path="/empleados_dashboard" element={

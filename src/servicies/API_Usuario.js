@@ -91,6 +91,7 @@ const UsuariosCreate = async (usuario) => {
     } catch (error) {
 
         console.log(error);
+        returnObject.datos = error.response?.data || null;
         return returnObject;
     }
 };

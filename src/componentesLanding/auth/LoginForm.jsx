@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import apiClient from '../../api/client';
@@ -13,6 +14,13 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(0);
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.error) {
+      setError(location.state.error);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useGSAP(() => {
     gsap.to(pathRef.current, {
@@ -66,6 +74,24 @@ export default function LoginForm() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setGoogleError('');
+
+    try {
+      const res = await apiClient.get('/api/auth/google', { _skipAuthRedirect: true });
+      window.location.href = res.data.url;
+    } catch (error) {
+      setGoogleError(
+        error.response?.data?.message || 'Hubo un error al conectar con Google.',
+      );
+      setGoogleLoading(false);
     }
   };
 
@@ -180,6 +206,34 @@ export default function LoginForm() {
         </button>
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       </form>
+
+      <div className="auth-stagger relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-brand-deep/10" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-brand-bg px-4 text-sm text-brand-muted">O continuá con</span>
+        </div>
+      </div>
+
+      {googleError && <p className="text-sm text-red-500 mb-3">{googleError}</p>}
+
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={googleLoading}
+        className="auth-stagger group relative w-full rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        <div className="relative flex items-center justify-center gap-3 border border-brand-deep/10 bg-brand-surface/70 px-8 py-3.5 text-brand-warm font-semibold text-base rounded-xl transition-all duration-300 group-hover:bg-brand-surface group-hover:border-brand-deep/20 group-active:scale-[0.97]">
+          <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.61c-.29 1.53-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-8.58z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.11 0-5.74-2.11-6.68-4.96H1.21v3.15C3.18 21.88 7.31 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.32 14.24c-.24-.72-.38-1.5-.38-2.31s.14-1.59.38-2.31V6.48H1.21C.44 8.02 0 9.75 0 11.5s.44 3.48 1.21 5.02l4.11-3.28z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 7.31 0 3.18 2.12 1.21 5.63l4.11 3.28c.94-2.85 3.57-4.96 6.68-4.96z"/>
+          </svg>
+          {googleLoading ? 'Conectando...' : 'Google'}
+        </div>
+      </button>
     </div>
   );
 }

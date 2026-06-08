@@ -136,9 +136,9 @@ function AgregarUsuario() {
       email: formData.email.trim(),
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
-      id_empresa: ROLES_NEED_EMPRESA.includes(idRol) ? Number(formData.id_empresa) : null,
-      id_sede: ROLES_NEED_SEDE.includes(idRol) ? Number(formData.id_sede) || null : null,
-      id_garage: ROLES_NEED_GARAGE.includes(idRol) ? Number(formData.id_garage) || null : null,
+      id_empresa: ROLES_NEED_EMPRESA.includes(idRol) ? Number(formData.id_empresa) : '',
+      id_sede: ROLES_NEED_SEDE.includes(idRol) ? Number(formData.id_sede) || '' : '',
+      id_garage: ROLES_NEED_GARAGE.includes(idRol) ? Number(formData.id_garage) || '' : '',
     };
 
     const response = await UsuariosCreate(payload);

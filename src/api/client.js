@@ -50,8 +50,8 @@ apiClient.interceptors.response.use(
     const status = data?.statusCode ?? error.response?.status ?? 0;
     const message = data?.message ?? 'Error de conexión con el servidor.';
 
-    // 401 → intentar refresh automático (excepto si es el propio refresh)
-    if (status === 401 && !originalRequest._isRetry && !originalRequest.url?.includes('/refresh')) {
+    // 401 → intentar refresh automático (excepto refresh y auth endpoints)
+    if (status === 401 && !originalRequest._isRetry && !originalRequest.url?.includes('/refresh') && !originalRequest.url?.includes('/auth/')) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -65,12 +65,12 @@ apiClient.interceptors.response.use(
         await apiClient.post('/api/usuario/refresh', {}, { _skipAuthRedirect: true, _isRetry: true });
         processQueue(null);
         return apiClient(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
+      } catch {
+        processQueue(error);
         if (!originalRequest._skipAuthRedirect) {
           navigateTo('/login');
         }
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       } finally {
         isRefreshing = false;
       }
