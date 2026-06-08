@@ -1,0 +1,239 @@
+.admin-profile-layout-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.admin-profile-main-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.admin-profile-inner-content {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.top-navigation-bar-admin {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.boton-back-admin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.boton-back-admin:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  transform: translateX(-2px);
+}
+
+.textosTitulosPerfilAdmin h1 {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.admin-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: #f0f5ff;
+  color: #2563eb;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 0.35rem;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+/* --- Estructura Bento Grid --- */
+.admin-bento-grid-wrapper {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-bento-grid-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-bento-card-view {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.02);
+  padding: 1.75rem;
+  box-sizing: border-box;
+}
+
+/* --- Panel de Seguridad Lateral --- */
+.security-system-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.security-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.security-badge-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #fff1f2;
+  color: #f43f5e;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.security-card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.security-status-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background-color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+.indicator-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.indicator-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ind-label {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+}
+
+.ind-val {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #334155;
+  font-weight: 600;
+  text-align: left;
+}
+
+.text-brand-blue-accent {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.indicator-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  position: relative;
+}
+
+/* --- Botonera --- */
+.action-buttons-group-admin {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
+}
+
+.btn-secondary-action-admin {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fff1f2;
+  color: #e11d48;
+  border: 1px solid rgba(225, 29, 72, 0.1);
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary-action-admin:hover {
+  background-color: #ffe4e6;
+  color: #be123c;
+}
+
+.admin-profile-loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #64748b;
+  font-weight: 600;
+}
+/* src/vistasAdmin/perfil_admin.css */
+
+/* 🚀 Forzamos a que este diseño de grilla actúe SOLO dentro del perfil admin */
+.admin-scope-root .admin-bento-grid-wrapper {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr !important; /* Forzamos las dos columnas sin auto */
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.admin-scope-root .admin-bento-card-view {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 1.75rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .admin-scope-root .admin-bento-grid-wrapper {
+    grid-template-columns: 1fr !important;
+  }
+}

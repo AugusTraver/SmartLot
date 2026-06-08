@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 import Header from "../componentesEmpleado/header_empleado"
 import Footer from "../componentesEmpleado/footer_empleado"
+
 // Hooks y Contextos de SmartLot
 import { useAuth } from "../contexts/useAuth";
 import apiClient from "../servicies/apiClient";
@@ -31,11 +32,11 @@ export default function PerfilEmpleado() {
   const [vehiculoData, setVehiculoData] = useState({ modelo: "", patente: "" });
   const [guardando, setGuardando] = useState(false);
 
-  // Sincronización segura del estado global de useAuth hacia los formularios
+  // 🚀 Sincronización exacta con el formato relacional de tu base de datos SmartLot
   useEffect(() => {
     if (usuario) {
-      // Intentamos leer tanto de la raíz como de un subobjeto por si viene anidado de la API
-      const infoUsuario = usuario.usuario || usuario.empleado || usuario;
+      // Tu AuthProvider guarda los datos reales del registro en usuario.datos o usuario.usuario
+      const infoUsuario = usuario.datos || usuario.usuario || usuario;
 
       setPersonalData({
         nombre: infoUsuario.nombre || usuario.nombre || "",
@@ -74,8 +75,7 @@ export default function PerfilEmpleado() {
     setGuardando(true);
 
     try {
-      // 🚀 EXTRACCIÓN MÁXIMA DE ID DE USUARIO: Busca en todas las variantes relacionales posibles
-      const subUsuario = usuario?.usuario || usuario?.empleado || {};
+      const subUsuario = usuario?.datos || usuario?.usuario || {};
       const idUsuarioFinal = usuario?.id_usuario || usuario?.id || subUsuario.id_usuario || subUsuario.id;
 
       if (!idUsuarioFinal) {
@@ -92,7 +92,7 @@ export default function PerfilEmpleado() {
           patente: vehiculoData.patente
         });
       } else {
-        // MODO CREAR (POST): Enviamos el ID de usuario real extraído sin dar lugar a undefined
+        // MODO CREAR (POST)
         response = await apiClient.post('/api/vehiculo', {
           modelo: vehiculoData.modelo,
           patente: vehiculoData.patente,
@@ -100,7 +100,6 @@ export default function PerfilEmpleado() {
         });
       }
 
-      // Re-estructuramos la respuesta del backend para inyectarla en el estado global
       const datosVehiculoBackend = response.data?.vehiculo || response.data || {};
       const vehiculoActualizado = {
         id: idVehiculoExistente || datosVehiculoBackend.id || datosVehiculoBackend.id_vehiculo,
@@ -109,7 +108,6 @@ export default function PerfilEmpleado() {
         patente: vehiculoData.patente
       };
 
-      // Sincronizamos useAuth para que todo el panel de SmartLot conozca los nuevos datos
       setUsuario((prev) => ({
         ...prev,
         id_vehiculo: vehiculoActualizado.id_vehiculo,
@@ -158,54 +156,53 @@ export default function PerfilEmpleado() {
   return (
     <div className="Perfil-contenedor">
       <Header/>
-    <div className="perfilUsuario-Contenedor" ref={mainScopeRef}>
-      <main className="perfilUsuario-contenido">
-        
-        <div className="top-navigation-bar">
-          <div className="animate-back">
-            <button
-              className="boton-back"
-              onClick={() => navigate("/empleados_dashboard")}
-              aria-label="Volver"
-              type="button"
-            >
-              <ArrowLeft size={20} />
-            </button>
-          </div>
+      <div className="perfilUsuario-Contenedor" ref={mainScopeRef}>
+        <main className="perfilUsuario-contenido">
           
-          <header className="textosTitulosPerfil">
-            <h1> Perfil de {personalData.nombre} {personalData.apellido}</h1>
-           
-          </header>
-        </div>
-
-        <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
-          <FormularioInfoPersonal data={personalData} />
-          
-          <FormularioDetallesVehiculo 
-            vehiculoData={vehiculoData} 
-            onChange={handleVehiculoChange} 
-          />
-
-          <div className="action-buttons-group">
-            <button type="submit" className="btn-primary-action" disabled={guardando}>
-              <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
-            </button>
-
-            <button 
-              type="button" 
-              className="btn-secondary-action" 
-              onClick={handleCerrarSesion}
-              style={{ color: '#e11d48', backgroundColor: '#fff1f2' }}
-            >
-              <LogOut size={18} />
-              <span>Cerrar Sesión</span>
-            </button>
+          <div className="top-navigation-bar">
+            <div className="animate-back">
+              <button
+                className="boton-back"
+                onClick={() => navigate("/empleados_dashboard")}
+                aria-label="Volver"
+                type="button"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            </div>
+            
+            <header className="textosTitulosPerfil">
+              <h1> Perfil de {personalData.nombre} {personalData.apellido}</h1>
+            </header>
           </div>
-        </form>
-      </main>
-    </div>
-    <Footer/>
+
+          <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
+            <FormularioInfoPersonal data={personalData} />
+            
+            <FormularioDetallesVehiculo 
+              vehiculoData={vehiculoData} 
+              onChange={handleVehiculoChange} 
+            />
+
+            <div className="action-buttons-group">
+              <button type="submit" className="btn-primary-action" disabled={guardando}>
+                <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
+              </button>
+
+              <button 
+                type="button" 
+                className="btn-secondary-action" 
+                onClick={handleCerrarSesion}
+                style={{ color: '#e11d48', backgroundColor: '#fff1f2' }}
+              >
+                <LogOut size={18} />
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
+          </form>
+        </main>
+      </div>
+      <Footer/>
     </div>
   );
 }

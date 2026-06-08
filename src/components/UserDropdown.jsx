@@ -109,24 +109,39 @@ export default function UserDropdown() {
 
   // LÓGICA DE DIRECCIONAMIENTO EXCLUSIVO:
   // Cierra el panel de forma segura y empuja la URL registrada en App.jsx
+  // LÓGICA DE DIRECCIONAMIENTO EXCLUSIVO UNIFICADA Y CORREGIDA:
   const handleNavegacionPerfil = useCallback(() => {
     setIsOpen(false);
-    
-    if (usuario?.id_rol === 2) {
-      // Apunta exactamente al string del 'path' configurado en tu archivo de rutas principal
-      navigate('/perfil_empleado');
-    } else {
-      // Fallback seguro por si un admin u otro rol interactúa con este botón
-      navigate('/empleados_dashboard');
+
+    if (!usuario) {
+      navigate('/login');
+      return;
     }
 
-    if (usuario?.id_rol === 1){
-      navigate ('/perfil_admin')
-    }else{
-      navigate('admin_dashboard')
+    // Evaluamos de forma estricta según el ID de ROL de SmartLot
+    switch (usuario.id_rol) {
+      case 1:
+        // Si es Admin (Rol 1) -> Va exactamente a su perfil de Admin
+        navigate('/perfil_admin');
+        break;
+      case 2:
+        // Si es Empleado (Rol 2) -> Va exactamente a su perfil de Empleado
+        navigate('/perfil_empleado');
+        break;
+      case 3:
+        // Si es Garagista (Rol 3) -> Va a su panel principal
+        navigate('/garagista_dashboard');
+        break;
+      case 4:
+        // Si es Superadmin (Rol 4) -> Va al panel de superadmin
+        navigate('/superadmin_dashboard');
+        break;
+      default:
+        // Fallback seguro por si las moscas
+        navigate('/');
+        break;
     }
   }, [navigate, usuario]);
-
   const handleLogout = useCallback(async () => {
     setIsOpen(false);
 
@@ -155,11 +170,10 @@ export default function UserDropdown() {
       <button
         ref={triggerRef}
         onClick={handleToggle}
-        className={`group flex items-center gap-1.5 rounded-lg border px-1.5 py-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 ${
-          isOpen
-            ? 'border-brand-blue/10 bg-brand-blue/5'
-            : 'border-transparent hover:border-brand-blue/8 hover:bg-brand-blue/4'
-        }`}
+        className={`group flex items-center gap-1.5 rounded-lg border px-1.5 py-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 ${isOpen
+          ? 'border-brand-blue/10 bg-brand-blue/5'
+          : 'border-transparent hover:border-brand-blue/8 hover:bg-brand-blue/4'
+          }`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={`Menu de usuario: ${displayName}`}
@@ -179,9 +193,8 @@ export default function UserDropdown() {
 
         <ChevronDown
           size={14}
-          className={`hidden text-brand-muted transition-transform duration-200 group-hover:text-brand-blue md:block ${
-            isOpen ? 'rotate-180 text-brand-blue' : ''
-          }`}
+          className={`hidden text-brand-muted transition-transform duration-200 group-hover:text-brand-blue md:block ${isOpen ? 'rotate-180 text-brand-blue' : ''
+            }`}
         />
       </button>
 
@@ -239,10 +252,13 @@ export default function UserDropdown() {
               className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
               onClick={() => {
                 setIsOpen(false);
-                navigate(
-                  usuario?.id_rol === 2 ? '/configuracion_empleado' : '/empleados_dashboard',
-                  { state: { from: location.pathname } }
-                );
+                if (usuario?.id_rol === 2) {
+                  navigate('/configuracion_empleado', { state: { from: location.pathname } });
+                } else if (usuario?.id_rol === 1) {
+                  navigate('/admin_dashboard'); // O la ruta de configuración de admin que definas
+                } else {
+                  navigate('/');
+                }
               }}
             >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
@@ -250,21 +266,20 @@ export default function UserDropdown() {
               </span>
               <span>Configuracion</span>
             </button>
-          </div>
+            <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-black/5 to-transparent" />
 
-          <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-black/5 to-transparent" />
-
-          <div className="p-1.5">
-            <button
-              role="menuitem"
-              className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-bold text-rose-600 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-700"
-              onClick={handleLogout}
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-                <LogOut size={14} />
-              </span>
-              <span>Cerrar sesion</span>
-            </button>
+            <div className="p-1.5">
+              <button
+                role="menuitem"
+                className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-bold text-rose-600 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-700"
+                onClick={handleLogout}
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                  <LogOut size={14} />
+                </span>
+                <span>Cerrar sesion</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
