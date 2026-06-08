@@ -19,7 +19,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 4px 24px;
   box-sizing: border-box;
 }
 
@@ -101,7 +101,7 @@
 
 .nuevaReserva-contenedor .nuevaReserva-contenido {
   flex: 1;
-  padding-bottom: 18px;
+  padding-bottom: 80px;
 }
 
 .nuevaReserva-contenedor .footer-empleado {
@@ -163,10 +163,6 @@
   }
 }
 
-.nuevaReserva-contenedor .nuevaReserva-contenido {
-  flex: 1;
-  padding-bottom: 18px;
-}
 
 .nuevaReserva-contenedor .footer-empleado {
   position: static;

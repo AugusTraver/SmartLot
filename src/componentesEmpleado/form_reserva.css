@@ -107,7 +107,7 @@
 .form-time-fields-row {
   display: flex;
   grid-template-cols: repeat(2, minmax(0, 1fr)); /* Divide el espacio exactamente a la mitad */
-  gap: 8px;                                    /* Separación geométrica limpia (Rhythm de 8dp) */
+  gap: 85px;                                    /* Separación geométrica limpia (Rhythm de 8dp) */
   width: 100%;
   box-sizing: border-box;
 }
@@ -182,11 +182,11 @@
 .form-time-fields-row {
   display: flex;
   grid-template-cols: repeat(2, minmax(0, 1fr)); /* Divide el espacio exactamente a la mitad */
-                                      /* Separación geométrica limpia (Rhythm de 8dp) */
+  gap: 8%;                             /* Separación geométrica limpia (Rhythm de 8dp) */
   width: 100%;
   box-sizing: border-box;
 }
 .form-time-fields-row .form-text-input {
-  width: 80%;
+  width: 100%;
 }
 }

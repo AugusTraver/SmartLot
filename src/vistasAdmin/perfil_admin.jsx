@@ -5,22 +5,19 @@ import { ArrowLeft, Save, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
-import Header from "../componentesEmpleado/header_empleado"
-import Footer from "../componentesEmpleado/footer_empleado"
+import Header from "../componentesAdmin/header_admin"
+import Footer from "../componentesAdmin/footer_admin"
 // Hooks y Contextos de SmartLot
 import { useAuth } from "../contexts/useAuth";
 import apiClient from "../servicies/apiClient";
 
 // Importación de subformularios estructurados
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
-import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
 
-// Archivo de estilos con mayúsculas y minúsculas exactas
-import "../componentesEmpleado/formulario_PerfilPersonal.css";
 
 gsap.registerPlugin(useGSAP);
 
-export default function PerfilEmpleado() {
+export default function PerfilAdmin() {
   const navigate = useNavigate();
   const mainScopeRef = useRef(null);
   
@@ -182,11 +179,7 @@ export default function PerfilEmpleado() {
         <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
           <FormularioInfoPersonal data={personalData} />
           
-          <FormularioDetallesVehiculo 
-            vehiculoData={vehiculoData} 
-            onChange={handleVehiculoChange} 
-          />
-
+                  
           <div className="action-buttons-group">
             <button type="submit" className="btn-primary-action" disabled={guardando}>
               <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
