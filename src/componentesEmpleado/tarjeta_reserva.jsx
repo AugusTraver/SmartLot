@@ -17,10 +17,6 @@ function TarjetaReserva({ reserva }) {
         className="empleado-reserva-card"
         aria-label={`Reserva en ${reserva.nombre_garage || 'Garage'}`}
       >
-        {/* 🚀 CÍRCULOS DECORATIVOS ADENTRO DE LA TARJETA (EFECTO DE FONDO PREMIUM) */}
-        <div className="reserva-circle-bg reserva-circle-1" aria-hidden="true"></div>
-        <div className="reserva-circle-bg reserva-circle-2" aria-hidden="true"></div>
-
         {/* Bloque del Número de la Plaza (Izquierda) */}
         <div className="empleado-reserva-plaza">
           <strong>{reserva.nro_plaza || "-"}</strong>
