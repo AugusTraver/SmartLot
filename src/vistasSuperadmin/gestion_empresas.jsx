@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check, History, Clock, UserRound } from "lucide-react";
+import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check } from "lucide-react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
@@ -10,6 +10,7 @@ import "./gestion_empresas.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import AuditoriaPanel from "../componentesCompartidos/AuditoriaPanel";
 import { EmpresasGetAll, EmpresasGetAuditoria, EmpresasUpdate, EmpresasDelete } from "../servicies/API_Empresa";
 
 gsap.registerPlugin(useGSAP);
@@ -30,16 +31,6 @@ const SkeletonCard = () => (
     </div>
   </div>
 );
-
-const formatearFechaAuditoria = (valor) => {
-  if (!valor) return "Sin fecha";
-  const fecha = new Date(valor);
-  if (Number.isNaN(fecha.getTime())) return "Sin fecha";
-  return new Intl.DateTimeFormat("es-AR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(fecha);
-};
 
 const obtenerActor = (item, tipo) => {
   const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
@@ -220,37 +211,13 @@ function GestionEmpresas() {
           </BotonGenerico>
         </div>
 
-        <section className="auditoria-panel">
-          <div className="auditoria-panel-header">
-            <div>
-              <h2>Auditoria de empresas</h2>
-              <p>Ultimas ediciones y borrados registrados.</p>
-            </div>
-            <History size={20} />
-          </div>
-
-          {loadingAuditoria ? (
-            <p className="auditoria-empty">Cargando auditoria...</p>
-          ) : auditoria.length === 0 ? (
-            <p className="auditoria-empty">Todavia no hay movimientos registrados.</p>
-          ) : (
-            <div className="auditoria-list">
-              {auditoria.slice(0, 8).map((evento) => (
-                <article className="auditoria-item" key={evento.id}>
-                  <span className={`auditoria-badge ${evento.clase}`}>{evento.accion}</span>
-                  <div className="auditoria-info">
-                    <h3>{evento.entidad}</h3>
-                    <p><UserRound size={13} /> {evento.actor}</p>
-                  </div>
-                  <div className="auditoria-fecha">
-                    <Clock size={13} />
-                    <span>{formatearFechaAuditoria(evento.fecha)}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+        <AuditoriaPanel
+          titulo="Auditoría de empresas"
+          descripcion="Últimas ediciones y borrados registrados."
+          eventos={auditoria}
+          loading={loadingAuditoria}
+          maxItems={8}
+        />
 
         {loading ? (
           <div className="empresas-grid">

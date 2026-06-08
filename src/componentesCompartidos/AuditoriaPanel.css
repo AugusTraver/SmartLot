@@ -1,0 +1,126 @@
+.auditoria-panel-compartido {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.auditoria-header-compartido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #0F1A2E;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.auditoria-header-compartido:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.auditoria-header-compartido h2 {
+  font-size: 16px;
+  margin: 0 0 2px;
+}
+
+.auditoria-header-compartido p {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+}
+
+.auditoria-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748B;
+  flex-shrink: 0;
+}
+
+.auditoria-chevron {
+  transition: transform 0.25s ease;
+}
+
+.auditoria-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.auditoria-collapse-content {
+  padding: 0 20px 18px;
+}
+
+.auditoria-empty-msg {
+  color: #64748B;
+  font-size: 13px;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.auditoria-listado {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auditoria-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #F1F5F9;
+}
+
+.auditoria-badge {
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+
+.auditoria-badge.update {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563EB;
+}
+
+.auditoria-badge.delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+.auditoria-detalle {
+  min-width: 0;
+}
+
+.auditoria-detalle h3 {
+  font-size: 14px;
+  color: #0F1A2E;
+  margin: 0 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auditoria-detalle p,
+.auditoria-fecha {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+}
+
+.auditoria-fecha {
+  white-space: nowrap;
+}

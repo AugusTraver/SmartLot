@@ -13,9 +13,6 @@ import {
   Building2,
   Car,
   ShieldCheck,
-  History,
-  Clock,
-  UserRound,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -27,6 +24,7 @@ import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import AuditoriaPanel from "../componentesCompartidos/AuditoriaPanel";
 import {
   UsuariosGetAll,
   UsuariosGetAuditoria,
@@ -62,16 +60,6 @@ const ROLE_CLASSES = {
 };
 
 const ROLE_ORDER = [1, 4, 2, 3];
-
-const formatearFechaAuditoria = (valor) => {
-  if (!valor) return "Sin fecha";
-  const fecha = new Date(valor);
-  if (Number.isNaN(fecha.getTime())) return "Sin fecha";
-  return new Intl.DateTimeFormat("es-AR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(fecha);
-};
 
 const obtenerActorAuditoria = (item, tipo) => {
   const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
@@ -628,37 +616,13 @@ const GestionUsuarios = () => {
         )}
 
         {!loading && (
-          <section className="usuarios-auditoria-panel">
-            <div className="usuarios-auditoria-header">
-              <div>
-                <h2>Auditoria de usuarios</h2>
-                <p>Ultimas ediciones y borrados registrados.</p>
-              </div>
-              <History size={20} />
-            </div>
-
-            {loadingAuditoria ? (
-              <p className="usuarios-auditoria-empty">Cargando auditoria...</p>
-            ) : auditoria.length === 0 ? (
-              <p className="usuarios-auditoria-empty">Todavia no hay movimientos registrados.</p>
-            ) : (
-              <div className="usuarios-auditoria-list">
-                {auditoria.slice(0, 10).map((evento) => (
-                  <article className="usuarios-auditoria-item" key={evento.id}>
-                    <span className={`usuarios-auditoria-badge ${evento.clase}`}>{evento.accion}</span>
-                    <div className="usuarios-auditoria-info">
-                      <h3>{evento.entidad}</h3>
-                      <p><UserRound size={13} /> {evento.actor}</p>
-                    </div>
-                    <div className="usuarios-auditoria-fecha">
-                      <Clock size={13} />
-                      <span>{formatearFechaAuditoria(evento.fecha)}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
+          <AuditoriaPanel
+            titulo="Auditoría de usuarios"
+            descripcion="Últimas ediciones y borrados registrados."
+            eventos={auditoria}
+            loading={loadingAuditoria}
+            maxItems={10}
+          />
         )}
 
         {!loading && (
