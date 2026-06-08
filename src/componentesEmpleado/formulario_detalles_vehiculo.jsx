@@ -14,7 +14,7 @@ export default function FormularioDetallesVehiculo({ vehiculos = [] }) {
           <Car size={20} style={{ color: "rgb(59, 130, 246)" }} />
         </div>
         <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0, flex: 1 }}>
-          Detalles del Vehículo
+          Sus Vehículos
         </h3>
         <button
           type="button"

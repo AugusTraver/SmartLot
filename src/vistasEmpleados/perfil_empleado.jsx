@@ -12,6 +12,8 @@ import Footer from "../componentesEmpleado/footer_empleado"
 import { useAuth } from "../contexts/useAuth";
 import apiClient from "../servicies/apiClient";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
+import { ModelosGetAll } from "../servicies/API_Modelo";
+import { MarcasGetAll } from "../servicies/API_Marca";
 
 // Importación de subformularios estructurados
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
@@ -50,7 +52,7 @@ export default function PerfilEmpleado() {
     }
   }, [usuario]);
 
-  // Cargar vehículos del usuario desde la API
+  // Cargar vehículos del usuario desde la API y enriquecer con marca/modelo
   useEffect(() => {
     if (!usuario) return;
     let montado = true;
@@ -59,16 +61,49 @@ export default function PerfilEmpleado() {
 
     const cargarVehiculos = async () => {
       setCargandoVehiculos(true);
-      const resultado = await VehiculosGetAll();
+
+      const [resVehiculos, resModelos, resMarcas] = await Promise.all([
+        VehiculosGetAll(),
+        ModelosGetAll(),
+        MarcasGetAll(),
+      ]);
+
       if (!montado) return;
-      if (resultado.respuesta) {
-        const lista = Array.isArray(resultado.datos) ? resultado.datos
-          : Array.isArray(resultado.datos?.datos) ? resultado.datos.datos
-          : Array.isArray(resultado.datos?.data) ? resultado.datos.data
+
+      const normalizarArray = (datos) =>
+        Array.isArray(datos) ? datos
+          : Array.isArray(datos?.datos) ? datos.datos
+          : Array.isArray(datos?.data) ? datos.data
           : [];
-        const vehiculosUsuario = lista.filter((v) =>
-          Number(v.id_usuario ?? v.idUsuario ?? v.usuario_id) === idUsuario
-        );
+
+      const modelosArr = normalizarArray(resModelos?.datos);
+      const marcasArr = normalizarArray(resMarcas?.datos);
+
+      const marcaPorId = new Map(
+        marcasArr.map((m) => [Number(m.id), m.nombre || ""])
+      );
+
+      const infoModelo = new Map();
+      modelosArr.forEach((m) => {
+        const id = Number(m.id);
+        const nombre = m.nombre || m.nombre_modelo || m.modelo || "";
+        const marcaNombre = m.marca?.nombre ?? marcaPorId.get(Number(m.id_marca)) ?? "";
+        infoModelo.set(id, { nombre, marcaNombre });
+      });
+
+      if (resVehiculos.respuesta) {
+        const lista = normalizarArray(resVehiculos.datos);
+        const vehiculosUsuario = lista
+          .filter((v) =>
+            Number(v.id_usuario ?? v.idUsuario ?? v.usuario_id) === idUsuario
+          )
+          .map((v) => {
+            const info = infoModelo.get(Number(v.id_modelo));
+            if (info) {
+              return { ...v, marca_nombre: info.marcaNombre, modelo_nombre: info.nombre };
+            }
+            return v;
+          });
         setVehiculos(vehiculosUsuario);
       }
       setCargandoVehiculos(false);
