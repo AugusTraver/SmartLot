@@ -1,3 +1,5 @@
+/* src/componentesEmpleado/tarjeta_reserva.css */
+
 .empleado-reservas-section {
   width: 100%;
   margin-top: 10px;
@@ -16,7 +18,7 @@
   align-items: center;
   gap: 12px;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* CRÍTICO: Corta los círculos que sobresalen de la tarjeta */
   cursor: pointer;
   text-align: left;
   background: #ffffff;
@@ -27,6 +29,44 @@
     box-shadow 0.2s ease,
     border-color 0.2s ease,
     background-color 0.2s ease;
+}
+
+/* 🚀 ESTILOS PARA LOS CÍRCULOS ADENTRO DE LA CAJA (FONDO DEGRADADO SUTIL) */
+.reserva-circle-bg {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.09) 0%, rgba(37, 99, 235, 0) 70%);
+  filter: blur(12px); /* Les da el difuminado suave */
+  pointer-events: none; /* Evita que interfieran con los clics */
+  z-index: 0;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+/* Posición y tamaño del primer círculo (Arriba a la derecha del texto) */
+.reserva-circle-1 {
+  width: 120px;
+  height: 120px;
+  top: -40px;
+  right: 60px;
+}
+
+/* Posición y tamaño del segundo círculo (Abajo a la izquierda) */
+.reserva-circle-2 {
+  width: 90px;
+  height: 90px;
+  bottom: -30px;
+  left: 30px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.07) 0%, rgba(14, 165, 233, 0) 70%);
+}
+
+/* Animación sutil de los círculos internos al pasar el mouse por la tarjeta */
+.empleado-reserva-card:hover .reserva-circle-1 {
+  transform: translate(-5px, 5px) scale(1.1);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.13) 0%, rgba(37, 99, 235, 0) 70%);
+}
+
+.empleado-reserva-card:hover .reserva-circle-2 {
+  transform: translate(5px, -3px) scale(1.1);
 }
 
 .empleado-reserva-card::before {
@@ -61,7 +101,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* Por encima de las burbujas */
   align-self: center;
 }
 
@@ -93,7 +133,7 @@
   min-width: 0;
   flex: 1;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* Por encima de las burbujas */
 }
 
 .empleado-reserva-info h3 {
@@ -128,7 +168,7 @@
   font-size: 20px;
   font-weight: 900;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* Por encima de las burbujas */
 }
 
 .empleado-reserva-icon span {
