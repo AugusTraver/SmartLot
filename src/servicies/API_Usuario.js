@@ -71,6 +71,28 @@ const UsuariosGetById = async (id) => {
     }
 };
 
+const UsuariosGetAuditoria = async () => {
+
+    let returnObject = { respuesta: false, datos: [] };
+
+    let url = '/api/usuario/auditoria';
+
+    try {
+
+        const response = await apiClient.get(url);
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
 
 
 const UsuariosCreate = async (usuario) => {
@@ -183,6 +205,7 @@ const UsuariosLogin = async (email, contraseña) => {
 
 export {
     UsuariosGetAll,
+    UsuariosGetAuditoria,
     UsuariosGetByGarage,
     UsuariosGetById,
     UsuariosCreate,

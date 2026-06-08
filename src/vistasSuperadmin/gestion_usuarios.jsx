@@ -13,6 +13,9 @@ import {
   Building2,
   Car,
   ShieldCheck,
+  History,
+  Clock,
+  UserRound,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -24,6 +27,7 @@ import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import {
   UsuariosGetAll,
+  UsuariosGetAuditoria,
   UsuariosDelete,
   UsuariosPatchEstado,
 } from "../servicies/API_Usuario";
@@ -56,6 +60,51 @@ const ROLE_CLASSES = {
 };
 
 const ROLE_ORDER = [1, 4, 2, 3];
+
+const formatearFechaAuditoria = (valor) => {
+  if (!valor) return "Sin fecha";
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(fecha);
+};
+
+const obtenerActorAuditoria = (item, tipo) => {
+  const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
+  const email = item?.[`${tipo}ByEmail`];
+  return nombre || email || "Usuario no disponible";
+};
+
+const crearEventosAuditoriaUsuario = (items) =>
+  items
+    .flatMap((item) => {
+      const nombreUsuario = `${item.nombre || ""} ${item.apellido || ""}`.trim() || item.email || `Usuario ${item.id}`;
+      const eventos = [];
+      if (item.UpdateAt) {
+        eventos.push({
+          id: `${item.id}-update-${item.UpdateAt}`,
+          accion: "Editado",
+          clase: "update",
+          entidad: nombreUsuario,
+          actor: obtenerActorAuditoria(item, "Update"),
+          fecha: item.UpdateAt,
+        });
+      }
+      if (item.DeleteAt || item.Borrado === true) {
+        eventos.push({
+          id: `${item.id}-delete-${item.DeleteAt || "deleted"}`,
+          accion: "Borrado",
+          clase: "delete",
+          entidad: nombreUsuario,
+          actor: obtenerActorAuditoria(item, "Delete"),
+          fecha: item.DeleteAt,
+        });
+      }
+      return eventos;
+    })
+    .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
 function UserCardSkeleton() {
   return (
@@ -104,6 +153,8 @@ const GestionUsuarios = () => {
   const [empresaMap, setEmpresaMap] = useState({});
   const [sedeMap, setSedeMap] = useState({});
   const [garageMap, setGarageMap] = useState({});
+  const [auditoria, setAuditoria] = useState([]);
+  const [loadingAuditoria, setLoadingAuditoria] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -127,14 +178,16 @@ const GestionUsuarios = () => {
 
     const loadData = async () => {
       setLoading(true);
+      setLoadingAuditoria(true);
       setError("");
 
       try {
-        const [usuRes, empRes, sedRes, garRes] = await Promise.all([
+        const [usuRes, empRes, sedRes, garRes, auditRes] = await Promise.all([
           UsuariosGetAll(),
           EmpresasGetAll(),
           SedesGetAll(),
           GaragesGetAll(),
+          UsuariosGetAuditoria(),
         ]);
 
         if (!mounted) return;
@@ -162,17 +215,30 @@ const GestionUsuarios = () => {
         setSedeMap(sMap);
         setGarageMap(gMap);
         setUsuarios(usuariosRaw.map((u) => normalizarUsuario(u, eMap, sMap, gMap)));
+        if (auditRes.respuesta) {
+          setAuditoria(crearEventosAuditoriaUsuario(obtenerListado(auditRes.datos)));
+        }
       } catch (err) {
         console.error("Error loading user data:", err);
         setError("Ocurrió un error inesperado.");
       } finally {
         if (mounted) setLoading(false);
+        if (mounted) setLoadingAuditoria(false);
       }
     };
 
     loadData();
     return () => { mounted = false; };
   }, []);
+
+  const recargarAuditoria = async () => {
+    setLoadingAuditoria(true);
+    const auditRes = await UsuariosGetAuditoria();
+    if (auditRes.respuesta) {
+      setAuditoria(crearEventosAuditoriaUsuario(obtenerListado(auditRes.datos)));
+    }
+    setLoadingAuditoria(false);
+  };
 
   useEffect(() => {
     if (!showArchived) {
@@ -302,6 +368,7 @@ const GestionUsuarios = () => {
             setUsuarios((prev) =>
               prev.map((u) => (u.id === id ? { ...u, activo: false } : u))
             );
+            recargarAuditoria();
           },
         });
       } else {
@@ -319,6 +386,7 @@ const GestionUsuarios = () => {
         setUsuarios((prev) =>
           prev.map((u) => (u.id === id ? { ...u, activo: true } : u))
         );
+        await recargarAuditoria();
         Swal.fire({
           title: "Restaurado",
           text: `${nombre} ha sido restaurado.`,
@@ -353,6 +421,7 @@ const GestionUsuarios = () => {
       const response = await UsuariosDelete(id);
       if (response.respuesta) {
         setUsuarios((prev) => prev.filter((u) => u.id !== id));
+        await recargarAuditoria();
         Swal.fire("Eliminado", "Usuario eliminado permanentemente.", "success");
       } else {
         Swal.fire("Error", "No se pudo eliminar.", "error");
@@ -548,6 +617,40 @@ const GestionUsuarios = () => {
                 </button>
               )}
             </div>
+          </section>
+        )}
+
+        {!loading && (
+          <section className="usuarios-auditoria-panel">
+            <div className="usuarios-auditoria-header">
+              <div>
+                <h2>Auditoria de usuarios</h2>
+                <p>Ultimas ediciones y borrados registrados.</p>
+              </div>
+              <History size={20} />
+            </div>
+
+            {loadingAuditoria ? (
+              <p className="usuarios-auditoria-empty">Cargando auditoria...</p>
+            ) : auditoria.length === 0 ? (
+              <p className="usuarios-auditoria-empty">Todavia no hay movimientos registrados.</p>
+            ) : (
+              <div className="usuarios-auditoria-list">
+                {auditoria.slice(0, 10).map((evento) => (
+                  <article className="usuarios-auditoria-item" key={evento.id}>
+                    <span className={`usuarios-auditoria-badge ${evento.clase}`}>{evento.accion}</span>
+                    <div className="usuarios-auditoria-info">
+                      <h3>{evento.entidad}</h3>
+                      <p><UserRound size={13} /> {evento.actor}</p>
+                    </div>
+                    <div className="usuarios-auditoria-fecha">
+                      <Clock size={13} />
+                      <span>{formatearFechaAuditoria(evento.fecha)}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
         )}
 

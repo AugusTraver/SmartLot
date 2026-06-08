@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check } from "lucide-react";
+import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check, History, Clock, UserRound } from "lucide-react";
 import Swal from "sweetalert2";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -9,7 +9,7 @@ import "./gestion_empresas.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
-import { EmpresasGetAll, EmpresasUpdate, EmpresasDelete } from "../servicies/API_Empresa";
+import { EmpresasGetAll, EmpresasGetAuditoria, EmpresasUpdate, EmpresasDelete } from "../servicies/API_Empresa";
 
 gsap.registerPlugin(useGSAP);
 
@@ -30,11 +30,57 @@ const SkeletonCard = () => (
   </div>
 );
 
+const formatearFechaAuditoria = (valor) => {
+  if (!valor) return "Sin fecha";
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(fecha);
+};
+
+const obtenerActor = (item, tipo) => {
+  const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
+  const email = item?.[`${tipo}ByEmail`];
+  return nombre || email || "Usuario no disponible";
+};
+
+const crearEventosAuditoriaEmpresa = (items) =>
+  items
+    .flatMap((item) => {
+      const eventos = [];
+      if (item.UpdateAt) {
+        eventos.push({
+          id: `${item.id}-update-${item.UpdateAt}`,
+          accion: "Editada",
+          clase: "update",
+          entidad: item.nombre || `Empresa ${item.id}`,
+          actor: obtenerActor(item, "Update"),
+          fecha: item.UpdateAt,
+        });
+      }
+      if (item.DeleteAt || item.Borrado === true) {
+        eventos.push({
+          id: `${item.id}-delete-${item.DeleteAt || "deleted"}`,
+          accion: "Borrada",
+          clase: "delete",
+          entidad: item.nombre || `Empresa ${item.id}`,
+          actor: obtenerActor(item, "Delete"),
+          fecha: item.DeleteAt,
+        });
+      }
+      return eventos;
+    })
+    .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+
 function GestionEmpresas() {
   const navigate = useNavigate();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [auditoria, setAuditoria] = useState([]);
+  const [loadingAuditoria, setLoadingAuditoria] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editNombre, setEditNombre] = useState("");
   const [editDescripcion, setEditDescripcion] = useState("");
@@ -43,18 +89,35 @@ function GestionEmpresas() {
     let mounted = true;
     const load = async () => {
       setLoading(true);
-      const res = await EmpresasGetAll();
+      setLoadingAuditoria(true);
+      const [res, auditRes] = await Promise.all([
+        EmpresasGetAll(),
+        EmpresasGetAuditoria(),
+      ]);
       if (!mounted) return;
       if (res.respuesta) {
         setEmpresas(obtenerListado(res.datos));
       } else {
         setError("No se pudieron cargar las empresas.");
       }
+      if (auditRes.respuesta) {
+        setAuditoria(crearEventosAuditoriaEmpresa(obtenerListado(auditRes.datos)));
+      }
       setLoading(false);
+      setLoadingAuditoria(false);
     };
     load();
     return () => { mounted = false; };
   }, []);
+
+  const recargarAuditoria = async () => {
+    setLoadingAuditoria(true);
+    const auditRes = await EmpresasGetAuditoria();
+    if (auditRes.respuesta) {
+      setAuditoria(crearEventosAuditoriaEmpresa(obtenerListado(auditRes.datos)));
+    }
+    setLoadingAuditoria(false);
+  };
 
   useGSAP(() => {
     if (!loading && empresas.length > 0) {
@@ -82,10 +145,12 @@ function GestionEmpresas() {
       descripcion: editDescripcion.trim(),
     });
     if (res.respuesta) {
+      const actualizada = res.datos || {};
       setEmpresas((prev) =>
-        prev.map((e) => (e.id === editingId ? { ...e, nombre: editNombre.trim(), descripcion: editDescripcion.trim() } : e))
+        prev.map((e) => (e.id === editingId ? { ...e, ...actualizada, nombre: editNombre.trim(), descripcion: editDescripcion.trim() } : e))
       );
       setEditingId(null);
+      await recargarAuditoria();
       Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
     } else {
       Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
@@ -108,6 +173,7 @@ function GestionEmpresas() {
     const res = await EmpresasDelete(id);
     if (res.respuesta) {
       setEmpresas((prev) => prev.filter((e) => e.id !== id));
+      await recargarAuditoria();
       Swal.fire("Eliminada", "Empresa eliminada correctamente.", "success");
     } else {
       Swal.fire("Error", "No se pudo eliminar.", "error");
@@ -151,6 +217,38 @@ function GestionEmpresas() {
             <span>Nueva empresa</span>
           </BotonGenerico>
         </div>
+
+        <section className="auditoria-panel">
+          <div className="auditoria-panel-header">
+            <div>
+              <h2>Auditoria de empresas</h2>
+              <p>Ultimas ediciones y borrados registrados.</p>
+            </div>
+            <History size={20} />
+          </div>
+
+          {loadingAuditoria ? (
+            <p className="auditoria-empty">Cargando auditoria...</p>
+          ) : auditoria.length === 0 ? (
+            <p className="auditoria-empty">Todavia no hay movimientos registrados.</p>
+          ) : (
+            <div className="auditoria-list">
+              {auditoria.slice(0, 8).map((evento) => (
+                <article className="auditoria-item" key={evento.id}>
+                  <span className={`auditoria-badge ${evento.clase}`}>{evento.accion}</span>
+                  <div className="auditoria-info">
+                    <h3>{evento.entidad}</h3>
+                    <p><UserRound size={13} /> {evento.actor}</p>
+                  </div>
+                  <div className="auditoria-fecha">
+                    <Clock size={13} />
+                    <span>{formatearFechaAuditoria(evento.fecha)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
         {loading ? (
           <div className="empresas-grid">

@@ -49,6 +49,28 @@ const EmpresasGetById = async (id) => {
     }
 };
 
+const EmpresasGetAuditoria = async () => {
+
+    let returnObject = { respuesta: false, datos: [] };
+
+    let url = '/api/empresa/auditoria';
+
+    try {
+
+        const response = await apiClient.get(url);
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
 
 
 const EmpresasCreate = async (empresa) => {
@@ -125,6 +147,7 @@ const EmpresasDelete = async (id) => {
 export {
     EmpresasGetAll,
     EmpresasGetById,
+    EmpresasGetAuditoria,
     EmpresasCreate,
     EmpresasUpdate,
     EmpresasDelete
