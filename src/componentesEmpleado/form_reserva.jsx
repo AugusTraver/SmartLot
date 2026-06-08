@@ -1,6 +1,4 @@
-import { useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { useState } from "react";
 import { Calendar, Car, Clock, Plus, Warehouse } from "lucide-react";
 import "./form_reserva.css";
 
@@ -27,7 +25,6 @@ const obtenerFechaLocalHoy = () => {
 };
 
 export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [] }) {
-  const formScopeRef = useRef(null);
   const preferencias = (() => {
     try {
       return JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
@@ -43,16 +40,6 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     idGarage: garages.length === 1 ? String(obtenerIdGarage(garages[0])) : "",
     idVehiculo: preferencias.vehiculoPredeterminado || "",
   });
-
-  useGSAP(() => {
-    gsap.from(".animate-card-target", {
-      opacity: 0,
-      y: 30,
-      duration: 0.8,
-      ease: "power4.out",
-      clearProps: "transform, opacity",
-    });
-  }, { scope: formScopeRef });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,8 +74,8 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   };
 
   return (
-    <div ref={formScopeRef} className="reserva-container-wrapper">
-      <form onSubmit={handleFormSubmit} className="reserva-form-card animate-card-target">
+    <div className="reserva-container-wrapper">
+      <form onSubmit={handleFormSubmit} className="reserva-form-card">
         <div className="form-field-group">
           <label className="form-field-label" htmlFor="fecha">Fecha de reserva</label>
           <div className="form-input-icon-wrapper">
