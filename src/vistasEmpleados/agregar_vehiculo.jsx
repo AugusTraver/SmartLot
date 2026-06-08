@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Car, Plus } from "lucide-react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 import Header from "../componentesEmpleado/header_empleado";
 import Footer from "../componentesEmpleado/footer_empleado";
 import { useAuth } from "../contexts/useAuth";
@@ -95,6 +96,7 @@ export default function AgregarVehiculo() {
         title: "Campos incompletos",
         text: "Debes seleccionar un modelo del catálogo y completar la patente.",
         confirmButtonColor: "#3b82f6",
+        zIndex: Z_INDEX.SWAL_DIALOG,
       });
       return;
     }
@@ -107,6 +109,7 @@ export default function AgregarVehiculo() {
         title: "Error de sesión",
         text: "No se pudo detectar el ID del usuario.",
         confirmButtonColor: "#3b82f6",
+        zIndex: Z_INDEX.SWAL_DIALOG,
       });
       return;
     }
@@ -127,6 +130,7 @@ export default function AgregarVehiculo() {
           showConfirmButton: false,
           timer: 2500,
           timerProgressBar: true,
+          zIndex: Z_INDEX.SWAL_DIALOG,
         });
         navigate("/perfil_empleado");
       } else {
@@ -139,6 +143,7 @@ export default function AgregarVehiculo() {
         title: "Error al añadir vehículo",
         text: error.message || error.response?.data?.message || "Ocurrió un problema con el servidor.",
         confirmButtonColor: "#3b82f6",
+        zIndex: Z_INDEX.SWAL_DIALOG,
       });
     } finally {
       setGuardando(false);

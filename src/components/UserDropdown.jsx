@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Swal from 'sweetalert2';
+import { Z_INDEX } from '../helpers/zIndex';
 import { LogOut, User, Settings, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import apiClient from '../api/client';
@@ -153,6 +154,7 @@ export default function UserDropdown() {
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     try {

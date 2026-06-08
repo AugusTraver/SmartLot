@@ -17,11 +17,13 @@ import {
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 
 import "./gestion_de_empleados.css";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import ModalPortal from "../componentesCompartidos/ModalPortal";
 import { UsuariosGetAll, UsuariosGetByGarage, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
@@ -343,6 +345,7 @@ const GestionEmpleados = () => {
       confirmButtonText: "Sí, archivar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     if (!result.isConfirmed) return;
@@ -378,6 +381,7 @@ const GestionEmpleados = () => {
       const response = await UsuariosPatchEstado(id, true);
 
       if (response.respuesta) {
+        setShowArchived(false);
         setEmpleados((prev) =>
           prev.map((emp) =>
             emp.id === id ? { ...emp, activo: true } : emp
@@ -389,6 +393,7 @@ const GestionEmpleados = () => {
           icon: "success",
           timer: 1500,
           showConfirmButton: false,
+          zIndex: Z_INDEX.SWAL_DIALOG,
         });
       } else {
         Swal.fire("Error", "No se pudo restaurar al empleado.", "error");
@@ -400,6 +405,7 @@ const GestionEmpleados = () => {
   };
 
   const handleEliminarPermanente = async (id, name) => {
+    setShowArchived(false);
     const result = await Swal.fire({
       title: "@Eliminar permanentemente?",
       text: `${name || "Este empleado"} será eliminado del sistema. Esta acción no se puede deshacer.`,
@@ -410,6 +416,7 @@ const GestionEmpleados = () => {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     if (!result.isConfirmed) return;
@@ -517,7 +524,7 @@ const GestionEmpleados = () => {
   useGSAP(() => {
     if (showArchived) {
       gsap.fromTo(
-        ".modal-archive-overlay",
+        ".modal-portal-overlay",
         { opacity: 0 },
         { opacity: 1, duration: 0.25, ease: "power2.out" }
       );
@@ -734,7 +741,7 @@ const GestionEmpleados = () => {
       </main>
 
       {showArchived && (
-        <div className="modal-archive-overlay" onClick={() => setShowArchived(false)}>
+        <ModalPortal onClose={() => setShowArchived(false)}>
           <div className="modal-archive-panel" onClick={(e) => e.stopPropagation()}>
             <div className="modal-archive-header">
               <div className="modal-archive-title-group">
@@ -838,7 +845,7 @@ const GestionEmpleados = () => {
               )}
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       <FooterAdmin />

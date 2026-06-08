@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./empleados_dashboard.css";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
+import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
@@ -211,6 +212,8 @@ function EmpleadoDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mostrarTodas, setMostrarTodas] = useState(false);
+  const [reservaEditando, setReservaEditando] = useState(null);
+  const [reservaNormEditando, setReservaNormEditando] = useState(null);
 
   useEffect(() => {
     let montado = true;
@@ -300,6 +303,11 @@ function EmpleadoDashboard() {
     [garages]
   );
 
+  const reservasRawPorId = useMemo(
+    () => new Map(reservas.map((r) => [r.id ?? r.id_reserva, r])),
+    [reservas]
+  );
+
   const reservasNormalizadas = useMemo(() => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -315,10 +323,18 @@ function EmpleadoDashboard() {
   }, [reservas, vehiculosPorId, garagesPorId]);
 
   const reservasVisibles = mostrarTodas ? reservasNormalizadas : reservasNormalizadas.slice(0, 3);
-  const totalCapacidad = Number(garageUsuario?.capacidad_reservas || 0) + Number(garageUsuario?.capacidad_para_no_reservas || 0);
-  const ocupacion = Number(garageUsuario?.ocupacion_reservas || 0) + Number(garageUsuario?.ocupacion_no_reservas || 0);
+  const capacidadReservas = Number(garageUsuario?.capacidad_reservas || 0);
+  const capacidadNoReservas = Number(garageUsuario?.capacidad_para_no_reservas || 0);
+  const ocupacionReservas = Number(garageUsuario?.ocupacion_reservas || 0);
+  const ocupacionNoReservas = Number(garageUsuario?.ocupacion_no_reservas || 0);
+  const totalCapacidad = capacidadReservas + capacidadNoReservas;
+  const ocupacion = ocupacionReservas + ocupacionNoReservas;
   const plazasLibres = totalCapacidad > 0 ? Math.max(totalCapacidad - ocupacion, 0) : null;
   const porcentajeOcupacion = totalCapacidad > 0 ? Math.round((ocupacion / totalCapacidad) * 100) : null;
+  const pctReservas = capacidadReservas > 0 ? Math.round((ocupacionReservas / capacidadReservas) * 100) : 0;
+  const pctNoReservas = capacidadNoReservas > 0 ? Math.round((ocupacionNoReservas / capacidadNoReservas) * 100) : 0;
+  const libresReservas = capacidadReservas > 0 ? Math.max(capacidadReservas - ocupacionReservas, 0) : null;
+  const libresNoReservas = capacidadNoReservas > 0 ? Math.max(capacidadNoReservas - ocupacionNoReservas, 0) : null;
   const nombre = obtenerNombreUsuario(perfilUsuario || usuario);
 
   const handleGarageDashboardChange = (event) => {
@@ -328,6 +344,38 @@ function EmpleadoDashboard() {
     setGarageSeleccionadoId(nuevoId);
     setGarageUsuario(garageSeleccionado);
     localStorage.setItem(GARAGE_DASHBOARD_STORAGE_KEY, nuevoId);
+  };
+
+  const handleReservaClick = (reservaNorm) => {
+    const raw = reservasRawPorId.get(reservaNorm.id);
+    if (raw) {
+      setReservaEditando(raw);
+      setReservaNormEditando(reservaNorm);
+    }
+  };
+
+  const handleReservaActualizada = (reservaActualizada) => {
+    setReservas((prev) =>
+      prev.map((r) => {
+        const id = r.id ?? r.id_reserva;
+        return Number(id) === Number(reservaActualizada.id ?? reservaActualizada.id_reserva)
+          ? reservaActualizada
+          : r;
+      })
+    );
+    setReservaEditando(null);
+    setReservaNormEditando(null);
+  };
+
+  const handleReservaEliminada = (idReserva) => {
+    setReservas((prev) =>
+      prev.filter((r) => {
+        const id = r.id ?? r.id_reserva;
+        return Number(id) !== Number(idReserva);
+      })
+    );
+    setReservaEditando(null);
+    setReservaNormEditando(null);
   };
 
   return (
@@ -353,7 +401,9 @@ function EmpleadoDashboard() {
 
             <section className="empleado-disponibilidad-card">
               <div className="empleado-disponibilidad-top">
-                <div className="empleado-parking-icon">P</div>
+                <div className="empleado-parking-icon">
+                  <img src="/logo.png" alt="Logo" className="empleado-parking-logo" />
+                </div>
                 <span className="empleado-live-badge">EN VIVO</span>
               </div>
 
@@ -386,6 +436,39 @@ function EmpleadoDashboard() {
                 {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
               </p>
 
+              {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
+                <div className="empleado-capacidad-split">
+                  <div className="empleado-capacidad-item">
+                    <span className="empleado-capacidad-item-label">Reservas</span>
+                    <span className="empleado-capacidad-item-number">
+                      {libresReservas ?? "--"} <small>/ {capacidadReservas}</small>
+                    </span>
+                    {capacidadReservas > 0 && (
+                      <div className="empleado-capacidad-item-bar">
+                        <div
+                          className={`empleado-capacidad-item-bar-fill${pctReservas >= 75 ? " alta" : pctReservas >= 50 ? " media" : ""}`}
+                          style={{ width: `${pctReservas}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="empleado-capacidad-item">
+                    <span className="empleado-capacidad-item-label">No Reservas</span>
+                    <span className="empleado-capacidad-item-number">
+                      {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
+                    </span>
+                    {capacidadNoReservas > 0 && (
+                      <div className="empleado-capacidad-item-bar">
+                        <div
+                          className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
+                          style={{ width: `${pctNoReservas}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="empleado-disponibilidad-metrics">
                 <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
                 <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
@@ -416,7 +499,7 @@ function EmpleadoDashboard() {
           <EmpleadoReservasSkeleton />
         ) : reservasVisibles.length > 0 ? (
           reservasVisibles.map((reserva) => (
-            <TarjetaReserva key={reserva.id} reserva={reserva} />
+            <TarjetaReserva key={reserva.id} reserva={reserva} onClick={handleReservaClick} />
           ))
         ) : (
           <div className="empleado-dashboard-feedback">
@@ -433,6 +516,16 @@ function EmpleadoDashboard() {
         </button>
       </main>
       <FooterEmpleado />
+
+      {reservaEditando && reservaNormEditando && (
+        <ModalEditarReserva
+          reservaRaw={reservaEditando}
+          reservaNorm={reservaNormEditando}
+          onClose={() => { setReservaEditando(null); setReservaNormEditando(null); }}
+          onActualizada={handleReservaActualizada}
+          onEliminada={handleReservaEliminada}
+        />
+      )}
     </div>
   );
 }

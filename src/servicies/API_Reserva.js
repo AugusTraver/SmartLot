@@ -123,10 +123,34 @@ const ReservasDelete = async (id) => {
 
 
 
+const ReservasCancel = async (id) => {
+
+    let returnObject = { respuesta: false };
+
+    let url = '/api/reserva/' + id + '/cancel';
+
+    try {
+
+        await apiClient.post(url);
+
+        returnObject.respuesta = true;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
+
+
 export {
     ReservasGetAll,
     ReservasGetById,
     ReservasCreate,
     ReservasUpdate,
-    ReservasDelete
+    ReservasDelete,
+    ReservasCancel
 };

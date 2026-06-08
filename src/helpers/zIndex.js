@@ -1,0 +1,8 @@
+export const Z_INDEX = {
+  NOISE: 50,
+  HEADER: 1000,
+  FOOTER: 1000,
+  MODAL: 2000,
+  SWAL_DIALOG: 10600,
+  SWAL_TOAST: 10200,
+};

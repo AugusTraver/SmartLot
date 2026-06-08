@@ -2,7 +2,7 @@
 import React from "react";
 import "./tarjeta_reserva.css";
 
-function TarjetaReserva({ reserva }) {
+function TarjetaReserva({ reserva, onClick }) {
   if (!reserva) return null;
 
   // Formateamos la fecha para que se lea de forma limpia en Argentina (ej. "15/06/2026")
@@ -16,6 +16,7 @@ function TarjetaReserva({ reserva }) {
         type="button"
         className="empleado-reserva-card"
         aria-label={`Reserva en ${reserva.nombre_garage || 'Garage'}`}
+        onClick={() => onClick?.(reserva)}
       >
         {/* Bloque del Número de la Plaza (Izquierda) */}
         <div className="empleado-reserva-plaza">

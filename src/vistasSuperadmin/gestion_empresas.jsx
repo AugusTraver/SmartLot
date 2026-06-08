@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check, History, Clock, UserRound } from "lucide-react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -151,7 +152,7 @@ function GestionEmpresas() {
       );
       setEditingId(null);
       await recargarAuditoria();
-      Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
+      Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
     } else {
       Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
     }
@@ -168,6 +169,7 @@ function GestionEmpresas() {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
     if (!result.isConfirmed) return;
     const res = await EmpresasDelete(id);

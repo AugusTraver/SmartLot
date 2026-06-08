@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CirclePlus, Building2, Pencil, Trash2, X, Check } from "lucide-react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -103,7 +104,7 @@ function GestionSedes() {
         )
       );
       setEditingId(null);
-      Swal.fire({ title: "Actualizada", text: "Sede actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
+      Swal.fire({ title: "Actualizada", text: "Sede actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
     } else {
       Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
     }
@@ -120,6 +121,7 @@ function GestionSedes() {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
     if (!result.isConfirmed) return;
     const res = await SedesDelete(id);

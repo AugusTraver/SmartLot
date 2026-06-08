@@ -20,11 +20,13 @@ import {
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 
 import "./gestion_usuarios.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import ModalPortal from "../componentesCompartidos/ModalPortal";
 import {
   UsuariosGetAll,
   UsuariosGetAuditoria,
@@ -352,6 +354,7 @@ const GestionUsuarios = () => {
       confirmButtonText: "Sí, archivar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     if (!result.isConfirmed) return;
@@ -383,6 +386,7 @@ const GestionUsuarios = () => {
     try {
       const response = await UsuariosPatchEstado(id, true);
       if (response.respuesta) {
+        setShowArchived(false);
         setUsuarios((prev) =>
           prev.map((u) => (u.id === id ? { ...u, activo: true } : u))
         );
@@ -393,6 +397,7 @@ const GestionUsuarios = () => {
           icon: "success",
           timer: 1500,
           showConfirmButton: false,
+          zIndex: Z_INDEX.SWAL_DIALOG,
         });
       } else {
         Swal.fire("Error", "No se pudo restaurar.", "error");
@@ -403,6 +408,7 @@ const GestionUsuarios = () => {
   };
 
   const handleEliminar = async (id, nombre) => {
+    setShowArchived(false);
     const result = await Swal.fire({
       title: "Eliminar permanentemente?",
       text: `${nombre} será eliminado del sistema.`,
@@ -413,6 +419,7 @@ const GestionUsuarios = () => {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     if (!result.isConfirmed) return;
@@ -463,7 +470,7 @@ const GestionUsuarios = () => {
   useGSAP(() => {
     if (showArchived) {
       gsap.fromTo(
-        ".modal-archivados-overlay",
+        ".modal-portal-overlay",
         { opacity: 0 },
         { opacity: 1, duration: 0.25, ease: "power2.out" }
       );
@@ -737,10 +744,7 @@ const GestionUsuarios = () => {
       </main>
 
       {showArchived && (
-        <div
-          className="modal-archivados-overlay"
-          onClick={() => setShowArchived(false)}
-        >
+        <ModalPortal onClose={() => setShowArchived(false)}>
           <div
             className="modal-archivados-panel"
             onClick={(e) => e.stopPropagation()}
@@ -833,7 +837,7 @@ const GestionUsuarios = () => {
               )}
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       <FooterSuperadmin />

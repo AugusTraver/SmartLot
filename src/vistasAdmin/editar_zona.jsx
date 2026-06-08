@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
@@ -55,6 +56,7 @@ function EditarZona() {
       confirmButtonText: "Sí, archivar",
       cancelButtonText: "Cancelar",
       reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
     });
 
     if (!result.isConfirmed) return;
@@ -74,6 +76,7 @@ function EditarZona() {
           icon: "success",
           timer: 1500,
           showConfirmButton: false,
+          zIndex: Z_INDEX.SWAL_DIALOG,
         });
       } else {
         Swal.fire("Error", "No se pudo archivar al garajista.", "error");

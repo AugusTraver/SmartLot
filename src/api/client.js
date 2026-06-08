@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { Z_INDEX } from '../helpers/zIndex';
 import { navigateTo } from './navigation';
 
 const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
@@ -19,6 +20,7 @@ function showToast(message, icon = 'error') {
     showConfirmButton: false,
     timer: 4000,
     timerProgressBar: true,
+    zIndex: Z_INDEX.SWAL_TOAST,
   });
 }
 

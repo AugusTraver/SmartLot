@@ -100,9 +100,9 @@
 }
 
 .empleado-parking-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
   background: #DBEAFE;
   color: #2563eb;
   display: flex;
@@ -110,6 +110,14 @@
   justify-content: center;
   font-size: 25px;
   font-weight: 900;
+  overflow: hidden;
+}
+
+.empleado-parking-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 3px;
 }
 
 .empleado-live-badge {
@@ -205,6 +213,69 @@
   color: #64748B;
   font-size: 13px;
   font-weight: 650;
+}
+
+.empleado-capacidad-split {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.empleado-capacidad-item {
+  flex: 1;
+  padding: 12px;
+  border-radius: 16px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.empleado-capacidad-item-label {
+  display: block;
+  color: #64748B;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.empleado-capacidad-item-number {
+  display: block;
+  color: #1E293B;
+  font-family: var(--font-display), "Archivo", system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.empleado-capacidad-item-number small {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.empleado-capacidad-item-bar {
+  width: 100%;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.empleado-capacidad-item-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #2563eb;
+  transition: width 0.4s ease;
+}
+
+.empleado-capacidad-item-bar-fill.alta {
+  background: #ef4444;
+}
+
+.empleado-capacidad-item-bar-fill.media {
+  background: #f59e0b;
 }
 
 .empleado-disponibilidad-metrics {

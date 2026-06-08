@@ -5,6 +5,7 @@ import { ArrowLeft, Save, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
+import { Z_INDEX } from "../helpers/zIndex";
 import Header from "../componentesEmpleado/header_empleado"
 import Footer from "../componentesEmpleado/footer_empleado"
 
@@ -162,6 +163,7 @@ export default function PerfilEmpleado() {
         showConfirmButton: false,
         timer: 2500,
         timerProgressBar: true,
+        zIndex: Z_INDEX.SWAL_DIALOG,
       });
 
     } catch (error) {
@@ -170,7 +172,8 @@ export default function PerfilEmpleado() {
         icon: 'error',
         title: 'Error al guardar',
         text: error.message || error.response?.data?.message || 'Ocurrió un problema con el servidor.',
-        confirmButtonColor: '#3b82f6'
+        confirmButtonColor: '#3b82f6',
+        zIndex: Z_INDEX.SWAL_DIALOG,
       });
     } finally {
       setGuardando(false);
