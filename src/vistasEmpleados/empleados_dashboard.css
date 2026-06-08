@@ -140,6 +140,44 @@
   font-weight: 800;
 }
 
+.empleado-garage-selector {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 16px;
+}
+
+.empleado-garage-selector span {
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.empleado-garage-selector select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  padding: 0 42px 0 14px;
+  background-color: #ffffff;
+  color: #1E293B;
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='m6 9 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+.empleado-garage-selector select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
 .empleado-plazas-libres {
   display: flex;
   align-items: baseline;
@@ -249,6 +287,159 @@
   color: #991b1b;
 }
 
+.empleado-skeleton-line,
+.empleado-skeleton-block {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #e6edf6;
+}
+
+.empleado-skeleton-line::after,
+.empleado-skeleton-block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  animation: empleado-skeleton-shimmer 1.35s infinite;
+}
+
+.empleado-dashboard-intro-skeleton {
+  min-height: 91px;
+}
+
+.empleado-skeleton-kicker {
+  width: 54px;
+  height: 12px;
+  margin-bottom: 13px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-title {
+  width: 68%;
+  max-width: 245px;
+  height: 34px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
+
+.empleado-skeleton-subtitle {
+  width: 78%;
+  max-width: 300px;
+  height: 15px;
+  border-radius: 999px;
+}
+
+.empleado-disponibilidad-skeleton {
+  pointer-events: none;
+}
+
+.empleado-skeleton-parking {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.empleado-skeleton-live {
+  width: 78px;
+  height: 28px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-disponibilidad-label {
+  width: 58%;
+  height: 14px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-availability-row {
+  display: flex;
+  align-items: end;
+  gap: 11px;
+  margin-bottom: 13px;
+}
+
+.empleado-skeleton-big-number {
+  width: 86px;
+  height: 56px;
+  border-radius: 16px;
+}
+
+.empleado-skeleton-capacity-label {
+  width: 108px;
+  height: 18px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-occupancy {
+  width: 70%;
+  height: 13px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-metrics {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.empleado-skeleton-chip {
+  width: 106px;
+  height: 31px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-chip-short {
+  width: 92px;
+}
+
+.empleado-reservas-skeleton-list {
+  width: 100%;
+}
+
+.empleado-reserva-card-skeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.empleado-skeleton-reserva-plaza {
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
+}
+
+.empleado-skeleton-reserva-info {
+  min-width: 0;
+}
+
+.empleado-skeleton-reserva-title {
+  width: 82%;
+  height: 16px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-reserva-text {
+  width: 66%;
+  height: 13px;
+  border-radius: 999px;
+}
+
+.empleado-skeleton-reserva-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+@keyframes empleado-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .empleado-nueva-reserva-btn {
   width: 100%;
   max-width: 404px;
@@ -303,6 +494,16 @@
 
   .empleado-plazas-libres strong {
     font-size: 54px;
+  }
+
+  .empleado-skeleton-availability-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .empleado-skeleton-capacity-label {
+    margin-bottom: 0;
   }
 }
 

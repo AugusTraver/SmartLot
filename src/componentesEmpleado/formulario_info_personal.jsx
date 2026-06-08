@@ -2,7 +2,7 @@
 import React from "react";
 import { User } from "lucide-react";
 
-export default function FormularioInfoPersonal({ data = {} }) {
+export default function FormularioInfoPersonal({ data = {}, onChange }) {
   return (
     <section
       className=" inforpersonal-contenedor formulario-seccion animate-section" 
@@ -27,8 +27,8 @@ export default function FormularioInfoPersonal({ data = {} }) {
               className="formulario-input"
               value={data.nombre || ""}
               readOnly
-              disabled
-              style={{ cursor: "not-allowed", opacity: 0.75 }}
+              tabIndex={-1}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
             />
           </div>
 
@@ -40,35 +40,34 @@ export default function FormularioInfoPersonal({ data = {} }) {
               className="formulario-input"
               value={data.apellido || ""}
               readOnly
-              disabled
-              style={{ cursor: "not-allowed", opacity: 0.75 }}
+              tabIndex={-1}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
             />
           </div>
         </div>
 
-        <div className="formulario-grupo">
-          <label htmlFor="email">Correo Electrónico</label>
-          <input
-            type="email"
-            id="email"
-            className="formulario-input"
-            value={data.email || ""}
-            readOnly
-            disabled
-            style={{ cursor: "not-allowed", opacity: 0.75 }}
-          />
-        </div>
+          <div className="formulario-grupo">
+            <label htmlFor="email">Correo Electrónico</label>
+            <input
+              type="email"
+              id="email"
+              className="formulario-input"
+              value={data.email || ""}
+              readOnly
+              tabIndex={-1}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
+            />
+          </div>
 
         <div className="formulario-grupo">
           <label htmlFor="telefono">Teléfono</label>
           <input
             type="tel"
             id="telefono"
+            name="telefono"
             className="formulario-input"
             value={data.telefono || ""}
-            readOnly
-            disabled
-            style={{ cursor: "not-allowed", opacity: 0.75 }}
+            onChange={onChange}
           />
         </div>
       </div>

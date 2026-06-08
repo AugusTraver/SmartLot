@@ -10,6 +10,8 @@ import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 
+const GARAGE_DASHBOARD_STORAGE_KEY = "smartlot_empleado_dashboard_garage";
+
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
@@ -21,9 +23,46 @@ const obtenerListado = (datos) => {
   return [];
 };
 
-const obtenerIdUsuario = (usuario) => usuario?.id ?? usuario?.id_usuario ?? usuario?._id;
+const obtenerIdUsuario = (usuario) =>
+  usuario?.id ??
+  usuario?.id_usuario ??
+  usuario?.idUsuario ??
+  usuario?._id ??
+  usuario?.usuario?.id_usuario ??
+  usuario?.usuario?.idUsuario ??
+  usuario?.usuario?.id ??
+  usuario?.datos?.id_usuario ??
+  usuario?.datos?.idUsuario ??
+  usuario?.datos?.id;
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (item) => item?.id_garage ?? item?.idGarage ?? item?.garage_id ?? item?.garageId ?? item?.garage?.id_garage ?? item?.garage?.id ?? item?.id;
+const obtenerIdGarageAsignado = (item) =>
+  item?.id_garage ??
+  item?.idGarage ??
+  item?.garage_id ??
+  item?.garageId ??
+  item?.garage?.id_garage ??
+  item?.garage?.idGarage ??
+  item?.garage?.id;
+const obtenerIdSedeUsuario = (item) =>
+  item?.id_sede ??
+  item?.idSede ??
+  item?.sede_id ??
+  item?.sedeId ??
+  item?.sede?.id ??
+  item?.sede?.id_sede ??
+  item?.usuario?.id_sede ??
+  item?.usuario?.idSede ??
+  item?.datos?.id_sede ??
+  item?.datos?.idSede;
+
+const obtenerIdSedeGarage = (garage) =>
+  garage?.id_sede ??
+  garage?.idSede ??
+  garage?.sede_id ??
+  garage?.sedeId ??
+  garage?.sede?.id ??
+  garage?.sede?.id_sede;
 
 const obtenerObjeto = (datos) => {
   if (!datos || Array.isArray(datos)) return null;
@@ -53,6 +92,11 @@ const obtenerCampo = (item, claves, fallback = "") => {
   return clave ? item[clave] : fallback;
 };
 
+const obtenerNombreGarage = (garage) =>
+  garage
+    ? obtenerCampo(garage, ["nombre", "descripcion", "nombre_garage", "garage_nombre"], `Garage ${obtenerIdGarage(garage) || ""}`.trim())
+    : "";
+
 const esMismaFecha = (fechaA, fechaB) =>
   fechaA.getFullYear() === fechaB.getFullYear() &&
   fechaA.getMonth() === fechaB.getMonth() &&
@@ -76,15 +120,23 @@ const formatearFecha = (fecha) => {
   }).format(fechaReserva);
 };
 
-const normalizarReserva = (reserva, vehiculosPorId, garageUsuario) => {
+const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
   const idVehiculo = obtenerCampo(reserva, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]);
+  const idGarage = obtenerIdGarageAsignado(reserva);
   const vehiculo = vehiculosPorId.get(Number(idVehiculo));
+  const garageReserva = garagesPorId.get(Number(idGarage));
   const patente = obtenerCampo(vehiculo, ["patente", "placa", "matricula"]);
-  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"]);
-  const horaInicio = obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"], "--:--");
-  const horaFin = obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"], "--:--");
+  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada"]);
+  const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida"]);
+  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], fechaEntrada?.split(" ")?.[0] || fechaEntrada?.split("T")?.[0] || "");
+  const horaInicio = obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"], fechaEntrada?.split(" ")?.[1]?.slice(0, 5) || fechaEntrada?.split("T")?.[1]?.slice(0, 5) || "--:--");
+  const horaFin = obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"], fechaSalida?.split(" ")?.[1]?.slice(0, 5) || fechaSalida?.split("T")?.[1]?.slice(0, 5) || "--:--");
   const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
-    obtenerCampo(garageUsuario, ["nombre", "descripcion"], "Garage asignado");
+    obtenerNombreGarage(garageReserva) ||
+    "Garage asignado";
+
+  const plaza = obtenerCampo(reserva, ["plaza", "nro_plaza", "numero_plaza", "espacio"], patente || "Auto");
+  const zona = obtenerCampo(reserva, ["nombre_zona", "nivel", "piso", "sector", "zona"], "Reserva");
 
   return {
     id: reserva.id ?? reserva.id_reserva ?? `${fecha}-${idVehiculo}-${horaInicio}`,
@@ -92,18 +144,70 @@ const normalizarReserva = (reserva, vehiculosPorId, garageUsuario) => {
     fechaLabel: formatearFecha(fecha),
     horario: `${horaInicio} - ${horaFin}`,
     ubicacion,
-    plaza: obtenerCampo(reserva, ["plaza", "nro_plaza", "numero_plaza", "espacio"], patente || "Auto"),
-    nivel: obtenerCampo(reserva, ["nivel", "piso", "sector", "zona"], "Reserva"),
+    plaza,
+    nivel: zona,
+    nombre_garage: ubicacion,
+    nro_plaza: plaza,
+    nombre_zona: zona,
+    hora_entrada: horaInicio,
+    hora_salida: horaFin,
   };
 };
 
+const EmpleadoDashboardIntroSkeleton = () => (
+  <div className="empleado-dashboard-intro empleado-dashboard-intro-skeleton" aria-label="Cargando datos del empleado">
+    <span className="empleado-skeleton-line empleado-skeleton-kicker" />
+    <span className="empleado-skeleton-line empleado-skeleton-title" />
+    <span className="empleado-skeleton-line empleado-skeleton-subtitle" />
+  </div>
+);
+
+const EmpleadoDisponibilidadSkeleton = () => (
+  <section className="empleado-disponibilidad-card empleado-disponibilidad-skeleton" aria-label="Cargando disponibilidad">
+    <div className="empleado-disponibilidad-top">
+      <span className="empleado-skeleton-block empleado-skeleton-parking" />
+      <span className="empleado-skeleton-block empleado-skeleton-live" />
+    </div>
+    <span className="empleado-skeleton-line empleado-skeleton-disponibilidad-label" />
+    <div className="empleado-skeleton-availability-row">
+      <span className="empleado-skeleton-line empleado-skeleton-big-number" />
+      <span className="empleado-skeleton-line empleado-skeleton-capacity-label" />
+    </div>
+    <span className="empleado-skeleton-line empleado-skeleton-occupancy" />
+    <div className="empleado-skeleton-metrics">
+      <span className="empleado-skeleton-block empleado-skeleton-chip" />
+      <span className="empleado-skeleton-block empleado-skeleton-chip empleado-skeleton-chip-short" />
+    </div>
+  </section>
+);
+
+const EmpleadoReservasSkeleton = () => (
+  <div className="empleado-reservas-skeleton-list" aria-label="Cargando reservas">
+    {Array.from({ length: 1 }).map((_, index) => (
+      <section className="empleado-reservas-section" key={index}>
+        <article className="empleado-reserva-card empleado-reserva-card-skeleton">
+          <span className="empleado-skeleton-block empleado-skeleton-reserva-plaza" />
+          <div className="empleado-skeleton-reserva-info">
+            <span className="empleado-skeleton-line empleado-skeleton-reserva-title" />
+            <span className="empleado-skeleton-line empleado-skeleton-reserva-text" />
+          </div>
+          <span className="empleado-skeleton-block empleado-skeleton-reserva-action" />
+        </article>
+      </section>
+    ))}
+  </div>
+);
+  
 function EmpleadoDashboard() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
   const [perfilUsuario, setPerfilUsuario] = useState(null);
   const [reservas, setReservas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
+  const [garages, setGarages] = useState([]);
+  const [garagesSede, setGaragesSede] = useState([]);
   const [garageUsuario, setGarageUsuario] = useState(null);
+  const [garageSeleccionadoId, setGarageSeleccionadoId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mostrarTodas, setMostrarTodas] = useState(false);
@@ -126,8 +230,11 @@ function EmpleadoDashboard() {
 
         if (!montado) return;
 
-        if (usuarioResponse.respuesta) {
-          setPerfilUsuario(obtenerObjeto(usuarioResponse.datos));
+        const perfilUsuarioApi = usuarioResponse.respuesta ? obtenerObjeto(usuarioResponse.datos) : null;
+        const perfilEmpleado = perfilUsuarioApi || usuario;
+
+        if (perfilUsuarioApi) {
+          setPerfilUsuario(perfilUsuarioApi);
         }
 
         const vehiculosApi = vehiculosResponse.respuesta ? obtenerListado(vehiculosResponse.datos) : [];
@@ -142,15 +249,31 @@ function EmpleadoDashboard() {
         });
 
         const garages = garagesResponse.respuesta ? obtenerListado(garagesResponse.datos) : [];
-        const idGarageUsuario = Number(obtenerIdGarage(usuario));
-        const garageEncontrado = garages.find((garage) => Number(obtenerIdGarage(garage)) === idGarageUsuario) ?? garages[0] ?? null;
+        const idSedeEmpleado = Number(obtenerIdSedeUsuario(perfilEmpleado));
+        const garagesDeSede = Number.isFinite(idSedeEmpleado)
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeEmpleado)
+          : [];
+        const idGarageEmpleado = Number(obtenerIdGarageAsignado(perfilEmpleado));
+        const garageGuardadoId = Number(localStorage.getItem(GARAGE_DASHBOARD_STORAGE_KEY));
+        const garageEncontrado =
+          garagesDeSede.find((garage) => Number(obtenerIdGarage(garage)) === garageGuardadoId) ??
+          garagesDeSede.find((garage) => Number(obtenerIdGarage(garage)) === idGarageEmpleado) ??
+          garagesDeSede[0] ??
+          null;
 
         setVehiculos(vehiculosDelUsuario);
+        setGarages(garages);
+        setGaragesSede(garagesDeSede);
         setGarageUsuario(garageEncontrado);
+        setGarageSeleccionadoId(garageEncontrado ? String(obtenerIdGarage(garageEncontrado)) : "");
         setReservas(reservasDelUsuario);
 
         if (!reservasResponse.respuesta || !vehiculosResponse.respuesta) {
           setError("No se pudieron cargar todos tus datos.");
+        } else if (!Number.isFinite(idSedeEmpleado)) {
+          setError("No se pudo identificar tu sede.");
+        } else if (garagesDeSede.length === 0) {
+          setError("No hay garages disponibles para tu sede.");
         }
       } catch (err) {
         console.error("Error al cargar el dashboard de empleado:", err);
@@ -172,19 +295,24 @@ function EmpleadoDashboard() {
     [vehiculos]
   );
 
+  const garagesPorId = useMemo(
+    () => new Map(garages.map((garage) => [Number(obtenerIdGarage(garage)), garage])),
+    [garages]
+  );
+
   const reservasNormalizadas = useMemo(() => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     return reservas
-      .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garageUsuario))
+      .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId))
       .filter((reserva) => {
         if (!reserva.fecha) return true;
         const fecha = new Date(`${reserva.fecha}T00:00:00`);
         return Number.isNaN(fecha.getTime()) || fecha >= hoy;
       })
       .sort((a, b) => `${a.fecha} ${a.horario}`.localeCompare(`${b.fecha} ${b.horario}`));
-  }, [reservas, vehiculosPorId, garageUsuario]);
+  }, [reservas, vehiculosPorId, garagesPorId]);
 
   const reservasVisibles = mostrarTodas ? reservasNormalizadas : reservasNormalizadas.slice(0, 3);
   const totalCapacidad = Number(garageUsuario?.capacidad_reservas || 0) + Number(garageUsuario?.capacidad_para_no_reservas || 0);
@@ -193,44 +321,78 @@ function EmpleadoDashboard() {
   const porcentajeOcupacion = totalCapacidad > 0 ? Math.round((ocupacion / totalCapacidad) * 100) : null;
   const nombre = obtenerNombreUsuario(perfilUsuario || usuario);
 
+  const handleGarageDashboardChange = (event) => {
+    const nuevoId = event.target.value;
+    const garageSeleccionado = garagesSede.find((garage) => String(obtenerIdGarage(garage)) === nuevoId) ?? null;
+
+    setGarageSeleccionadoId(nuevoId);
+    setGarageUsuario(garageSeleccionado);
+    localStorage.setItem(GARAGE_DASHBOARD_STORAGE_KEY, nuevoId);
+  };
+
   return (
     <div className="empleado-dashboard-page">
       <HeaderEmpleado />
       <main className="empleado-dashboard-main">
-        <div className="empleado-dashboard-intro">
-          <span className="empleado-dashboard-kicker">Hoy</span>
-          <h1 className="empleado-dashboard-title">
-            Hola{nombre ? ` ${nombre}` : ""}
-          </h1>
-          <p className="empleado-dashboard-subtitle">
-            Tu reserva y disponibilidad del estacionamiento.
-          </p>
-        </div>
+        {loading ? (
+          <>
+            <EmpleadoDashboardIntroSkeleton />
+            <EmpleadoDisponibilidadSkeleton />
+          </>
+        ) : (
+          <>
+            <div className="empleado-dashboard-intro">
+              <span className="empleado-dashboard-kicker">Hoy</span>
+              <h1 className="empleado-dashboard-title">
+                Hola{nombre ? ` ${nombre}` : ""}
+              </h1>
+              <p className="empleado-dashboard-subtitle">
+                Tu reserva y disponibilidad del estacionamiento.
+              </p>
+            </div>
 
-        <section className="empleado-disponibilidad-card">
-          <div className="empleado-disponibilidad-top">
-            <div className="empleado-parking-icon">P</div>
-            <span className="empleado-live-badge">EN VIVO</span>
-          </div>
+            <section className="empleado-disponibilidad-card">
+              <div className="empleado-disponibilidad-top">
+                <div className="empleado-parking-icon">P</div>
+                <span className="empleado-live-badge">EN VIVO</span>
+              </div>
 
-          <p className="empleado-disponibilidad-text">
-            Disponibilidad en tiempo real
-          </p>
+              <p className="empleado-disponibilidad-text">
+                Disponibilidad en tiempo real
+              </p>
 
-          <div className="empleado-plazas-libres">
-            <strong>{loading ? "..." : plazasLibres ?? "--"}</strong>
-            <span>Plazas Libres</span>
-          </div>
+              {garagesSede.length > 1 && (
+                <label className="empleado-garage-selector">
+                  <span>Garage</span>
+                  <select value={garageSeleccionadoId} onChange={handleGarageDashboardChange}>
+                    {garagesSede.map((garage) => {
+                      const id = obtenerIdGarage(garage);
+                      return (
+                        <option key={id} value={id}>
+                          {obtenerNombreGarage(garage)}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+              )}
 
-          <p className="empleado-companeros">
-            {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
-          </p>
+              <div className="empleado-plazas-libres">
+                <strong>{plazasLibres ?? "--"}</strong>
+                <span>Plazas Libres</span>
+              </div>
 
-          <div className="empleado-disponibilidad-metrics">
-            <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
-            <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
-          </div>
-        </section>
+              <p className="empleado-companeros">
+                {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
+              </p>
+
+              <div className="empleado-disponibilidad-metrics">
+                <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
+                <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
+              </div>
+            </section>
+          </>
+        )}
 
         <div className="empleado-reservas-header">
           <div>
@@ -251,7 +413,7 @@ function EmpleadoDashboard() {
         )}
 
         {loading ? (
-          <div className="empleado-dashboard-feedback">Cargando reservas...</div>
+          <EmpleadoReservasSkeleton />
         ) : reservasVisibles.length > 0 ? (
           reservasVisibles.map((reserva) => (
             <TarjetaReserva key={reserva.id} reserva={reserva} />
