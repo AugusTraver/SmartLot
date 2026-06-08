@@ -180,46 +180,50 @@ const NuevaReserva = () => {
   };
 
   return (
-    <div className="nuevaReserva-contenedor" ref={containerRef}>
-      <HeaderEmpleado />
-      <main className="nuevaReserva-contenido" role="main">
-        <div className="animate-back">
-          <button
-            className="boton-back"
-            onClick={() => navigate("/empleados_dashboard")}
-            aria-label="Volver al panel"
-          >
-            <ArrowLeft size={20} />
-          </button>
-        </div>
+    <div>
 
-        <header className="textosTitulos animate-texts">
-          <h1>Nueva Reserva</h1>
-          <p>Reserva tu plaza de estacionamiento para tu proxima jornada.</p>
-        </header>
-
-        {mensaje.texto && (
-          <div className={`form-feedback alert-${mensaje.tipo}`} role="alert">
-            <p>{mensaje.texto}</p>
+      <div className="nuevaReserva-contenedor" ref={containerRef}>
+        <HeaderEmpleado />
+        <main className="nuevaReserva-contenido" role="main">
+          <div className="animate-back">
+            <button
+              className="boton-back"
+              onClick={() => navigate("/empleados_dashboard")}
+              aria-label="Volver al panel"
+            >
+              <ArrowLeft size={20} />
+            </button>
           </div>
-        )}
 
-        <section className="formularioReserva">
-          {loadingVehiculos ? (
-            <div className="form-feedback">Cargando vehiculos...</div>
-          ) : (
-            <FormularioReserva
-              onSubmit={handleReservationSubmit}
-              loading={loading}
-              vehiculos={vehiculos}
-              garages={garages}
-            />
+          <header className="textosTitulos animate-texts">
+            <h1>Nueva Reserva</h1>
+            <p>Reserva tu plaza de estacionamiento para tu proxima jornada.</p>
+          </header>
+
+          {mensaje.texto && (
+            <div className={`form-feedback alert-${mensaje.tipo}`} role="alert">
+              <p>{mensaje.texto}</p>
+            </div>
           )}
-        </section>
-      </main>
-      <FooterEmpleado/>
+
+          <section className="formularioReserva">
+            {loadingVehiculos ? (
+              <div className="form-feedback">Cargando vehiculos...</div>
+            ) : (
+              <FormularioReserva
+                onSubmit={handleReservationSubmit}
+                loading={loading}
+                vehiculos={vehiculos}
+                garages={garages}
+              />
+            )}
+          </section>
+        </main>
+
+      </div>
+      <FooterEmpleado />
     </div>
-  );
+      );
 };
 
-export default NuevaReserva;
+      export default NuevaReserva;

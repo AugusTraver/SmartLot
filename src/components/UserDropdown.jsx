@@ -119,6 +119,12 @@ export default function UserDropdown() {
       // Fallback seguro por si un admin u otro rol interactúa con este botón
       navigate('/empleados_dashboard');
     }
+
+    if (usuario?.id_rol === 1){
+      navigate ('/perfil_admin')
+    }else{
+      navigate('admin_dashboard')
+    }
   }, [navigate, usuario]);
 
   const handleLogout = useCallback(async () => {

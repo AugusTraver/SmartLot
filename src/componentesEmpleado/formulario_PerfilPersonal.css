@@ -27,14 +27,16 @@
 
 /* --- Contenedor Base de toda la pantalla --- */
 .perfilUsuario-Contenedor {
-  background-color: var(--sl-bg-main);
+  background-color: #f5f7fb;
   min-height: 100vh;
   padding: 1.5rem 1rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   box-sizing: border-box;
-  
+  margin-bottom: 6%;
 }
-
+.Perfil-contenedor{
+ background-color: #f5f7fb;
+}
 /* --- Envoltorio Compacto del Contenido --- */
 .perfilUsuario-contenido {
   max-width: 540px;
@@ -222,13 +224,13 @@
 
 /* Botón de Guardado principal de SmartLot */
 .btn-primary-action {
-  background-color: var(--sl-accent-blue);
+  background-color: #0544e2;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
 }
 
 .btn-primary-action:hover:not(:disabled) {
-  background-color: var(--sl-accent-blue-hover);
+  background-color: #0544e1;
 }
 
 /* Botón Destructivo Elegante de Logout */
