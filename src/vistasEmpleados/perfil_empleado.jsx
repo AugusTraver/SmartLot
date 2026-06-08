@@ -11,6 +11,7 @@ import Footer from "../componentesEmpleado/footer_empleado"
 // Hooks y Contextos de SmartLot
 import { useAuth } from "../contexts/useAuth";
 import apiClient from "../servicies/apiClient";
+import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 
 // Importación de subformularios estructurados
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
@@ -27,15 +28,17 @@ export default function PerfilEmpleado() {
   
   const { usuario, setUsuario, loading } = useAuth();
 
-  // Estados locales independientes blindados con strings vacíos
+  // Estados locales
   const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
-  const [vehiculoData, setVehiculoData] = useState({ modelo: "", patente: "" });
+  const [vehiculos, setVehiculos] = useState([]);
   const [guardando, setGuardando] = useState(false);
+  const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
+
+  const obtenerIdUsuario = (usr) => usr?.id ?? usr?.id_usuario ?? usr?._id;
 
   // 🚀 Sincronización exacta con el formato relacional de tu base de datos SmartLot
   useEffect(() => {
     if (usuario) {
-      // Tu AuthProvider guarda los datos reales del registro en usuario.datos o usuario.usuario
       const infoUsuario = usuario.datos || usuario.usuario || usuario;
 
       setPersonalData({
@@ -44,17 +47,39 @@ export default function PerfilEmpleado() {
         email: infoUsuario.email || usuario.email || "",
         telefono: infoUsuario.telefono || usuario.telefono || ""
       });
-
-      setVehiculoData({
-        modelo: usuario.vehiculo?.modelo || infoUsuario.modelo || usuario.modelo || "",
-        patente: usuario.vehiculo?.patente || infoUsuario.patente || usuario.patente || ""
-      });
     }
   }, [usuario]);
 
-  const handleVehiculoChange = (e) => {
+  // Cargar vehículos del usuario desde la API
+  useEffect(() => {
+    if (!usuario) return;
+    let montado = true;
+    const idUsuario = Number(obtenerIdUsuario(usuario));
+    if (!idUsuario) return;
+
+    const cargarVehiculos = async () => {
+      setCargandoVehiculos(true);
+      const resultado = await VehiculosGetAll();
+      if (!montado) return;
+      if (resultado.respuesta) {
+        const lista = Array.isArray(resultado.datos) ? resultado.datos
+          : Array.isArray(resultado.datos?.datos) ? resultado.datos.datos
+          : Array.isArray(resultado.datos?.data) ? resultado.datos.data
+          : [];
+        const vehiculosUsuario = lista.filter((v) =>
+          Number(v.id_usuario ?? v.idUsuario ?? v.usuario_id) === idUsuario
+        );
+        setVehiculos(vehiculosUsuario);
+      }
+      setCargandoVehiculos(false);
+    };
+    cargarVehiculos();
+    return () => { montado = false; };
+  }, [usuario]);
+
+  const handlePersonalChange = (e) => {
     const { name, value } = e.target;
-    setVehiculoData((prev) => ({ ...prev, [name]: value }));
+    setPersonalData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Orquestación limpia de transiciones aceleradas por hardware para GSAP
@@ -68,7 +93,7 @@ export default function PerfilEmpleado() {
       .fromTo(".action-buttons-group", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
   }, { dependencies: [loading, usuario], scope: mainScopeRef });
 
-  // Lógica unificada de guardado y persistencia en base de datos
+  // Guardar cambios de información personal (teléfono)
   const handleGuardarCambios = async (e) => {
     e.preventDefault();
     if (guardando) return;
@@ -82,54 +107,34 @@ export default function PerfilEmpleado() {
         throw new Error("No se pudo detectar el ID del usuario activo en la sesión.");
       }
 
-      let response;
-      const idVehiculoExistente = usuario?.id_vehiculo || usuario?.vehiculo?.id || usuario?.vehiculo?.id_vehiculo || subUsuario.id_vehiculo;
+      await apiClient.put(`/api/usuario/${idUsuarioFinal}`, {
+        telefono: personalData.telefono
+      });
 
-      if (idVehiculoExistente) {
-        // MODO ACTUALIZAR (PUT)
-        response = await apiClient.put(`/api/vehiculo/${idVehiculoExistente}`, {
-          modelo: vehiculoData.modelo,
-          patente: vehiculoData.patente
-        });
-      } else {
-        // MODO CREAR (POST)
-        response = await apiClient.post('/api/vehiculo', {
-          modelo: vehiculoData.modelo,
-          patente: vehiculoData.patente,
-          id_usuario: idUsuarioFinal
-        });
-      }
-
-      const datosVehiculoBackend = response.data?.vehiculo || response.data || {};
-      const vehiculoActualizado = {
-        id: idVehiculoExistente || datosVehiculoBackend.id || datosVehiculoBackend.id_vehiculo,
-        id_vehiculo: idVehiculoExistente || datosVehiculoBackend.id_vehiculo || datosVehiculoBackend.id,
-        modelo: vehiculoData.modelo,
-        patente: vehiculoData.patente
-      };
-
-      setUsuario((prev) => ({
-        ...prev,
-        id_vehiculo: vehiculoActualizado.id_vehiculo,
-        vehiculo: vehiculoActualizado
-      }));
+      setUsuario((prev) => {
+        const actualizado = { ...prev };
+        if (actualizado.datos) actualizado.datos.telefono = personalData.telefono;
+        if (actualizado.usuario) actualizado.usuario.telefono = personalData.telefono;
+        actualizado.telefono = personalData.telefono;
+        return actualizado;
+      });
 
       Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: 'Detalles del vehículo guardados',
+        title: 'Teléfono actualizado correctamente',
         showConfirmButton: false,
         timer: 2500,
         timerProgressBar: true,
       });
 
     } catch (error) {
-      console.error("Error al persistir cambios en SmartLot:", error);
+      console.error("Error al guardar cambios:", error);
       Swal.fire({
         icon: 'error',
-        title: 'Error al registrar/actualizar',
-        text: error.message || error.response?.data?.message || 'Ocurrió un inconveniente con el servidor al procesar el vehículo.',
+        title: 'Error al guardar',
+        text: error.message || error.response?.data?.message || 'Ocurrió un problema con el servidor.',
         confirmButtonColor: '#3b82f6'
       });
     } finally {
@@ -172,17 +177,14 @@ export default function PerfilEmpleado() {
             </div>
             
             <header className="textosTitulosPerfil">
-              <h1> Perfil de {personalData.nombre} {personalData.apellido}</h1>
+              <h1>{personalData.nombre || personalData.apellido ? `Perfil de ${personalData.nombre} ${personalData.apellido}`.trim() : "Mi Perfil"}</h1>
             </header>
           </div>
 
           <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
-            <FormularioInfoPersonal data={personalData} />
+            <FormularioInfoPersonal data={personalData} onChange={handlePersonalChange} />
             
-            <FormularioDetallesVehiculo 
-              vehiculoData={vehiculoData} 
-              onChange={handleVehiculoChange} 
-            />
+            <FormularioDetallesVehiculo vehiculos={vehiculos} />
 
             <div className="action-buttons-group">
               <button type="submit" className="btn-primary-action" disabled={guardando}>
