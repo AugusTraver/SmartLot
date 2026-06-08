@@ -6,6 +6,7 @@ import FormularioReserva from "../componentesEmpleado/form_reserva";
 import { ReservasCreate } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
@@ -19,6 +20,11 @@ const obtenerListado = (datos) => {
   return [];
 };
 
+const obtenerObjeto = (datos) => {
+  if (!datos || Array.isArray(datos)) return null;
+  return datos.usuario ?? datos.datos ?? datos.data ?? datos;
+};
+
 const obtenerIdUsuario = (usuario) =>
   usuario?.id_usuario ??
   usuario?.idUsuario ??
@@ -28,15 +34,38 @@ const obtenerIdUsuario = (usuario) =>
   usuario?._id ??
   usuario?.usuario?.id_usuario ??
   usuario?.usuario?.idUsuario ??
-  usuario?.usuario?.id;
+  usuario?.usuario?.id ??
+  usuario?.datos?.id_usuario ??
+  usuario?.datos?.idUsuario ??
+  usuario?.datos?.id;
 
-const obtenerIdSede = (item) =>
+const obtenerIdSedeUsuario = (item) =>
   item?.id_sede ??
   item?.idSede ??
   item?.sede_id ??
   item?.sedeId ??
   item?.sede?.id ??
-  item?.sede?.id_sede;
+  item?.sede?.id_sede ??
+  item?.usuario?.id_sede ??
+  item?.usuario?.idSede ??
+  item?.datos?.id_sede ??
+  item?.datos?.idSede;
+
+const obtenerIdSedeGarage = (garage) =>
+  garage?.id_sede ??
+  garage?.idSede ??
+  garage?.sede_id ??
+  garage?.sedeId ??
+  garage?.sede?.id ??
+  garage?.sede?.id_sede;
+
+const obtenerIdGarage = (garage) =>
+  garage?.id_garage ??
+  garage?.idGarage ??
+  garage?.garage_id ??
+  garage?.garageId ??
+  garage?.id ??
+  garage?._id;
 
 const obtenerNumeroValido = (...valores) => {
   for (const valor of valores) {
@@ -89,6 +118,7 @@ const NuevaReserva = () => {
       setLoadingVehiculos(true);
       setMensaje({ tipo: "", texto: "" });
 
+      const idUsuarioSesion = obtenerNumeroValido(obtenerIdUsuario(usuario));
       const [resultado, garagesResultado] = await Promise.all([
         VehiculosGetAll(),
         GaragesGetAll(),
@@ -96,22 +126,32 @@ const NuevaReserva = () => {
       if (!montado) return;
 
       if (resultado.respuesta) {
-        const idUsuario = obtenerNumeroValido(obtenerIdUsuario(usuario));
+        const usuarioResponse = idUsuarioSesion
+          ? await UsuariosGetById(idUsuarioSesion)
+          : { respuesta: false, datos: null };
+        if (!montado) return;
+
+        const perfilUsuario = usuarioResponse.respuesta
+          ? obtenerObjeto(usuarioResponse.datos) || usuario
+          : usuario;
+        const idUsuario = obtenerNumeroValido(obtenerIdUsuario(perfilUsuario), idUsuarioSesion);
         const vehiculosUsuario = obtenerListado(resultado.datos).filter((vehiculo) =>
           Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario
         );
         setVehiculos(vehiculosUsuario);
 
         const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
-        const idSedeUsuario = obtenerNumeroValido(obtenerIdSede(usuario));
+        const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
         const garagesDeSede = idSedeUsuario
-          ? garages.filter((garage) => Number(obtenerIdSede(garage)) === idSedeUsuario)
-          : garages;
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
+          : [];
 
         setGarages(garagesDeSede);
 
         if (vehiculosUsuario.length === 0) {
           setMensaje({ tipo: "error", texto: "No tenes vehiculos registrados para crear una reserva." });
+        } else if (!idSedeUsuario) {
+          setMensaje({ tipo: "error", texto: "No se pudo identificar tu sede para cargar garages." });
         } else if (garagesDeSede.length === 0) {
           setMensaje({ tipo: "error", texto: "No hay garages disponibles para tu sede." });
         }
@@ -159,6 +199,13 @@ const NuevaReserva = () => {
     if (!idGarage) {
       setLoading(false);
       setMensaje({ tipo: "error", texto: "No se pudo identificar el garage para crear la reserva." });
+      return;
+    }
+
+    const garagePermitido = garages.some((garage) => Number(obtenerIdGarage(garage)) === idGarage);
+    if (!garagePermitido) {
+      setLoading(false);
+      setMensaje({ tipo: "error", texto: "Solo podes reservar garages de tu sede." });
       return;
     }
 
