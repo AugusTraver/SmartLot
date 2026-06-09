@@ -4,6 +4,7 @@ import {
   Search,
   UserPlus,
   ArrowLeft,
+  LogIn,
   ChevronDown,
   X,
   Archive,
@@ -20,6 +21,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
+import { useAuth } from "../contexts/useAuth";
 
 import "./gestion_usuarios.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
@@ -30,6 +32,7 @@ import AuditoriaPanel from "../componentesCompartidos/AuditoriaPanel";
 import {
   UsuariosGetAll,
   UsuariosGetAuditoria,
+  UsuariosGetById,
   UsuariosDelete,
   UsuariosPatchEstado,
 } from "../servicies/API_Usuario";
@@ -161,6 +164,7 @@ const GestionUsuarios = () => {
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
+  const { setUsuario } = useAuth();
 
   // Detectar clics fuera del panel de filtros para cerrarlo automáticamente
   useEffect(() => {
@@ -445,6 +449,40 @@ const GestionUsuarios = () => {
       }
     } catch (err) {
       Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    }
+  };
+
+  const handleLoginAs = async (targetUser) => {
+    const result = await Swal.fire({
+      title: `¿Ingresar como ${targetUser.nombre}?`,
+      text: `Te loguearás con el rol de ${targetUser.role}.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#2563EB",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, ingresar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await UsuariosGetById(targetUser.id);
+      if (res.respuesta && res.datos) {
+        const userData = res.datos.usuario || res.datos;
+        setUsuario(userData);
+      }
+
+      const rutas = {
+        1: '/admin_dashboard',
+        2: '/empleados_dashboard',
+        3: '/garagista_dashboard',
+      };
+      navigate(rutas[targetUser.id_rol] || '/');
+    } catch (err) {
+      Swal.fire("Error", "No se pudo iniciar sesión como este usuario.", "error");
     }
   };
 
@@ -763,13 +801,23 @@ const GestionUsuarios = () => {
                       </div>
 
                       {u.id_rol !== 4 && (
-                        <button
-                          className="usuario-archive-btn"
-                          onClick={() => handleArchivar(u.id, u.nombre)}
-                          aria-label={`Archivar a ${u.nombre}`}
-                        >
-                          <Archive size={16} />
-                        </button>
+                        <div className="usuario-actions">
+                          <button
+                            className="usuario-login-as-btn"
+                            onClick={() => handleLoginAs(u)}
+                            aria-label={`Ingresar como ${u.nombre}`}
+                          >
+                            <LogIn size={14} />
+                            <span>Loguearte como</span>
+                          </button>
+                          <button
+                            className="usuario-archive-btn"
+                            onClick={() => handleArchivar(u.id, u.nombre)}
+                            aria-label={`Archivar a ${u.nombre}`}
+                          >
+                            <Archive size={16} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </article>

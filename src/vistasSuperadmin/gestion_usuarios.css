@@ -554,6 +554,34 @@
 }
 
 /* MEDIA QUERIES */
+.usuario-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.usuario-login-as-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(59, 130, 246, 0.08);
+  color: #3B82F6;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.usuario-login-as-btn:hover {
+  background: #3B82F6;
+  color: #ffffff;
+}
+
 @media (min-width: 640px) {
   .usuarios-grid {
     grid-template-columns: repeat(2, 1fr);
