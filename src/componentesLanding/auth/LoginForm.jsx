@@ -1,20 +1,25 @@
-import { useRef, useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import apiClient from '../../api/client';
+import { useRef, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import apiClient from "../../api/client";
+import "./LoginForm.css";   
 
 gsap.registerPlugin(useGSAP);
 
 export default function LoginForm() {
+  const location = useLocation();
   const pathRef = useRef();
   const buttonRef = useRef();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
-  const location = useLocation();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState("");
+
   useEffect(() => {
     if (location.state?.error) {
       setError(location.state.error);
@@ -22,7 +27,22 @@ export default function LoginForm() {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(id);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [cooldown]);
+
   useGSAP(() => {
+    if (!pathRef.current) return;
     gsap.to(pathRef.current, {
       strokeDashoffset: -150,
       duration: 4.5,
@@ -31,45 +51,46 @@ export default function LoginForm() {
     });
   }, { scope: buttonRef });
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const id = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) { clearInterval(id); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [cooldown]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    if (!email.trim()) { setError('El email es requerido.'); return; }
-    if (cooldown > 0) { setError(`Espere ${cooldown}s antes de reintentar.`); return; }
+    if (!email.trim()) {
+      setError("El email es requerido.");
+      return;
+    }
+    if (cooldown > 0) {
+      setError(`Espere ${cooldown}s antes de reintentar.`);
+      return;
+    }
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/api/usuario/login', {
-        email: email.trim(),
-        contraseña: password,
-      }, { _skipAuthRedirect: true });
-      const usuario = res.data.usuario;
+      const res = await apiClient.post(
+        "/api/usuario/login",
+        {
+          email: email.trim(),
+          contraseña: password,
+        },
+        { _skipAuthRedirect: true }
+      );
+
+      const usuario = res.data?.usuario;
       const rutas = {
-        1: '/admin_dashboard',
-        2: '/empleados_dashboard',
-        3: '/garagista_dashboard',
-        4: '/superadmin_dashboard',
+        1: "/admin_dashboard",
+        2: "/empleados_dashboard",
+        3: "/garagista_dashboard",
+        4: "/superadmin_dashboard",
       };
-      const ruta = rutas[Number(usuario?.id_rol)] || '/';
-      window.location.href = ruta;
+
+      const rutaDestino = rutas[Number(usuario?.id_rol)] || "/";
+      window.location.href = rutaDestino;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Error de conexión.';
+      const msg = err.response?.data?.message || "Error de conexión.";
       setError(msg);
 
       if (err.response?.status === 429) {
-        const retryAfter = parseInt(err.response?.headers?.['retry-after'] || '900', 10);
+        const retryAfter = parseInt(err.response?.headers?.["retry-after"] || "900", 10);
         setCooldown(retryAfter);
       }
     } finally {
@@ -77,30 +98,26 @@ export default function LoginForm() {
     }
   };
 
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [googleError, setGoogleError] = useState('');
-
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    setGoogleError('');
-
+    setGoogleError("");
     try {
-      const res = await apiClient.get('/api/auth/google', { _skipAuthRedirect: true });
+      const res = await apiClient.get("/api/auth/google", { _skipAuthRedirect: true });
       window.location.href = res.data.url;
     } catch (error) {
-      setGoogleError(
-        error.response?.data?.message || 'Hubo un error al conectar con Google.',
-      );
+      setGoogleError(error.response?.data?.message || "Hubo un error al conectar con Google.");
       setGoogleLoading(false);
     }
   };
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-1 font-display">
+   
+      <h1 className=" h1Smartlot auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-0 font-display">
         Iniciar Sesión
       </h1>
-      <p className="auth-stagger text-brand-muted text-sm md:text-base mb-8 leading-relaxed">
+      
+      <p className=" pIngrese auth-stagger text-brand-muted text-sm md:text-base mb-2 leading-relaxed">
         Ingresá a tu panel de gestión
       </p>
 
@@ -117,10 +134,7 @@ export default function LoginForm() {
           />
           <label
             htmlFor="email"
-            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
-              peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
-              peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
+            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
           >
             Correo electrónico
           </label>
@@ -138,10 +152,7 @@ export default function LoginForm() {
           />
           <label
             htmlFor="password"
-            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out
-              peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue
-              peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
+            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
           >
             Contraseña
           </label>
@@ -170,7 +181,10 @@ export default function LoginForm() {
             />
             <rect
               ref={pathRef}
-              x="0" y="0" width="100" height="100"
+              x="0"
+              y="0"
+              width="100"
+              height="100"
               rx="5"
               fill="none"
               stroke="url(#btn-beam)"
@@ -201,10 +215,11 @@ export default function LoginForm() {
           <div className="relative m-[2px] rounded-[10px] bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 group-hover:bg-brand-deep group-hover:shadow-brand-deep/25 group-active:scale-[0.97]">
             {cooldown > 0
               ? `Espere ${cooldown}s`
-              : loading ? 'Ingresando...' : 'Ingresar'}
+              : loading ? "Ingresando..." : "Ingresar"}
           </div>
         </button>
-        {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+        
+        {error && <p className="text-sm text-red-500 mt-2 text-center">{error}</p>}
       </form>
 
       <div className="auth-stagger relative my-6">
@@ -212,11 +227,11 @@ export default function LoginForm() {
           <div className="w-full border-t border-brand-deep/10" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-brand-bg px-4 text-sm text-brand-muted">O continuá con</span>
+          <span className=" continualCon bg-brand-bg px-4 text-sm text-brand-muted">O continuá con</span>
         </div>
       </div>
 
-      {googleError && <p className="text-sm text-red-500 mb-3">{googleError}</p>}
+      {googleError && <p className="text-sm text-red-500 mb-3 text-center">{googleError}</p>}
 
       <button
         type="button"
@@ -231,7 +246,7 @@ export default function LoginForm() {
             <path fill="#FBBC05" d="M5.32 14.24c-.24-.72-.38-1.5-.38-2.31s.14-1.59.38-2.31V6.48H1.21C.44 8.02 0 9.75 0 11.5s.44 3.48 1.21 5.02l4.11-3.28z"/>
             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 7.31 0 3.18 2.12 1.21 5.63l4.11 3.28c.94-2.85 3.57-4.96 6.68-4.96z"/>
           </svg>
-          {googleLoading ? 'Conectando...' : 'Google'}
+          {googleLoading ? "Conectando..." : "Google"}
         </div>
       </button>
     </div>
