@@ -13,6 +13,8 @@ import {
   Building2,
   Car,
   ShieldCheck,
+  Filter, // <-- Nuevo icono
+  SlidersHorizontal // <-- Nuevo icono
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -138,6 +140,8 @@ const normalizarUsuario = (usuario, empresaMap, sedeMap, garageMap) => {
 const GestionUsuarios = () => {
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const dropdownRef = useRef(null); // Ref para el panel desplegable de filtros
+  const buttonFilterRef = useRef(null); // Ref para el botón de filtros
 
   const [usuarios, setUsuarios] = useState([]);
   const [empresaMap, setEmpresaMap] = useState({});
@@ -156,6 +160,27 @@ const GestionUsuarios = () => {
   const [selectedSede, setSelectedSede] = useState("");
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
+
+  // Detectar clics fuera del panel de filtros para cerrarlo automáticamente
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showFilters &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        buttonFilterRef.current &&
+        !buttonFilterRef.current.contains(event.target)
+      ) {
+        setShowFilters(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showFilters]);
+
+  // Contabilizamos cuántos filtros secundarios hay activos
+  const activeFiltersCount = [selectedEmpresa, selectedSede, selectedGarage].filter(Boolean).length;
 
   useEffect(() => {
     setSelectedEmpresa("");
@@ -302,11 +327,8 @@ const GestionUsuarios = () => {
         u.role.toLowerCase().includes(query);
 
       const coincideRol = !selectedRol || u.id_rol === Number(selectedRol);
-
       const coincideEmpresa = !selectedEmpresa || u.empresa === selectedEmpresa;
-
       const coincideSede = !selectedSede || u.sede === selectedSede;
-
       const coincideGarage = !selectedGarage || u.garage === selectedGarage;
 
       return coincideBusqueda && coincideRol && coincideEmpresa && coincideSede && coincideGarage;
@@ -333,7 +355,7 @@ const GestionUsuarios = () => {
 
   const handleArchivar = async (id, nombre) => {
     const result = await Swal.fire({
-      title: "Archivar a este usuario?",
+      title: "¿Archivar a este usuario?",
       text: `${nombre} quedará inactivo.`,
       icon: "question",
       showCancelButton: true,
@@ -398,7 +420,7 @@ const GestionUsuarios = () => {
   const handleEliminar = async (id, nombre) => {
     setShowArchived(false);
     const result = await Swal.fire({
-      title: "Eliminar permanentemente?",
+      title: "¿Eliminar permanentemente?",
       text: `${nombre} será eliminado del sistema.`,
       icon: "warning",
       showCancelButton: true,
@@ -426,6 +448,7 @@ const GestionUsuarios = () => {
     }
   };
 
+  // Animaciones iniciales
   useGSAP(
     () => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
@@ -438,6 +461,7 @@ const GestionUsuarios = () => {
     { scope: containerRef }
   );
 
+  // Animación de lista de tarjetas
   useGSAP(() => {
     if (usuariosFiltrados.length > 0) {
       gsap.fromTo(
@@ -455,6 +479,7 @@ const GestionUsuarios = () => {
     }
   }, [usuariosFiltrados]);
 
+  // Animación del modal de archivados
   useGSAP(() => {
     if (showArchived) {
       gsap.fromTo(
@@ -469,6 +494,22 @@ const GestionUsuarios = () => {
       );
     }
   }, [showArchived]);
+
+  // Animación del Dropdown de Filtros (AutoAlpha para mejor Performance)
+  useGSAP(() => {
+    if (showFilters) {
+      gsap.fromTo(
+        dropdownRef.current,
+        { y: -10, autoAlpha: 0, scale: 0.98 },
+        { y: 0, autoAlpha: 1, scale: 1, duration: 0.25, ease: "power2.out", display: "flex" }
+      );
+    } else {
+      gsap.to(dropdownRef.current, {
+        y: -10, autoAlpha: 0, scale: 0.98, duration: 0.2, ease: "power2.in", display: "none"
+      });
+    }
+  }, [showFilters]);
+
 
   return (
     <div className="gestion-usuarios-page" ref={containerRef}>
@@ -512,7 +553,6 @@ const GestionUsuarios = () => {
             <div className="usuarios-toolbar-skeleton">
               <div className="skeleton-search" />
               <div className="skeleton-role-pills" />
-              <div className="skeleton-filters" />
             </div>
             <div className="usuarios-grid">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -522,14 +562,119 @@ const GestionUsuarios = () => {
           </>
         ) : (
           <section className="usuarios-toolbar usuarios-animate-toolbar">
-            <div className="usuarios-search">
-              <Search className="search-icon" size={20} />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, email o rol..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            
+            {/* Agrupamos Búsqueda y Botón de Filtros */}
+            <div className="usuarios-search-filter-group">
+              <div className="usuarios-search">
+                <Search className="search-icon" size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre, email o rol..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              {/* Contenedor relativo para el Popover de Filtros */}
+              <div className="filtros-wrapper">
+                <button 
+                  ref={buttonFilterRef}
+                  className={`btn-toggle-filtros ${activeFiltersCount > 0 ? 'activo' : ''}`}
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter size={18} />
+                  <span>Filtros</span>
+                  {activeFiltersCount > 0 && (
+                    <span className="filtros-badge">{activeFiltersCount}</span>
+                  )}
+                  <ChevronDown size={16} className={`chevron-filter ${showFilters ? 'open' : ''}`} />
+                </button>
+
+                {/* Panel Desplegable Animado */}
+                <div className="filtros-dropdown-panel" ref={dropdownRef}>
+                  <div className="filtros-dropdown-header">
+                    <SlidersHorizontal size={16}/>
+                    <span>Filtros avanzados</span>
+                  </div>
+
+                  <div className="filtros-dropdown-body">
+                    <div className="form-group-filter">
+                      <label>Empresa</label>
+                      <div className="select-wrapper">
+                        <select
+                          value={selectedEmpresa}
+                          onChange={(e) => {
+                            setSelectedEmpresa(e.target.value);
+                            setSelectedSede(""); // Reseteamos sede al cambiar empresa
+                          }}
+                        >
+                          <option value="">Todas las empresas</option>
+                          {empresasDisponibles.map((emp) => (
+                            <option key={emp} value={emp}>
+                              {emp}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={16} className="chevron-select" />
+                      </div>
+                    </div>
+
+                    <div className="form-group-filter">
+                      <label>Sede</label>
+                      <div className="select-wrapper">
+                        <select
+                          value={selectedSede}
+                          onChange={(e) => setSelectedSede(e.target.value)}
+                          disabled={!selectedEmpresa && empresasDisponibles.length > 0} // UX Mejora
+                        >
+                          <option value="">Todas las sedes</option>
+                          {sedesDisponibles.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={16} className="chevron-select" />
+                      </div>
+                    </div>
+
+                    <div className="form-group-filter">
+                      <label>Garage</label>
+                      <div className="select-wrapper">
+                        <select
+                          value={selectedGarage}
+                          onChange={(e) => setSelectedGarage(e.target.value)}
+                        >
+                          <option value="">Todos los garages</option>
+                          {garagesDisponibles.map((g) => (
+                            <option key={g} value={g}>
+                              {g}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={16} className="chevron-select" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer del panel (Limpiar) */}
+                  {activeFiltersCount > 0 && (
+                    <div className="filtros-dropdown-footer">
+                      <button
+                        className="btn-limpiar-dropdown"
+                        onClick={() => {
+                          setSelectedEmpresa("");
+                          setSelectedSede("");
+                          setSelectedGarage("");
+                        }}
+                      >
+                        <X size={14} />
+                        Limpiar todos
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="usuarios-role-pills">
@@ -548,69 +693,6 @@ const GestionUsuarios = () => {
                   {ROLE_LABELS[rid]}
                 </button>
               ))}
-            </div>
-
-            <div className="usuarios-filtros">
-              <div className="select-wrapper">
-                <select
-                  value={selectedEmpresa}
-                  onChange={(e) => {
-                    setSelectedEmpresa(e.target.value);
-                    setSelectedSede("");
-                  }}
-                >
-                  <option value="">Filtrar por empresa</option>
-                  {empresasDisponibles.map((emp) => (
-                    <option key={emp} value={emp}>
-                      {emp}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className="chevron-select" />
-              </div>
-
-              <div className="select-wrapper">
-                <select
-                  value={selectedSede}
-                  onChange={(e) => setSelectedSede(e.target.value)}
-                >
-                  <option value="">Filtrar por sede</option>
-                  {sedesDisponibles.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className="chevron-select" />
-              </div>
-
-              <div className="select-wrapper">
-                <select
-                  value={selectedGarage}
-                  onChange={(e) => setSelectedGarage(e.target.value)}
-                >
-                  <option value="">Filtrar por garage</option>
-                  {garagesDisponibles.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className="chevron-select" />
-              </div>
-
-              {(selectedEmpresa || selectedSede || selectedGarage) && (
-                <button
-                  className="btn-limpiar-filtros"
-                  onClick={() => {
-                    setSelectedEmpresa("");
-                    setSelectedSede("");
-                    setSelectedGarage("");
-                  }}
-                >
-                  <X size={18} />
-                </button>
-              )}
             </div>
           </section>
         )}
@@ -696,8 +778,22 @@ const GestionUsuarios = () => {
 
             {!error && usuariosFiltrados.length === 0 && (
               <div className="usuarios-no-results">
-                {searchTerm ? (
-                  <p>No se encontraron resultados para "{searchTerm}"</p>
+                {searchTerm || activeFiltersCount > 0 ? (
+                  <>
+                    <p>No se encontraron resultados para tu búsqueda.</p>
+                    <button 
+                      className="btn-limpiar-dropdown" 
+                      style={{marginTop: '12px', display: 'inline-flex'}}
+                      onClick={() => {
+                        setSearchTerm("");
+                        setSelectedEmpresa("");
+                        setSelectedSede("");
+                        setSelectedGarage("");
+                      }}
+                    >
+                      Restablecer filtros
+                    </button>
+                  </>
                 ) : (
                   <p>No hay usuarios registrados en esta categoría.</p>
                 )}
@@ -707,6 +803,7 @@ const GestionUsuarios = () => {
         )}
       </main>
 
+      {/* MODAL ARCHIVADOS (Se mantiene intacto) */}
       {showArchived && (
         <ModalPortal onClose={() => setShowArchived(false)}>
           <div
