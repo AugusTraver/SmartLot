@@ -1,4 +1,3 @@
-// src/vistasEmpleados/nueva_reserva.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -9,8 +8,8 @@ import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
-import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import "./nueva_reserva.css";
+import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -82,6 +81,7 @@ const NuevaReservaSkeleton = () => (
       <span className="reserva-skeleton-line reserva-skeleton-label" />
       <span className="reserva-skeleton-block reserva-skeleton-input" />
     </div>
+
     <div className="reserva-skeleton-time-row">
       {Array.from({ length: 2 }).map((_, index) => (
         <div className="reserva-skeleton-field" key={index}>
@@ -90,12 +90,14 @@ const NuevaReservaSkeleton = () => (
         </div>
       ))}
     </div>
+
     {Array.from({ length: 2 }).map((_, index) => (
       <div className="reserva-skeleton-field" key={index}>
         <span className="reserva-skeleton-line reserva-skeleton-label" />
         <span className="reserva-skeleton-block reserva-skeleton-input" />
       </div>
     ))}
+
     <span className="reserva-skeleton-block reserva-skeleton-button" />
   </div>
 );
@@ -111,6 +113,7 @@ const NuevaReserva = () => {
 
   useEffect(() => {
     let montado = true;
+
     const cargarVehiculos = async () => {
       setLoadingVehiculos(true);
       setMensaje({ tipo: "", texto: "" });
@@ -122,27 +125,25 @@ const NuevaReserva = () => {
       ]);
       if (!montado) return;
 
-      if (resultado.respuesta || resultado.ok || resultado.data) {
+      if (resultado.respuesta) {
         const usuarioResponse = idUsuarioSesion
           ? await UsuariosGetById(idUsuarioSesion)
           : { respuesta: false, datos: null };
         if (!montado) return;
 
-        const perfilUsuario = usuarioResponse.respuesta || usuarioResponse.data
-          ? obtenerObjeto(usuarioResponse.datos || usuarioResponse.data) || usuario
+        const perfilUsuario = usuarioResponse.respuesta
+          ? obtenerObjeto(usuarioResponse.datos) || usuario
           : usuario;
         const idUsuario = obtenerNumeroValido(obtenerIdUsuario(perfilUsuario), idUsuarioSesion);
-        const vehiculosUsuario = obtenerListado(resultado.datos || resultado.data || resultado).filter((vehiculo) =>
+        const vehiculosUsuario = obtenerListado(resultado.datos).filter((vehiculo) =>
           Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario
         );
         setVehiculos(vehiculosUsuario);
 
-        const listaGarages = garagesResultado.respuesta || garagesResultado.data 
-          ? obtenerListado(garagesResultado.datos || garagesResultado.data || garagesResultado) 
-          : [];
+        const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
         const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
         const garagesDeSede = idSedeUsuario
-          ? listaGarages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
           : [];
 
         setGarages(garagesDeSede);
@@ -157,29 +158,59 @@ const NuevaReserva = () => {
       } else {
         setMensaje({ tipo: "error", texto: "No se pudieron cargar tus vehiculos." });
       }
+
       setLoadingVehiculos(false);
     };
 
     cargarVehiculos();
-    return () => { montado = false; };
+
+    return () => {
+      montado = false;
+    };
   }, [usuario]);
 
   const handleReservationSubmit = async (datosFormulario) => {
     setLoading(true);
     setMensaje({ tipo: "", texto: "" });
 
-    const idVehiculo = obtenerNumeroValido(datosFormulario.id_vehiculo);
-    const vehiculoSeleccionado = vehiculos.find(v => Number(v.id_vehiculo ?? v.idVehiculo ?? v.id) === idVehiculo);
-    const idUsuario = obtenerNumeroValido(obtenerIdUsuario(usuario), vehiculoSeleccionado?.id_usuario);
-    const idGarage = obtenerNumeroValido(datosFormulario.id_garage);
+    const idVehiculo = obtenerNumeroValido(datosFormulario.id_vehiculo, datosFormulario.idVehiculo);
+    const vehiculoSeleccionado = vehiculos.find((vehiculo) => {
+      const id = vehiculo.id_vehiculo ?? vehiculo.idVehiculo ?? vehiculo.id ?? vehiculo._id;
+      return Number(id) === idVehiculo;
+    });
+    const idUsuario = obtenerNumeroValido(
+      obtenerIdUsuario(usuario),
+      vehiculoSeleccionado?.id_usuario,
+      vehiculoSeleccionado?.idUsuario,
+      vehiculoSeleccionado?.usuario_id,
+      vehiculoSeleccionado?.usuarioId
+    );
+    const idGarage = obtenerNumeroValido(
+      datosFormulario.id_garage,
+      datosFormulario.idGarage
+    );
 
-    if (!idUsuario || !idGarage) {
+    if (!idUsuario) {
       setLoading(false);
-      setMensaje({ tipo: "error", texto: "Error al identificar las credenciales necesarias." });
+      setMensaje({ tipo: "error", texto: "No se pudo identificar tu usuario para crear la reserva." });
+      return;
+    }
+
+    if (!idGarage) {
+      setLoading(false);
+      setMensaje({ tipo: "error", texto: "No se pudo identificar el garage para crear la reserva." });
+      return;
+    }
+
+    const garagePermitido = garages.some((garage) => Number(obtenerIdGarage(garage)) === idGarage);
+    if (!garagePermitido) {
+      setLoading(false);
+      setMensaje({ tipo: "error", texto: "Solo podes reservar garages de tu sede." });
       return;
     }
 
     const payloadReserva = {
+      ...datosFormulario,
       fecha_entrada: datosFormulario.fecha_entrada,
       fecha_salida: datosFormulario.fecha_salida,
       id_usuario: idUsuario,
@@ -187,61 +218,47 @@ const NuevaReserva = () => {
       id_garage: idGarage,
     };
 
-    try {
-      const resultado = await ReservasCreate(payloadReserva);
+    const resultado = await ReservasCreate(payloadReserva);
 
-      // 🚀 CAMBIO CLAVE: Validamos de múltiples formas el éxito para que NO se quede cargando
-      if (resultado || resultado?.respuesta || resultado?.ok || resultado?.status === 200 || resultado?.status === 21) {
-        const datosBackend = resultado?.datos?.reserva || resultado?.datos || resultado?.data || {};
-        
-        const payloadParaConfirmacion = {
-          plaza: datosBackend.nro_plaza || datosBackend.plaza || "P1-08",
-          nivel: datosBackend.nombre_zona || datosBackend.nivel || "NIVEL -1",
-          ubicacion: datosFormulario._metaData?.ubicacion || "Garage Florida",
-          horaInicio: datosFormulario._metaData?.horaInicio || "08:00",
-          horaFin: datosFormulario._metaData?.horaFin || "18:00",
-          fecha: datosFormulario._metaData?.fecha || "2026-06-15"
-        };
-
-        // Forzamos el salto inmediato de pantalla
-        navigate("/confirmacion_reserva", { 
-          state: { reserva: payloadParaConfirmacion } 
-        });
-      } else {
-        setLoading(false);
-        setMensaje({
-          tipo: "error",
-          texto: "El servidor no devolvió una respuesta válida.",
-        });
-      }
-    } catch (err) {
-      setLoading(false);
+    setLoading(false);
+    if (resultado.respuesta) {
+      setMensaje({ tipo: "success", texto: "Reserva confirmada con exito." });
+      setTimeout(() => navigate("/empleados_dashboard"), 1200);
+    } else {
       setMensaje({
         tipo: "error",
-        texto: err.response?.data?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
+        texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
       });
     }
   };
 
   return (
     <div>
+
       <div className="nuevaReserva-contenedor">
         <HeaderEmpleado />
-        <main className="nuevaReserva-contenido">
+        <main className="nuevaReserva-contenido" role="main">
           <div className="animate-back">
-            <button className="boton-back" onClick={() => navigate("/empleados_dashboard")}>
+            <button
+              className="boton-back"
+              onClick={() => navigate("/empleados_dashboard")}
+              aria-label="Volver al panel"
+            >
               <ArrowLeft size={20} />
             </button>
           </div>
-          <header className="textosTitulos">
+
+          <header className="textosTitulos animate-texts">
             <h1>Nueva Reserva</h1>
             <p>Reserva tu plaza de estacionamiento para tu proxima jornada.</p>
           </header>
+
           {mensaje.texto && (
-            <div className={`form-feedback alert-${mensaje.tipo}`}>
+            <div className={`form-feedback alert-${mensaje.tipo}`} role="alert">
               <p>{mensaje.texto}</p>
             </div>
           )}
+
           <section className="formularioReserva">
             {loadingVehiculos ? (
               <NuevaReservaSkeleton />
@@ -255,10 +272,11 @@ const NuevaReserva = () => {
             )}
           </section>
         </main>
+
       </div>
       <FooterEmpleado />
     </div>
-  );
+      );
 };
 
-export default NuevaReserva;
+      export default NuevaReserva;
