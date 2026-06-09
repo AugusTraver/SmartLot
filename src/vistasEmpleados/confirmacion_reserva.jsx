@@ -1,4 +1,3 @@
-// src/vistasEmpleados/nueva_reserva.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -122,27 +121,25 @@ const NuevaReserva = () => {
       ]);
       if (!montado) return;
 
-      if (resultado.respuesta || resultado.ok || resultado.data) {
+      if (resultado.respuesta) {
         const usuarioResponse = idUsuarioSesion
           ? await UsuariosGetById(idUsuarioSesion)
           : { respuesta: false, datos: null };
         if (!montado) return;
 
-        const perfilUsuario = usuarioResponse.respuesta || usuarioResponse.data
-          ? obtenerObjeto(usuarioResponse.datos || usuarioResponse.data) || usuario
+        const perfilUsuario = usuarioResponse.respuesta
+          ? obtenerObjeto(usuarioResponse.datos) || usuario
           : usuario;
         const idUsuario = obtenerNumeroValido(obtenerIdUsuario(perfilUsuario), idUsuarioSesion);
-        const vehiculosUsuario = obtenerListado(resultado.datos || resultado.data || resultado).filter((vehiculo) =>
+        const vehiculosUsuario = obtenerListado(resultado.datos).filter((vehiculo) =>
           Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario
         );
         setVehiculos(vehiculosUsuario);
 
-        const listaGarages = garagesResultado.respuesta || garagesResultado.data 
-          ? obtenerListado(garagesResultado.datos || garagesResultado.data || garagesResultado) 
-          : [];
+        const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
         const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
         const garagesDeSede = idSedeUsuario
-          ? listaGarages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
           : [];
 
         setGarages(garagesDeSede);
@@ -187,38 +184,29 @@ const NuevaReserva = () => {
       id_garage: idGarage,
     };
 
-    try {
-      const resultado = await ReservasCreate(payloadReserva);
+    const resultado = await ReservasCreate(payloadReserva);
 
-      // 🚀 CAMBIO CLAVE: Validamos de múltiples formas el éxito para que NO se quede cargando
-      if (resultado || resultado?.respuesta || resultado?.ok || resultado?.status === 200 || resultado?.status === 21) {
-        const datosBackend = resultado?.datos?.reserva || resultado?.datos || resultado?.data || {};
-        
-        const payloadParaConfirmacion = {
-          plaza: datosBackend.nro_plaza || datosBackend.plaza || "P1-08",
-          nivel: datosBackend.nombre_zona || datosBackend.nivel || "NIVEL -1",
-          ubicacion: datosFormulario._metaData?.ubicacion || "Garage Florida",
-          horaInicio: datosFormulario._metaData?.horaInicio || "08:00",
-          horaFin: datosFormulario._metaData?.horaFin || "18:00",
-          fecha: datosFormulario._metaData?.fecha || "2026-06-15"
-        };
+    if (resultado.respuesta) {
+      const datosBackend = resultado.datos?.reserva || resultado.datos || {};
+      
+      const payloadParaConfirmacion = {
+        plaza: datosBackend.nro_plaza || datosBackend.plaza || "P1-08",
+        nivel: datosBackend.nombre_zona || datosBackend.nivel || "NIVEL -1",
+        ubicacion: datosFormulario._metaData?.ubicacion,
+        horaInicio: datosFormulario._metaData?.horaInicio,
+        horaFin: datosFormulario._metaData?.horaFin,
+        fecha: datosFormulario._metaData?.fecha
+      };
 
-        // Forzamos el salto inmediato de pantalla
-        navigate("/confirmacion_reserva", { 
-          state: { reserva: payloadParaConfirmacion } 
-        });
-      } else {
-        setLoading(false);
-        setMensaje({
-          tipo: "error",
-          texto: "El servidor no devolvió una respuesta válida.",
-        });
-      }
-    } catch (err) {
+      // 🚀 REDIRECCIÓN ASÍNCRONA SEGURA CON STATE INYECTADO
+      navigate("/confirmacion_reserva", { 
+        state: { reserva: payloadParaConfirmacion } 
+      });
+    } else {
       setLoading(false);
       setMensaje({
         tipo: "error",
-        texto: err.response?.data?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
+        texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
       });
     }
   };

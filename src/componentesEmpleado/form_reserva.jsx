@@ -9,7 +9,7 @@ const obtenerEtiquetaVehiculo = (vehiculo) => {
   const marca = vehiculo?.marca?.nombre ?? vehiculo?.marca_nombre ?? vehiculo?.marca;
   const modelo = vehiculo?.modelo?.nombre ?? vehiculo?.modelo_nombre ?? vehiculo?.modelo;
   const patente = vehiculo?.patente ?? vehiculo?.placa ?? vehiculo?.matricula;
-  const nombre = [marca, modelo].filter(Boolean).join(" ").trim() || "Vehiculo";
+  const nombre = [marca, modelo].filter(Boolean).join(" ").trim() || "Vehículo";
   return patente ? `${nombre} (${patente})` : nombre;
 };
 
@@ -32,6 +32,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
       return {};
     }
   })();
+
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fecha: "",
@@ -50,7 +51,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     e.preventDefault();
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(formData.fecha)) {
-      setError("La fecha debe tener un formato valido.");
+      setError("La fecha debe tener un formato válido.");
       return;
     }
 
@@ -63,13 +64,19 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     const fechaEntrada = `${formData.fecha} ${formData.horaInicio}:00`;
     const fechaSalida = `${formData.fecha} ${formData.horaFin}:00`;
 
+    const garageSeleccionado = garages.find(g => String(obtenerIdGarage(g)) === formData.idGarage);
+
     onSubmit({
       fecha_entrada: fechaEntrada,
       fecha_salida: fechaSalida,
-      idGarage: parseInt(formData.idGarage, 10),
-      id_garage: parseInt(formData.idGarage, 10),
-      idVehiculo: parseInt(formData.idVehiculo, 10),
       id_vehiculo: parseInt(formData.idVehiculo, 10),
+      id_garage: parseInt(formData.idGarage, 10),
+      _metaData: {
+        ubicacion: obtenerEtiquetaGarage(garageSeleccionado),
+        horaInicio: formData.horaInicio,
+        horaFin: formData.horaFin,
+        fecha: formData.fecha
+      }
     });
   };
 
@@ -187,13 +194,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>
-              {loading
-                ? "Procesando..."
-                : vehiculos.length === 0
-                  ? "Sin vehiculos disponibles"
-                  : garages.length === 0
-                    ? "Sin garages disponibles"
-                    : "Confirmar reserva"}
+              {loading ? "Procesando..." : "Confirmar reserva"}
             </span>
           </button>
         </div>
