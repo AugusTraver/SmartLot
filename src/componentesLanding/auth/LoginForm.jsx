@@ -227,7 +227,7 @@ export default function LoginForm() {
           <div className="w-full border-t border-brand-deep/10" />
         </div>
         <div className="relative flex justify-center">
-          <span className=" continualCon bg-brand-bg px-4 text-sm text-brand-muted">O continuá con</span>
+          <span className=" continualCon bg-white px-4 text-sm text-brand-muted">O continuá con</span>
         </div>
       </div>
 
