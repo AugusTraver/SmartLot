@@ -272,9 +272,9 @@ const NuevaReserva = () => {
             )}
           </section>
         </main>
-
+        <FooterEmpleado />
       </div>
-      <FooterEmpleado />
+     
     </div>
       );
 };

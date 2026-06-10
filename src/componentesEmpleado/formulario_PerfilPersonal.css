@@ -220,6 +220,7 @@
               opacity 0.2s ease;
   box-sizing: border-box;
   width: 100%;
+ 
 }
 
 /* Botón de Guardado principal de SmartLot */
@@ -237,6 +238,7 @@
 .btn-secondary-action {
   background-color: var(--sl-logout-bg);
   color: var(--sl-logout-text);
+  margin-bottom: 3%;
 }
 
 .btn-secondary-action:hover {
