@@ -28,6 +28,23 @@ const ROLES_NEED_EMPRESA = [1, 2, 3];
 const ROLES_NEED_SEDE = [1, 2, 3];
 const ROLES_NEED_GARAGE = [3];
 
+const AgregarUsuarioSkeleton = () => (
+  <section className="agregar-usuario-form agregar-usuario-form-skeleton" aria-label="Cargando formulario">
+    <div className="agregar-usuario-grid">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div className="input-skeleton-superadmin" key={index}>
+          <span className="skeleton-line skeleton-form-label" />
+          <span className="skeleton-line skeleton-form-control" />
+        </div>
+      ))}
+    </div>
+    <div className="agregar-usuario-actions">
+      <span className="skeleton-line skeleton-form-button" />
+      <span className="skeleton-line skeleton-form-button secondary" />
+    </div>
+  </section>
+);
+
 function AgregarUsuario() {
   const navigate = useNavigate();
 
@@ -50,21 +67,31 @@ function AgregarUsuario() {
   const [garagesFiltrados, setGaragesFiltrados] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingCatalogos, setLoadingCatalogos] = useState(true);
 
   const idRol = Number(formData.id_rol);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchData = async () => {
-      const [empRes, sedRes, garRes] = await Promise.all([
-        EmpresasGetAll(),
-        SedesGetAll(),
-        GaragesGetAll(),
-      ]);
-      if (empRes.respuesta) setEmpresas(obtenerListado(empRes.datos));
-      if (sedRes.respuesta) setSedes(obtenerListado(sedRes.datos));
-      if (garRes.respuesta) setGarages(obtenerListado(garRes.datos));
+      setLoadingCatalogos(true);
+      try {
+        const [empRes, sedRes, garRes] = await Promise.all([
+          EmpresasGetAll(),
+          SedesGetAll(),
+          GaragesGetAll(),
+        ]);
+        if (!mounted) return;
+        if (empRes.respuesta) setEmpresas(obtenerListado(empRes.datos));
+        if (sedRes.respuesta) setSedes(obtenerListado(sedRes.datos));
+        if (garRes.respuesta) setGarages(obtenerListado(garRes.datos));
+      } finally {
+        if (mounted) setLoadingCatalogos(false);
+      }
     };
     fetchData();
+    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
@@ -169,6 +196,9 @@ function AgregarUsuario() {
           </div>
         </div>
 
+        {loadingCatalogos ? (
+          <AgregarUsuarioSkeleton />
+        ) : (
         <section className="agregar-usuario-form">
           <div className="agregar-usuario-grid">
             <div className="input-group-superadmin">
@@ -315,6 +345,7 @@ function AgregarUsuario() {
             </BotonGenerico>
           </div>
         </section>
+        )}
       </main>
     </div>
   );

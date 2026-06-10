@@ -103,19 +103,32 @@ const crearEventosAuditoriaUsuario = (items) =>
 
 function UserCardSkeleton() {
   return (
-    <div className="usuario-card-skeleton">
-      <div className="skeleton-usuario-header">
+    <article className="usuario-card usuario-card-skeleton" aria-label="Cargando usuario">
+      <div className="usuario-card-top">
         <span className="skeleton-line skeleton-usuario-avatar" />
-        <span className="skeleton-line skeleton-usuario-name" />
+        <div className="usuario-info skeleton-usuario-info">
+          <span className="skeleton-line skeleton-usuario-name" />
+          <span className="skeleton-line skeleton-usuario-role" />
+        </div>
       </div>
-      <div className="skeleton-usuario-body">
+
+      <div className="usuario-card-body">
         <span className="skeleton-line skeleton-usuario-email" />
-        <span className="skeleton-line skeleton-usuario-extra" />
+        <span className="skeleton-line skeleton-usuario-phone" />
+        <div className="usuario-metas">
+          <span className="skeleton-line skeleton-usuario-meta" />
+          <span className="skeleton-line skeleton-usuario-meta short" />
+        </div>
       </div>
-      <div className="skeleton-usuario-footer">
+
+      <div className="usuario-card-footer skeleton-usuario-footer">
         <span className="skeleton-line skeleton-usuario-status" />
+        <div className="usuario-actions">
+          <span className="skeleton-line skeleton-usuario-login" />
+          <span className="skeleton-line skeleton-usuario-action" />
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
