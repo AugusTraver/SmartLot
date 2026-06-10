@@ -203,6 +203,28 @@ const UsuariosLogin = async (email, contraseña) => {
     }
 };
 
+const UsuariosImpersonate = async (id) => {
+
+    let returnObject = { respuesta: false, datos: null };
+
+    let url = '/api/usuario/impersonate';
+
+    try {
+
+        const response = await apiClient.post(url, { id });
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
 export {
     UsuariosGetAll,
     UsuariosGetAuditoria,
@@ -212,5 +234,6 @@ export {
     UsuariosUpdate,
     UsuariosDelete,
     UsuariosPatchEstado,
-    UsuariosLogin
+    UsuariosLogin,
+    UsuariosImpersonate
 };

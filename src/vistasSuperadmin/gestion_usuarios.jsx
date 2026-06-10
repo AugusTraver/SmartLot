@@ -35,6 +35,7 @@ import {
   UsuariosGetById,
   UsuariosDelete,
   UsuariosPatchEstado,
+  UsuariosImpersonate,
 } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
@@ -164,7 +165,7 @@ const GestionUsuarios = () => {
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
-  const { setUsuario } = useAuth();
+  const { usuario, setUsuario } = useAuth();
 
   // Detectar clics fuera del panel de filtros para cerrarlo automáticamente
   useEffect(() => {
@@ -469,7 +470,7 @@ const GestionUsuarios = () => {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await UsuariosGetById(targetUser.id);
+      const res = await UsuariosImpersonate(targetUser.id);
       if (res.respuesta && res.datos) {
         const userData = res.datos.usuario || res.datos;
         setUsuario(userData);

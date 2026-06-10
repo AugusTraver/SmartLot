@@ -1,11 +1,10 @@
 import apiClient from './client';
-import { navigateTo } from './navigation';
 
 export async function clearToken() {
   try {
-    await apiClient.post('/api/usuario/logout');
+    const res = await apiClient.post('/api/usuario/logout');
+    return res.data;
   } catch {
-    // backend clears the cookie either way
+    return null;
   }
-  navigateTo('/login');
 }
