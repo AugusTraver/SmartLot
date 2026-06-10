@@ -76,7 +76,12 @@ function AppRoutes() {
       } />
       <Route path="/confirmacion_reserva" element={
         <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
-          <NuevaReserva />
+          <ConfirmacionReserva />
+        </ProtectedRoute>
+      } />
+      <Route path="/confirmar_reserva" element={
+        <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
+          <ConfirmacionReserva />
         </ProtectedRoute>
       } />
 
