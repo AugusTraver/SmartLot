@@ -204,6 +204,7 @@ function EmpleadoDashboard() {
   const { usuario } = useAuth();
   const [perfilUsuario, setPerfilUsuario] = useState(null);
   const [reservas, setReservas] = useState([]);
+  const [todasReservas, setTodasReservas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [garages, setGarages] = useState([]);
   const [garagesSede, setGaragesSede] = useState([]);
@@ -270,6 +271,7 @@ function EmpleadoDashboard() {
         setGarageUsuario(garageEncontrado);
         setGarageSeleccionadoId(garageEncontrado ? String(obtenerIdGarage(garageEncontrado)) : "");
         setReservas(reservasDelUsuario);
+        setTodasReservas(reservasApi);
 
         if (!reservasResponse.respuesta || !vehiculosResponse.respuesta) {
           setError("No se pudieron cargar todos tus datos.");
@@ -335,6 +337,13 @@ function EmpleadoDashboard() {
   const pctNoReservas = capacidadNoReservas > 0 ? Math.round((ocupacionNoReservas / capacidadNoReservas) * 100) : 0;
   const libresReservas = capacidadReservas > 0 ? Math.max(capacidadReservas - ocupacionReservas, 0) : null;
   const libresNoReservas = capacidadNoReservas > 0 ? Math.max(capacidadNoReservas - ocupacionNoReservas, 0) : null;
+
+  const reservasDelGarage = useMemo(() => {
+    if (!garageSeleccionadoId) return 0;
+    const idGarageNum = Number(garageSeleccionadoId);
+    return todasReservas.filter((r) => Number(obtenerIdGarageAsignado(r)) === idGarageNum).length;
+  }, [todasReservas, garageSeleccionadoId]);
+  const capacidadReservasDisponible = Math.max(capacidadReservas - reservasDelGarage, 0);
   const nombre = obtenerNombreUsuario(perfilUsuario || usuario);
 
   const handleGarageDashboardChange = (event) => {
@@ -428,8 +437,8 @@ function EmpleadoDashboard() {
               )}
 
               <div className="empleado-plazas-libres">
-                <strong>{plazasLibres ?? "--"}</strong>
-                <span>Plazas Libres</span>
+                <strong>{ocupacion}</strong>
+                <span>Ocupacion</span>
               </div>
 
               <p className="empleado-companeros">
@@ -441,7 +450,7 @@ function EmpleadoDashboard() {
                   <div className="empleado-capacidad-item">
                     <span className="empleado-capacidad-item-label">Reservas</span>
                     <span className="empleado-capacidad-item-number">
-                      {libresReservas ?? "--"} <small>/ {capacidadReservas}</small>
+                      {capacidadReservasDisponible} <small>/ {capacidadReservas}</small>
                     </span>
                     {capacidadReservas > 0 && (
                       <div className="empleado-capacidad-item-bar">
