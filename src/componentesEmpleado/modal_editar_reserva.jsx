@@ -10,26 +10,10 @@ const obtenerCampo = (item, claves, fallback = "") => {
   return clave ? item[clave] : fallback;
 };
 
-const extraerFecha = (reserva) => {
-  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada"]);
-  if (fechaEntrada) return fechaEntrada.split(" ")[0] || fechaEntrada.split("T")[0];
-  return obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], "");
-};
-
-const extraerHora = (reserva, tipo) => {
-  const clavesEntrada = tipo === "entrada"
-    ? ["horaInicio", "hora_inicio", "desde", "inicio"]
-    : ["horaFin", "hora_fin", "hasta", "fin"];
-  const campoFecha = tipo === "entrada" ? "fecha_entrada" : "fecha_salida";
-  const fechaVal = obtenerCampo(reserva, [campoFecha, campoFecha === "fecha_entrada" ? "fechaEntrada" : "fechaSalida"]);
-  const desdeDatetime = fechaVal?.split(" ")?.[1]?.slice(0, 5) || fechaVal?.split("T")?.[1]?.slice(0, 5);
-  return obtenerCampo(reserva, clavesEntrada, desdeDatetime || "--:--");
-};
-
 function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, onEliminada }) {
-  const fechaBase = extraerFecha(reservaRaw);
-  const [horaInicio, setHoraInicio] = useState(() => extraerHora(reservaRaw, "entrada"));
-  const [horaFin, setHoraFin] = useState(() => extraerHora(reservaRaw, "salida"));
+  const fechaBase = reservaNorm?.fecha || "";
+  const [horaInicio, setHoraInicio] = useState(() => reservaNorm?.hora_entrada || "");
+  const [horaFin, setHoraFin] = useState(() => reservaNorm?.hora_salida || "");
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 

@@ -40,18 +40,39 @@ export default function PerfilEmpleado() {
 
   const obtenerIdUsuario = (usr) => usr?.id ?? usr?.id_usuario ?? usr?._id;
 
-  // 🚀 Sincronización exacta con el formato relacional de tu base de datos SmartLot
+  // Fetch datos completos desde la API (el JWT no incluye nombre/apellido/telefono)
   useEffect(() => {
-    if (usuario) {
-      const infoUsuario = usuario.datos || usuario.usuario || usuario;
+    if (!usuario) return;
+    let montado = true;
 
-      setPersonalData({
-        nombre: infoUsuario.nombre || usuario.nombre || "",
-        apellido: infoUsuario.apellido || usuario.apellido || "",
-        email: infoUsuario.email || usuario.email || "",
-        telefono: infoUsuario.telefono || usuario.telefono || ""
-      });
-    }
+    const fetchUsuarioCompleto = async () => {
+      try {
+        const id = Number(obtenerIdUsuario(usuario));
+        if (!id) return;
+        const res = await apiClient.get(`/api/usuario/${id}`);
+        if (!montado) return;
+        const userData = res.data;
+        setPersonalData({
+          nombre: userData.nombre || "",
+          apellido: userData.apellido || "",
+          email: userData.email || "",
+          telefono: userData.telefono || ""
+        });
+      } catch (err) {
+        if (!montado) return;
+        console.error("No se pudo cargar perfil completo, usando datos de sesión:", err);
+        const infoUsuario = usuario.datos || usuario.usuario || usuario;
+        setPersonalData({
+          nombre: infoUsuario.nombre || usuario.nombre || "",
+          apellido: infoUsuario.apellido || usuario.apellido || "",
+          email: infoUsuario.email || usuario.email || "",
+          telefono: infoUsuario.telefono || usuario.telefono || ""
+        });
+      }
+    };
+
+    fetchUsuarioCompleto();
+    return () => { montado = false; };
   }, [usuario]);
 
   // Cargar vehículos del usuario desde la API y enriquecer con marca/modelo
@@ -134,6 +155,19 @@ export default function PerfilEmpleado() {
   const handleGuardarCambios = async (e) => {
     e.preventDefault();
     if (guardando) return;
+
+    const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
+    if (!telefonoLimpio || telefonoLimpio.length < 7) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Teléfono inválido',
+        text: 'Debes ingresar un número de teléfono válido (mínimo 7 dígitos).',
+        confirmButtonColor: '#3b82f6',
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
+      return;
+    }
+
     setGuardando(true);
 
     try {
@@ -145,14 +179,15 @@ export default function PerfilEmpleado() {
       }
 
       await apiClient.put(`/api/usuario/${idUsuarioFinal}`, {
-        telefono: personalData.telefono
+        telefono: telefonoLimpio
       });
 
+      setPersonalData((prev) => ({ ...prev, telefono: telefonoLimpio }));
       setUsuario((prev) => {
         const actualizado = { ...prev };
-        if (actualizado.datos) actualizado.datos.telefono = personalData.telefono;
-        if (actualizado.usuario) actualizado.usuario.telefono = personalData.telefono;
-        actualizado.telefono = personalData.telefono;
+        if (actualizado.datos) actualizado.datos.telefono = telefonoLimpio;
+        if (actualizado.usuario) actualizado.usuario.telefono = telefonoLimpio;
+        actualizado.telefono = telefonoLimpio;
         return actualizado;
       });
 

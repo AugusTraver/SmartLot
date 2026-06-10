@@ -121,6 +121,28 @@ const formatearFecha = (fecha) => {
   }).format(fechaReserva);
 };
 
+const extraerFechaStr = (datetime) => {
+  if (!datetime) return "";
+  const conEspacio = datetime.split(" ");
+  if (conEspacio.length > 1) return conEspacio[0];
+  return datetime.split("T")[0];
+};
+
+const extraerHoraLocal = (fechaStr) => {
+  if (!fechaStr) return "--:--";
+  if (fechaStr.includes("T")) {
+    const tieneTz = /[Z+\-]\d{2}:/.test(fechaStr);
+    const normalizada = tieneTz ? fechaStr : fechaStr + "Z";
+    const fecha = new Date(normalizada);
+    if (!isNaN(fecha.getTime())) {
+      return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
+    }
+  }
+  const partes = fechaStr.split(" ");
+  if (partes.length > 1) return partes[1].slice(0, 5);
+  return "--:--";
+};
+
 const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
   const idVehiculo = obtenerCampo(reserva, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]);
   const idGarage = obtenerIdGarageAsignado(reserva);
@@ -129,9 +151,9 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
   const patente = obtenerCampo(vehiculo, ["patente", "placa", "matricula"]);
   const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada"]);
   const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida"]);
-  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], fechaEntrada?.split(" ")?.[0] || fechaEntrada?.split("T")?.[0] || "");
-  const horaInicio = obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"], fechaEntrada?.split(" ")?.[1]?.slice(0, 5) || fechaEntrada?.split("T")?.[1]?.slice(0, 5) || "--:--");
-  const horaFin = obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"], fechaSalida?.split(" ")?.[1]?.slice(0, 5) || fechaSalida?.split("T")?.[1]?.slice(0, 5) || "--:--");
+  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
+  const horaInicio = obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"], extraerHoraLocal(fechaEntrada));
+  const horaFin = obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"], extraerHoraLocal(fechaSalida));
   const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
