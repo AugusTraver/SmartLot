@@ -14,6 +14,21 @@ const obtenerListado = (datos) => {
   return [];
 };
 
+const AgregarSedeSkeleton = () => (
+  <section className="agregar-sede-form agregar-sede-form-skeleton" aria-label="Cargando formulario">
+    {Array.from({ length: 4 }).map((_, index) => (
+      <div className="input-skeleton-superadmin" key={index}>
+        <span className="skeleton-line skeleton-form-label" />
+        <span className={`skeleton-line ${index === 2 ? "skeleton-form-textarea" : "skeleton-form-control"}`} />
+      </div>
+    ))}
+    <div className="agregar-sede-actions">
+      <span className="skeleton-line skeleton-form-button" />
+      <span className="skeleton-line skeleton-form-button secondary" />
+    </div>
+  </section>
+);
+
 function AgregarSede() {
   const navigate = useNavigate();
   const [empresas, setEmpresas] = useState([]);
@@ -23,15 +38,25 @@ function AgregarSede() {
   const [ubicacion, setUbicacion] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingEmpresas, setLoadingEmpresas] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchEmpresas = async () => {
-      const res = await EmpresasGetAll();
-      if (res.respuesta) {
-        setEmpresas(obtenerListado(res.datos));
+      setLoadingEmpresas(true);
+      try {
+        const res = await EmpresasGetAll();
+        if (!mounted) return;
+        if (res.respuesta) {
+          setEmpresas(obtenerListado(res.datos));
+        }
+      } finally {
+        if (mounted) setLoadingEmpresas(false);
       }
     };
     fetchEmpresas();
+    return () => { mounted = false; };
   }, []);
 
   const handleGuardar = async () => {
@@ -81,6 +106,9 @@ function AgregarSede() {
           </div>
         </div>
 
+        {loadingEmpresas ? (
+          <AgregarSedeSkeleton />
+        ) : (
         <section className="agregar-sede-form">
           <div className="input-group-superadmin">
             <label>Empresa</label>
@@ -145,6 +173,7 @@ function AgregarSede() {
             </BotonGenerico>
           </div>
         </section>
+        )}
       </main>
     </div>
   );

@@ -62,6 +62,12 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     setError("");
     const fechaEntrada = `${formData.fecha} ${formData.horaInicio}:00`;
     const fechaSalida = `${formData.fecha} ${formData.horaFin}:00`;
+    const garageSeleccionado = garages.find(
+      (garage) => Number(obtenerIdGarage(garage)) === Number(formData.idGarage)
+    );
+    const vehiculoSeleccionado = vehiculos.find(
+      (vehiculo) => Number(obtenerIdVehiculo(vehiculo)) === Number(formData.idVehiculo)
+    );
 
     onSubmit({
       fecha_entrada: fechaEntrada,
@@ -70,6 +76,13 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
       id_garage: parseInt(formData.idGarage, 10),
       idVehiculo: parseInt(formData.idVehiculo, 10),
       id_vehiculo: parseInt(formData.idVehiculo, 10),
+      _metaData: {
+        fecha: formData.fecha,
+        horaInicio: formData.horaInicio,
+        horaFin: formData.horaFin,
+        ubicacion: obtenerEtiquetaGarage(garageSeleccionado),
+        vehiculo: obtenerEtiquetaVehiculo(vehiculoSeleccionado),
+      },
     });
   };
 

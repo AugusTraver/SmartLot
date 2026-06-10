@@ -351,6 +351,15 @@
   transform: translateY(-2px);
 }
 
+.usuario-card-skeleton {
+  pointer-events: none;
+}
+
+.usuario-card-skeleton:hover {
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  transform: none;
+}
+
 .usuario-card-top {
   display: flex;
   align-items: center;
@@ -580,6 +589,126 @@
 .usuario-login-as-btn:hover {
   background: #3B82F6;
   color: #ffffff;
+}
+
+.usuarios-toolbar-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.skeleton-search {
+  width: min(500px, 100%);
+  height: 43px;
+  border-radius: 12px;
+  background: #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-role-pills {
+  width: min(420px, 100%);
+  height: 34px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line,
+.skeleton-search,
+.skeleton-role-pills {
+  display: block;
+  background: #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after,
+.skeleton-search::after,
+.skeleton-role-pills::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.68) 50%, transparent 100%);
+  animation: usuarios-shimmer 1.35s infinite;
+}
+
+.skeleton-usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.skeleton-usuario-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.skeleton-usuario-name {
+  width: 72%;
+  height: 16px;
+  border-radius: 999px;
+}
+
+.skeleton-usuario-role {
+  width: 88px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.skeleton-usuario-email {
+  width: 78%;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.skeleton-usuario-phone {
+  width: 44%;
+  height: 13px;
+  border-radius: 999px;
+}
+
+.skeleton-usuario-meta {
+  width: 104px;
+  height: 25px;
+  border-radius: 6px;
+}
+
+.skeleton-usuario-meta.short {
+  width: 78px;
+}
+
+.skeleton-usuario-footer {
+  min-height: 45px;
+}
+
+.skeleton-usuario-status {
+  width: 64px;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.skeleton-usuario-login {
+  width: 128px;
+  height: 31px;
+  border-radius: 10px;
+}
+
+.skeleton-usuario-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+@keyframes usuarios-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @media (min-width: 640px) {

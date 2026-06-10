@@ -1,252 +1,101 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, MapPin, Car } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
-import FormularioReserva from "../componentesEmpleado/form_reserva";
-import { ReservasCreate } from "../servicies/API_Reserva";
-import { VehiculosGetAll } from "../servicies/API_Vehiculo";
-import { GaragesGetAll } from "../servicies/API_Garage";
-import { UsuariosGetById } from "../servicies/API_Usuario";
-import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
-import "./nueva_reserva.css";
+import "./confirmacion_reserva.css";
 
-const obtenerListado = (datos) => {
-  if (Array.isArray(datos)) return datos;
-  if (Array.isArray(datos?.datos)) return datos.datos;
-  if (Array.isArray(datos?.data)) return datos.data;
-  if (Array.isArray(datos?.vehiculos)) return datos.vehiculos;
-  if (Array.isArray(datos?.value)) return datos.value;
-  return [];
+const formatearFecha = (fecha) => {
+  if (!fecha) return "Fecha no disponible";
+  const parsed = new Date(`${fecha}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return fecha;
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(parsed);
 };
 
-const obtenerObjeto = (datos) => {
-  if (!datos || Array.isArray(datos)) return null;
-  return datos.usuario ?? datos.datos ?? datos.data ?? datos;
-};
-
-const obtenerIdUsuario = (usuario) =>
-  usuario?.id_usuario ??
-  usuario?.idUsuario ??
-  usuario?.usuario_id ??
-  usuario?.usuarioId ??
-  usuario?.id ??
-  usuario?._id ??
-  usuario?.usuario?.id_usuario ??
-  usuario?.usuario?.idUsuario ??
-  usuario?.usuario?.id ??
-  usuario?.datos?.id_usuario ??
-  usuario?.datos?.idUsuario ??
-  usuario?.datos?.id;
-
-const obtenerIdSedeUsuario = (item) =>
-  item?.id_sede ??
-  item?.idSede ??
-  item?.sede_id ??
-  item?.sedeId ??
-  item?.sede?.id ??
-  item?.sede?.id_sede ??
-  item?.usuario?.id_sede ??
-  item?.usuario?.idSede ??
-  item?.datos?.id_sede ??
-  item?.datos?.idSede;
-
-const obtenerIdSedeGarage = (garage) =>
-  garage?.id_sede ??
-  garage?.idSede ??
-  garage?.sede_id ??
-  garage?.sedeId ??
-  garage?.sede?.id ??
-  garage?.sede?.id_sede;
-
-const obtenerIdGarage = (garage) =>
-  garage?.id_garage ??
-  garage?.idGarage ??
-  garage?.garage_id ??
-  garage?.garageId ??
-  garage?.id ??
-  garage?._id;
-
-const obtenerNumeroValido = (...valores) => {
-  for (const valor of valores) {
-    const numero = Number(valor);
-    if (Number.isFinite(numero)) return numero;
-  }
-  return null;
-};
-
-const NuevaReservaSkeleton = () => (
-  <div className="reserva-skeleton-card" aria-label="Cargando formulario de reserva">
-    <div className="reserva-skeleton-field">
-      <span className="reserva-skeleton-line reserva-skeleton-label" />
-      <span className="reserva-skeleton-block reserva-skeleton-input" />
-    </div>
-    <div className="reserva-skeleton-time-row">
-      {Array.from({ length: 2 }).map((_, index) => (
-        <div className="reserva-skeleton-field" key={index}>
-          <span className="reserva-skeleton-line reserva-skeleton-label reserva-skeleton-label-short" />
-          <span className="reserva-skeleton-block reserva-skeleton-input" />
-        </div>
-      ))}
-    </div>
-    {Array.from({ length: 2 }).map((_, index) => (
-      <div className="reserva-skeleton-field" key={index}>
-        <span className="reserva-skeleton-line reserva-skeleton-label" />
-        <span className="reserva-skeleton-block reserva-skeleton-input" />
-      </div>
-    ))}
-    <span className="reserva-skeleton-block reserva-skeleton-button" />
-  </div>
-);
-
-const NuevaReserva = () => {
+function ConfirmacionReserva() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [loadingVehiculos, setLoadingVehiculos] = useState(true);
-  const [vehiculos, setVehiculos] = useState([]);
-  const [garages, setGarages] = useState([]);
-  const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
-
-  useEffect(() => {
-    let montado = true;
-    const cargarVehiculos = async () => {
-      setLoadingVehiculos(true);
-      setMensaje({ tipo: "", texto: "" });
-
-      const idUsuarioSesion = obtenerNumeroValido(obtenerIdUsuario(usuario));
-      const [resultado, garagesResultado] = await Promise.all([
-        VehiculosGetAll(),
-        GaragesGetAll(),
-      ]);
-      if (!montado) return;
-
-      if (resultado.respuesta) {
-        const usuarioResponse = idUsuarioSesion
-          ? await UsuariosGetById(idUsuarioSesion)
-          : { respuesta: false, datos: null };
-        if (!montado) return;
-
-        const perfilUsuario = usuarioResponse.respuesta
-          ? obtenerObjeto(usuarioResponse.datos) || usuario
-          : usuario;
-        const idUsuario = obtenerNumeroValido(obtenerIdUsuario(perfilUsuario), idUsuarioSesion);
-        const vehiculosUsuario = obtenerListado(resultado.datos).filter((vehiculo) =>
-          Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario
-        );
-        setVehiculos(vehiculosUsuario);
-
-        const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
-        const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
-        const garagesDeSede = idSedeUsuario
-          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
-          : [];
-
-        setGarages(garagesDeSede);
-
-        if (vehiculosUsuario.length === 0) {
-          setMensaje({ tipo: "error", texto: "No tenes vehiculos registrados para crear una reserva." });
-        } else if (!idSedeUsuario) {
-          setMensaje({ tipo: "error", texto: "No se pudo identificar tu sede para cargar garages." });
-        } else if (garagesDeSede.length === 0) {
-          setMensaje({ tipo: "error", texto: "No hay garages disponibles para tu sede." });
-        }
-      } else {
-        setMensaje({ tipo: "error", texto: "No se pudieron cargar tus vehiculos." });
-      }
-      setLoadingVehiculos(false);
-    };
-
-    cargarVehiculos();
-    return () => { montado = false; };
-  }, [usuario]);
-
-  const handleReservationSubmit = async (datosFormulario) => {
-    setLoading(true);
-    setMensaje({ tipo: "", texto: "" });
-
-    const idVehiculo = obtenerNumeroValido(datosFormulario.id_vehiculo);
-    const vehiculoSeleccionado = vehiculos.find(v => Number(v.id_vehiculo ?? v.idVehiculo ?? v.id) === idVehiculo);
-    const idUsuario = obtenerNumeroValido(obtenerIdUsuario(usuario), vehiculoSeleccionado?.id_usuario);
-    const idGarage = obtenerNumeroValido(datosFormulario.id_garage);
-
-    if (!idUsuario || !idGarage) {
-      setLoading(false);
-      setMensaje({ tipo: "error", texto: "Error al identificar las credenciales necesarias." });
-      return;
-    }
-
-    const payloadReserva = {
-      fecha_entrada: datosFormulario.fecha_entrada,
-      fecha_salida: datosFormulario.fecha_salida,
-      id_usuario: idUsuario,
-      id_vehiculo: idVehiculo,
-      id_garage: idGarage,
-    };
-
-    const resultado = await ReservasCreate(payloadReserva);
-
-    if (resultado.respuesta) {
-      const datosBackend = resultado.datos?.reserva || resultado.datos || {};
-      
-      const payloadParaConfirmacion = {
-        plaza: datosBackend.nro_plaza || datosBackend.plaza || "P1-08",
-        nivel: datosBackend.nombre_zona || datosBackend.nivel || "NIVEL -1",
-        ubicacion: datosFormulario._metaData?.ubicacion,
-        horaInicio: datosFormulario._metaData?.horaInicio,
-        horaFin: datosFormulario._metaData?.horaFin,
-        fecha: datosFormulario._metaData?.fecha
-      };
-
-      // 🚀 REDIRECCIÓN ASÍNCRONA SEGURA CON STATE INYECTADO
-      navigate("/confirmacion_reserva", { 
-        state: { reserva: payloadParaConfirmacion } 
-      });
-    } else {
-      setLoading(false);
-      setMensaje({
-        tipo: "error",
-        texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
-      });
-    }
-  };
+  const location = useLocation();
+  const reserva = location.state?.reserva || {};
 
   return (
-    <div>
-      <div className="nuevaReserva-contenedor">
-        <HeaderEmpleado />
-        <main className="nuevaReserva-contenido">
-          <div className="animate-back">
-            <button className="boton-back" onClick={() => navigate("/empleados_dashboard")}>
+    <div className="confirmacion-layout-root">
+      <HeaderEmpleado />
+
+      <main className="confirmacion-main-wrapper">
+        <section className="confirmacion-content">
+          <div className="confirmacion-top-bar">
+            <button
+              className="boton-back-Confirmacion"
+              onClick={() => navigate("/empleados_dashboard")}
+              aria-label="Volver al panel"
+            >
               <ArrowLeft size={20} />
             </button>
+            <span className="confirmacion-breadcrumb">Reserva confirmada</span>
           </div>
-          <header className="textosTitulos">
-            <h1>Nueva Reserva</h1>
-            <p>Reserva tu plaza de estacionamiento para tu proxima jornada.</p>
-          </header>
-          {mensaje.texto && (
-            <div className={`form-feedback alert-${mensaje.tipo}`}>
-              <p>{mensaje.texto}</p>
+
+          <article className="confirmacion-bento-box">
+            <span className="confirmacion-badge-success">
+              <CheckCircle2 size={16} />
+              Confirmada
+            </span>
+
+            <div className="confirmacion-text-header">
+              <h1>Tu reserva fue creada</h1>
+              <p>Guardamos tu plaza para el horario seleccionado.</p>
             </div>
-          )}
-          <section className="formularioReserva">
-            {loadingVehiculos ? (
-              <NuevaReservaSkeleton />
-            ) : (
-              <FormularioReserva
-                onSubmit={handleReservationSubmit}
-                loading={loading}
-                vehiculos={vehiculos}
-                garages={garages}
-              />
-            )}
-          </section>
-        </main>
-      </div>
+
+            <div className="confirmacion-card-container">
+              <div className="confirmacion-reserva-card">
+                <div className="confirmacion-plaza">
+                  <strong>{reserva.plaza || "Asignada"}</strong>
+                  <span>{reserva.nivel || "Zona asignada"}</span>
+                </div>
+
+                <div className="confirmacion-detalles">
+                  <div className="confirmacion-detalle">
+                    <MapPin size={18} />
+                    <span>{reserva.ubicacion || "Garage SmartLot"}</span>
+                  </div>
+                  {reserva.vehiculo && (
+                    <div className="confirmacion-detalle">
+                      <Car size={18} />
+                      <span>{reserva.vehiculo}</span>
+                    </div>
+                  )}
+                  <div className="confirmacion-detalle">
+                    <CalendarDays size={18} />
+                    <span>{formatearFecha(reserva.fecha)}</span>
+                  </div>
+                  <div className="confirmacion-detalle">
+                    <Clock3 size={18} />
+                    <span>
+                      {reserva.horaInicio || "--:--"} - {reserva.horaFin || "--:--"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="confirmacion-actions">
+              <button
+                type="button"
+                className="btn-confirmacion-dashboard"
+                onClick={() => navigate("/empleados_dashboard")}
+              >
+                Volver al inicio
+              </button>
+            </div>
+          </article>
+        </section>
+      </main>
+
       <FooterEmpleado />
     </div>
   );
-};
+}
 
-export default NuevaReserva;
+export default ConfirmacionReserva;

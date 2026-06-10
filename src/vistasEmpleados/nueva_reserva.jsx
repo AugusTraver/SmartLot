@@ -218,16 +218,37 @@ const NuevaReserva = () => {
       id_garage: idGarage,
     };
 
-    const resultado = await ReservasCreate(payloadReserva);
+    try {
+      const resultado = await ReservasCreate(payloadReserva);
 
-    setLoading(false);
-    if (resultado.respuesta) {
-      setMensaje({ tipo: "success", texto: "Reserva confirmada con exito." });
-      setTimeout(() => navigate("/empleados_dashboard"), 1200);
-    } else {
+      if (!resultado.respuesta) {
+        setLoading(false);
+        setMensaje({
+          tipo: "error",
+          texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
+        });
+        return;
+      }
+
+      const datosBackend = resultado.datos?.reserva || resultado.datos || {};
+      const payloadParaConfirmacion = {
+        plaza: datosBackend.nro_plaza || datosBackend.plaza || datosBackend.numero_plaza || "Asignada",
+        nivel: datosBackend.nombre_zona || datosBackend.nivel || datosBackend.zona || "Zona asignada",
+        ubicacion: datosFormulario._metaData?.ubicacion || datosBackend.nombre_garage || datosBackend.garage || "Garage SmartLot",
+        vehiculo: datosFormulario._metaData?.vehiculo || datosBackend.vehiculo || "",
+        horaInicio: datosFormulario._metaData?.horaInicio || datosFormulario.fecha_entrada?.split(" ")?.[1]?.slice(0, 5),
+        horaFin: datosFormulario._metaData?.horaFin || datosFormulario.fecha_salida?.split(" ")?.[1]?.slice(0, 5),
+        fecha: datosFormulario._metaData?.fecha || datosFormulario.fecha_entrada?.split(" ")?.[0],
+      };
+
+      navigate("/confirmacion_reserva", {
+        state: { reserva: payloadParaConfirmacion },
+      });
+    } catch (error) {
+      setLoading(false);
       setMensaje({
         tipo: "error",
-        texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
+        texto: "Hubo un error al procesar la reserva. Intentalo de nuevo.",
       });
     }
   };

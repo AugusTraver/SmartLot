@@ -5,13 +5,14 @@ import { showToast } from '../helpers/toast';
 export default function ProtectedRoute({ allowedRoles, children, usuario }) {
   const navigate = useNavigate();
   const toastShown = useRef(false);
+  const userRole = Number(usuario?.id_rol);
 
   useEffect(() => {
     if (!usuario) {
       navigate('/login', { replace: true });
       return;
     }
-    if (!allowedRoles.includes(usuario.id_rol) && Number(usuario.id_rol) !== 4) {
+    if (!allowedRoles.includes(userRole) && userRole !== 4) {
       if (!toastShown.current) {
         showToast('No tenés permisos para acceder a esta URL con tu rol.', 'warning');
         toastShown.current = true;
@@ -22,12 +23,12 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
         3: '/garagista_dashboard',
         4: '/superadmin_dashboard',
       };
-      const ruta = rutas[Number(usuario.id_rol)] || '/';
+      const ruta = rutas[userRole] || '/';
       navigate(ruta, { replace: true });
     }
-  }, [usuario, allowedRoles, navigate]);
+  }, [usuario, allowedRoles, navigate, userRole]);
 
   if (!usuario) return null;
-  if (!allowedRoles.includes(usuario.id_rol) && Number(usuario.id_rol) !== 4) return null;
+  if (!allowedRoles.includes(userRole) && userRole !== 4) return null;
   return children;
 }
