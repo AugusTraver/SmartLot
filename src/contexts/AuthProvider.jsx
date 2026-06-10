@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { AuthContext } from './authContext';
+import { haySuperadminBackup, obtenerUsuarioImpersonado, eliminarUsuarioImpersonado, eliminarSuperadminBackup } from '../helpers/superadminSession';
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -8,8 +9,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     apiClient.get('/api/usuario/me', { _skipAuthRedirect: true })
-      .then((res) => setUsuario(res.data.usuario))
-      .catch(() => setUsuario(null))
+      .then((res) => {
+        const impersonado = obtenerUsuarioImpersonado();
+        if (impersonado && haySuperadminBackup()) {
+          setUsuario(impersonado);
+        } else {
+          setUsuario(res.data.usuario);
+          if (!haySuperadminBackup()) {
+            eliminarUsuarioImpersonado();
+          }
+        }
+      })
+      .catch(() => {
+        setUsuario(null);
+        eliminarUsuarioImpersonado();
+        eliminarSuperadminBackup();
+      })
       .finally(() => setLoading(false));
   }, []);
 

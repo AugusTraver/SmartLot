@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { Z_INDEX } from '../helpers/zIndex';
 import { LogOut, User, Settings, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from '../helpers/superadminSession';
 import apiClient from '../api/client';
 
 const ROLE_LABELS = {
@@ -145,6 +146,16 @@ export default function UserDropdown() {
   }, [navigate, usuario]);
   const handleLogout = useCallback(async () => {
     setIsOpen(false);
+
+    const superadminBackup = obtenerSuperadminBackup();
+
+    if (superadminBackup) {
+      eliminarSuperadminBackup();
+      eliminarUsuarioImpersonado();
+      setUsuario(superadminBackup);
+      navigate('/superadmin_dashboard', { replace: true });
+      return;
+    }
 
     Swal.fire({
       toast: true,

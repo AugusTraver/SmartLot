@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
+import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from "../helpers/superadminSession";
 import apiClient from "../api/client";
 import "./perfil_admin.css";
 
@@ -42,6 +43,16 @@ export default function PerfilAdmin() {
   }, { dependencies: [loading, usuario], scope: mainScopeRef });
 
   const handleCerrarSesion = async () => {
+    const superadminBackup = obtenerSuperadminBackup();
+
+    if (superadminBackup) {
+      eliminarSuperadminBackup();
+      eliminarUsuarioImpersonado();
+      setUsuario(superadminBackup);
+      navigate('/superadmin_dashboard', { replace: true });
+      return;
+    }
+
     try {
       await apiClient.post('/api/usuario/logout');
     } catch (err) {}

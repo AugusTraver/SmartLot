@@ -11,6 +11,7 @@ import Footer from "../componentesEmpleado/footer_empleado"
 
 // Hooks y Contextos de SmartLot
 import { useAuth } from "../contexts/useAuth";
+import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from "../helpers/superadminSession";
 import apiClient from "../servicies/apiClient";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
@@ -181,6 +182,16 @@ export default function PerfilEmpleado() {
   };
 
   const handleCerrarSesion = async () => {
+    const superadminBackup = obtenerSuperadminBackup();
+
+    if (superadminBackup) {
+      eliminarSuperadminBackup();
+      eliminarUsuarioImpersonado();
+      setUsuario(superadminBackup);
+      navigate('/superadmin_dashboard', { replace: true });
+      return;
+    }
+
     try {
       await apiClient.post('/api/usuario/logout');
     } catch (err) {}

@@ -21,6 +21,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
+import { guardarSuperadminBackup, guardarUsuarioImpersonado } from "../helpers/superadminSession";
 import { useAuth } from "../contexts/useAuth";
 
 import "./gestion_usuarios.css";
@@ -482,22 +483,28 @@ const GestionUsuarios = () => {
 
     if (!result.isConfirmed) return;
 
+    guardarSuperadminBackup(usuario);
+    guardarUsuarioImpersonado(targetUser);
+
+    let userData = null;
+
     try {
       const res = await UsuariosImpersonate(targetUser.id);
       if (res.respuesta && res.datos) {
-        const userData = res.datos.usuario || res.datos;
-        setUsuario(userData);
+        userData = res.datos.usuario || res.datos;
       }
-
-      const rutas = {
-        1: '/admin_dashboard',
-        2: '/empleados_dashboard',
-        3: '/garagista_dashboard',
-      };
-      navigate(rutas[targetUser.id_rol] || '/');
-    } catch (err) {
-      Swal.fire("Error", "No se pudo iniciar sesión como este usuario.", "error");
+    } catch {
+      // Fallback al targetUser si la API falla
     }
+
+    setUsuario(userData || targetUser);
+
+    const rutas = {
+      1: '/admin_dashboard',
+      2: '/empleados_dashboard',
+      3: '/garagista_dashboard',
+    };
+    navigate(rutas[targetUser.id_rol] || '/');
   };
 
   // Animaciones iniciales
