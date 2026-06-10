@@ -159,6 +159,7 @@
   background: #e5e7eb;
   position: relative;
   overflow: hidden;
+
 }
 
 .skeleton-line::after {
@@ -173,6 +174,7 @@
     transparent 100%
   );
   animation: superadmin-shimmer 1.35s infinite;
+  margin-bottom: 20%;
 }
 
 @keyframes superadmin-shimmer {
@@ -218,6 +220,7 @@
   height: 42px;
   border-radius: 12px;
   margin-bottom: 10px;
+  
 }
 
 .skeleton-card-title {
