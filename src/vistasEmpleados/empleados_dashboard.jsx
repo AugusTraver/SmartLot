@@ -220,8 +220,8 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
     plaza,
     nivel: zona,
     nombre_garage: ubicacion,
-    nro_plaza: plaza,
-    nombre_zona: zona,
+    nro_plaza: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { day: "2-digit", timeZone: "UTC" }) : "-",
+    nombre_zona: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" }) : "Mes",
     hora_entrada: horaInicio,
     hora_salida: horaFin,
   };

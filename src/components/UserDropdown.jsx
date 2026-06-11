@@ -1,11 +1,11 @@
 // src/components/UserDropdown.jsx
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Swal from 'sweetalert2';
 import { Z_INDEX } from '../helpers/zIndex';
-import { LogOut, User, Settings, ChevronDown, ShieldCheck } from 'lucide-react';
+import { LogOut, User, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from '../helpers/superadminSession';
 import apiClient from '../api/client';
@@ -44,7 +44,6 @@ function getInitial(name) {
 export default function UserDropdown() {
   const { usuario, setUsuario } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const panelRef = useRef(null);
@@ -109,9 +108,6 @@ export default function UserDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // LÓGICA DE DIRECCIONAMIENTO EXCLUSIVO:
-  // Cierra el panel de forma segura y empuja la URL registrada en App.jsx
-  // LÓGICA DE DIRECCIONAMIENTO EXCLUSIVO UNIFICADA Y CORREGIDA:
   const handleNavegacionPerfil = useCallback(() => {
     setIsOpen(false);
 
@@ -120,30 +116,25 @@ export default function UserDropdown() {
       return;
     }
 
-    // Evaluamos de forma estricta según el ID de ROL de SmartLot
     switch (usuario.id_rol) {
       case 1:
-        // Si es Admin (Rol 1) -> Va exactamente a su perfil de Admin
         navigate('/perfil_admin');
         break;
       case 2:
-        // Si es Empleado (Rol 2) -> Va exactamente a su perfil de Empleado
         navigate('/perfil_empleado');
         break;
       case 3:
-        // Si es Garagista (Rol 3) -> Va a su panel principal
         navigate('/garagista_dashboard');
         break;
       case 4:
-        // Si es Superadmin (Rol 4) -> Va al panel de superadmin
         navigate('/superadmin_dashboard');
         break;
       default:
-        // Fallback seguro por si las moscas
         navigate('/');
         break;
     }
   }, [navigate, usuario]);
+
   const handleLogout = useCallback(async () => {
     setIsOpen(false);
 
@@ -248,7 +239,6 @@ export default function UserDropdown() {
           <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-brand-blue/10 to-transparent" />
 
           <div className="p-1.5">
-            {/* Vinculado al manejador dinámico por ruteo virtual */}
             <button
               role="menuitem"
               className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
@@ -260,25 +250,6 @@ export default function UserDropdown() {
               <span>Perfil</span>
             </button>
 
-            <button
-              role="menuitem"
-              className="dropdown-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-brand-warm transition-colors duration-150 hover:bg-brand-blue/5"
-              onClick={() => {
-                setIsOpen(false);
-                if (usuario?.id_rol === 2) {
-                  navigate('/configuracion_empleado', { state: { from: location.pathname } });
-                } else if (usuario?.id_rol === 1) {
-                  navigate('/admin_dashboard'); // O la ruta de configuración de admin que definas
-                } else {
-                  navigate('/');
-                }
-              }}
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-brand-muted">
-                <Settings size={14} />
-              </span>
-              <span>Configuracion</span>
-            </button>
             <div className="mx-2.5 h-px bg-gradient-to-r from-transparent via-black/5 to-transparent" />
 
             <div className="p-1.5">

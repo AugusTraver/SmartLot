@@ -29,7 +29,6 @@ import AuthCallback from "./vistasLanding/AuthCallback";
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
 import PerfilEmpleado from "./vistasEmpleados/perfil_empleado";
-import ConfiguracionEmpleado from "./vistasEmpleados/configuracion_empleado";
 import AgregarVehiculo from "./vistasEmpleados/agregar_vehiculo";
 
 // Vistas Adicionales y Utilidades
@@ -86,12 +85,6 @@ function AppRoutes() {
           <AgregarVehiculo />
         </ProtectedRoute>
       } />
-      <Route path="/configuracion_empleado" element={
-        <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
-          <ConfiguracionEmpleado />
-        </ProtectedRoute>
-      } />
-
       {/* Rutas protegidas - Garagista */}
       <Route path="/garagista_dashboard" element={
         <ProtectedRoute allowedRoles={[3]} usuario={usuario}>
