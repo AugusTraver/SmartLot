@@ -42,7 +42,7 @@ function getInitial(name) {
 }
 
 export default function UserDropdown() {
-  const { usuario, setUsuario } = useAuth();
+  const { usuario, setUsuario, setRoleTransition } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -143,6 +143,7 @@ export default function UserDropdown() {
     if (superadminBackup) {
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
+      setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });
       return;

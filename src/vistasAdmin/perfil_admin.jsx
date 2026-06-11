@@ -15,7 +15,7 @@ gsap.registerPlugin(useGSAP);
 export default function PerfilAdmin() {
   const navigate = useNavigate();
   const mainScopeRef = useRef(null);
-  const { usuario, setUsuario, loading } = useAuth();
+  const { usuario, setUsuario, loading, setRoleTransition } = useAuth();
 
   const [personalData, setPersonalData] = useState({
     nombre: "", apellido: "", email: "", telefono: ""
@@ -48,6 +48,7 @@ export default function PerfilAdmin() {
     if (superadminBackup) {
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
+      setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });
       return;

@@ -6,6 +6,7 @@ import { haySuperadminBackup, obtenerUsuarioImpersonado, eliminarUsuarioImperson
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [roleTransition, setRoleTransition] = useState(false);
 
   useEffect(() => {
     apiClient.get('/api/usuario/me', { _skipAuthRedirect: true })
@@ -29,7 +30,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ usuario, loading, setUsuario }}>
+    <AuthContext.Provider value={{ usuario, loading, setUsuario, roleTransition, setRoleTransition }}>
       {children}
     </AuthContext.Provider>
   );

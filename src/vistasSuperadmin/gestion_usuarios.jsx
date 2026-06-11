@@ -182,7 +182,7 @@ const GestionUsuarios = () => {
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
-  const { usuario, setUsuario } = useAuth();
+  const { usuario, setUsuario, setRoleTransition } = useAuth();
 
   // Detectar clics fuera del panel de filtros para cerrarlo automáticamente
   useEffect(() => {
@@ -501,6 +501,7 @@ const GestionUsuarios = () => {
 
     const finalUser = userData || targetUser;
     guardarUsuarioImpersonado(finalUser);
+    setRoleTransition(true);
     setUsuario(finalUser);
 
     const rutas = {
