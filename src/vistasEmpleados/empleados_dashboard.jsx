@@ -152,8 +152,12 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
   const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada"]);
   const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida"]);
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
-  const horaInicio = obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"], extraerHoraLocal(fechaEntrada));
-  const horaFin = obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"], extraerHoraLocal(fechaSalida));
+  const horaInicio =
+    obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"]) ||
+    obtenerCampo(reserva?._metaData, ["horaInicio", "hora_inicio", "desde", "inicio"], extraerHoraLocal(fechaEntrada));
+  const horaFin =
+    obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"]) ||
+    obtenerCampo(reserva?._metaData, ["horaFin", "hora_fin", "hasta", "fin"], extraerHoraLocal(fechaSalida));
   const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
