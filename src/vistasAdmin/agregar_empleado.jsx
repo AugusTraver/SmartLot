@@ -244,7 +244,7 @@ function AgregarEmpleado() {
             formData={formData}
             onChange={handleChange}
             sedes={sedes}
-            isSedeDisabled={true}
+            isSedeDisabled={!!usuario?.id_sede}
           />
 
        
