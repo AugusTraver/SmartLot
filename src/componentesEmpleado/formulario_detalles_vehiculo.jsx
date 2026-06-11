@@ -1,10 +1,13 @@
 // src/componentesEmpleado/formulario_detalles_vehiculo.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Car, Plus } from "lucide-react";
+import { Car, Plus, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import { VehiculosDelete } from "../servicies/API_Vehiculo";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import "./formulario_vehiculo.css";
 
-export default function FormularioDetallesVehiculo({ vehiculos = [] }) {
+export default function FormularioDetallesVehiculo({ vehiculos = [], onVehiculoEliminado }) {
   const navigate = useNavigate();
 
   return (
@@ -82,16 +85,46 @@ export default function FormularioDetallesVehiculo({ vehiculos = [] }) {
                     </span>
                   )}
                 </div>
-                <span
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: "#10b981",
-                    display: "inline-block",
-                    flexShrink: 0,
-                  }}
-                />
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#10b981",
+                      display: "inline-block",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <BotonGenerico
+                    className="btn-eliminar-vehiculo"
+                    onClick={async () => {
+                      const result = await Swal.fire({
+                        title: "¿Eliminar vehículo?",
+                        text: `${marca} ${modelo}${patente ? ` (${patente})` : ""}`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#e11d48",
+                        cancelButtonColor: "#64748b",
+                        confirmButtonText: "Sí, eliminar",
+                        cancelButtonText: "Cancelar",
+                      });
+                      if (!result.isConfirmed) return;
+                      try {
+                        const idVehiculo = vehiculo.id ?? vehiculo.id_vehiculo ?? vehiculo._id;
+                        const res = await VehiculosDelete(idVehiculo);
+                        if (res.respuesta && onVehiculoEliminado) {
+                          onVehiculoEliminado(idVehiculo);
+                        }
+                      } catch (err) {
+                        Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el vehículo." });
+                      }
+                    }}
+                    aria-label="Eliminar vehículo"
+                  >
+                    <Trash2 size={16} />
+                  </BotonGenerico>
+                </div>
               </div>
             );
           })}

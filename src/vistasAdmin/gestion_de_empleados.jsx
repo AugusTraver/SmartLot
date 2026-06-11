@@ -223,12 +223,28 @@ const GestionEmpleados = () => {
 
         const adminSinSede = !usuario?.id_sede;
         const empresaAdmin = Number(usuario?.id_empresa);
-        const filtrarPorEmpresa = adminSinSede && !isNaN(empresaAdmin) && empresaAdmin > 0;
+        const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
+        const filtrarPorEmpresa = adminSinSede && tieneEmpresa;
+
+        const sedes = adminSinSede
+          ? tieneEmpresa
+            ? todasLasSedes.filter((s) => Number(s.id_empresa) === empresaAdmin)
+            : todasLasSedes
+          : todasLasSedes.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+
+        const sedesIdsEmpresa = new Set(sedes.map((s) => Number(s.id)));
+
+        const garages = adminSinSede
+          ? tieneEmpresa
+            ? todosLosGarages.filter((g) => sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede)))
+            : todosLosGarages
+          : todosLosGarages.filter((g) => {
+              const idSede = g.id_sede ?? g.idSede;
+              return Number(idSede) === Number(usuario?.id_sede);
+            });
 
         const garagesDeSedeIds = new Set(
-          todosLosGarages
-            .filter((g) => adminSinSede || Number(g.id_sede ?? g.idSede) === Number(usuario?.id_sede))
-            .map((g) => Number(g.id_garage ?? g.idGarage ?? g.id ?? g._id))
+          garages.map((g) => Number(g.id_garage ?? g.idGarage ?? g.id ?? g._id))
         );
 
         const usuarios = todosLosUsuarios.filter((u) => {
@@ -242,17 +258,6 @@ const GestionEmpleados = () => {
           }
           return adminSinSede || Number(idSede) === Number(usuario?.id_sede);
         });
-
-        const sedes = adminSinSede
-          ? todasLasSedes
-          : todasLasSedes.filter((s) => Number(s.id) === Number(usuario?.id_sede));
-
-        const garages = adminSinSede
-          ? todosLosGarages
-          : todosLosGarages.filter((g) => {
-              const idSede = g.id_sede ?? g.idSede;
-              return Number(idSede) === Number(usuario?.id_sede);
-            });
 
         const vehiculosPorUsuario = new Map(vehiculos.map((v) => [v.id_usuario, v]));
         const modeloNombrePorId = new Map(modelos.map((m) => [m.id, m.nombre]));
