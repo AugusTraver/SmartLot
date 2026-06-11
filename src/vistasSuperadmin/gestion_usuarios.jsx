@@ -806,15 +806,27 @@ const GestionUsuarios = () => {
                           </span>
                         )}
                         {u.sede && (
-                          <span className="usuario-meta">
+                          <span className={`usuario-meta ${u.id_rol === 1 ? 'usuario-meta-admin' : ''}`}>
                             <MapPin size={13} />
                             {u.sede}
                           </span>
                         )}
-                        {u.garage && (
+                        {u.garage && u.id_rol !== 3 && (
                           <span className="usuario-meta">
                             <Car size={13} />
                             {u.garage}
+                          </span>
+                        )}
+                        {u.id_rol === 3 && u.garage && (
+                          <span className="usuario-meta usuario-meta-garage">
+                            <Car size={13} />
+                            {u.garage}
+                          </span>
+                        )}
+                        {u.id_rol === 1 && !u.sede && (
+                          <span className="usuario-meta usuario-meta-admin">
+                            <Building2 size={13} />
+                            Admin General
                           </span>
                         )}
                       </div>

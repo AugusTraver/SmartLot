@@ -164,7 +164,11 @@ function AgregarUsuario() {
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
       id_empresa: ROLES_NEED_EMPRESA.includes(idRol) ? Number(formData.id_empresa) : '',
-      id_sede: ROLES_NEED_SEDE.includes(idRol) ? Number(formData.id_sede) || '' : '',
+      id_sede: ROLES_NEED_SEDE.includes(idRol)
+        ? formData.id_sede === "sede_general"
+          ? null
+          : Number(formData.id_sede) || ''
+        : '',
       id_garage: ROLES_NEED_GARAGE.includes(idRol) ? Number(formData.id_garage) || '' : '',
     };
 
@@ -294,6 +298,9 @@ function AgregarUsuario() {
                   <option value="">
                     {formData.id_empresa ? "Seleccionar sede..." : "Primero elige una empresa"}
                   </option>
+                  {idRol === 1 && (
+                    <option value="sede_general">Admin general de la empresa</option>
+                  )}
                   {sedesFiltradas.map((sede) => (
                     <option key={sede.id} value={sede.id}>
                       {sede.nombre}

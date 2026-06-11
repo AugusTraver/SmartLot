@@ -440,6 +440,16 @@
   border-radius: 6px;
 }
 
+.usuario-meta-garage {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8B5CF6;
+}
+
+.usuario-meta-admin {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3B82F6;
+}
+
 .usuario-card-footer {
   display: flex;
   justify-content: space-between;
