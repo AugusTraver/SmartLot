@@ -21,6 +21,7 @@ function TarjetaReserva({ reserva, onClick }) {
         <div className="empleado-reserva-plaza">
           <strong>{reserva.nro_plaza || "-"}</strong>
           <span>{reserva.nombre_zona || "Sector"}</span>
+          <small>Reservado</small>
         </div>
 
         {/* Bloque de Informacion de Ubicacion y Tiempos (Centro) */}
