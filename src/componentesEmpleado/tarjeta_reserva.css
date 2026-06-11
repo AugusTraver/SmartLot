@@ -54,7 +54,7 @@
 .empleado-reserva-plaza {
   width: 62px;
   min-width: 0;
-  height: 62px;
+  height: 74px;
   border-radius: 16px;
   background: #dbeafe;
   box-shadow: none;
@@ -80,12 +80,26 @@
 
 .empleado-reserva-plaza span {
   max-width: 52px;
-  margin-top: 6px;
+  margin-top: 5px;
   overflow: hidden;
   color: #64748B;
   font-size: 8.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.empleado-reserva-plaza small {
+  max-width: 52px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #2563eb;
+  font-size: 7.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -152,11 +166,12 @@
 
   .empleado-reserva-plaza {
     width: 56px;
-    height: 56px;
+    height: 70px;
   }
 
   .empleado-reserva-plaza strong,
-  .empleado-reserva-plaza span {
+  .empleado-reserva-plaza span,
+  .empleado-reserva-plaza small {
     max-width: 46px;
   }
 
