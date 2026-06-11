@@ -68,6 +68,21 @@ const obtenerIdGarage = (garage) =>
   garage?.id ??
   garage?._id;
 
+const esGarageActivo = (garage) => {
+  const estado = garage?.estado ?? garage?.activo ?? garage?.status;
+
+  if (estado === undefined || estado === null || estado === "") return true;
+  if (typeof estado === "boolean") return estado;
+  if (typeof estado === "number") return estado === 1;
+
+  if (typeof estado === "string") {
+    const estadoNormalizado = estado.trim().toLowerCase();
+    return ["true", "activo", "activa", "abierto", "habilitado", "1"].includes(estadoNormalizado);
+  }
+
+  return true;
+};
+
 const obtenerNumeroValido = (...valores) => {
   for (const valor of valores) {
     const numero = Number(valor);
@@ -144,7 +159,7 @@ const NuevaReserva = () => {
         const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
         const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
         const garagesDeSede = idSedeUsuario
-          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario)
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario && esGarageActivo(garage))
           : [];
 
         setGarages(garagesDeSede);
@@ -244,7 +259,7 @@ const NuevaReserva = () => {
       }).then(() => {
         navigate("/empleados_dashboard");
       });
-    } catch (error) {
+    } catch {
       setLoading(false);
       setMensaje({
         tipo: "error",

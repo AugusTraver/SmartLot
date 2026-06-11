@@ -1,13 +1,12 @@
 // src/componentesEmpleado/tarjeta_reserva.jsx
-import React from "react";
 import "./tarjeta_reserva.css";
 
 function TarjetaReserva({ reserva, onClick }) {
   if (!reserva) return null;
 
   // Formateamos la fecha para que se lea de forma limpia en Argentina (ej. "15/06/2026")
-  const fechaFormateada = reserva.fecha 
-    ? new Date(reserva.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' }) 
+  const fechaFormateada = reserva.fecha
+    ? new Date(reserva.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })
     : "";
 
   return (
@@ -18,13 +17,13 @@ function TarjetaReserva({ reserva, onClick }) {
         aria-label={`Reserva en ${reserva.nombre_garage || 'Garage'}`}
         onClick={() => onClick?.(reserva)}
       >
-        {/* Bloque del Número de la Plaza (Izquierda) */}
+        {/* Bloque del Numero de la Plaza (Izquierda) */}
         <div className="empleado-reserva-plaza">
           <strong>{reserva.nro_plaza || "-"}</strong>
           <span>{reserva.nombre_zona || "Sector"}</span>
         </div>
 
-        {/* Bloque de Información de Ubicación y Tiempos (Centro) */}
+        {/* Bloque de Informacion de Ubicacion y Tiempos (Centro) */}
         <div className="empleado-reserva-info">
           <h3>{reserva.nombre_garage || "Ubicación no especificada"}</h3>
           <p>

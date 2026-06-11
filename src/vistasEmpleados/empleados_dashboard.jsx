@@ -65,6 +65,21 @@ const obtenerIdSedeGarage = (garage) =>
   garage?.sede?.id ??
   garage?.sede?.id_sede;
 
+const esGarageActivo = (garage) => {
+  const estado = garage?.estado ?? garage?.activo ?? garage?.status;
+
+  if (estado === undefined || estado === null || estado === "") return true;
+  if (typeof estado === "boolean") return estado;
+  if (typeof estado === "number") return estado === 1;
+
+  if (typeof estado === "string") {
+    const estadoNormalizado = estado.trim().toLowerCase();
+    return ["true", "activo", "activa", "abierto", "habilitado", "1"].includes(estadoNormalizado);
+  }
+
+  return true;
+};
+
 const obtenerObjeto = (datos) => {
   if (!datos || Array.isArray(datos)) return null;
   return datos.usuario ?? datos.datos ?? datos.data ?? datos;
@@ -89,8 +104,34 @@ const obtenerNombreUsuario = (usuario) => {
 };
 
 const obtenerCampo = (item, claves, fallback = "") => {
-  const clave = claves.find((key) => item?.[key] !== undefined && item?.[key] !== null && item?.[key] !== "");
-  return clave ? item[clave] : fallback;
+  const origenes = [
+    item,
+    item?.reserva,
+    item?.datos,
+    item?.data,
+    item?._doc,
+    item?.dataValues,
+  ];
+
+  for (const origen of origenes) {
+    const clave = claves.find((key) => origen?.[key] !== undefined && origen?.[key] !== null && origen?.[key] !== "");
+    if (clave) return origen[clave];
+
+    if (origen && typeof origen === "object") {
+      const entries = Object.entries(origen);
+      const claveNormalizada = claves
+        .map((key) => key.toLowerCase())
+        .find((key) => entries.some(([entryKey, value]) =>
+          entryKey.toLowerCase() === key && value !== undefined && value !== null && value !== ""
+        ));
+      if (claveNormalizada) {
+        const entry = entries.find(([entryKey]) => entryKey.toLowerCase() === claveNormalizada);
+        if (entry) return entry[1];
+      }
+    }
+  }
+
+  return fallback;
 };
 
 const obtenerNombreGarage = (garage) =>
@@ -130,16 +171,25 @@ const extraerFechaStr = (datetime) => {
 
 const extraerHoraLocal = (fechaStr) => {
   if (!fechaStr) return "--:--";
-  if (fechaStr.includes("T")) {
-    const tieneTz = /[Z+\-]\d{2}:/.test(fechaStr);
-    const normalizada = tieneTz ? fechaStr : fechaStr + "Z";
-    const fecha = new Date(normalizada);
-    if (!isNaN(fecha.getTime())) {
-      return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
+  const valor = String(fechaStr);
+  if (/^\d{2}:\d{2}/.test(valor)) return valor.slice(0, 5);
+
+  if (valor.includes("T")) {
+    const tieneZonaHoraria = /(?:Z|[+-]\d{2}:?\d{2})$/.test(valor);
+    if (tieneZonaHoraria) {
+      const fecha = new Date(valor);
+      if (!Number.isNaN(fecha.getTime())) {
+        return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
+      }
     }
+
+    const hora = valor.split("T")[1]?.slice(0, 5);
+    return hora || "--:--";
   }
-  const partes = fechaStr.split(" ");
+
+  const partes = valor.split(" ");
   if (partes.length > 1) return partes[1].slice(0, 5);
+
   return "--:--";
 };
 
@@ -149,15 +199,11 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
   const vehiculo = vehiculosPorId.get(Number(idVehiculo));
   const garageReserva = garagesPorId.get(Number(idGarage));
   const patente = obtenerCampo(vehiculo, ["patente", "placa", "matricula"]);
-  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada"]);
-  const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida"]);
+  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]);
+  const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]);
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
-  const horaInicio =
-    obtenerCampo(reserva, ["horaInicio", "hora_inicio", "desde", "inicio"]) ||
-    obtenerCampo(reserva?._metaData, ["horaInicio", "hora_inicio", "desde", "inicio"], extraerHoraLocal(fechaEntrada));
-  const horaFin =
-    obtenerCampo(reserva, ["horaFin", "hora_fin", "hasta", "fin"]) ||
-    obtenerCampo(reserva?._metaData, ["horaFin", "hora_fin", "hasta", "fin"], extraerHoraLocal(fechaSalida));
+  const horaInicio = extraerHoraLocal(fechaEntrada);
+  const horaFin = extraerHoraLocal(fechaSalida);
   const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
@@ -281,7 +327,7 @@ function EmpleadoDashboard() {
         const garages = garagesResponse.respuesta ? obtenerListado(garagesResponse.datos) : [];
         const idSedeEmpleado = Number(obtenerIdSedeUsuario(perfilEmpleado));
         const garagesDeSede = Number.isFinite(idSedeEmpleado)
-          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeEmpleado)
+          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeEmpleado && esGarageActivo(garage))
           : [];
         const idGarageEmpleado = Number(obtenerIdGarageAsignado(perfilEmpleado));
         const garageGuardadoId = Number(localStorage.getItem(GARAGE_DASHBOARD_STORAGE_KEY));
@@ -357,11 +403,9 @@ function EmpleadoDashboard() {
   const ocupacionNoReservas = Number(garageUsuario?.ocupacion_no_reservas || 0);
   const totalCapacidad = capacidadReservas + capacidadNoReservas;
   const ocupacion = ocupacionReservas + ocupacionNoReservas;
-  const plazasLibres = totalCapacidad > 0 ? Math.max(totalCapacidad - ocupacion, 0) : null;
   const porcentajeOcupacion = totalCapacidad > 0 ? Math.round((ocupacion / totalCapacidad) * 100) : null;
   const pctReservas = capacidadReservas > 0 ? Math.round((ocupacionReservas / capacidadReservas) * 100) : 0;
   const pctNoReservas = capacidadNoReservas > 0 ? Math.round((ocupacionNoReservas / capacidadNoReservas) * 100) : 0;
-  const libresReservas = capacidadReservas > 0 ? Math.max(capacidadReservas - ocupacionReservas, 0) : null;
   const libresNoReservas = capacidadNoReservas > 0 ? Math.max(capacidadNoReservas - ocupacionNoReservas, 0) : null;
 
   const reservasDelGarage = useMemo(() => {
