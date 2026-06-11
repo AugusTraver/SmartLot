@@ -1,4 +1,3 @@
-// src/vistasEmpleados/perfil_empleado.jsx
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, LogOut } from "lucide-react";
