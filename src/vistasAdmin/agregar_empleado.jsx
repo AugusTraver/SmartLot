@@ -31,7 +31,7 @@ function AgregarEmpleado() {
     telefono: '',
     contraseña: '',
     id_sede: usuario?.id_sede ?? '',
-    id_empresa: usuario?.id_empresa ?? 1,
+    id_empresa: usuario?.id_empresa ?? '',
     patente: '',
     id_modelo: null
   });
@@ -51,13 +51,25 @@ function AgregarEmpleado() {
       }
       if (sedesRes.respuesta) {
         const todas = obtenerListado(sedesRes.datos);
-        const sedeAdmin = todas.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+        const empresaAdmin = Number(usuario?.id_empresa);
+        const sedeAdmin = todas.filter((s) => {
+          if (!usuario?.id_sede) {
+            return !isNaN(empresaAdmin) && empresaAdmin > 0 && Number(s.id_empresa) === empresaAdmin;
+          }
+          return Number(s.id) === Number(usuario?.id_sede) &&
+            Number(s.id_empresa) === empresaAdmin;
+        });
         setSedes(sedeAdmin);
         if (usuario?.id_sede) {
           setFormData((prev) => ({
             ...prev,
             id_sede: Number(usuario.id_sede),
-            id_empresa: Number(usuario.id_empresa) || 1,
+            id_empresa: empresaAdmin,
+          }));
+        } else if (!isNaN(empresaAdmin) && empresaAdmin > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            id_empresa: empresaAdmin,
           }));
         }
       }
@@ -146,6 +158,11 @@ function AgregarEmpleado() {
         setError('❌ La patente debe ser alfanumérica y tener entre 6 y 8 caracteres (ej: AAA123 o AB123CD).');
         return;
       }
+    }
+
+    if (!formData.id_empresa) {
+      setError('❌ No se pudo determinar tu empresa. No puedes crear empleados.');
+      return;
     }
 
     setLoading(true);

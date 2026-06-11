@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { ArrowLeft } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
@@ -223,26 +224,25 @@ const NuevaReserva = () => {
 
       if (!resultado.respuesta) {
         setLoading(false);
-        setMensaje({
-          tipo: "error",
-          texto: resultado.datos?.message || "Hubo un error al procesar la reserva. Intentalo de nuevo.",
-        });
+        const msg = resultado.datos?.message || "";
+        const textoAmigable =
+          msg.toLowerCase().includes("garage") && msg.toLowerCase().includes("disponible")
+            ? "El garage seleccionado no esta disponible en este momento. Por favor, elegi otro o intenta de nuevo."
+            : msg || "Hubo un error al procesar la reserva. Intentalo de nuevo.";
+        setMensaje({ tipo: "error", texto: textoAmigable });
         return;
       }
 
-      const datosBackend = resultado.datos?.reserva || resultado.datos || {};
-      const payloadParaConfirmacion = {
-        plaza: datosBackend.nro_plaza || datosBackend.plaza || datosBackend.numero_plaza || "Asignada",
-        nivel: datosBackend.nombre_zona || datosBackend.nivel || datosBackend.zona || "Zona asignada",
-        ubicacion: datosFormulario._metaData?.ubicacion || datosBackend.nombre_garage || datosBackend.garage || "Garage SmartLot",
-        vehiculo: datosFormulario._metaData?.vehiculo || datosBackend.vehiculo || "",
-        horaInicio: datosFormulario._metaData?.horaInicio || datosFormulario.fecha_entrada?.split(" ")?.[1]?.slice(0, 5),
-        horaFin: datosFormulario._metaData?.horaFin || datosFormulario.fecha_salida?.split(" ")?.[1]?.slice(0, 5),
-        fecha: datosFormulario._metaData?.fecha || datosFormulario.fecha_entrada?.split(" ")?.[0],
-      };
+      setLoading(false);
 
-      navigate("/confirmacion_reserva", {
-        state: { reserva: payloadParaConfirmacion },
+      Swal.fire({
+        icon: "success",
+        title: "¡Reserva creada con éxito!",
+        text: "Tu plaza de estacionamiento ha sido reservada correctamente.",
+        confirmButtonText: "Volver al inicio",
+        confirmButtonColor: "#2563eb",
+      }).then(() => {
+        navigate("/empleados_dashboard");
       });
     } catch (error) {
       setLoading(false);

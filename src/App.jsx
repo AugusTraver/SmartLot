@@ -28,7 +28,6 @@ import AuthCallback from "./vistasLanding/AuthCallback";
 // Vistas de Empleados (Conexión corregida del perfil de empleado)
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
-import ConfirmacionReserva from "./vistasEmpleados/confirmacion_reserva";
 import PerfilEmpleado from "./vistasEmpleados/perfil_empleado";
 import ConfiguracionEmpleado from "./vistasEmpleados/configuracion_empleado";
 import AgregarVehiculo from "./vistasEmpleados/agregar_vehiculo";
@@ -72,16 +71,6 @@ function AppRoutes() {
       <Route path="/nueva_reserva" element={
         <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
           <NuevaReserva />
-        </ProtectedRoute>
-      } />
-      <Route path="/confirmacion_reserva" element={
-        <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
-          <ConfirmacionReserva />
-        </ProtectedRoute>
-      } />
-      <Route path="/confirmar_reserva" element={
-        <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
-          <ConfirmacionReserva />
         </ProtectedRoute>
       } />
 

@@ -9,6 +9,8 @@ export function guardarSuperadminBackup(usuario) {
     apellido: usuario.apellido,
     email: usuario.email,
     id_rol: usuario.id_rol,
+    id_sede: usuario.id_sede,
+    id_empresa: usuario.id_empresa,
   });
   document.cookie = `${COOKIE_NAME}=${encodeURIComponent(data)}; path=/; max-age=86400; SameSite=Lax`;
 }
@@ -39,24 +41,33 @@ export function haySuperadminBackup() {
 
 export function guardarUsuarioImpersonado(usuario) {
   if (!usuario) return;
-  localStorage.setItem(LS_IMPERSONATED, JSON.stringify({
+  const data = JSON.stringify({
     id: usuario.id,
     nombre: usuario.nombre,
     apellido: usuario.apellido,
     email: usuario.email,
     id_rol: usuario.id_rol,
-  }));
+    id_sede: usuario.id_sede,
+    id_empresa: usuario.id_empresa,
+  });
+  document.cookie = `${LS_IMPERSONATED}=${encodeURIComponent(data)}; path=/; max-age=86400; SameSite=Lax`;
 }
 
 export function obtenerUsuarioImpersonado() {
-  try {
-    const raw = localStorage.getItem(LS_IMPERSONATED);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+  const cookies = document.cookie.split('; ');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.split('=');
+    if (name === LS_IMPERSONATED && value) {
+      try {
+        return JSON.parse(decodeURIComponent(value));
+      } catch {
+        return null;
+      }
+    }
   }
+  return null;
 }
 
 export function eliminarUsuarioImpersonado() {
-  localStorage.removeItem(LS_IMPERSONATED);
+  document.cookie = `${LS_IMPERSONATED}=; path=/; max-age=0; SameSite=Lax`;
 }

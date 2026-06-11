@@ -95,6 +95,11 @@ function AgregarGarajista() {
       return;
     }
 
+    if (!usuario?.id_empresa) {
+      setError('❌ No se pudo determinar tu empresa. No puedes crear garajistas.');
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
@@ -105,7 +110,7 @@ function AgregarGarajista() {
       email: formData.email.trim(),
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
-      id_empresa: usuario?.id_empresa ?? 1,
+      id_empresa: Number(usuario.id_empresa),
       id_garage: garageId,
     };
 

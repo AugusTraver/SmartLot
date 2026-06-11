@@ -8,6 +8,7 @@ import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import { SedesGetAll } from "../servicies/API_Sede";
 import fotoGarage1 from "../Imagenes/Garage1.jpg";
 import fotoGarage2 from "../Imagenes/Garage2.jpg";
 import fotoGarage3 from "../Imagenes/Garage3.jpg";
@@ -125,16 +126,36 @@ function GestionGarages() {
       setLoading(true); // Inicia la carga de datos
       setError("");
 
-      const response = await GaragesGetAll(); // Llama a la función para obtener todos los garages
+      const [garagesRes, sedesRes] = await Promise.all([
+        GaragesGetAll(),
+        SedesGetAll(),
+      ]);
 
       if (!estaMontado) return;
 
-      if (response.respuesta) {    // si la repuesta es positiva, se obtiene la lista de garages y se actualiza el estado
-        const todosLosGarages = obtenerListadoGarages(response.datos);
-        const garagesDeSede = todosLosGarages.filter((g) => {
-          const idSede = g.id_sede ?? g.idSede;
-          return Number(idSede) === Number(usuario?.id_sede);
-        });
+      if (garagesRes.respuesta) {
+        const todosLosGarages = obtenerListadoGarages(garagesRes.datos);
+
+        let garagesDeSede;
+        if (usuario?.id_sede) {
+          garagesDeSede = todosLosGarages.filter((g) => {
+            const idSede = g.id_sede ?? g.idSede;
+            return Number(idSede) === Number(usuario?.id_sede);
+          });
+        } else {
+          const sedesEmpresa = Array.isArray(sedesRes.datos)
+            ? sedesRes.datos
+            : Array.isArray(sedesRes.datos?.datos) ? sedesRes.datos.datos : [];
+          const sedesIdsEmpresa = new Set(
+            sedesEmpresa
+              .filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa))
+              .map((s) => Number(s.id))
+          );
+          garagesDeSede = todosLosGarages.filter((g) => {
+            const idSede = g.id_sede ?? g.idSede;
+            return sedesIdsEmpresa.has(Number(idSede));
+          });
+        }
         setGarages(garagesDeSede);
       } else {
         setError("No se pudieron cargar los garages.");

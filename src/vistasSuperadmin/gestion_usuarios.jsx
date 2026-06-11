@@ -143,6 +143,9 @@ const normalizarUsuario = (usuario, empresaMap, sedeMap, garageMap) => {
 
   return {
     id,
+    id_empresa: !isNaN(Number(usuario.id_empresa)) ? Number(usuario.id_empresa) : null,
+    id_sede: usuario.id_sede ?? null,
+    id_garage: idGarage ? Number(idGarage) : null,
     nombre: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Usuario sin nombre",
     email: usuario.email || "Sin email",
     telefono: usuario.telefono || "",
@@ -484,7 +487,6 @@ const GestionUsuarios = () => {
     if (!result.isConfirmed) return;
 
     guardarSuperadminBackup(usuario);
-    guardarUsuarioImpersonado(targetUser);
 
     let userData = null;
 
@@ -497,7 +499,9 @@ const GestionUsuarios = () => {
       // Fallback al targetUser si la API falla
     }
 
-    setUsuario(userData || targetUser);
+    const finalUser = userData || targetUser;
+    guardarUsuarioImpersonado(finalUser);
+    setUsuario(finalUser);
 
     const rutas = {
       1: '/admin_dashboard',

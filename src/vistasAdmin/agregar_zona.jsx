@@ -34,7 +34,9 @@ function AgregarZona() {
       const response = await SedesGetAll();
 
       if (response.respuesta && Array.isArray(response.datos) && response.datos.length > 0) {
-        const sedesFiltradas = response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede));
+        const sedesFiltradas = usuario?.id_sede
+          ? response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede))
+          : response.datos.filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa));
         setSedes(sedesFiltradas);
         if (usuario?.id_sede) {
           setFormData((prev) => ({
