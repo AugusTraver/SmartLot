@@ -590,6 +590,301 @@
   background: #3B82F6;
   color: #ffffff;
 }
+/* ==========================================================================
+   ESTILOS PREMIUM: INTERIOR DEL MODAL DE ARCHIVADOS (UI/UX PRO MAX)
+   ========================================================================== */
+
+/* 1. PANEL PRINCIPAL (Estructura Flotante Bento-Glass) */
+.modal-archivados-panel {
+  width: min(540px, 92vw);
+  max-height: 85vh;
+  background: rgba(255, 255, 255, 0.96); /* Fondo translúcido Premium */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px; /* Bordes suaves sistemáticos */
+  border: 1px solid rgba(226, 232, 240, 0.8); /* Borde Slate 200 sutil */
+  box-shadow: 
+    0 20px 25px -5px rgba(15, 23, 42, 0.08), 
+    0 10px 10px -5px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Soporte Nativo para Dark Mode (Opcional según ecosistema) */
+@media (prefers-color-scheme: dark) {
+  .modal-archivados-panel {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(51, 65, 85, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  .modal-archivados-header,
+  .modal-archivados-body {
+    background: transparent !important;
+  }
+  .modal-archivados-title-group h2,
+  .usuario-archivado-info h3 {
+    color: #0F1A2E !important; /* Slate 50 */
+  }
+  .usuario-archivado-card {
+    background: rgba(30, 41, 59, 0.5) !important; /* Slate 800 */
+    border-color: rgba(51, 65, 85, 0.4) !important;
+  }
+  .usuario-archivado-card:hover {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(71, 85, 105, 0.6) !important;
+  }
+  .usuario-archivado-actions {
+    border-color: rgba(51, 65, 85, 0.4) !important;
+  }
+}
+
+/* 2. ENCABEZADO DEL MODAL (Jerarquía Limpia) */
+.modal-archivados-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafbfc !important;
+}
+
+.modal-archivados-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f1a2e !important;
+}
+
+.modal-archivados-title-group svg {
+  color: #475569 !important; /* Slate 600 */
+}
+
+.modal-archivados-title-group h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em; /* Tracking ajustado para títulos audaces */
+}
+
+.modal-archivados-close {
+  background: none;
+  border: none;
+  color: #94a3b8 !important; /* Slate 400 */
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modal-archivados-close:hover {
+  background: #f1f5f9 !important;
+  color: #0f1a2e;
+}
+
+/* 3. SECCIÓN DE BÚSQUEDA INTEGRADA */
+.modal-archivados-search {
+  padding: 16px 24px;
+  background: #fafbfc !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* 4. CUERPO CONTENEDOR (Scroll Optimizado) */
+.modal-archivados-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Ritmo visual controlado */
+  background: #ffffff !important;
+}
+
+/* Estilizado refinado de la barra de scroll */
+.modal-archivados-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-archivados-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-archivados-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important; /* Slate 300 */
+  border-radius: 999px;
+}
+
+/* 5. TARJETAS DE USUARIOS ARCHIVADOS (Módulos Bento) */
+.usuario-archivado-card {
+  background: #f8fafc !important; /* Slate 50 de base limpia */
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0.88; /* Atenuación intencional de estado inactivo */
+  transition: 
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
+  will-change: transform, opacity, box-shadow; /* Renderizado por GPU */
+}
+
+.usuario-archivado-card:hover {
+  opacity: 1;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px); /* Movimiento sutil por hardware sin alterar el layout */
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.04);
+}
+
+.usuario-archivado-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.usuario-archivado-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.usuario-archivado-info h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.badge-archivado {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b !important;
+  background: #e2e8f0 !important;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Información de Contacto y Metas */
+.usuario-archivado-card .usuario-email {
+  font-size: 13px;
+  color: #64748b !important;
+  margin: 0;
+  padding-left: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usuario-archivado-card .usuario-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b !important;
+  margin: 4px 0 0 0;
+  padding-left: 2px;
+}
+
+/* 6. PANEL ACCIONES INFERIOR (Separación Limpia) */
+.usuario-archivado-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  border-top: 1px solid #f1f5f9 !important;
+  padding-top: 12px;
+}
+
+/* Botón de Restaurar (Esmeralda Accesible) */
+.usuario-archivado-actions .btn-restaurar {
+  flex: 1;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+  color: #059669 !important; /* Contraste AA garantizado */
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.usuario-archivado-actions .btn-restaurar:hover {
+  background: #10b981 !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Botón de la Papelera Irreversible (Carmín Lavado) */
+.usuario-archivado-actions .btn-eliminar-archivado {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+  border: 1px solid rgba(239, 68, 68, 0.15) !important;
+  color: #dc2626 !important; /* Rojo destructivo premium */
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  flex-shrink: 0;
+}
+
+.usuario-archivado-actions .btn-eliminar-archivado:hover {
+  background: #ef4444 !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* 7. ESTADOS DE RETROALIMENTACIÓN (Vacíos / Sin resultados) */
+.empty-archivados {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+  color: #94a3b8 !important;
+}
+
+.empty-archivados svg {
+  margin-bottom: 12px;
+  color: #cbd5e1 !important;
+}
+
+.empty-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #475569 !important;
+  margin: 0 0 4px 0;
+}
+
+.empty-sub {
+  font-size: 13px;
+  color: #94a3b8 !important;
+  margin: 0;
+}
+
+
 
 .usuarios-toolbar-skeleton {
   display: flex;

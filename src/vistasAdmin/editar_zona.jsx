@@ -112,6 +112,40 @@ function EditarZona() {
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
 
+  // --- LÓGICA DE DETECCIÓN DE CAMBIOS (DIRTY STATE) ---
+  const isDirty = useMemo(() => {
+    if (!garageData) return false;
+    
+    const origNombre = garageData.nombre || '';
+    const origPiso = garageData.piso !== undefined && garageData.piso !== null ? garageData.piso.toString() : '';
+    const origUbicacion = garageData.ubicacion || '';
+    const origEstado = parseEstadoBool(garageData.estado);
+    const origCapReservas = Number(garageData.capacidad_reservas || 0);
+    const origCapNoReservas = Number(garageData.capacidad_para_no_reservas || 0);
+
+    return (
+      nombreGarage !== origNombre ||
+      piso.toString() !== origPiso ||
+      ubicacion !== origUbicacion ||
+      estadoActivo !== origEstado ||
+      capacidadReservas !== origCapReservas ||
+      capacidadNoReservas !== origCapNoReservas
+    );
+  }, [nombreGarage, piso, ubicacion, estadoActivo, capacidadReservas, capacidadNoReservas, garageData]);
+
+  // Prevenir cierre accidental de pestaña o recarga del navegador
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "Tienes cambios sin guardar en el garage. ¿Seguro que deseas salir?";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+  // ----------------------------------------------------
+
   useEffect(() => {
     if (!garageData) {
       navigate("/gestion_garages", { replace: true });
@@ -150,7 +184,24 @@ function EditarZona() {
     );
   }, [usuarios]);
 
-  const volverAGarages = () => {
+  // Interceptor Premium para salidas internas en la SPA
+  const volverAGarages = async () => {
+    if (isDirty) {
+      const result = await Swal.fire({
+        title: "Cambios sin guardar",
+        text: "Has modificado la configuración del garage. Si sales ahora, perderás las modificaciones.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#EF4444", // Rojo destructivo elegante
+        cancelButtonColor: "#64748B",
+        confirmButtonText: "Salir sin guardar",
+        cancelButtonText: "Permanecer aquí",
+        reverseButtons: true,
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
+
+      if (!result.isConfirmed) return; // Se queda en la vista
+    }
     navigate("/gestion_garages");
   };
 
@@ -225,6 +276,15 @@ function EditarZona() {
     setLoading(false);
 
     if (response.respuesta) {
+      // Usamos Swal para dar feedback de éxito antes de redirigir de forma limpia
+      Swal.fire({
+        title: "¡Configuración Actualizada!",
+        text: "Los cambios de la zona han sido guardados correctamente.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
       navigate("/gestion_garages", { replace: true });
     } else {
       const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
@@ -445,7 +505,6 @@ function EditarZona() {
                   <p>Buscando personal asignado en la base de datos...</p>
                 </div>
               ) : garajistasAsignados.length > 0 ? (
-                /* CORRECCIÓN VISUAL: Grilla e identificación de clases 100% exclusivas e independientes */
                 <div className="gz-garajistas-grid">
                   {garajistasAsignados.map((garajista) => {
                     const nombreCompleto = `${garajista.nombre || ''} ${garajista.apellido || ''}`.trim() || "Garajista sin nombre";
@@ -456,7 +515,6 @@ function EditarZona() {
                           <h3 className="gz-garajista-name">{nombreCompleto}</h3>
                           <span className="gz-role-badge">Garajista</span>
                         </div>
-      
 
                         <div className="gz-parking-section">
                           <p className="gz-parking-label">CONTACTO OPERATIVO</p>

@@ -164,11 +164,11 @@
 
 .btn-icon-filtros {
   width: 66px;
-  height: 56px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #E8EAED;
+  background-color: #ffffff;
   border: none;
   border-radius: 18px;
   color: #1a1c1e;
@@ -970,8 +970,13 @@
   .role-switch-container {
     width: 100%;
     flex: 1 0 100%;
-    margin-top: -8%;
-    margin-bottom: 4%;
+    margin-top: 0%;
+    margin-bottom: 2%;
+  }
+  
+  .switchSpan{
+    margin-top: 5%;
+    margin-bottom: 5%;
   }
 }
 

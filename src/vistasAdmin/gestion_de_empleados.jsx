@@ -613,14 +613,14 @@ const GestionEmpleados = () => {
                   className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
                   onClick={() => setFiltroRolSwitch("Empleado")}
                 >
-                  <span style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
+                  <span className="switchSpan" style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
                 </button>
                 <button
                   type="button"
                   className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
                   onClick={() => setFiltroRolSwitch("Garagista")}
                 >
-                  <span style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
+                  <span className="switchSpan"  style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
                 </button>
               </div>
             )}
