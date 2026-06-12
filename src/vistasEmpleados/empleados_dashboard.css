@@ -615,10 +615,10 @@
 
 @media (max-width: 600px) {
   .empleado-dashboard-main {
-    padding-bottom: 18px;
+    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
   }
 
   .empleado-nueva-reserva-btn {
-    margin-bottom: 18px;
+    margin-bottom: 0;
   }
 }
