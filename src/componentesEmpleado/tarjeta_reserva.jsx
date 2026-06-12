@@ -1,13 +1,16 @@
 // src/componentesEmpleado/tarjeta_reserva.jsx
+import { Car } from "lucide-react";
 import "./tarjeta_reserva.css";
 
 function TarjetaReserva({ reserva, onClick }) {
   if (!reserva) return null;
 
-  // Formateamos la fecha para que se lea de forma limpia en Argentina (ej. "15/06/2026")
   const fechaFormateada = reserva.fecha
     ? new Date(reserva.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })
     : "";
+
+  const vehiculo = reserva.vehiculo;
+  const tieneVehiculo = vehiculo && (vehiculo.patente || vehiculo.marca || vehiculo.modelo);
 
   return (
     <section className="empleado-reservas-section">
@@ -30,6 +33,21 @@ function TarjetaReserva({ reserva, onClick }) {
           <p>
             {reserva.hora_entrada?.substring(0, 5) || "00:00"} a {reserva.hora_salida?.substring(0, 5) || "00:00"} | {fechaFormateada}
           </p>
+
+          {/* Mini card del vehiculo */}
+          {tieneVehiculo && (
+            <div className="empleado-reserva-vehiculo">
+              <div className="empleado-reserva-vehiculo-icon" aria-hidden="true">
+                <Car size={16} />
+              </div>
+              <div className="empleado-reserva-vehiculo-info">
+                <span className="empleado-reserva-vehiculo-patente">{vehiculo.patente || "Sin patente"}</span>
+                <span className="empleado-reserva-vehiculo-modelo">
+                  {[vehiculo.marca, vehiculo.modelo].filter(Boolean).join(" ")}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Contenedor de la Flecha (Derecha) */}

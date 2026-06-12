@@ -8,6 +8,8 @@ import { ReservasGetAll } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
+import { ModelosGetAll } from "../servicies/API_Modelo";
+import { MarcasGetAll } from "../servicies/API_Marca";
 import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 
@@ -193,12 +195,16 @@ const extraerHoraLocal = (fechaStr) => {
   return "--:--";
 };
 
-const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
+const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId) => {
   const idVehiculo = obtenerCampo(reserva, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]);
   const idGarage = obtenerIdGarageAsignado(reserva);
   const vehiculo = vehiculosPorId.get(Number(idVehiculo));
   const garageReserva = garagesPorId.get(Number(idGarage));
   const patente = obtenerCampo(vehiculo, ["patente", "placa", "matricula"]);
+  const idModelo = Number(obtenerCampo(vehiculo, ["id_modelo", "idModelo", "modelo_id"]));
+  const modeloObj = modelosPorId.get(idModelo);
+  const modelo = modeloObj?.nombre || "";
+  const marcaNombre = marcasPorId.get(Number(modeloObj?.id_marca))?.nombre || "";
   const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]);
   const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]);
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
@@ -224,6 +230,7 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId) => {
     nombre_zona: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" }) : "Mes",
     hora_entrada: horaInicio,
     hora_salida: horaFin,
+    vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
   };
 };
 
@@ -282,6 +289,8 @@ function EmpleadoDashboard() {
   const [garagesSede, setGaragesSede] = useState([]);
   const [garageUsuario, setGarageUsuario] = useState(null);
   const [garageSeleccionadoId, setGarageSeleccionadoId] = useState("");
+  const [modelos, setModelos] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mostrarTodas, setMostrarTodas] = useState(false);
@@ -297,11 +306,13 @@ function EmpleadoDashboard() {
 
       try {
         const idUsuario = Number(obtenerIdUsuario(usuario));
-        const [reservasResponse, vehiculosResponse, garagesResponse, usuarioResponse] = await Promise.all([
+        const [reservasResponse, vehiculosResponse, garagesResponse, usuarioResponse, modelosResponse, marcasResponse] = await Promise.all([
           ReservasGetAll(),
           VehiculosGetAll(),
           GaragesGetAll(),
           Number.isFinite(idUsuario) ? UsuariosGetById(idUsuario) : Promise.resolve({ respuesta: false, datos: null }),
+          ModelosGetAll(),
+          MarcasGetAll(),
         ]);
 
         if (!montado) return;
@@ -344,6 +355,8 @@ function EmpleadoDashboard() {
         setGarageSeleccionadoId(garageEncontrado ? String(obtenerIdGarage(garageEncontrado)) : "");
         setReservas(reservasDelUsuario);
         setTodasReservas(reservasApi);
+        setModelos(modelosResponse.respuesta ? obtenerListado(modelosResponse.datos) : []);
+        setMarcas(marcasResponse.respuesta ? obtenerListado(marcasResponse.datos) : []);
 
         if (!reservasResponse.respuesta || !vehiculosResponse.respuesta) {
           setError("No se pudieron cargar todos tus datos.");
@@ -377,6 +390,16 @@ function EmpleadoDashboard() {
     [garages]
   );
 
+  const modelosPorId = useMemo(
+    () => new Map(modelos.map((m) => [Number(m.id ?? m.id_modelo ?? m._id), m])),
+    [modelos]
+  );
+
+  const marcasPorId = useMemo(
+    () => new Map(marcas.map((m) => [Number(m.id ?? m.id_marca ?? m._id), m])),
+    [marcas]
+  );
+
   const reservasRawPorId = useMemo(
     () => new Map(reservas.map((r) => [r.id ?? r.id_reserva, r])),
     [reservas]
@@ -387,14 +410,14 @@ function EmpleadoDashboard() {
     hoy.setHours(0, 0, 0, 0);
 
     return reservas
-      .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId))
+      .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
       .filter((reserva) => {
         if (!reserva.fecha) return true;
         const fecha = new Date(`${reserva.fecha}T00:00:00`);
         return Number.isNaN(fecha.getTime()) || fecha >= hoy;
       })
       .sort((a, b) => `${a.fecha} ${a.horario}`.localeCompare(`${b.fecha} ${b.horario}`));
-  }, [reservas, vehiculosPorId, garagesPorId]);
+  }, [reservas, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId]);
 
   const reservasVisibles = mostrarTodas ? reservasNormalizadas : reservasNormalizadas.slice(0, 3);
   const capacidadReservas = Number(garageUsuario?.capacidad_reservas || 0);
