@@ -16,7 +16,6 @@ import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
 
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
-import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
 
 import "../componentesEmpleado/formulario_PerfilPersonal.css";
 
@@ -324,8 +323,7 @@ export default function PerfilEmpleado() {
           <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
             <FormularioInfoPersonal data={personalData} onChange={handlePersonalChange} />
             
-            <FormularioDetallesVehiculo vehiculos={vehiculos} onVehiculoEliminado={(id) => setVehiculos((prev) => prev.filter((v) => (v.id ?? v.id_vehiculo ?? v._id) !== id))} />
-
+            
             <div className="action-buttons-group">
               <button type="submit" className="btn-primary-action" disabled={guardando}>
                 <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>

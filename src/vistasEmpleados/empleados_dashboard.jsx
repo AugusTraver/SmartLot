@@ -12,6 +12,8 @@ import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
 import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
+import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
+
 
 const GARAGE_DASHBOARD_STORAGE_KEY = "smartlot_empleado_dashboard_garage";
 
@@ -546,245 +548,15 @@ function EmpleadoDashboard() {
         {loading ? (
           <>
             <EmpleadoDashboardIntroSkeleton />
-            <EmpleadoDisponibilidadSkeleton />
           </>
         ) : (
-          <>
+         
             <div className="empleado-dashboard-intro">
               <span className="empleado-dashboard-kicker">{new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}</span>
               <h1 className="empleado-dashboard-title">
                 Hola{nombre ? ` ${nombre}` : ""}
               </h1>
-              <p className="empleado-dashboard-subtitle">
-                Tu reserva y disponibilidad del estacionamiento.
-              </p>
             </div>
-
-            <section className="empleado-disponibilidad-card">
-              <div className="empleado-disponibilidad-top">
-                <div className="empleado-parking-icon">
-                  <img src="/logo.png" alt="Logo" className="empleado-parking-logo" />
-                </div>
-                <span className="empleado-live-badge">EN VIVO</span>
-              </div>
-
-              <p className="empleado-disponibilidad-text">
-                Disponibilidad por hora
-              </p>
-
-              <div className="empleado-selectores-row">
-                <label className="empleado-garage-selector">
-                  <span className="empleado-label-with-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
-                    Garage
-                  </span>
-                  <div className="empleado-input-wrapper">
-                    <select value={garageSeleccionadoId} onChange={handleGarageDashboardChange}>
-                      {garagesSede.map((garage) => {
-                        const id = obtenerIdGarage(garage);
-                        return (
-                          <option key={id} value={id}>
-                            {obtenerNombreGarage(garage)}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </label>
-                <label className="empleado-garage-selector">
-                  <span className="empleado-label-with-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-                    Fecha
-                  </span>
-                  <div className="empleado-input-wrapper">
-                    <input type="date" className="empleado-date-input" value={fechaSeleccionada} onChange={handleFechaChange} />
-                  </div>
-                </label>
-              </div>
-
-              {(() => {
-                const garage = garagesSede.find((g) => String(obtenerIdGarage(g)) === garageSeleccionadoId);
-                const apertura = obtenerHoraApertura(garage);
-                const cierre = obtenerHoraCierre(garage);
-                return apertura && cierre ? (
-                  <div className="empleado-garage-hours">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    Garage abierto: {apertura} - {cierre}
-                  </div>
-                ) : null;
-              })()}
-
-              {disponibilidadHoras.length > 0 ? (
-                <div className="empleado-hora-section">
-                  <span className="empleado-label-with-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    Hora
-                  </span>
-                  <div className="empleado-hora-slider-wrapper">
-                    {(() => {
-                      const idx = horaSeleccionada
-                        ? disponibilidadHoras.findIndex((h) => h.hora === horaSeleccionada)
-                        : -1;
-                      const sliderVal = idx >= 0 ? idx : 0;
-                      const actual = disponibilidadHoras[sliderVal];
-                      return (
-                        <>
-                          <div className="empleado-hora-slider-display">
-                            <span className="empleado-hora-slider-time">{actual.hora}</span>
-                            <span className="empleado-hora-slider-libres">{actual.disponibles} libres</span>
-                          </div>
-                          <input
-                            type="range"
-                            className="empleado-hora-slider"
-                            min={0}
-                            max={disponibilidadHoras.length - 1}
-                            step={1}
-                            value={sliderVal}
-                            onChange={(e) => setHoraSeleccionada(disponibilidadHoras[Number(e.target.value)].hora)}
-                          />
-                          <div className="empleado-hora-slider-ticks">
-                            {(() => {
-                              const total = disponibilidadHoras.length;
-                              const step = total > 6 ? Math.ceil(total / 6) : 1;
-                              return disponibilidadHoras
-                                .filter((_, i) => i % step === 0 || i === total - 1)
-                                .map((h) => {
-                                  const origIdx = disponibilidadHoras.indexOf(h);
-                                  const leftPct = total > 1 ? (origIdx / (total - 1)) * 100 : 50;
-                                  return (
-                                    <span
-                                      key={h.hora}
-                                      className="empleado-hora-slider-tick"
-                                      style={{ left: `${leftPct}%` }}
-                                      onClick={() => setHoraSeleccionada(h.hora)}
-                                    >
-                                      {h.hora}
-                                    </span>
-                                  );
-                                });
-                            })()}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-              ) : garageSeleccionadoId && !cargandoDisponibilidad ? (
-                <div className="empleado-hora-section empleado-hora-section-empty">
-                  <span className="empleado-label-with-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    Hora
-                  </span>
-                  <p className="empleado-hora-empty-msg">No hay horarios disponibles fuera del rango del garage</p>
-                </div>
-              ) : null}
-
-              {cargandoDisponibilidad ? (
-                <div className="empleado-plazas-libres">
-                  <strong>Cargando...</strong>
-                  <span>Disponibilidad</span>
-                </div>
-              ) : horaDataActual ? (
-                <>
-                  <div className="empleado-plazas-libres">
-                    <strong>{horaDataActual.disponibles}</strong>
-                    <span>Disponibles el {new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { day: "2-digit", month: "long" })} a las {horaSeleccionada}</span>
-                  </div>
-
-                  <p className="empleado-companeros">
-                    {horaDataActual.reservas} reservas de {capacidadReservas} plazas
-                  </p>
-
-                  {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
-                    <div className="empleado-capacidad-split">
-                      <div className="empleado-capacidad-item">
-                        <span className="empleado-capacidad-item-label">Reservas</span>
-                        <span className="empleado-capacidad-item-number">
-                          {horaDataActual.disponibles} <small>/ {capacidadReservas}</small>
-                        </span>
-                        {capacidadReservas > 0 && (
-                          <div className="empleado-capacidad-item-bar">
-                            <div
-                              className={`empleado-capacidad-item-bar-fill${horaDataActual.disponibles <= Math.round(capacidadReservas * 0.25) ? " alta" : horaDataActual.disponibles <= Math.round(capacidadReservas * 0.5) ? " media" : ""}`}
-                              style={{ width: `${capacidadReservas > 0 ? Math.round(((capacidadReservas - horaDataActual.disponibles) / capacidadReservas) * 100) : 0}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <div className="empleado-capacidad-item">
-                        <span className="empleado-capacidad-item-label">No Reservas</span>
-                        <span className="empleado-capacidad-item-number">
-                          {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
-                        </span>
-                        {capacidadNoReservas > 0 && (
-                          <div className="empleado-capacidad-item-bar">
-                            <div
-                              className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
-                              style={{ width: `${pctNoReservas}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="empleado-disponibilidad-metrics">
-                    <span>{horaDataActual.disponibles <= Math.round(capacidadReservas * 0.25) ? "Ocupacion alta" : horaDataActual.disponibles <= Math.round(capacidadReservas * 0.5) ? "Ocupacion media" : "Ocupacion baja"}</span>
-                    <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="empleado-plazas-libres">
-                    <strong>{ocupacion}</strong>
-                    <span>Ocupacion</span>
-                  </div>
-
-                  <p className="empleado-companeros">
-                    {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
-                  </p>
-
-                  {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
-                    <div className="empleado-capacidad-split">
-                      <div className="empleado-capacidad-item">
-                        <span className="empleado-capacidad-item-label">Reservas</span>
-                        <span className="empleado-capacidad-item-number">
-                          {capacidadReservasDisponible} <small>/ {capacidadReservas}</small>
-                        </span>
-                        {capacidadReservas > 0 && (
-                          <div className="empleado-capacidad-item-bar">
-                            <div
-                              className={`empleado-capacidad-item-bar-fill${pctReservas >= 75 ? " alta" : pctReservas >= 50 ? " media" : ""}`}
-                              style={{ width: `${pctReservas}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <div className="empleado-capacidad-item">
-                        <span className="empleado-capacidad-item-label">No Reservas</span>
-                        <span className="empleado-capacidad-item-number">
-                          {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
-                        </span>
-                        {capacidadNoReservas > 0 && (
-                          <div className="empleado-capacidad-item-bar">
-                            <div
-                              className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
-                              style={{ width: `${pctNoReservas}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="empleado-disponibilidad-metrics">
-                    <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
-                    <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
-                  </div>
-                </>
-              )}
-            </section>
-          </>
         )}
 
         <div className="empleado-reservas-header">
@@ -824,8 +596,13 @@ function EmpleadoDashboard() {
         >
           Nueva reserva
         </button>
+        
+       <FormularioDetallesVehiculo vehiculos={vehiculos} onVehiculoEliminado={(id) => setVehiculos((prev) => prev.filter((v) => (v.id ?? v.id_vehiculo ?? v._id) !== id))} />
+
+      
       </main>
       <FooterEmpleado />
+
 
       {reservaEditando && reservaNormEditando && (
         <ModalEditarReserva

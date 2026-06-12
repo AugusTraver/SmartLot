@@ -8,6 +8,8 @@ import Footer from "../componentesEmpleado/footer_empleado";
 import { useAuth } from "../contexts/useAuth";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
+// NUEVA IMPORTACIÓN: Traemos el servicio para consultar las marcas cargadas en el sistema
+import { MarcasGetAll } from "../servicies/API_Marca"; 
 import "../componentesEmpleado/formulario_PerfilPersonal.css";
 import "../componentesEmpleado/formulario_vehiculo.css";
 
@@ -20,6 +22,10 @@ export default function AgregarVehiculo() {
   const [patente, setPatente] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [modelosGlobales, setModelosGlobales] = useState([]);
+  
+  // NUEVO ESTADO: Guardamos un diccionario llave-valor { id_marca: "NombreMarca" } para cruzar datos al instante
+  const [marcasLookup, setMarcasLookup] = useState({});
+  
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const autocompleteRef = useRef(null);
@@ -27,9 +33,29 @@ export default function AgregarVehiculo() {
   useEffect(() => {
     async function cargarCatalogo() {
       try {
-        if (typeof ModelosGetAll === "function") {
-          const resultadoAPI = await ModelosGetAll();
-          const arrayModelos = resultadoAPI?.datos || [];
+        // Ejecutamos ambas llamadas en paralelo para optimizar la velocidad de carga de la pantalla
+        const [resultadoModelos, resultadoMarcas] = await Promise.allSettled([
+          typeof ModelosGetAll === "function" ? ModelosGetAll() : null,
+          typeof MarcasGetAll === "function" ? MarcasGetAll() : null
+        ]);
+
+        // 1. Procesamos y guardamos las Marcas en un objeto Indexado por ID para búsquedas O(1)
+        let lookupMarcas = {};
+        if (resultadoMarcas.status === "fulfilled" && resultadoMarcas.value) {
+          const arrayMarcas = resultadoMarcas.value?.datos || resultadoMarcas.value?.data || [];
+          if (Array.isArray(arrayMarcas)) {
+            arrayMarcas.forEach(m => {
+              if (m && m.id) {
+                lookupMarcas[m.id] = m.nombre || m.nombre_marca || String(m);
+              }
+            });
+          }
+        }
+        setMarcasLookup(lookupMarcas);
+
+        // 2. Procesamos y guardamos los Modelos globales
+        if (resultadoModelos.status === "fulfilled" && resultadoModelos.value) {
+          const arrayModelos = resultadoModelos.value?.datos || [];
           if (Array.isArray(arrayModelos)) {
             setModelosGlobales(arrayModelos);
           } else if (arrayModelos && typeof arrayModelos === "object") {
@@ -38,7 +64,7 @@ export default function AgregarVehiculo() {
           }
         }
       } catch (error) {
-        console.error("Error cargando modelos:", error);
+        console.error("Error cargando el catálogo de vehículos:", error);
         setModelosGlobales([]);
       }
     }
@@ -57,6 +83,7 @@ export default function AgregarVehiculo() {
 
   const obtenerIdUsuario = (usr) => usr?.id ?? usr?.id_usuario ?? usr?._id;
 
+  // CORREGIDO: Buscamos el nombre de la marca dinámicamente en nuestro diccionario cruzando el id_marca
   const handleFiltradoModelo = (e) => {
     const valor = e.target.value;
     setModelo(valor);
@@ -65,8 +92,14 @@ export default function AgregarVehiculo() {
     if (valor.trim().length > 0 && modelosGlobales.length > 0) {
       const filtrados = modelosGlobales.filter((item) => {
         if (!item) return false;
-        const nombreFinal = item.nombre || item.nombre_modelo || item.modelo || String(item);
-        return nombreFinal.toLowerCase().includes(valor.toLowerCase());
+        const nombreModelo = item.nombre || item.nombre_modelo || item.modelo || "";
+        
+        // Obtenemos el ID de marca del modelo (suele venir como id_marca o marca_id)
+        const idMarca = item.id_marca || item.marca_id || item.marca;
+        const nombreMarca = marcasLookup[idMarca] || "";
+        
+        const stringDeBusqueda = `${nombreMarca} ${nombreModelo}`.toLowerCase();
+        return stringDeBusqueda.includes(valor.toLowerCase());
       });
       setSugerencias(filtrados);
       setMostrarSugerencias(true);
@@ -76,10 +109,17 @@ export default function AgregarVehiculo() {
     }
   };
 
+  // CORREGIDO: Al seleccionar, traemos la marca asociada mediante el ID y seteamos "Marca Modelo" en el input
   const handleSeleccionarItem = (item) => {
     if (!item) return;
-    const textoFinal = item.nombre || item.nombre_modelo || item.modelo || String(item);
-    setModelo(textoFinal);
+    const nombreModelo = item.nombre || item.nombre_modelo || item.modelo || String(item);
+    
+    const idMarca = item.id_marca || item.marca_id || item.marca;
+    const nombreMarca = marcasLookup[idMarca] || "";
+    
+    const textoCompleto = nombreMarca ? `${nombreMarca} ${nombreModelo}` : nombreModelo;
+    
+    setModelo(textoCompleto);
     setIdModelo(item.id);
     setMostrarSugerencias(false);
   };
@@ -132,7 +172,7 @@ export default function AgregarVehiculo() {
           timerProgressBar: true,
           zIndex: Z_INDEX.SWAL_DIALOG,
         });
-        navigate("/perfil_empleado");
+        navigate("/empleados_dashboard");
       } else {
         throw new Error("Error al crear el vehículo");
       }
@@ -158,7 +198,7 @@ export default function AgregarVehiculo() {
           <div className="top-navigation-bar">
             <button
               className="boton-back"
-              onClick={() => navigate("/perfil_empleado")}
+              onClick={() => navigate("/empleados_dashboard")}
               aria-label="Volver"
               type="button"
             >
@@ -195,17 +235,45 @@ export default function AgregarVehiculo() {
                     required
                   />
                   {mostrarSugerencias && sugerencias.length > 0 && (
-                    <ul className="autocomplete-suggestions-panel">
+                    <ul className="autocomplete-suggestions-panel" style={{ listStyle: "none", padding: 0, margin: 0, position: "absolute", width: "100%", zIndex: 100, background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px", maxHeight: "200px", overflowY: "auto" }}>
                       {sugerencias.map((item, index) => {
                         if (!item) return null;
-                        const textoVisual = item.nombre || item.nombre_modelo || item.modelo || String(item);
+                        const textoModelo = item.nombre || item.nombre_modelo || item.modelo || String(item);
+                        
+                        // Extraemos el id_marca de la relación del modelo y buscamos el string real
+                        const idMarca = item.id_marca || item.marca_id || item.marca;
+                        const textoMarca = marcasLookup[idMarca] || "";
+
                         return (
                           <li
                             key={item.id || index}
                             className="autocomplete-item"
                             onClick={() => handleSeleccionarItem(item)}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "0.75rem 1rem",
+                              cursor: "pointer",
+                              borderBottom: "1px solid #f1f5f9"
+                            }}
                           >
-                            {textoVisual}
+                            <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontWeight: "500", color: "#1e293b" }}>{textoModelo}</span>
+                              {textoMarca && (
+                                <span style={{
+                                  fontSize: "0.75rem",
+                                  backgroundColor: "#eff6ff",
+                                  color: "#3b82f6",
+                                  padding: "0.25rem 0.6rem",
+                                  borderRadius: "6px",
+                                  fontWeight: "600",
+                                  border: "1px solid #dbeafe"
+                                }}>
+                                  {textoMarca}
+                                </span>
+                              )}
+                            </div>
                           </li>
                         );
                       })}
@@ -258,8 +326,7 @@ export default function AgregarVehiculo() {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate("/perfil_empleado")}
-              style={{ color: "#64748b", backgroundColor: "#f1f5f9" }}
+              onClick={() => navigate("/empleados_dashboard")}
             >
               Cancelar
             </button>
