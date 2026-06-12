@@ -19,6 +19,8 @@ function AgregarZona() {
     nombre: "",
     piso: "",
     ubicacion: "",
+    hora_apertura: "",
+    hora_cierre: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
     id_sede: usuario?.id_sede ?? ""
@@ -66,6 +68,8 @@ function AgregarZona() {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
+
+  const esHoraValida = (hora) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ""));
 
   const handleCrearZona = async () => {
     setError("");
@@ -120,6 +124,21 @@ function AgregarZona() {
       return;
     }
 
+    if (!esHoraValida(formData.hora_apertura)) {
+      setError("La hora de apertura es requerida.");
+      return;
+    }
+
+    if (!esHoraValida(formData.hora_cierre)) {
+      setError("La hora de cierre es requerida.");
+      return;
+    }
+
+    if (formData.hora_apertura >= formData.hora_cierre) {
+      setError("La hora de apertura debe ser anterior a la hora de cierre.");
+      return;
+    }
+
     if (formData.capacidad_reservas === undefined || formData.capacidad_reservas === null || formData.capacidad_reservas.toString().trim() === "") {
       setError("❌ La capacidad de reservas es requerida.");
       return;
@@ -153,6 +172,8 @@ function AgregarZona() {
       nombre: formData.nombre.trim(),
       piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
+      hora_apertura: formData.hora_apertura,
+      hora_cierre: formData.hora_cierre,
       estado: true, // Siempre activo al crear, ya no se maneja desde el formulario
       capacidad: cap,
       capacidad_para_no_reservas: capNoRes,

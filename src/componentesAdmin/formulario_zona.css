@@ -38,6 +38,10 @@
   gap: 1rem;
 }
 
+.fila-horarios {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* =========================================================================
    ESTILOS COMPARTIDOS Y CONTROL DE ETIQUETA FLOTANTE (ESTILO PREMIUM SMARTLOT)
    ========================================================================= */
@@ -211,6 +215,7 @@
 /* 1. Inputs y textareas cuando tienen foco o texto */
 .input-group input:focus ~ label,
 .input-group input:not(:placeholder-shown) ~ label,
+.input-group-time label,
 .input-group textarea:focus ~ label,
 .input-group textarea:not(:placeholder-shown) ~ label {
     top: -2px; 
@@ -265,4 +270,10 @@
   .dropdown-open .submenu-custom-list {
     width: 99.3%;
     }
+}
+
+@media (max-width: 480px) {
+  .fila-horarios {
+    grid-template-columns: 1fr;
+  }
 }

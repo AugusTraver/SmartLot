@@ -9,6 +9,7 @@ import {
   Plus,
   Building2,
   MapPin,
+  Clock,
   Layers,
   CheckCircle2,
   WifiOff,
@@ -37,6 +38,16 @@ const obtenerListadoUsuarios = (datos) => {
   if (Array.isArray(datos?.data)) return datos.data;
   return [];
 };
+
+const obtenerHoraGarage = (garage, claves) => {
+  for (const clave of claves) {
+    const valor = garage?.[clave];
+    if (valor) return String(valor).slice(0, 5);
+  }
+  return "";
+};
+
+const esHoraValida = (hora) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ""));
 
 function EditarZona() {
   const [usuarios, setUsuarios] = useState([]);
@@ -107,6 +118,12 @@ function EditarZona() {
   const [ubicacion, setUbicacion] = useState(() => {
     return garageData ? (garageData.ubicacion || '') : '';
   });
+  const [horaApertura, setHoraApertura] = useState(() => {
+    return garageData ? obtenerHoraGarage(garageData, ['hora_apertura', 'horaApertura', 'apertura']) : '';
+  });
+  const [horaCierre, setHoraCierre] = useState(() => {
+    return garageData ? obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']) : '';
+  });
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -119,6 +136,8 @@ function EditarZona() {
     const origNombre = garageData.nombre || '';
     const origPiso = garageData.piso !== undefined && garageData.piso !== null ? garageData.piso.toString() : '';
     const origUbicacion = garageData.ubicacion || '';
+    const origHoraApertura = obtenerHoraGarage(garageData, ['hora_apertura', 'horaApertura', 'apertura']);
+    const origHoraCierre = obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']);
     const origEstado = parseEstadoBool(garageData.estado);
     const origCapReservas = Number(garageData.capacidad_reservas || 0);
     const origCapNoReservas = Number(garageData.capacidad_para_no_reservas || 0);
@@ -127,11 +146,13 @@ function EditarZona() {
       nombreGarage !== origNombre ||
       piso.toString() !== origPiso ||
       ubicacion !== origUbicacion ||
+      horaApertura !== origHoraApertura ||
+      horaCierre !== origHoraCierre ||
       estadoActivo !== origEstado ||
       capacidadReservas !== origCapReservas ||
       capacidadNoReservas !== origCapNoReservas
     );
-  }, [nombreGarage, piso, ubicacion, estadoActivo, capacidadReservas, capacidadNoReservas, garageData]);
+  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, garageData]);
 
   // Prevenir cierre accidental de pestaña o recarga del navegador
   useEffect(() => {
@@ -237,6 +258,21 @@ function EditarZona() {
       return;
     }
 
+    if (!esHoraValida(horaApertura)) {
+      setError('La hora de apertura es requerida.');
+      return;
+    }
+
+    if (!esHoraValida(horaCierre)) {
+      setError('La hora de cierre es requerida.');
+      return;
+    }
+
+    if (horaApertura >= horaCierre) {
+      setError('La hora de apertura debe ser anterior a la hora de cierre.');
+      return;
+    }
+
     if (
       !Number.isInteger(capacidadReservas) ||
       !Number.isInteger(capacidadNoReservas) ||
@@ -264,6 +300,8 @@ function EditarZona() {
        nombre: nombreGarage.trim(),
        piso: Number(piso),
        ubicacion: ubicacion.trim(),
+       hora_apertura: horaApertura,
+       hora_cierre: horaCierre,
        estado: estadoActivo,
        capacidad: Number(capacidad),
        capacidad_reservas: Number(capacidadReservas),
@@ -350,6 +388,35 @@ function EditarZona() {
                 value={ubicacion}
                 onChange={(e) => setUbicacion(e.target.value)}
               />
+            </div>
+          </section>
+
+          <section className="bloque-formulario">
+            <div className="bloque-titulo">
+              <span className="bloque-icono">
+                <Clock size={20} />
+              </span>
+              <h3>Horario operativo</h3>
+            </div>
+
+            <div className="campos-grid">
+              <div className="campo-formulario">
+                <label>Hora de apertura</label>
+                <input
+                  type="time"
+                  value={horaApertura}
+                  onChange={(e) => setHoraApertura(e.target.value)}
+                />
+              </div>
+
+              <div className="campo-formulario">
+                <label>Hora de cierre</label>
+                <input
+                  type="time"
+                  value={horaCierre}
+                  onChange={(e) => setHoraCierre(e.target.value)}
+                />
+              </div>
             </div>
           </section>
 

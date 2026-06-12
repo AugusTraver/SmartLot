@@ -9,21 +9,19 @@ function FormularioZona({
 
     const [isOpenSede, setIsOpenSede] = useState(false);
 
-
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
 
     return (
         <div className="formulario-zona">
             <div className="header-formulario-zona">
-                <h3>Información General</h3>
+                <h3>Informacion General</h3>
                 <p>
-                    Define la identidad y ubicación del nuevo garage.
+                    Define la identidad y ubicacion del nuevo garage.
                 </p>
             </div>
 
             <div className="bloque-formulario-zona">
                 <div className="input-group">
-                    {/* Quitamos los placeholders con texto para que la etiqueta baje al medio como la contraseña */}
                     <input
                         type="text"
                         placeholder=" "
@@ -45,13 +43,11 @@ function FormularioZona({
                     </div>
                 </div>
 
-
                 <div className={`input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
                     <div
                         className="dropdown-trigger-clean"
                         onClick={() => setIsOpenSede(!isOpenSede)}
                     >
-                        {/* Renderizado limpio: si no hay sede, el span queda vacío para que el label se centre */}
                         <span className="selected-display-text">
                             {formData.id_sede && sedes.length > 0
                                 ? getDisplayName(sedes.find(s => Number(s.id) === Number(formData.id_sede)))
@@ -90,7 +86,29 @@ function FormularioZona({
                         value={formData.ubicacion || ''}
                         onChange={(e) => onChange('ubicacion', e.target.value)}
                     />
-                    <label>Ubicación</label>
+                    <label>Ubicacion</label>
+                </div>
+
+                <div className="fila-inputs fila-horarios">
+                    <div className="input-group input-group-time">
+                        <input
+                            type="time"
+                            placeholder=" "
+                            value={formData.hora_apertura || ''}
+                            onChange={(e) => onChange('hora_apertura', e.target.value)}
+                        />
+                        <label>Hora de apertura</label>
+                    </div>
+
+                    <div className="input-group input-group-time">
+                        <input
+                            type="time"
+                            placeholder=" "
+                            value={formData.hora_cierre || ''}
+                            onChange={(e) => onChange('hora_cierre', e.target.value)}
+                        />
+                        <label>Hora de cierre</label>
+                    </div>
                 </div>
             </div>
         </div>
