@@ -103,6 +103,11 @@ const crearEventosAuditoriaUsuario = (items) =>
     })
     .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
+const obtenerOpcionesUnicas = (items, selector) =>
+  Array.from(new Set(items.map(selector).filter(Boolean))).sort((a, b) =>
+    a.localeCompare(b, "es", { sensitivity: "base" })
+  );
+
 function UserCardSkeleton() {
   return (
     <article className="usuario-card usuario-card-skeleton" aria-label="Cargando usuario">
@@ -298,43 +303,61 @@ const GestionUsuarios = () => {
   }, [showArchived]);
 
   const empresasDisponibles = useMemo(() => {
-    return Array.from(
-      new Set(
-        usuarios
-          .filter((u) => {
-            if (!selectedRol) return true;
-            return u.id_rol === Number(selectedRol);
-          })
-          .map((u) => u.empresa)
-          .filter(Boolean)
-      )
+    return obtenerOpcionesUnicas(
+      usuarios.filter((u) => {
+        if (u.activo === false) return false;
+        if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
+        if (selectedSede && u.sede !== selectedSede) return false;
+        if (selectedGarage && u.garage !== selectedGarage) return false;
+        return true;
+      }),
+      (u) => u.empresa
     );
-  }, [usuarios, selectedRol]);
+  }, [usuarios, selectedRol, selectedSede, selectedGarage]);
 
   const sedesDisponibles = useMemo(() => {
-    return Array.from(
-      new Set(
-        usuarios
-          .filter((u) => {
-            if (!selectedRol) return true;
-            return u.id_rol === Number(selectedRol);
-          })
-          .map((u) => u.sede)
-          .filter(Boolean)
-      )
+    return obtenerOpcionesUnicas(
+      usuarios.filter((u) => {
+        if (u.activo === false) return false;
+        if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
+        if (selectedEmpresa && u.empresa !== selectedEmpresa) return false;
+        if (selectedGarage && u.garage !== selectedGarage) return false;
+        return true;
+      }),
+      (u) => u.sede
     );
-  }, [usuarios, selectedRol]);
+  }, [usuarios, selectedRol, selectedEmpresa, selectedGarage]);
 
   const garagesDisponibles = useMemo(() => {
-    return Array.from(
-      new Set(
-        usuarios
-          .filter((u) => u.id_rol === 3)
-          .map((u) => u.garage)
-          .filter(Boolean)
-      )
+    return obtenerOpcionesUnicas(
+      usuarios.filter((u) => {
+        if (u.activo === false) return false;
+        if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
+        if (selectedEmpresa && u.empresa !== selectedEmpresa) return false;
+        if (selectedSede && u.sede !== selectedSede) return false;
+        return Boolean(u.garage);
+      }),
+      (u) => u.garage
     );
-  }, [usuarios]);
+  }, [usuarios, selectedRol, selectedEmpresa, selectedSede]);
+
+  useEffect(() => {
+    if (selectedEmpresa && !empresasDisponibles.includes(selectedEmpresa)) {
+      setSelectedEmpresa("");
+    }
+  }, [empresasDisponibles, selectedEmpresa]);
+
+  useEffect(() => {
+    if (selectedSede && !sedesDisponibles.includes(selectedSede)) {
+      setSelectedSede("");
+    }
+  }, [sedesDisponibles, selectedSede]);
+
+  useEffect(() => {
+    if (selectedGarage && !garagesDisponibles.includes(selectedGarage)) {
+      setSelectedGarage("");
+    }
+  }, [garagesDisponibles, selectedGarage]);
 
   const usuariosFiltrados = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
@@ -670,6 +693,7 @@ const GestionUsuarios = () => {
                           onChange={(e) => {
                             setSelectedEmpresa(e.target.value);
                             setSelectedSede(""); // Reseteamos sede al cambiar empresa
+                            setSelectedGarage("");
                           }}
                         >
                           <option value="">Todas las empresas</option>
@@ -688,8 +712,10 @@ const GestionUsuarios = () => {
                       <div className="select-wrapper">
                         <select
                           value={selectedSede}
-                          onChange={(e) => setSelectedSede(e.target.value)}
-                          disabled={!selectedEmpresa && empresasDisponibles.length > 0} // UX Mejora
+                          onChange={(e) => {
+                            setSelectedSede(e.target.value);
+                            setSelectedGarage("");
+                          }}
                         >
                           <option value="">Todas las sedes</option>
                           {sedesDisponibles.map((s) => (
