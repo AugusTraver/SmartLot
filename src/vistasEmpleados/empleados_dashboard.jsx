@@ -4,7 +4,7 @@ import "./empleados_dashboard.css";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
-import { ReservasGetAll } from "../servicies/API_Reserva";
+import { ReservasGetAll, ReservasGetDisponibilidadPorHora } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
@@ -296,6 +296,13 @@ function EmpleadoDashboard() {
   const [mostrarTodas, setMostrarTodas] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
   const [reservaNormEditando, setReservaNormEditando] = useState(null);
+  const [horaSeleccionada, setHoraSeleccionada] = useState("");
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+  const [disponibilidadHoras, setDisponibilidadHoras] = useState([]);
+  const [cargandoDisponibilidad, setCargandoDisponibilidad] = useState(false);
 
   useEffect(() => {
     let montado = true;
@@ -380,6 +387,33 @@ function EmpleadoDashboard() {
     };
   }, [usuario]);
 
+  useEffect(() => {
+    let montado = true;
+
+    const cargarDisponibilidad = async () => {
+      if (!garageSeleccionadoId) return;
+      setCargandoDisponibilidad(true);
+
+      try {
+        const response = await ReservasGetDisponibilidadPorHora(garageSeleccionadoId, fechaSeleccionada);
+        if (!montado) return;
+
+        if (response.respuesta && response.datos?.horas) {
+          setDisponibilidadHoras(response.datos.horas || []);
+          setHoraSeleccionada("");
+        }
+      } catch (err) {
+        console.error("Error al cargar disponibilidad por hora:", err);
+      } finally {
+        if (montado) setCargandoDisponibilidad(false);
+      }
+    };
+
+    cargarDisponibilidad();
+
+    return () => { montado = false; };
+  }, [garageSeleccionadoId, fechaSeleccionada]);
+
   const vehiculosPorId = useMemo(
     () => new Map(vehiculos.map((vehiculo) => [Number(obtenerIdVehiculo(vehiculo)), vehiculo])),
     [vehiculos]
@@ -437,6 +471,12 @@ function EmpleadoDashboard() {
     return todasReservas.filter((r) => Number(obtenerIdGarageAsignado(r)) === idGarageNum).length;
   }, [todasReservas, garageSeleccionadoId]);
   const capacidadReservasDisponible = Math.max(capacidadReservas - reservasDelGarage, 0);
+
+  const horaDataActual = useMemo(() => {
+    if (!horaSeleccionada || disponibilidadHoras.length === 0) return null;
+    return disponibilidadHoras.find((h) => h.hora === horaSeleccionada) || null;
+  }, [horaSeleccionada, disponibilidadHoras]);
+
   const nombre = obtenerNombreUsuario(perfilUsuario || usuario);
 
   const handleGarageDashboardChange = (event) => {
@@ -445,7 +485,16 @@ function EmpleadoDashboard() {
 
     setGarageSeleccionadoId(nuevoId);
     setGarageUsuario(garageSeleccionado);
+    setHoraSeleccionada("");
     localStorage.setItem(GARAGE_DASHBOARD_STORAGE_KEY, nuevoId);
+  };
+
+  const handleHoraChange = (event) => {
+    setHoraSeleccionada(event.target.value);
+  };
+
+  const handleFechaChange = (event) => {
+    setFechaSeleccionada(event.target.value);
   };
 
   const handleReservaClick = (reservaNorm) => {
@@ -492,7 +541,7 @@ function EmpleadoDashboard() {
         ) : (
           <>
             <div className="empleado-dashboard-intro">
-              <span className="empleado-dashboard-kicker">Hoy</span>
+              <span className="empleado-dashboard-kicker">{new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}</span>
               <h1 className="empleado-dashboard-title">
                 Hola{nombre ? ` ${nombre}` : ""}
               </h1>
@@ -510,10 +559,10 @@ function EmpleadoDashboard() {
               </div>
 
               <p className="empleado-disponibilidad-text">
-                Disponibilidad en tiempo real
+                Disponibilidad por hora
               </p>
 
-              {garagesSede.length > 1 && (
+              <div className="empleado-selectores-row">
                 <label className="empleado-garage-selector">
                   <span>Garage</span>
                   <select value={garageSeleccionadoId} onChange={handleGarageDashboardChange}>
@@ -527,54 +576,128 @@ function EmpleadoDashboard() {
                     })}
                   </select>
                 </label>
-              )}
-
-              <div className="empleado-plazas-libres">
-                <strong>{ocupacion}</strong>
-                <span>Ocupacion</span>
+                <label className="empleado-garage-selector">
+                  <span>Fecha</span>
+                  <input type="date" className="empleado-date-input" value={fechaSeleccionada} onChange={handleFechaChange} />
+                </label>
+                {disponibilidadHoras.length > 0 && (
+                  <label className="empleado-garage-selector">
+                    <span>Hora</span>
+                    <select value={horaSeleccionada} onChange={handleHoraChange}>
+                      {disponibilidadHoras.map((h) => (
+                        <option key={h.hora} value={h.hora}>
+                          {h.hora} ({h.disponibles} libres)
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               </div>
 
-              <p className="empleado-companeros">
-                {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
-              </p>
-
-              {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
-                <div className="empleado-capacidad-split">
-                  <div className="empleado-capacidad-item">
-                    <span className="empleado-capacidad-item-label">Reservas</span>
-                    <span className="empleado-capacidad-item-number">
-                      {capacidadReservasDisponible} <small>/ {capacidadReservas}</small>
-                    </span>
-                    {capacidadReservas > 0 && (
-                      <div className="empleado-capacidad-item-bar">
-                        <div
-                          className={`empleado-capacidad-item-bar-fill${pctReservas >= 75 ? " alta" : pctReservas >= 50 ? " media" : ""}`}
-                          style={{ width: `${pctReservas}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="empleado-capacidad-item">
-                    <span className="empleado-capacidad-item-label">No Reservas</span>
-                    <span className="empleado-capacidad-item-number">
-                      {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
-                    </span>
-                    {capacidadNoReservas > 0 && (
-                      <div className="empleado-capacidad-item-bar">
-                        <div
-                          className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
-                          style={{ width: `${pctNoReservas}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
+              {cargandoDisponibilidad ? (
+                <div className="empleado-plazas-libres">
+                  <strong>Cargando...</strong>
+                  <span>Disponibilidad</span>
                 </div>
-              )}
+              ) : horaDataActual ? (
+                <>
+                  <div className="empleado-plazas-libres">
+                    <strong>{horaDataActual.disponibles}</strong>
+                    <span>Disponibles el {new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { day: "2-digit", month: "long" })} a las {horaSeleccionada}</span>
+                  </div>
 
-              <div className="empleado-disponibilidad-metrics">
-                <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
-                <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
-              </div>
+                  <p className="empleado-companeros">
+                    {horaDataActual.reservas} reservas de {capacidadReservas} plazas
+                  </p>
+
+                  {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
+                    <div className="empleado-capacidad-split">
+                      <div className="empleado-capacidad-item">
+                        <span className="empleado-capacidad-item-label">Reservas</span>
+                        <span className="empleado-capacidad-item-number">
+                          {horaDataActual.disponibles} <small>/ {capacidadReservas}</small>
+                        </span>
+                        {capacidadReservas > 0 && (
+                          <div className="empleado-capacidad-item-bar">
+                            <div
+                              className={`empleado-capacidad-item-bar-fill${horaDataActual.disponibles <= Math.round(capacidadReservas * 0.25) ? " alta" : horaDataActual.disponibles <= Math.round(capacidadReservas * 0.5) ? " media" : ""}`}
+                              style={{ width: `${capacidadReservas > 0 ? Math.round(((capacidadReservas - horaDataActual.disponibles) / capacidadReservas) * 100) : 0}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="empleado-capacidad-item">
+                        <span className="empleado-capacidad-item-label">No Reservas</span>
+                        <span className="empleado-capacidad-item-number">
+                          {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
+                        </span>
+                        {capacidadNoReservas > 0 && (
+                          <div className="empleado-capacidad-item-bar">
+                            <div
+                              className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
+                              style={{ width: `${pctNoReservas}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="empleado-disponibilidad-metrics">
+                    <span>{horaDataActual.disponibles <= Math.round(capacidadReservas * 0.25) ? "Ocupacion alta" : horaDataActual.disponibles <= Math.round(capacidadReservas * 0.5) ? "Ocupacion media" : "Ocupacion baja"}</span>
+                    <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="empleado-plazas-libres">
+                    <strong>{ocupacion}</strong>
+                    <span>Ocupacion</span>
+                  </div>
+
+                  <p className="empleado-companeros">
+                    {porcentajeOcupacion === null ? "Disponibilidad pendiente de asignacion" : `${porcentajeOcupacion}% de ocupacion actual`}
+                  </p>
+
+                  {(capacidadReservas > 0 || capacidadNoReservas > 0) && (
+                    <div className="empleado-capacidad-split">
+                      <div className="empleado-capacidad-item">
+                        <span className="empleado-capacidad-item-label">Reservas</span>
+                        <span className="empleado-capacidad-item-number">
+                          {capacidadReservasDisponible} <small>/ {capacidadReservas}</small>
+                        </span>
+                        {capacidadReservas > 0 && (
+                          <div className="empleado-capacidad-item-bar">
+                            <div
+                              className={`empleado-capacidad-item-bar-fill${pctReservas >= 75 ? " alta" : pctReservas >= 50 ? " media" : ""}`}
+                              style={{ width: `${pctReservas}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="empleado-capacidad-item">
+                        <span className="empleado-capacidad-item-label">No Reservas</span>
+                        <span className="empleado-capacidad-item-number">
+                          {libresNoReservas ?? "--"} <small>/ {capacidadNoReservas}</small>
+                        </span>
+                        {capacidadNoReservas > 0 && (
+                          <div className="empleado-capacidad-item-bar">
+                            <div
+                              className={`empleado-capacidad-item-bar-fill${pctNoReservas >= 75 ? " alta" : pctNoReservas >= 50 ? " media" : ""}`}
+                              style={{ width: `${pctNoReservas}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="empleado-disponibilidad-metrics">
+                    <span>{porcentajeOcupacion !== null && porcentajeOcupacion >= 75 ? "Ocupacion alta" : "Ocupacion baja"}</span>
+                    <span>{vehiculos.length > 0 ? "Acceso habilitado" : "Vehiculo pendiente"}</span>
+                  </div>
+                </>
+              )}
             </section>
           </>
         )}

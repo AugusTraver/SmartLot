@@ -146,11 +146,34 @@ const ReservasCancel = async (id) => {
 
 
 
+const ReservasGetDisponibilidadPorHora = async (garageId, fecha) => {
+
+    let returnObject = { respuesta: false, datos: [] };
+
+    let url = '/api/reserva/disponibilidad-por-hora?garage_id=' + garageId + '&fecha=' + fecha;
+
+    try {
+
+        const response = await apiClient.get(url);
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+
+        return returnObject;
+
+    } catch (error) {
+
+        console.log(error);
+        return returnObject;
+    }
+};
+
 export {
     ReservasGetAll,
     ReservasGetById,
     ReservasCreate,
     ReservasUpdate,
     ReservasDelete,
-    ReservasCancel
+    ReservasCancel,
+    ReservasGetDisponibilidadPorHora
 };

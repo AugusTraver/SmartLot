@@ -187,6 +187,38 @@
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
 }
 
+.empleado-selectores-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.empleado-selectores-row .empleado-garage-selector {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.empleado-date-input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  padding: 0 14px;
+  background-color: #ffffff;
+  color: #1E293B;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--font-body), "DM Sans", system-ui, sans-serif;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.empleado-date-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
 .empleado-plazas-libres {
   display: flex;
   align-items: baseline;
