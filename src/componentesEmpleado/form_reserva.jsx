@@ -25,7 +25,7 @@ const obtenerFechaLocalHoy = () => {
 };
 
 export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [] }) {
-  const preferencias = (() => {
+  const preferences = (() => {
     try {
       return JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
     } catch {
@@ -35,11 +35,20 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fecha: "",
-    horaInicio: preferencias.horaInicio || "",
-    horaFin: preferencias.horaFin || "",
+    horaInicio: preferences.horaInicio || "",
+    horaFin: preferences.horaFin || "",
     idGarage: garages.length === 1 ? String(obtenerIdGarage(garages[0])) : "",
-    idVehiculo: preferencias.vehiculoPredeterminado || "",
+    idVehiculo: preferences.vehiculoPredeterminado || "",
   });
+
+  const garageSeleccionadoObj = garages.find(
+    (garage) => String(obtenerIdGarage(garage)) === String(formData.idGarage)
+  );
+  
+  const ubicacionGarageActual = garageSeleccionadoObj?.ubicacion || 
+                                garageSeleccionadoObj?.direccion || 
+                                garageSeleccionadoObj?.nombre_zona || 
+                                garageSeleccionadoObj?.descripcion;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -163,6 +172,28 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               })}
             </select>
           </div>
+          
+          {/* BLOQUE NUEVO MODIFICADO: Estilos con fondo azul e interior de alto contraste */}
+          {formData.idGarage && ubicacionGarageActual && (
+            <div 
+              style={{
+                marginTop: "0.5rem",
+                fontSize: "0.85rem",
+                fontWeight: "500",
+                display: "flex",
+                gap: "0.35rem",
+                padding: "0.5rem 0.75rem",
+                borderRadius: "8px",
+                backgroundColor: "rgb(255, 255, 255)",
+                color: "#ffffff",
+                border: "1px solid rgb(59, 130, 246)",
+
+              }}
+            >
+              <span style={{ color: "#1164e8ff", opacity: 0.9 }}>Ubicacion:</span>
+              <span style={{ color: "#4481e2ff", fontWeight: "600" }}>{ubicacionGarageActual}</span>
+            </div>
+          )}
         </div>
 
         <div className="form-field-group">
