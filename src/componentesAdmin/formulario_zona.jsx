@@ -30,9 +30,9 @@ function FormularioZona({
                     />
                     <label>Nombre del garage</label>
                 </div>
-
-                <div className="fila-inputs">
-                    <div className="input-group">
+               <section className='inputsNivelYSede'>
+                     <div className="fila-inputs">
+                    <div className="inputNivelPlanta input-group">
                         <input
                             type="number"
                             placeholder=" "
@@ -43,7 +43,7 @@ function FormularioZona({
                     </div>
                 </div>
 
-                <div className={`input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
+                <div className= {`inputSede input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
                     <div
                         className="dropdown-trigger-clean"
                         onClick={() => setIsOpenSede(!isOpenSede)}
@@ -79,6 +79,8 @@ function FormularioZona({
                     <label>Sede</label>
                 </div>
 
+               </section>
+              
                 <div className="input-group">
                     <input
                         type="text"

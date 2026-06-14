@@ -47,76 +47,76 @@
    ========================================================================= */
 
 .input-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
 }
 
 .input-group input,
 .input-group textarea,
 .dropdown-trigger-clean {
-    width: 100%;
-    border: 2px solid transparent;
-    background: #e2e8f0;
-    border-radius: 16px;
-    padding: 18px 18px 10px 18px; 
-    color: #191c1e;
-    font-size: 15px;
-    outline: none;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-    height: 54px;
+  width: 100%;
+  border: 2px solid transparent;
+  background: #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 18px 10px 18px;
+  color: #191c1e;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  height: 54px;
 }
 
 .input-group textarea {
-    min-height: 110px;
-    height: auto;
-    resize: none;
+  min-height: 110px;
+  height: auto;
+  resize: none;
 }
 
 .input-group input {
-    height: 54px !important;
-    min-height: 54px !important;
+  height: 54px !important;
+  min-height: 54px !important;
 }
 
 .dropdown-trigger-clean {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
 }
 
 .selected-display-text {
-    font-weight: 600;
-    color: #191c1e;
+  font-weight: 600;
+  color: #191c1e;
 }
 
 .input-group input:focus,
 .input-group textarea:focus {
-    border-color: #156fe5;
-    background: #e2e8f0;
-    box-shadow: 0 0 0 4px rgba(21, 111, 229, 0.1);
+  border-color: #156fe5;
+  background: #e2e8f0;
+  box-shadow: 0 0 0 4px rgba(21, 111, 229, 0.1);
 }
 
 .input-group input::placeholder,
 .input-group textarea::placeholder {
-    color: transparent;
+  color: transparent;
 }
 
 /* Configuración base de todos los labels tipo placeholder */
 .input-group label {
-    position: absolute;
-    left: 18px;
-    top: 16px; 
-    font-size: 13px; 
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    pointer-events: none; 
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  pointer-events: none;
 }
 
 /* =========================================================================
@@ -124,88 +124,100 @@
    ========================================================================= */
 
 .menu-dropdown-item {
-    position: relative;
+  position: relative;
 }
 
 .chevron-arrow-svg {
-    width: 20px;
-    height: 20px;
-    fill: #94a3b8;
-    transition: transform 0.15s ease;
+  width: 20px;
+  height: 20px;
+  fill: #94a3b8;
+  transition: transform 0.15s ease;
 }
 
 .submenu-custom-list {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background-color: #e2e8f0;
-    border-radius: 0 0 16px 16px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-4px);
-    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
-    z-index: 99;
-    pointer-events: none;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  z-index: 99;
+  pointer-events: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
 /* Apertura del menú */
 .dropdown-open .submenu-custom-list {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
-    border-top: transparent;
-    border-color: transparent;
-    width: 100%;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  border-top: transparent;
+  border-color: transparent;
+  width: 100%;
 }
 
 .dropdown-open .dropdown-trigger-clean {
-    color: black;
-    background-color: #e2e8f0;
-    border-radius: 16px 16px 0 0;
+  color: black;
+  background-color: #e2e8f0;
+  border-radius: 16px 16px 0 0;
 }
 
 .dropdown-open .selected-display-text {
-    color: black;
+  color: black;
 }
 
 .dropdown-open .chevron-arrow-svg {
-    fill: black;
-    color: black;
-    transform: rotate(-180deg);
+  fill: black;
+  color: black;
+  transform: rotate(-180deg);
 }
 
 .submenu-custom-option {
-    width: 100%;
+  width: 100%;
 }
 
 .submenu-custom-link {
-    display: block;
-    padding: 12px 24px;
-    width: 100%;
-    position: relative;
-    text-align: left;
-    color: #191c1e;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: background-color 0.15s ease, color 0.15s ease;
+  display: block;
+  padding: 12px 24px;
+  width: 100%;
+  position: relative;
+  text-align: left;
+  color: #191c1e;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .submenu-custom-link:hover {
-    background-color: #d1d5db;
-    color: #191c1e;
+  background-color: #d1d5db;
+  color: #191c1e;
+}
+
+.inputNivelPlanta {
+  width: 90% !important;
+}
+.inputSede{
+  
+  width: 90%;
+}
+.inputsNivelYSede {
+  display: flex;
+  justify-content: space-between;
 }
 
 /* =========================================================================
@@ -213,45 +225,45 @@
    ========================================================================= */
 
 /* 1. Inputs y textareas cuando tienen foco o texto */
-.input-group input:focus ~ label,
-.input-group input:not(:placeholder-shown) ~ label,
+.input-group input:focus~label,
+.input-group input:not(:placeholder-shown)~label,
 .input-group-time label,
-.input-group textarea:focus ~ label,
-.input-group textarea:not(:placeholder-shown) ~ label {
-    top: -2px; 
-    left: 12px;
-    font-size: 11px;
-    color: #156fe5; 
-    background-color: transparent; 
-    padding: 0 4px;
+.input-group textarea:focus~label,
+.input-group textarea:not(:placeholder-shown)~label {
+  top: -2px;
+  left: 12px;
+  font-size: 11px;
+  color: #156fe5;
+  background-color: transparent;
+  padding: 0 4px;
 }
 
 /* 2. Dropdown cuando está abierto */
 .menu-dropdown-item.dropdown-open label {
-    top: -2px; 
-    left: 12px;
-    font-size: 11px;
-    color: #156fe5; 
-    background-color: transparent; 
-    padding: 0 4px;
+  top: -2px;
+  left: 12px;
+  font-size: 11px;
+  color: #156fe5;
+  background-color: transparent;
+  padding: 0 4px;
 }
 
 /* 3. Dropdown cerrado pero con valor elegido (Se queda arriba y AZUL siempre) */
 .menu-dropdown-item.has-selected-value label {
-    top: -2px !important; 
-    left: 12px !important;
-    font-size: 11px !important;
-    color: #156fe5 !important; 
-    background-color: transparent !important; 
-    padding: 0 4px !important;
+  top: -2px !important;
+  left: 12px !important;
+  font-size: 11px !important;
+  color: #156fe5 !important;
+  background-color: transparent !important;
+  padding: 0 4px !important;
 }
 
 /* 4. Dropdown vacío en reposo */
 .menu-dropdown-item:not(.dropdown-open):not(.has-selected-value) label {
-    top: 16px;
-    left: 18px;
-    font-size: 13px;
-    color: #94a3b8;
+  top: 16px;
+  left: 18px;
+  font-size: 13px;
+  color: #94a3b8;
 }
 
 /* --- RESPONSIVE MEDIA QUERIES --- */
@@ -260,6 +272,7 @@
     padding: 1rem;
     border-radius: 16px;
   }
+
   .input-group input,
   .input-group textarea,
   .dropdown-trigger-clean {
@@ -267,9 +280,19 @@
     font-size: 0.95rem;
     padding: 0.9rem;
   }
+
   .dropdown-open .submenu-custom-list {
     width: 99.3%;
-    }
+  }
+
+  .inputNivelPlanta {
+    width: 200%;
+  }
+  .inputSede{
+  
+  width: 60%;
+}
+  
 }
 
 @media (max-width: 480px) {

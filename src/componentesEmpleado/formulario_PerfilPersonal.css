@@ -263,3 +263,8 @@
   box-shadow: var(--sl-shadow-md);
   box-sizing: border-box;
 }
+@media (max-width: 768px){
+  .perfilUsuario-Contenedor{
+    margin-bottom: 20%;
+  }
+}
