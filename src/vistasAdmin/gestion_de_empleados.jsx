@@ -580,13 +580,15 @@ const GestionEmpleados = () => {
               )}
             </BotonGenerico>
 
-            <BotonGenerico
-              className="btn-primario"
-              onClick={() => navigate("/agregar_empleado")}
-            >
-              <UserPlus size={20} />
-              <span>Agregar empleado</span>
-            </BotonGenerico>
+            {filtroRolSwitch === "Empleado" && ( // cuando esta en empleado te aparece el boton de agregar empleados 
+              <BotonGenerico
+                className="btn-primario"
+                onClick={() => navigate("/agregar_empleado")}
+              >
+                <UserPlus size={20} />
+                <span>Agregar empleado</span>
+              </BotonGenerico>
+            )}
           </div>
         </header>
 

@@ -134,8 +134,8 @@ function GestionSedes() {
   };
 
   const empresasDisponibles = useMemo(
-    () => Array.from(new Set(sedes.map((s) => Number(s.id_empresa)))),
-    [sedes]
+    () => empresas.map((empresa) => Number(empresa.id)),
+    [empresas]
   );
 
   useGSAP(() => {
