@@ -337,7 +337,19 @@ function EmpleadoDashboard() {
         }
 
         const vehiculosApi = vehiculosResponse.respuesta ? obtenerListado(vehiculosResponse.datos) : [];
-        const vehiculosDelUsuario = vehiculosApi.filter((vehiculo) => Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario);
+        const modelosLista = modelosResponse.respuesta ? obtenerListado(modelosResponse.datos) : [];
+        const marcasLista = marcasResponse.respuesta ? obtenerListado(marcasResponse.datos) : [];
+        const modelosPorIdMap = new Map(modelosLista.map((m) => [Number(m.id ?? m.id_modelo ?? m._id), m]));
+        const marcasPorIdMap = new Map(marcasLista.map((m) => [Number(m.id ?? m.id_marca ?? m._id), m]));
+        const vehiculosDelUsuario = vehiculosApi
+          .filter((vehiculo) => Number(vehiculo.id_usuario ?? vehiculo.idUsuario ?? vehiculo.usuario_id) === idUsuario)
+          .map((vehiculo) => {
+            const idModelo = Number(vehiculo.id_modelo ?? vehiculo.idModelo ?? vehiculo.modelo_id);
+            const modeloObj = modelosPorIdMap.get(idModelo);
+            const modelo = modeloObj?.nombre || "";
+            const marcaNombre = marcasPorIdMap.get(Number(modeloObj?.id_marca ?? modeloObj?.idMarca))?.nombre || "";
+            return { ...vehiculo, marca_nombre: marcaNombre, modelo_nombre: modelo };
+          });
         const idsVehiculos = new Set(vehiculosDelUsuario.map((vehiculo) => Number(obtenerIdVehiculo(vehiculo))));
 
         const reservasApi = reservasResponse.respuesta ? obtenerListado(reservasResponse.datos) : [];
