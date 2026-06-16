@@ -28,6 +28,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
               value={data.nombre || ""}
               readOnly
               tabIndex={-1}
+              autoComplete="off"
               style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
             />
           </div>
@@ -41,6 +42,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
               value={data.apellido || ""}
               readOnly
               tabIndex={-1}
+              autoComplete="off"
               style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
             />
           </div>
@@ -55,6 +57,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
               value={data.email || ""}
               readOnly
               tabIndex={-1}
+              autoComplete="off"
               style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
             />
           </div>
@@ -68,6 +71,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
             className="formulario-input"
             value={data.telefono || ""}
             onChange={onChange}
+            autoComplete="off"
           />
         </div>
       </div>

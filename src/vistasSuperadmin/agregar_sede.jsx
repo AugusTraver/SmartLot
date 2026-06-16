@@ -112,7 +112,7 @@ function AgregarSede() {
         <section className="agregar-sede-form">
           <div className="input-group-superadmin">
             <label>Empresa</label>
-            <select value={idEmpresa} onChange={(e) => setIdEmpresa(e.target.value)}>
+            <select value={idEmpresa} onChange={(e) => setIdEmpresa(e.target.value)} autoComplete="off">
               <option value="">Seleccionar empresa...</option>
               {empresas.map((emp) => (
                 <option key={emp.id} value={emp.id}>
@@ -129,6 +129,7 @@ function AgregarSede() {
               placeholder="Ej: Sede Central"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
@@ -139,6 +140,7 @@ function AgregarSede() {
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               rows={3}
+              autoComplete="off"
             />
           </div>
 
@@ -149,6 +151,7 @@ function AgregarSede() {
               placeholder="Ej: Av. Corrientes 1234, CABA"
               value={ubicacion}
               onChange={(e) => setUbicacion(e.target.value)}
+              autoComplete="off"
             />
           </div>
 

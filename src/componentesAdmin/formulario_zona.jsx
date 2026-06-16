@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import "./formulario_zona.css";
 
 function FormularioZona({
@@ -8,6 +8,9 @@ function FormularioZona({
 }) {
 
     const [isOpenSede, setIsOpenSede] = useState(false);
+    const [es24Horas, setEs24Horas] = useState(false);
+    const aperturaRef = useRef(null);
+    const cierreRef = useRef(null);
 
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
 
@@ -22,12 +25,13 @@ function FormularioZona({
 
             <div className="bloque-formulario-zona">
                 <div className="input-group">
-                    <input
-                        type="text"
-                        placeholder=" "
-                        value={formData.nombre || ''}
-                        onChange={(e) => onChange('nombre', e.target.value)}
-                    />
+                <input
+                    type="text"
+                    placeholder=" "
+                    value={formData.nombre || ''}
+                    onChange={(e) => onChange('nombre', e.target.value)}
+                    autoComplete="off"
+                />
                     <label>Nombre del garage</label>
                 </div>
                <section className='inputsNivelYSede'>
@@ -38,6 +42,7 @@ function FormularioZona({
                             placeholder=" "
                             value={formData.piso ?? ''}
                             onChange={(e) => onChange('piso', e.target.value === '' ? '' : e.target.value)}
+                            autoComplete="off"
                         />
                         <label>Nivel / Planta</label>
                     </div>
@@ -87,30 +92,81 @@ function FormularioZona({
                         placeholder=" "
                         value={formData.ubicacion || ''}
                         onChange={(e) => onChange('ubicacion', e.target.value)}
+                        autoComplete="off"
                     />
                     <label>Ubicacion</label>
                 </div>
 
-                <div className="fila-inputs fila-horarios">
-                    <div className="input-group input-group-time">
+                <div className="fila-inputs fila-horarios" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <div className="input-group input-group-time" style={{ flex: '1 1 140px' }}>
                         <input
+                            ref={aperturaRef}
                             type="time"
                             placeholder=" "
                             value={formData.hora_apertura || ''}
-                            onChange={(e) => onChange('hora_apertura', e.target.value)}
+                            onChange={(e) => {
+                                onChange('hora_apertura', e.target.value);
+                                if (es24Horas) setEs24Horas(false);
+                            }}
+                            disabled={es24Horas}
+                            autoComplete="off"
                         />
                         <label>Hora de apertura</label>
                     </div>
 
-                    <div className="input-group input-group-time">
+                    <div className="input-group input-group-time" style={{ flex: '1 1 140px' }}>
                         <input
+                            ref={cierreRef}
                             type="time"
                             placeholder=" "
                             value={formData.hora_cierre || ''}
-                            onChange={(e) => onChange('hora_cierre', e.target.value)}
+                            onChange={(e) => {
+                                onChange('hora_cierre', e.target.value);
+                                if (es24Horas) setEs24Horas(false);
+                            }}
+                            disabled={es24Horas}
+                            autoComplete="off"
                         />
                         <label>Hora de cierre</label>
                     </div>
+
+                    <label
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            color: '#475569',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            paddingBottom: '12px',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={es24Horas}
+                            onChange={(e) => {
+                                const marcado = e.target.checked;
+                                setEs24Horas(marcado);
+                                if (marcado) {
+                                    onChange('hora_apertura', '00:00');
+                                    onChange('hora_cierre', '23:59');
+                                } else {
+                                    onChange('hora_apertura', '');
+                                    onChange('hora_cierre', '');
+                                }
+                            }}
+                            style={{
+                                width: '16px',
+                                height: '16px',
+                                accentColor: '#2563eb',
+                                cursor: 'pointer',
+                            }}
+                        />
+                        Abierto 24 horas
+                    </label>
                 </div>
             </div>
         </div>

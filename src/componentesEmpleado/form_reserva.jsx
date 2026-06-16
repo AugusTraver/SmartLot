@@ -111,6 +111,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               min={obtenerFechaLocalHoy()}
               onChange={handleChange}
               required
+              autoComplete="off"
             />
           </div>
         </div>
@@ -128,6 +129,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 value={formData.horaInicio}
                 onChange={handleChange}
                 required
+                autoComplete="off"
               />
             </div>
           </div>
@@ -144,6 +146,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 value={formData.horaFin}
                 onChange={handleChange}
                 required
+                autoComplete="off"
               />
             </div>
           </div>

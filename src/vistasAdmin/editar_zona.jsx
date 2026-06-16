@@ -124,6 +124,7 @@ function EditarZona() {
   const [horaCierre, setHoraCierre] = useState(() => {
     return garageData ? obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']) : '';
   });
+  const [es24Horas, setEs24Horas] = useState(false);
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -367,6 +368,7 @@ function EditarZona() {
                 placeholder="Garage B, Exterior Norte"
                 value={nombreGarage}
                 onChange={(e) => setNombreGarage(e.target.value)}
+                autoComplete="off"
               />
             </div>
 
@@ -377,6 +379,7 @@ function EditarZona() {
                 value={piso}
                 onChange={(e) => setPiso(e.target.value)}
                 placeholder="Ej: Piso 1, Subsuelo"
+                autoComplete="off"
               />
             </div>
 
@@ -387,6 +390,7 @@ function EditarZona() {
                 placeholder="Ubicación del garage"
                 value={ubicacion}
                 onChange={(e) => setUbicacion(e.target.value)}
+                autoComplete="off"
               />
             </div>
           </section>
@@ -399,24 +403,72 @@ function EditarZona() {
               <h3>Horario operativo</h3>
             </div>
 
-            <div className="campos-grid">
-              <div className="campo-formulario">
+            <div className="campos-grid" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <div className="campo-formulario" style={{ flex: '1 1 140px' }}>
                 <label>Hora de apertura</label>
                 <input
                   type="time"
                   value={horaApertura}
-                  onChange={(e) => setHoraApertura(e.target.value)}
+                  onChange={(e) => {
+                    setHoraApertura(e.target.value);
+                    if (es24Horas) setEs24Horas(false);
+                  }}
+                  disabled={es24Horas}
+                  autoComplete="off"
                 />
               </div>
 
-              <div className="campo-formulario">
+              <div className="campo-formulario" style={{ flex: '1 1 140px' }}>
                 <label>Hora de cierre</label>
                 <input
                   type="time"
                   value={horaCierre}
-                  onChange={(e) => setHoraCierre(e.target.value)}
+                  onChange={(e) => {
+                    setHoraCierre(e.target.value);
+                    if (es24Horas) setEs24Horas(false);
+                  }}
+                  disabled={es24Horas}
+                  autoComplete="off"
                 />
               </div>
+
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.85rem',
+                  fontWeight: 500,
+                  color: '#475569',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  paddingBottom: '12px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={es24Horas}
+                  onChange={(e) => {
+                    const marcado = e.target.checked;
+                    setEs24Horas(marcado);
+                    if (marcado) {
+                      setHoraApertura('00:00');
+                      setHoraCierre('23:59');
+                    } else {
+                      setHoraApertura('');
+                      setHoraCierre('');
+                    }
+                  }}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#2563eb',
+                    cursor: 'pointer',
+                  }}
+                />
+                Abierto 24 horas
+              </label>
             </div>
           </section>
 
@@ -491,6 +543,7 @@ function EditarZona() {
                       const value = Number(e.target.value);
                       setCapacidadReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
                     }}
+                    autoComplete="off"
                   />
                   <button
                     type="button"
@@ -528,6 +581,7 @@ function EditarZona() {
                       const value = Number(e.target.value);
                       setCapacidadNoReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
                     }}
+                    autoComplete="off"
                   />
                   <button
                     type="button"
