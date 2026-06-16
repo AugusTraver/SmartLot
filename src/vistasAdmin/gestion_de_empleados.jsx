@@ -561,7 +561,7 @@ const GestionEmpleados = () => {
               <ArrowLeft size={24} />
             </button>
             <div className="textos-titulos">
-              <h1 className="titulo-vista">Gestión de Empleados</h1>
+              <h1 className="titulo-vista">Gestión de Usuarios</h1>
               <p className="subtitulo-vista">
                 Administra todo el personal.
               </p>
@@ -580,13 +580,15 @@ const GestionEmpleados = () => {
               )}
             </BotonGenerico>
 
-            <BotonGenerico
-              className="btn-primario"
-              onClick={() => navigate("/agregar_empleado")}
-            >
-              <UserPlus size={20} />
-              <span>Agregar empleado</span>
-            </BotonGenerico>
+            {filtroRolSwitch === "Empleado" && ( // cuando esta en empleado te aparece el boton de agregar empleados 
+              <BotonGenerico
+                className="btn-primario"
+                onClick={() => navigate("/agregar_empleado")}
+              >
+                <UserPlus size={20} />
+                <span>Agregar empleado</span>
+              </BotonGenerico>
+            )}
           </div>
         </header>
 

@@ -62,6 +62,7 @@ function AgregarEmpresa() {
               placeholder="Ej: SmartLot Corp"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
@@ -72,6 +73,7 @@ function AgregarEmpresa() {
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               rows={4}
+              autoComplete="off"
             />
           </div>
 

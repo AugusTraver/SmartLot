@@ -218,7 +218,7 @@ function GestionGarages() {
           <section className="stats-container">
             <div className="stats-card">
               <div className="stats-header">
-                <h4>Total zonas</h4>
+                <h4>Total garages</h4>
                 <span className="stats-icon">
                   <MapPinned size={24} />
                 </span>
@@ -248,7 +248,7 @@ function GestionGarages() {
           <div className="garages-section-heading">
             <h2 className="titulo-garages">Gestion de Garages</h2>
             <p className="subtitulo-garages">
-              Administra las zonas disponibles, revisa su estado y actualiza su
+              Administra los garages disponibles, revisa su estado y actualiza su
               capacidad en tiempo real.
             </p>
           </div>
