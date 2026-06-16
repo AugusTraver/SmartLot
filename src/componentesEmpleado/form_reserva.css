@@ -181,6 +181,30 @@
   cursor: not-allowed;
   box-shadow: none;
 }
+.dia-indicador-reserva {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.dia-indicador-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.dia-indicador-valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
 @media (max-width: 640px){
 
   

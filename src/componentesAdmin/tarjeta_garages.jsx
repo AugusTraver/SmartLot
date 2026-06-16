@@ -1,11 +1,13 @@
 import "./tarjeta_garages.css";
 import { Pencil, MapPin, Clock } from "lucide-react";
+import { getDiaDisplay } from "../helpers/diasSemana";
 
 function TarjetaGarage({
   titulo,
   plazas,
   estado,
   capacidad,
+  dias,
   imagen,
   ultimoReporte,
   onClick,
@@ -53,6 +55,14 @@ function TarjetaGarage({
             {ultimoReporte}
           </span>
         </div>
+
+        {Array.isArray(dias) && dias.length > 0 && (
+          <div className="garage-dias">
+            {dias.map((dia) => (
+              <span key={dia} className="garage-dia-pill">{getDiaDisplay(dia)}</span>
+            ))}
+          </div>
+        )}
 
         <div className="capacidad-container">
           <div className="capacidad-label">

@@ -169,7 +169,7 @@ function GestionGarages() {
     return () => {
       estaMontado = false;
     };
-  }, []);
+  }, [usuario]);
 
   const ocupacionMedia =        
     garages.length > 0
@@ -266,12 +266,13 @@ function GestionGarages() {
           {!loading && !error && garages.length > 0 && (
             <div className="contenedor-tarjetas">
               {garages.map((garage, index) => (
-                <TarjetaGarage  // le manda al componete de tarjeta garage la informacion de cada garage para que este se encargue de mostrarla
+                <TarjetaGarage
                   key={obtenerIdGarage(garage, index)}
                   titulo={garage.nombre || "Garage sin nombre"}
                   plazas={Number(garage.capacidad || 0)}
                   estado={obtenerEstadoGarage(garage.estado)}
                   capacidad={obtenerCapacidadPorcentaje(garage)}
+                  dias={garage.dias}
                   ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
                   imagen={imagenesGarage[index % imagenesGarage.length]}
                   onClick={() => navigate("/editar_zona", { state: { garage } })}

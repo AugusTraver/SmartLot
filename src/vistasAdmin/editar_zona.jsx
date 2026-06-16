@@ -23,6 +23,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
+import { DIAS_SEMANA } from "../helpers/diasSemana";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
@@ -125,6 +126,28 @@ function EditarZona() {
     return garageData ? obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']) : '';
   });
 
+  const [diasSeleccionados, setDiasSeleccionados] = useState(() => {
+    let diasArray = garageData?.dias;
+    if (typeof diasArray === 'string') {
+      diasArray = diasArray.replace(/[{}]/g, '').split(',').filter(Boolean);
+    }
+    if (Array.isArray(diasArray) && diasArray.length > 0) {
+      return diasArray.map(d => {
+        const found = DIAS_SEMANA.find(dia => dia.api === d || dia.display === d);
+        return found ? found.api : d;
+      }).filter(Boolean);
+    }
+    return [];
+  });
+
+  const toggleDia = (diaApi) => {
+    setDiasSeleccionados((prev) => {
+      const index = prev.indexOf(diaApi);
+      if (index >= 0) return prev.filter(d => d !== diaApi);
+      return [...prev, diaApi];
+    });
+  };
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
@@ -141,6 +164,7 @@ function EditarZona() {
     const origEstado = parseEstadoBool(garageData.estado);
     const origCapReservas = Number(garageData.capacidad_reservas || 0);
     const origCapNoReservas = Number(garageData.capacidad_para_no_reservas || 0);
+    const origDias = Array.isArray(garageData.dias) ? [...garageData.dias].sort() : [];
 
     return (
       nombreGarage !== origNombre ||
@@ -150,9 +174,10 @@ function EditarZona() {
       horaCierre !== origHoraCierre ||
       estadoActivo !== origEstado ||
       capacidadReservas !== origCapReservas ||
-      capacidadNoReservas !== origCapNoReservas
+      capacidadNoReservas !== origCapNoReservas ||
+      [...diasSeleccionados].sort().join(',') !== origDias.join(',')
     );
-  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, garageData]);
+  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, diasSeleccionados, garageData]);
 
   // Prevenir cierre accidental de pestaña o recarga del navegador
   useEffect(() => {
@@ -288,6 +313,11 @@ function EditarZona() {
       return;
     }
 
+    if (!diasSeleccionados || diasSeleccionados.length === 0) {
+      setError('❌ Debes seleccionar al menos un día operativo para el garage.');
+      return;
+    }
+
     if (!garageData?.id_sede) {
       setError('❌ No se encontró la sede asociada al garage.');
       return;
@@ -305,7 +335,8 @@ function EditarZona() {
        estado: estadoActivo,
        capacidad: Number(capacidad),
        capacidad_reservas: Number(capacidadReservas),
-       capacidad_para_no_reservas: Number(capacidadNoReservas)
+       capacidad_para_no_reservas: Number(capacidadNoReservas),
+       dias: diasSeleccionados
     };
 
     const id = obtenerIdGarage(garageData);
@@ -326,7 +357,8 @@ function EditarZona() {
       navigate("/gestion_garages", { replace: true });
     } else {
       const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
-      setError(`❌ Error al actualizar la zona: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
+      const limpio = typeof errorMsg === 'string' ? errorMsg.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim() : 'Error al actualizar la zona.';
+      setError(`❌ Error al actualizar la zona: ${limpio}`);
     }
   };
 
@@ -416,6 +448,25 @@ function EditarZona() {
                   value={horaCierre}
                   onChange={(e) => setHoraCierre(e.target.value)}
                 />
+              </div>
+            </div>
+
+            <div className="dias-semana-section" style={{ marginTop: '1.4rem' }}>
+              <label className="dias-semana-label">Días operativos</label>
+              <div className="dias-semana-grid">
+                {DIAS_SEMANA.map((dia) => {
+                  const seleccionado = diasSeleccionados.includes(dia.api);
+                  return (
+                    <label key={dia.api} className={`dia-chip ${seleccionado ? 'dia-seleccionado' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={seleccionado}
+                        onChange={() => toggleDia(dia.api)}
+                      />
+                      <span>{dia.display}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </section>

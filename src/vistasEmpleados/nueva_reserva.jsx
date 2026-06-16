@@ -11,6 +11,16 @@ import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
+import { mensajeAmigable } from "../helpers/erroresMensajes";
+
+const obtenerCampo = (item, claves, fallback = "") => {
+  if (!item || typeof item !== "object") return fallback;
+  for (const clave of claves) {
+    const valor = item[clave];
+    if (valor !== undefined && valor !== null && valor !== "") return valor;
+  }
+  return fallback;
+};
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -205,6 +215,8 @@ const NuevaReserva = () => {
       datosFormulario.id_garage,
       datosFormulario.idGarage
     );
+    const garageSeleccionado = garages.find((g) => Number(obtenerIdGarage(g)) === idGarage);
+    const nombreGarage = obtenerCampo(garageSeleccionado, ["nombre", "name", "descripcion", "ubicacion", "nombre_garage", "garage_nombre", "nombre_zona", "direccion"]) || "";
 
     if (!idUsuario) {
       setLoading(false);
@@ -218,10 +230,9 @@ const NuevaReserva = () => {
       return;
     }
 
-    const garagePermitido = garages.some((garage) => Number(obtenerIdGarage(garage)) === idGarage);
-    if (!garagePermitido) {
+    if (!garageSeleccionado) {
       setLoading(false);
-      setMensaje({ tipo: "error", texto: "Solo podes reservar garages de tu sede." });
+      setMensaje({ tipo: "error", texto: "El garage seleccionado no fue encontrado o no pertenece a tu sede." });
       return;
     }
 
@@ -239,12 +250,7 @@ const NuevaReserva = () => {
 
       if (!resultado.respuesta) {
         setLoading(false);
-        const msg = resultado.datos?.message || "";
-        const textoAmigable =
-          msg.toLowerCase().includes("garage") && msg.toLowerCase().includes("disponible")
-            ? "El garage seleccionado no esta disponible en este momento. Por favor, elegi otro o intenta de nuevo."
-            : msg || "Hubo un error al procesar la reserva. Intentalo de nuevo.";
-        setMensaje({ tipo: "error", texto: textoAmigable });
+        setMensaje({ tipo: "error", texto: mensajeAmigable(resultado.datos, nombreGarage) });
         return;
       }
 

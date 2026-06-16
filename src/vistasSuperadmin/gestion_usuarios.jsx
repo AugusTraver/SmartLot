@@ -250,7 +250,7 @@ const GestionUsuarios = () => {
         const gMap = {};
         garages.forEach((g) => {
           const id = g.id_garage ?? g.id ?? g._id;
-          if (id != null) gMap[Number(id)] = g.nombre || `Garage ${id}`;
+          if (id != null) gMap[Number(id)] = g.nombre || g.name || g.descripcion || g.ubicacion || g.nombre_garage || g.garage_nombre || "Garage";
         });
 
         setEmpresaMap(eMap);

@@ -14,7 +14,6 @@ function AgregarZona() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
   
-  // Eliminamos 'estado' de aquí, ya no lo maneja el usuario
   const [formData, setFormData] = useState({
     nombre: "",
     piso: "",
@@ -23,7 +22,8 @@ function AgregarZona() {
     hora_cierre: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
-    id_sede: usuario?.id_sede ?? ""
+    id_sede: usuario?.id_sede ?? "",
+    dias: []
   });
   const [sedes, setSedes] = useState([]);
   const [sedesLoading, setSedesLoading] = useState(true);
@@ -165,6 +165,11 @@ function AgregarZona() {
       return;
     }
 
+    if (!formData.dias || formData.dias.length === 0) {
+      setError("❌ Debes seleccionar al menos un día operativo para el garage.");
+      return;
+    }
+
     setLoading(true);
 
     const garage = {
@@ -179,7 +184,8 @@ function AgregarZona() {
       capacidad_para_no_reservas: capNoRes,
       capacidad_reservas: capRes,
       ocupacion_reservas: 0,
-      ocupacion_no_reservas: 0
+      ocupacion_no_reservas: 0,
+      dias: formData.dias
     };
 
     const response = await GaragesCreate(garage);

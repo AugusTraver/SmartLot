@@ -143,7 +143,7 @@ const obtenerCampo = (item, claves, fallback = "") => {
 
 const obtenerNombreGarage = (garage) =>
   garage
-    ? obtenerCampo(garage, ["nombre", "descripcion", "nombre_garage", "garage_nombre"], `Garage ${obtenerIdGarage(garage) || ""}`.trim())
+    ? obtenerCampo(garage, ["nombre", "name", "descripcion", "ubicacion", "nombre_garage", "garage_nombre", "nombre_zona", "direccion"], "Garage")
     : "";
 
 const esMismaFecha = (fechaA, fechaB) =>

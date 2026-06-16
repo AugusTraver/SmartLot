@@ -83,7 +83,7 @@ const obtenerGarage = (usuario, garagesMap) => {
   const idGarage = obtenerIdGarageUsuario(usuario);
   if (idGarage === undefined || idGarage === null || idGarage === "") return "Sin garage";
 
-  return garagesMap[Number(idGarage)] || `Garage ${idGarage}`;
+  return garagesMap[Number(idGarage)] || "Garage";
 };
 
 const completarGarageUsuario = (usuario, garagesPorUsuario) => {
@@ -272,7 +272,7 @@ const GestionEmpleados = () => {
           if (idLimpio !== undefined && idLimpio !== null) {
             const idGarage = Number(idLimpio);
             idsGarages.push(idGarage);
-            mapaDeGarajesIndexado[idGarage] = g.nombre || g.descripcion || `Garage ${idLimpio}`;
+            mapaDeGarajesIndexado[idGarage] = g.nombre || g.name || g.descripcion || g.ubicacion || g.nombre_garage || g.garage_nombre || "Garage";
           }
         });
         setGaragesMap(mapaDeGarajesIndexado);

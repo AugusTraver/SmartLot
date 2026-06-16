@@ -154,6 +154,22 @@
   border-radius: inherit;
 }
 
+.garage-dias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.garage-dia-pill {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #156fe5;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid #dbeafe;
+}
+
 @media (max-width: 480px) {
   .garage-media {
     height: 165px;

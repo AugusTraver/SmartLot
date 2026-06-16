@@ -1,11 +1,24 @@
 import { useState } from 'react';
 import "./formulario_zona.css";
+import { DIAS_SEMANA } from "../helpers/diasSemana";
 
 function FormularioZona({
     formData,
     onChange,
     sedes = []
 }) {
+
+  const toggleDia = (diaApi) => {
+    const current = formData.dias || [];
+    const index = current.indexOf(diaApi);
+    let nuevos;
+    if (index >= 0) {
+      nuevos = current.filter(d => d !== diaApi);
+    } else {
+      nuevos = [...current, diaApi];
+    }
+    onChange('dias', nuevos);
+  };
 
     const [isOpenSede, setIsOpenSede] = useState(false);
 
@@ -111,6 +124,25 @@ function FormularioZona({
                         />
                         <label>Hora de cierre</label>
                     </div>
+                </div>
+
+                <div className="dias-semana-section">
+                  <label className="dias-semana-label">Días operativos</label>
+                  <div className="dias-semana-grid">
+                    {DIAS_SEMANA.map((dia) => {
+                      const seleccionado = (formData.dias || []).includes(dia.api);
+                      return (
+                        <label key={dia.api} className={`dia-chip ${seleccionado ? 'dia-seleccionado' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={seleccionado}
+                            onChange={() => toggleDia(dia.api)}
+                          />
+                          <span>{dia.display}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
             </div>
         </div>

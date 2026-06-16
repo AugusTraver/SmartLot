@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Z_INDEX } from '../helpers/zIndex';
+import { mensajeToast } from '../helpers/erroresMensajes';
 import { navigateTo } from './navigation';
 
 const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
@@ -16,7 +17,7 @@ function showToast(message, icon = 'error') {
     toast: true,
     position: 'top-end',
     icon,
-    title: message,
+    title: mensajeToast(message),
     showConfirmButton: false,
     timer: 4000,
     timerProgressBar: true,

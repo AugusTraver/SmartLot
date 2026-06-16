@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Car, Clock, Plus, Warehouse } from "lucide-react";
 import "./form_reserva.css";
+import { getDiaDesdeFecha, getDiaDisplay } from "../helpers/diasSemana";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -13,8 +14,10 @@ const obtenerEtiquetaVehiculo = (vehiculo) => {
   return patente ? `${nombre} (${patente})` : nombre;
 };
 
-const obtenerEtiquetaGarage = (garage) =>
-  garage?.nombre || garage?.descripcion || `Garage ${obtenerIdGarage(garage)}`;
+const obtenerEtiquetaGarage = (garage) => {
+  const nombre = garage?.nombre || garage?.name || garage?.descripcion || garage?.ubicacion || garage?.nombre_garage || garage?.garage_nombre || garage?.nombre_zona || garage?.direccion;
+  return nombre || "Garage";
+};
 
 const obtenerFechaLocalHoy = () => {
   const hoy = new Date();
@@ -39,6 +42,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     horaFin: preferences.horaFin || "",
     idGarage: garages.length === 1 ? String(obtenerIdGarage(garages[0])) : "",
     idVehiculo: preferences.vehiculoPredeterminado || "",
+    dia: "",
   });
 
   const garageSeleccionadoObj = garages.find(
@@ -54,6 +58,14 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    const diaApi = getDiaDesdeFecha(formData.fecha);
+    setFormData((prev) => {
+      if (prev.dia === diaApi) return prev;
+      return { ...prev, dia: diaApi };
+    });
+  }, [formData.fecha]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +97,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
       id_garage: parseInt(formData.idGarage, 10),
       idVehiculo: parseInt(formData.idVehiculo, 10),
       id_vehiculo: parseInt(formData.idVehiculo, 10),
+      dia: formData.dia,
       _metaData: {
         fecha: formData.fecha,
         horaInicio: formData.horaInicio,
@@ -148,6 +161,13 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
             </div>
           </div>
         </div>
+
+        {formData.dia && (
+          <div className="dia-indicador-reserva">
+            <span className="dia-indicador-label">Día de la reserva</span>
+            <span className="dia-indicador-valor">{getDiaDisplay(formData.dia)}</span>
+          </div>
+        )}
 
         <div className="form-field-group">
           <label className="form-field-label" htmlFor="idGarage">Garage</label>

@@ -598,6 +598,61 @@
   }
 }
 
+.dias-semana-section {
+  margin-top: 0.5rem;
+}
+
+.dias-semana-label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.dias-semana-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+}
+
+.dia-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.dia-chip input[type="checkbox"] {
+  display: none;
+}
+
+.dia-chip:hover {
+  background: #e2e8f0;
+}
+
+.dia-chip.dia-seleccionado {
+  background: #156fe5;
+  color: #ffffff;
+  border-color: #156fe5;
+  box-shadow: 0 4px 12px rgba(21, 111, 229, 0.25);
+}
+
+.dia-chip.dia-seleccionado:hover {
+  background: #1054b1;
+}
+
 .btn-agregar-garajista-zona {
   padding: 0.5rem 1rem !important;
   font-size: 0.85rem !important;
