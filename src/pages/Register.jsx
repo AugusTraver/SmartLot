@@ -42,23 +42,23 @@ export default function Register() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} autoComplete="off">
       <h1>Registro</h1>
 
       <input name="nombre" placeholder="Nombre" value={form.nombre}
-             onChange={handleChange} />
+             onChange={handleChange} autoComplete="off" />
       {errors.nombre && <span className="field-error">{errors.nombre}</span>}
 
       <input name="apellido" placeholder="Apellido" value={form.apellido}
-             onChange={handleChange} />
+             onChange={handleChange} autoComplete="off" />
       {errors.apellido && <span className="field-error">{errors.apellido}</span>}
 
       <input name="email" type="email" placeholder="Email" value={form.email}
-             onChange={handleChange} />
+             onChange={handleChange} autoComplete="off" />
       {errors.email && <span className="field-error">{errors.email}</span>}
 
       <input name="contraseña" type="password" placeholder="Contraseña"
-             value={form.contraseña} onChange={handleChange} />
+             value={form.contraseña} onChange={handleChange} autoComplete="new-password" />
       <PasswordStrength password={form.contraseña} />
       {errors.contraseña && <span className="field-error">{errors.contraseña}</span>}
 

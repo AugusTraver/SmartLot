@@ -146,6 +146,7 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
                 className="modal-reserva-time-input"
                 value={horaInicio === "--:--" ? "" : horaInicio}
                 onChange={(e) => setHoraInicio(e.target.value)}
+                autoComplete="off"
               />
             </div>
             <div className="modal-reserva-time-group">
@@ -156,6 +157,7 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
                 className="modal-reserva-time-input"
                 value={horaFin === "--:--" ? "" : horaFin}
                 onChange={(e) => setHoraFin(e.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>
