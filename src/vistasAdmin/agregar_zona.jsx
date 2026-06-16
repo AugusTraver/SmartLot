@@ -204,7 +204,7 @@ function AgregarZona() {
           </button>
 
           <div className="info-top">
-            <p>NUEVA ZONA</p>
+            <p>AGREGAR GARAGE</p>
             <h1>Nuevo Garage</h1>
             <span>Configura los detalles de la nueva zona de estacionamiento.</span>
           </div>

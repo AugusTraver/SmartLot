@@ -561,7 +561,7 @@ const GestionEmpleados = () => {
               <ArrowLeft size={24} />
             </button>
             <div className="textos-titulos">
-              <h1 className="titulo-vista">Gestión de Empleados</h1>
+              <h1 className="titulo-vista">Gestión de Usuarios</h1>
               <p className="subtitulo-vista">
                 Administra todo el personal.
               </p>

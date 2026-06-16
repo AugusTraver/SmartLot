@@ -49,9 +49,6 @@ export default function Auth() {
         <LoginForm />
       </div>
 
-      {/* ─── DIVISOR MINIMALISTA ─── */}
-      {/* Una simple línea gris súper clara (slate-100) */}
-      <div className="hidden md:block absolute left-1/2 top-[10%] bottom-[10%] w-[1px] z-20 bg-slate-100" />
 
       {/* ─── LADO DERECHO: BRAND PANEL (BLANCO) ─── */}
       <div className="w-full md:w-1/2 min-h-screen relative z-0">

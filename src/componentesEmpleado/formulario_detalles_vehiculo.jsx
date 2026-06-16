@@ -59,7 +59,7 @@ export default function FormularioDetallesVehiculo({ vehiculos = [], onVehiculoE
             const marca = vehiculo?.marca?.nombre ?? vehiculo?.marca_nombre ?? vehiculo?.marca ?? "";
             const modelo = vehiculo?.modelo?.nombre ?? vehiculo?.modelo_nombre ?? vehiculo?.modelo ?? "";
             const patente = vehiculo?.patente ?? vehiculo?.placa ?? vehiculo?.matricula ?? "";
-            const nombreCompleto = [marca, modelo].filter(Boolean).join(" ").trim() || modelo || "Vehículo";
+            const nombreCompleto = [marca, modelo].filter(Boolean).join(" ").trim();
             return (
               <div
                 key={vehiculo.id ?? vehiculo.id_vehiculo ?? index}
