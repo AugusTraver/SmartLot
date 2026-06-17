@@ -72,6 +72,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
             value={data.telefono || ""}
             onChange={onChange}
             autoComplete="off"
+            required
           />
         </div>
       </div>

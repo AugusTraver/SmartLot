@@ -85,6 +85,7 @@ function FormularioCapacidad({ formData = {}, onChange }) {
                 const value = parseInt(e.target.value, 10);
                 handleUpdate("capacidad_reservas", Number.isNaN(value) ? 0 : value);
               }}
+              required
             />
 
             <button
@@ -129,6 +130,7 @@ function FormularioCapacidad({ formData = {}, onChange }) {
                 const value = parseInt(e.target.value, 10);
                 handleUpdate("capacidad_para_no_reservas", Number.isNaN(value) ? 0 : value);
               }}
+              required
             />
 
             <button

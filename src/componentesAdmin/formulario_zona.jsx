@@ -44,6 +44,7 @@ function FormularioZona({
                     value={formData.nombre || ''}
                     onChange={(e) => onChange('nombre', e.target.value)}
                     autoComplete="off"
+                    required
                 />
                     <label>Nombre del garage</label>
                 </div>
@@ -56,6 +57,7 @@ function FormularioZona({
                             value={formData.piso ?? ''}
                             onChange={(e) => onChange('piso', e.target.value === '' ? '' : e.target.value)}
                             autoComplete="off"
+                            required
                         />
                         <label>Nivel / Planta</label>
                     </div>
@@ -106,6 +108,7 @@ function FormularioZona({
                         value={formData.ubicacion || ''}
                         onChange={(e) => onChange('ubicacion', e.target.value)}
                         autoComplete="off"
+                        required
                     />
                     <label>Ubicacion</label>
                 </div>
@@ -123,6 +126,7 @@ function FormularioZona({
                             }}
                             disabled={es24Horas}
                             autoComplete="off"
+                            required={!es24Horas}
                         />
                         <label>Hora de apertura</label>
                     </div>
@@ -139,6 +143,7 @@ function FormularioZona({
                             }}
                             disabled={es24Horas}
                             autoComplete="off"
+                            required={!es24Horas}
                         />
                         <label>Hora de cierre</label>
                     </div>

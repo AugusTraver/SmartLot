@@ -214,3 +214,19 @@ body[style*="padding-right"] {
   padding: 40px 4%;
   box-sizing: border-box;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Required field indicator — red asterisk (excluye auth forms)
+   ═══════════════════════════════════════════════════════════════════ */
+.input-group label::after,
+.input-group-superadmin label::after,
+.formulario-grupo label::after,
+.form-field-label::after,
+.campo-formulario label::after,
+.vehiculo-input-grupo label::after,
+.modal-reserva-time-group label::after {
+  content: " *";
+  color: #ef4444;
+  font-size: 0.75em;
+}
+

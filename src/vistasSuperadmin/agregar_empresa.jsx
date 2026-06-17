@@ -63,6 +63,7 @@ function AgregarEmpresa() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               autoComplete="off"
+              required
             />
           </div>
 
@@ -74,6 +75,7 @@ function AgregarEmpresa() {
               onChange={(e) => setDescripcion(e.target.value)}
               rows={4}
               autoComplete="off"
+              required
             />
           </div>
 

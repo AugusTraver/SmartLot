@@ -36,6 +36,7 @@ function FormularioInfoPersonal({
                     value={formData.nombre}
                     onChange={(e) => onChange('nombre', e.target.value)}
                     autoComplete="off"
+                    required
                 />
                 <label>{labels.nombre}</label>
             </div>
@@ -46,6 +47,7 @@ function FormularioInfoPersonal({
                     value={formData.apellido}
                     onChange={(e) => onChange('apellido', e.target.value)}
                     autoComplete="off"
+                    required
                 />
                 <label>{labels.apellido}</label>
             </div>
@@ -56,6 +58,7 @@ function FormularioInfoPersonal({
                     value={formData.email}
                     onChange={(e) => onChange('email', e.target.value)}
                     autoComplete="off"
+                    required
                 />
                 <label>{labels.email}</label>
             </div>
@@ -67,6 +70,7 @@ function FormularioInfoPersonal({
                     value={formData.telefono}
                     onChange={(e) => onChange('telefono', e.target.value)}
                     autoComplete="off"
+                    required
                 />
                 <label>{labels.telefono}</label>
             </div>
@@ -78,6 +82,7 @@ function FormularioInfoPersonal({
                     value={formData.contraseña}
                     onChange={(e) => onChange('contraseña', e.target.value)}
                     autoComplete="new-password"
+                    required
                 />
                 <label>{labels.contraseña}</label>
             </div>

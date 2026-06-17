@@ -213,6 +213,7 @@ function AgregarUsuario() {
                 value={formData.nombre}
                 onChange={(e) => handleChange("nombre", e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -224,6 +225,7 @@ function AgregarUsuario() {
                 value={formData.apellido}
                 onChange={(e) => handleChange("apellido", e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -235,6 +237,7 @@ function AgregarUsuario() {
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -246,6 +249,7 @@ function AgregarUsuario() {
                 value={formData.telefono}
                 onChange={(e) => handleChange("telefono", e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -257,6 +261,7 @@ function AgregarUsuario() {
                 value={formData.contraseña}
                 onChange={(e) => handleChange("contraseña", e.target.value)}
                 autoComplete="new-password"
+                required
               />
             </div>
 
@@ -266,6 +271,7 @@ function AgregarUsuario() {
                 value={formData.id_rol}
                 onChange={(e) => handleChange("id_rol", e.target.value)}
                 autoComplete="off"
+                required
               >
                 <option value="">Seleccionar rol...</option>
                 {ROLE_OPTIONS.map((rol) => (
@@ -283,6 +289,7 @@ function AgregarUsuario() {
                   value={formData.id_empresa}
                   onChange={(e) => handleChange("id_empresa", e.target.value)}
                   autoComplete="off"
+                  required={needsEmpresa}
                 >
                   <option value="">Seleccionar empresa...</option>
                   {empresas.map((emp) => (
@@ -302,6 +309,7 @@ function AgregarUsuario() {
                   onChange={(e) => handleChange("id_sede", e.target.value)}
                   disabled={!formData.id_empresa}
                   autoComplete="off"
+                  required={needsSede}
                 >
                   <option value="">
                     {formData.id_empresa ? "Seleccionar sede..." : "Primero elige una empresa"}
@@ -326,6 +334,7 @@ function AgregarUsuario() {
                   onChange={(e) => handleChange("id_garage", e.target.value)}
                   disabled={!formData.id_sede}
                   autoComplete="off"
+                  required={needsGarage}
                 >
                   <option value="">
                     {formData.id_sede ? "Seleccionar garage..." : "Primero elige una sede"}

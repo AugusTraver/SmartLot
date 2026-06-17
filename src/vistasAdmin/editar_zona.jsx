@@ -411,6 +411,7 @@ function EditarZona() {
                 value={nombreGarage}
                 onChange={(e) => setNombreGarage(e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -422,6 +423,7 @@ function EditarZona() {
                 onChange={(e) => setPiso(e.target.value)}
                 placeholder="Ej: Piso 1, Subsuelo"
                 autoComplete="off"
+                required
               />
             </div>
 
@@ -433,6 +435,7 @@ function EditarZona() {
                 value={ubicacion}
                 onChange={(e) => setUbicacion(e.target.value)}
                 autoComplete="off"
+                required
               />
             </div>
           </section>
@@ -457,6 +460,7 @@ function EditarZona() {
                   }}
                   disabled={es24Horas}
                   autoComplete="off"
+                  required={!es24Horas}
                 />
               </div>
 
@@ -471,6 +475,7 @@ function EditarZona() {
                   }}
                   disabled={es24Horas}
                   autoComplete="off"
+                  required={!es24Horas}
                 />
               </div>
 

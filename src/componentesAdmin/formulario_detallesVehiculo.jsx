@@ -16,17 +16,18 @@ function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleDat
              <h2>{detallesVehiculoTitulo}</h2>
          </div>
          
-         <div className="input-group">
-           <input type="text" placeholder="ABC123" value={vehicleData.patente} onChange={(e) => onChange('patente', e.target.value)} />
-           <label>{labels.patente}</label>
-         </div>
+          <div className="input-group">
+            <input type="text" placeholder="ABC123" value={vehicleData.patente} onChange={(e) => onChange('patente', e.target.value)} required />
+            <label>{labels.patente}</label>
+          </div>
  
          <div className={`input-group${vehicleData.id_modelo ? ' has-value' : ''}`}>
-           <select
-             value={vehicleData.id_modelo ?? ''}
-             onChange={handleModeloChange}
-           >
-             <option value=""></option>
+            <select
+              value={vehicleData.id_modelo ?? ''}
+              onChange={handleModeloChange}
+              required
+            >
+              <option value=""></option>
              {modelos && modelos.map((m) => (
                <option key={m.id} value={m.id}>{getDisplayName(m)}</option>
              ))}
