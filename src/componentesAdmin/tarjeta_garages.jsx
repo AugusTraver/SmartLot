@@ -11,6 +11,8 @@ function TarjetaGarage({
   imagen,
   ultimoReporte,
   onClick,
+  empresaNombre,
+  sedeNombre,
 }) {
   const estaAbierto = estado?.toLowerCase() === "abierto";
 
@@ -54,6 +56,13 @@ function TarjetaGarage({
             <Clock size={17} />
             {ultimoReporte}
           </span>
+
+          {empresaNombre && sedeNombre && (
+            <span className="garage-badges">
+              <span className="badge-empresa">{empresaNombre}</span>
+              <span className="badge-sede">{sedeNombre}</span>
+            </span>
+          )}
         </div>
 
         {Array.isArray(dias) && dias.length > 0 && (

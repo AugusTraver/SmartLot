@@ -165,10 +165,10 @@ function SuperadminDashboard() {
               </div>
               <div className="superadmin-stagger-card">
                 <SuperadminDashboardBoton
-                  icono={<LayoutDashboard />}
-                  titulo="Panel de Control"
-                  descripcion="Información de vital importancia"
-                  onClick={() => navigate("/superadmin_dashboard")}
+                  icono={<Car />}
+                  titulo="Gestión de Garages"
+                  descripcion="Administrar todos los garages del sistema"
+                  onClick={() => navigate("/superadmin/gestion_garages")}
                 />
               </div>
             </div>

@@ -170,6 +170,34 @@
   border: 1px solid #dbeafe;
 }
 
+.garage-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.15rem;
+}
+
+.badge-empresa {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid #fde68a;
+}
+
+.badge-sede {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid #bfdbfe;
+}
+
 @media (max-width: 480px) {
   .garage-media {
     height: 165px;

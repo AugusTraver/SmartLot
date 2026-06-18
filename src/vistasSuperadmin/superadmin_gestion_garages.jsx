@@ -1,0 +1,326 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, CirclePlus, MapPinned, BarChart3 } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
+import "./superadmin_dashboard.css";
+import "./superadmin_gestion_garages.css";
+import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
+import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
+import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
+import { GaragesGetAll } from "../servicies/API_Garage";
+import { SedesGetAll } from "../servicies/API_Sede";
+import { EmpresasGetAll } from "../servicies/API_Empresa";
+import fotoGarage1 from "../Imagenes/Garage1.jpg";
+import fotoGarage2 from "../Imagenes/Garage2.jpg";
+import fotoGarage3 from "../Imagenes/Garage3.jpg";
+
+gsap.registerPlugin(useGSAP);
+
+const imagenesGarage = [fotoGarage1, fotoGarage2, fotoGarage3];
+
+const obtenerListado = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.garages)) return datos.garages;
+  if (Array.isArray(datos?.value)) return datos.value;
+  return [];
+};
+
+const obtenerEstadoGarage = (estado) => {
+  if (typeof estado === "boolean") return estado ? "Abierto" : "Cerrado";
+  if (typeof estado === "number") return estado === 1 ? "Abierto" : "Cerrado";
+  if (typeof estado === "string") {
+    const estadoNormalizado = estado.toLowerCase();
+    return ["true", "activo", "abierto", "1"].includes(estadoNormalizado)
+      ? "Abierto"
+      : "Cerrado";
+  }
+  return "Abierto";
+};
+
+const obtenerOcupacion = (garage) =>
+  Number(garage.ocupacion_reservas || 0) +
+  Number(garage.ocupacion_no_reservas || 0);
+
+const obtenerCapacidadPorcentaje = (garage) => {
+  const capacidad = Number(garage.capacidad || 0);
+  if (capacidad <= 0) return "0%";
+  const porcentaje = Math.min(
+    100,
+    Math.round((obtenerOcupacion(garage) / capacidad) * 100)
+  );
+  return `${porcentaje}%`;
+};
+
+const obtenerIdGarage = (garage, index) =>
+  garage.id_garage ?? garage.idGarage ?? garage.id ?? garage._id ?? index;
+
+const GarageSkeletonGrid = () => (
+  <div className="contenedor-tarjetas" aria-label="Cargando garages">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <article className="tarjeta-garage-skeleton" key={index}>
+        <div className="skeleton-media">
+          <span className="skeleton-pill" />
+        </div>
+        <div className="skeleton-content">
+          <div className="skeleton-header">
+            <span className="skeleton-line skeleton-title" />
+            <span className="skeleton-button" />
+          </div>
+          <div className="skeleton-meta">
+            <span className="skeleton-line skeleton-meta-item" />
+            <span className="skeleton-line skeleton-meta-item skeleton-meta-short" />
+          </div>
+          <div className="skeleton-capacity">
+            <div className="skeleton-capacity-label">
+              <span className="skeleton-line skeleton-label" />
+              <span className="skeleton-line skeleton-percent" />
+            </div>
+            <span className="skeleton-bar" />
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+);
+
+const GarageStatsSkeleton = () => (
+  <section className="stats-container" aria-label="Cargando resumen de garages">
+    {Array.from({ length: 2 }).map((_, index) => (
+      <div className="stats-card stats-card-skeleton" key={index}>
+        <div className="stats-header">
+          <span className="skeleton-line skeleton-stat-label" />
+          <span className="skeleton-stat-icon" />
+        </div>
+        <span className="skeleton-line skeleton-stat-value" />
+        <span className="skeleton-line skeleton-stat-description" />
+      </div>
+    ))}
+  </section>
+);
+
+const GarageActionSkeleton = () => (
+  <section className="garages-actions" aria-label="Cargando acciones de garages">
+    <span className="btn-nueva-zona-skeleton" />
+  </section>
+);
+
+function SuperadminGestionGarages() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [garages, setGarages] = useState([]);
+  const [sedes, setSedes] = useState([]);
+  const [empresas, setEmpresas] = useState([]);
+  const [empresaFilter, setEmpresaFilter] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      setLoading(true);
+
+      const [garagesRes, sedesRes, empresasRes] = await Promise.all([
+        GaragesGetAll(),
+        SedesGetAll(),
+        EmpresasGetAll(),
+      ]);
+
+      if (!mounted) return;
+
+      if (garagesRes.respuesta) {
+        setGarages(obtenerListado(garagesRes.datos));
+      }
+      if (sedesRes.respuesta) {
+        setSedes(obtenerListado(sedesRes.datos));
+      }
+      if (empresasRes.respuesta) {
+        setEmpresas(obtenerListado(empresasRes.datos));
+      }
+
+      setLoading(false);
+    };
+
+    loadData();
+    return () => { mounted = false; };
+  }, []);
+
+  const sedeMap = {};
+  sedes.forEach((s) => {
+    const id = s.id ?? s.id_sede ?? s.idSede;
+    if (id != null) {
+      sedeMap[Number(id)] = {
+        nombre: s.nombre || s.name || "Sede sin nombre",
+        idEmpresa: Number(s.id_empresa ?? s.idEmpresa),
+      };
+    }
+  });
+
+  const empresaMap = {};
+  empresas.forEach((e) => {
+    const id = e.id ?? e.id_empresa ?? e.idEmpresa;
+    if (id != null) {
+      empresaMap[Number(id)] = e.nombre || e.name || "Empresa sin nombre";
+    }
+  });
+
+  const garagesConInfo = garages.map((g) => {
+    const idSede = Number(g.id_sede ?? g.idSede);
+    const sedeInfo = sedeMap[idSede] || {};
+    const idEmpresa = sedeInfo.idEmpresa;
+    return {
+      ...g,
+      _sedeNombre: sedeInfo.nombre || "Sede desconocida",
+      _empresaNombre: idEmpresa ? (empresaMap[idEmpresa] || "Empresa desconocida") : "Empresa desconocida",
+      _idEmpresa: idEmpresa,
+    };
+  });
+
+  const garagesFiltrados = empresaFilter
+    ? garagesConInfo.filter((g) => g._idEmpresa === Number(empresaFilter))
+    : garagesConInfo;
+
+  const ocupacionMedia =
+    garagesFiltrados.length > 0
+      ? Math.round(
+          garagesFiltrados.reduce((total, garage) => {
+            const capacidad = Number(garage.capacidad || 0);
+            if (capacidad <= 0) return total;
+            return total + (obtenerOcupacion(garage) / capacidad) * 100;
+          }, 0) / garagesFiltrados.length
+        )
+      : 0;
+
+  useGSAP(() => {
+    if (!loading) {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
+      tl.from(".superadmin-stagger-title", { y: 24, opacity: 0 })
+        .from(".superadmin-stagger-stat", { y: 18, opacity: 0, stagger: 0.08 }, "-=0.3")
+        .from(".superadmin-stagger-card", { y: 24, opacity: 0, stagger: 0.1 }, "-=0.3");
+    }
+  }, { dependencies: [loading] });
+
+  return (
+    <>
+      <HeaderSuperadmin />
+      <div className="superadmin-dashboard">
+        {loading ? (
+          <>
+            <div className="superadmin-dashboard-header">
+              <span className="skeleton-line skeleton-title" />
+              <span className="skeleton-line skeleton-subtitle" />
+            </div>
+            <GarageActionSkeleton />
+            <GarageStatsSkeleton />
+            <GarageSkeletonGrid />
+          </>
+        ) : (
+          <>
+            <div className="gestion-garages-top superadmin-stagger-title">
+              <button className="boton-back" onClick={() => navigate("/superadmin_dashboard")}>
+                <ArrowLeft size={20} />
+              </button>
+              <div>
+                <p>CONTROL DE GARAGES</p>
+                <h1>Gestión de Garages</h1>
+              </div>
+            </div>
+
+            <section className="garages-actions superadmin-stagger-stat">
+              <button
+                className="btn-nueva-zona"
+                onClick={() => navigate("/agregar_zona")}
+              >
+                <CirclePlus size={20} />
+                <span>Nuevo Garage</span>
+              </button>
+            </section>
+
+            <section className="stats-container superadmin-stagger-stat">
+              <div className="stats-card">
+                <div className="stats-header">
+                  <h4>Total garages</h4>
+                  <span className="stats-icon">
+                    <MapPinned size={24} />
+                  </span>
+                </div>
+                <h2>{garagesFiltrados.length}</h2>
+                <p>Registradas en la base de datos</p>
+              </div>
+              <div className="stats-card">
+                <div className="stats-header">
+                  <h4>Ocupación media</h4>
+                  <span className="stats-icon">
+                    <BarChart3 size={24} />
+                  </span>
+                </div>
+                <h2>{`${ocupacionMedia}%`}</h2>
+                <p>Calculada sobre la capacidad total</p>
+              </div>
+            </section>
+
+            <section className="gestion-garages-container">
+              <div className="garages-section-heading superadmin-stagger-title">
+                <h2 className="titulo-garages">Listado de Garages</h2>
+                <p className="subtitulo-garages">
+                  Administra los garages disponibles, revisa su estado y actualiza su
+                  capacidad en tiempo real.
+                </p>
+              </div>
+
+              <div className="filter-container superadmin-stagger-stat">
+                <label htmlFor="filter-empresa">Filtrar por empresa:</label>
+                <select
+                  id="filter-empresa"
+                  className="filter-select"
+                  value={empresaFilter}
+                  onChange={(e) => setEmpresaFilter(e.target.value)}
+                >
+                  <option value="">Todas las empresas</option>
+                  {empresas.map((emp) => {
+                    const id = emp.id ?? emp.id_empresa ?? emp.idEmpresa;
+                    const nombre = emp.nombre || emp.name || "Sin nombre";
+                    return (
+                      <option key={id} value={id}>
+                        {nombre}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {garagesFiltrados.length === 0 && (
+                <p className="garages-feedback">No hay garages para la empresa seleccionada.</p>
+              )}
+
+              {garagesFiltrados.length > 0 && (
+                <div className="contenedor-tarjetas superadmin-stagger-card">
+                  {garagesFiltrados.map((garage, index) => (
+                    <TarjetaGarage
+                      key={obtenerIdGarage(garage, index)}
+                      titulo={garage.nombre || "Garage sin nombre"}
+                      plazas={Number(garage.capacidad || 0)}
+                      estado={obtenerEstadoGarage(garage.estado)}
+                      capacidad={obtenerCapacidadPorcentaje(garage)}
+                      dias={garage.dias}
+                      ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
+                      imagen={imagenesGarage[index % imagenesGarage.length]}
+                      empresaNombre={garage._empresaNombre}
+                      sedeNombre={garage._sedeNombre}
+                      onClick={() => navigate("/editar_zona", { state: { garage } })}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </div>
+      <FooterSuperadmin />
+    </>
+  );
+}
+
+export default SuperadminGestionGarages;
