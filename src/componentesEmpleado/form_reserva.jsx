@@ -27,7 +27,7 @@ const obtenerFechaLocalHoy = () => {
   return `${year}-${month}-${day}`;
 };
 
-export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [] }) {
+export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [], initialData }) {
   const preferences = (() => {
     try {
       return JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
@@ -38,10 +38,14 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fecha: "",
-    horaInicio: preferences.horaInicio || "",
-    horaFin: preferences.horaFin || "",
-    idGarage: garages.length === 1 ? String(obtenerIdGarage(garages[0])) : "",
-    idVehiculo: preferences.vehiculoPredeterminado || "",
+    horaInicio: initialData?.horaInicio || preferences.horaInicio || "",
+    horaFin: initialData?.horaFin || preferences.horaFin || "",
+    idGarage: initialData?.idGarage
+      ? String(initialData.idGarage)
+      : (garages.length === 1 ? String(obtenerIdGarage(garages[0])) : ""),
+    idVehiculo: initialData?.idVehiculo
+      ? String(initialData.idVehiculo)
+      : (preferences.vehiculoPredeterminado || ""),
     dia: "",
   });
 

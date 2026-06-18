@@ -448,79 +448,75 @@ function EditarZona() {
               <h3>Horario operativo</h3>
             </div>
 
-            <div className="campos-grid" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <div className="campo-formulario" style={{ flex: '1 1 140px' }}>
-                <label>Hora de apertura</label>
-                <input
-                  type="time"
-                  value={horaApertura}
-                  onChange={(e) => {
-                    setHoraApertura(e.target.value);
-                    if (es24Horas) setEs24Horas(false);
-                  }}
-                  disabled={es24Horas}
-                  autoComplete="off"
-                  required={!es24Horas}
-                />
+            <div className="horario-grid">
+              <div className="horario-field">
+                <label className="horario-label">
+                  <Clock size={14} />
+                  Hora de apertura
+                </label>
+                <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
+                  <input
+                    type="time"
+                    value={horaApertura}
+                    onChange={(e) => {
+                      setHoraApertura(e.target.value);
+                      if (es24Horas) setEs24Horas(false);
+                    }}
+                    disabled={es24Horas}
+                    required={!es24Horas}
+                  />
+                </div>
               </div>
 
-              <div className="campo-formulario" style={{ flex: '1 1 140px' }}>
-                <label>Hora de cierre</label>
-                <input
-                  type="time"
-                  value={horaCierre}
-                  onChange={(e) => {
-                    setHoraCierre(e.target.value);
-                    if (es24Horas) setEs24Horas(false);
-                  }}
-                  disabled={es24Horas}
-                  autoComplete="off"
-                  required={!es24Horas}
-                />
+              <div className="horario-divider">
+                <ArrowLeft size={14} />
               </div>
 
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '0.85rem',
-                  fontWeight: 500,
-                  color: '#475569',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  paddingBottom: '12px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={es24Horas}
-                  onChange={(e) => {
-                    const marcado = e.target.checked;
-                    setEs24Horas(marcado);
-                    if (marcado) {
-                      setHoraApertura('00:00');
-                      setHoraCierre('23:59');
-                    } else {
-                      setHoraApertura('');
-                      setHoraCierre('');
-                    }
-                  }}
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: '#2563eb',
-                    cursor: 'pointer',
-                  }}
-                />
-                Abierto 24 horas
+              <div className="horario-field">
+                <label className="horario-label">
+                  <Clock size={14} />
+                  Hora de cierre
+                </label>
+                <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
+                  <input
+                    type="time"
+                    value={horaCierre}
+                    onChange={(e) => {
+                      setHoraCierre(e.target.value);
+                      if (es24Horas) setEs24Horas(false);
+                    }}
+                    disabled={es24Horas}
+                    required={!es24Horas}
+                  />
+                </div>
+              </div>
+
+              <label className="toggle-24hs">
+                <span className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={es24Horas}
+                    onChange={(e) => {
+                      const marcado = e.target.checked;
+                      setEs24Horas(marcado);
+                      if (marcado) {
+                        setHoraApertura('00:00');
+                        setHoraCierre('23:59');
+                      } else {
+                        setHoraApertura('');
+                        setHoraCierre('');
+                      }
+                    }}
+                  />
+                  <span className="toggle-slider" />
+                </span>
+                <span className="toggle-text">Abierto 24 horas</span>
               </label>
             </div>
 
             <div className="dops-panel">
               <div className="dops-header">
-                <span className="dops-title">Días de operación</span>
+                <span className="dops-title">Días operativos</span>
               </div>
 
               <div className="dops-grid">
@@ -636,7 +632,7 @@ function EditarZona() {
                 </div>
 
                 <h4>Capacidad Reservas</h4>
-                <p>Ubicaciones para usuarios con reserva.</p>
+                <p>Plazas para usuarios con reserva.</p>
 
                 <div className="contador">
                   <button

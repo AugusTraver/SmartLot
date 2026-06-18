@@ -1,8 +1,8 @@
 // src/componentesEmpleado/tarjeta_reserva.jsx
-import { Car } from "lucide-react";
+import { Car, Copy } from "lucide-react";
 import "./tarjeta_reserva.css";
 
-function TarjetaReserva({ reserva, onClick }) {
+function TarjetaReserva({ reserva, onClick, onCopy }) {
   if (!reserva) return null;
 
   const fechaFormateada = reserva.fecha
@@ -50,9 +50,20 @@ function TarjetaReserva({ reserva, onClick }) {
           )}
         </div>
 
-        {/* Contenedor de la Flecha (Derecha) */}
-        <div className="empleado-reserva-icon" aria-hidden="true">
-          <span>&gt;</span>
+        {/* Acciones (Derecha) */}
+        <div className="empleado-reserva-actions">
+          <button
+            type="button"
+            className="empleado-reserva-copy-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCopy?.(reserva);
+            }}
+            aria-label="Copiar reserva para otro dia"
+          >
+            <Copy size={16} />
+          </button>
+          <span className="empleado-reserva-arrow" aria-hidden="true">&gt;</span>
         </div>
       </button>
     </section>

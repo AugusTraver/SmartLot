@@ -775,10 +775,72 @@
   transform: translateY(0) scale(0.98);
 }
 
-.empleado-nueva-reserva-btn:focus-visible,
-.empleado-reservas-header button:focus-visible {
+.empleado-nueva-reserva-btn:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.24);
   outline-offset: 4px;
+}
+
+.empleado-reservas-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #dbe5f1;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #2563eb;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.empleado-reservas-toggle:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.empleado-reservas-toggle:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.24);
+  outline-offset: 4px;
+}
+
+.empleado-reservas-toggle-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  transition: transform 0.25s ease, background 0.2s ease;
+  transform: rotate(0deg);
+  flex-shrink: 0;
+}
+
+.empleado-reservas-toggle--open .empleado-reservas-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.empleado-reservas-rest {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin-top: 0;
+}
+
+.empleado-reservas-rest--open {
+  max-height: 2000px;
+  opacity: 1;
+  margin-top: 10px;
 }
 
 @media (max-width: 380px) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { ArrowLeft } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
@@ -130,7 +130,9 @@ const NuevaReservaSkeleton = () => (
 
 const NuevaReserva = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { usuario } = useAuth();
+  const copiaReserva = location.state?.copiaReserva || null;
   const [loading, setLoading] = useState(false);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
   const [vehiculos, setVehiculos] = useState([]);
@@ -310,6 +312,7 @@ const NuevaReserva = () => {
                 loading={loading}
                 vehiculos={vehiculos}
                 garages={garages}
+                initialData={copiaReserva}
               />
             )}
           </section>

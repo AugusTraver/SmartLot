@@ -298,7 +298,7 @@ function EmpleadoDashboard() {
   const [marcas, setMarcas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [mostrarTodas, setMostrarTodas] = useState(false);
+  const [deployableOpen, setDeployableOpen] = useState(false);
   const [reservaEditando, setReservaEditando] = useState(null);
   const [reservaNormEditando, setReservaNormEditando] = useState(null);
   const [horaSeleccionada, setHoraSeleccionada] = useState("");
@@ -477,7 +477,9 @@ function EmpleadoDashboard() {
       .sort((a, b) => `${a.fecha} ${a.horario}`.localeCompare(`${b.fecha} ${b.horario}`));
   }, [reservas, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId]);
 
-  const reservasVisibles = mostrarTodas ? reservasNormalizadas : reservasNormalizadas.slice(0, 3);
+  const reservaPrincipal = reservasNormalizadas[0] || null;
+  const restoReservas = reservasNormalizadas.slice(1);
+  const tieneResto = restoReservas.length > 0;
   const capacidadReservas = Number(garageUsuario?.capacidad_reservas || 0);
   const capacidadNoReservas = Number(garageUsuario?.capacidad_para_no_reservas || 0);
   const ocupacionReservas = Number(garageUsuario?.ocupacion_reservas || 0);
@@ -529,6 +531,22 @@ function EmpleadoDashboard() {
     }
   };
 
+  const handleCopyReserva = (reservaNorm) => {
+    const raw = reservasRawPorId.get(reservaNorm.id);
+    if (!raw) return;
+
+    const horaInicio = extraerHoraLocal(obtenerCampo(raw, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]));
+    const horaFin = extraerHoraLocal(obtenerCampo(raw, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]));
+    const idGarage = Number(obtenerIdGarageAsignado(raw));
+    const idVehiculo = Number(obtenerCampo(raw, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
+
+    navigate("/nueva_reserva", {
+      state: {
+        copiaReserva: { horaInicio, horaFin, idGarage, idVehiculo },
+      },
+    });
+  };
+
   const handleReservaActualizada = (reservaActualizada) => {
     setReservas((prev) =>
       prev.map((r) => {
@@ -576,11 +594,6 @@ function EmpleadoDashboard() {
             <span>Agenda</span>
             <h2>Mis Reservas Actuales</h2>
           </div>
-          {reservasNormalizadas.length > 3 && (
-            <button type="button" onClick={() => setMostrarTodas((prev) => !prev)}>
-              {mostrarTodas ? "Ver menos" : "Ver todas"}
-            </button>
-          )}
         </div>
 
         {error && (
@@ -591,10 +604,21 @@ function EmpleadoDashboard() {
 
         {loading ? (
           <EmpleadoReservasSkeleton />
-        ) : reservasVisibles.length > 0 ? (
-          reservasVisibles.map((reserva) => (
-            <TarjetaReserva key={reserva.id} reserva={reserva} onClick={handleReservaClick} />
-          ))
+        ) : reservasNormalizadas.length > 0 ? (
+          <>
+            <TarjetaReserva key={reservasNormalizadas[0].id} reserva={reservasNormalizadas[0]} onClick={handleReservaClick} onCopy={handleCopyReserva} />
+            {tieneResto && (
+              <button type="button" className={`empleado-reservas-toggle${deployableOpen ? " empleado-reservas-toggle--open" : ""}`} onClick={() => setDeployableOpen((prev) => !prev)}>
+                <span>{deployableOpen ? "Ocultar" : `Mostrar todas (${restoReservas.length})`}</span>
+                <span className="empleado-reservas-toggle-arrow" aria-hidden="true">&gt;</span>
+              </button>
+            )}
+            <div className={`empleado-reservas-rest${deployableOpen ? " empleado-reservas-rest--open" : ""}`}>
+              {restoReservas.map((reserva) => (
+                <TarjetaReserva key={reserva.id} reserva={reserva} onClick={handleReservaClick} onCopy={handleCopyReserva} />
+              ))}
+            </div>
+          </>
         ) : (
           <div className="empleado-dashboard-feedback">
             No tenes reservas activas.
