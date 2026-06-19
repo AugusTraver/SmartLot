@@ -1,14 +1,12 @@
 .gestion-garages {
   min-height: 100vh;
   background: #f5f7fb;
-  padding: 0 0 140px;
+  padding: 0 4% 140px;
 }
 
 .gestion-garages-main {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem 1rem 0;
+  padding: 1rem 0 0;
   box-sizing: border-box;
 }
 
@@ -391,11 +389,11 @@
 
 @media (max-width: 720px) {
   .gestion-garages {
-    padding: 0 0 120px;
+    padding: 0 4% 120px;
   }
 
   .gestion-garages-main {
-    padding: 1rem 0.8rem 0;
+    padding: 0.8rem 0 0;
   }
 
   .gestion-garages-top {
