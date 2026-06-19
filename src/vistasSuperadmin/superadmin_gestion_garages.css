@@ -14,6 +14,7 @@
   width: 46px;
   height: 46px;
 }
+.pGarageSuperAdmin
 
 .gestion-garages-top .boton-back {
   width: 46px;
@@ -37,7 +38,7 @@
 }
 
 .gestion-garages-top p {
-  color: black !important;
+  color: #156fe5 !important;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 1.2px;

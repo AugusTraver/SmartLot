@@ -223,7 +223,7 @@ function SuperadminGestionGarages() {
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <p>CONTROL DE GARAGES</p>
+                <p className="pGarageSuperAdmin">CONTROL DE GARAGES</p>
                 <h1>Gestión de Garages</h1>
               </div>
             </div>

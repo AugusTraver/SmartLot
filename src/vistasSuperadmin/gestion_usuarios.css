@@ -319,7 +319,7 @@
 
 .role-pill.active {
   border-color: transparent;
-  color: #ffffff;
+  color: black;
 }
 
 .role-pill.active.role-admin { background: #3B82F6; }

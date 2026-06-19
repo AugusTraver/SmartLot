@@ -31,8 +31,8 @@ function FooterEmpleado() {
       <FooterBottonEmpleado
         titulo="HISTORIAL"
         icono={<ClipboardClock size={28} />}
-        onClick={() => navigate("/historial")}
-        isActive={isPathActive("/historial")}
+        onClick={() => navigate("/historial_reserva")}
+        isActive={isPathActive("/historial_reserva")}
       />
       <FooterBottonEmpleado
         titulo="PERFIL"
