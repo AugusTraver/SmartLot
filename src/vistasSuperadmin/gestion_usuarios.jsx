@@ -66,7 +66,7 @@ const ROLE_CLASSES = {
   4: "role-superadmin",
 };
 
-const ROLE_ORDER = [1, 4, 2, 3];
+const ROLE_ORDER = [4, 1, 3, 2];
 
 const obtenerActorAuditoria = (item, tipo) => {
   const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
@@ -377,6 +377,14 @@ const GestionUsuarios = () => {
       const coincideGarage = !selectedGarage || u.garage === selectedGarage;
 
       return coincideBusqueda && coincideRol && coincideEmpresa && coincideSede && coincideGarage;
+    }).sort((a, b) => {
+      const orderA = ROLE_ORDER.indexOf(a.id_rol);
+      const orderB = ROLE_ORDER.indexOf(b.id_rol);
+      if (orderA !== orderB) return orderA - orderB;
+      if (!a.empresa && !b.empresa) return 0;
+      if (!a.empresa) return 1;
+      if (!b.empresa) return -1;
+      return a.empresa.localeCompare(b.empresa, 'es', { sensitivity: 'base' });
     });
   }, [searchTerm, selectedRol, selectedEmpresa, selectedSede, selectedGarage, usuarios]);
 

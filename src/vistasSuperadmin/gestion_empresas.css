@@ -7,8 +7,7 @@
 .gestion-empresas-main {
   padding: 20px 4%;
   padding-bottom: 120px;
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 100%;
 }
 
 .gestion-empresas-top {
@@ -128,7 +127,7 @@
 
 .empresas-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   gap: 14px;
 }
 
@@ -363,8 +362,4 @@
   100% { transform: translateX(100%); }
 }
 
-@media (min-width: 768px) {
-  .empresas-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+
