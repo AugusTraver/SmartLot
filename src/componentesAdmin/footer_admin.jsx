@@ -38,8 +38,8 @@ function FooterEmpleado() {
             <FooterBotton
                 titulo="PANEL"
                 icono={<ChartBarDecreasing size={28}/>} 
-                onClick={() => navigate("/panel_de_control")}
-                isActive={isPathActive("/panel_de_control")}
+                onClick={() => navigate("/admin_panel_de_control")}
+                isActive={isPathActive("/admin_panel_de_control")}
             />
         </footer>
     );

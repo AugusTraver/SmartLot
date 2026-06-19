@@ -78,7 +78,7 @@ function AdminDashboard() {
               icono={<SlidersVertical />}
               titulo="Panel de control"
               descripcion="Información de vital importancia"
-              onClick={() => navigate("/panel-control")}
+              onClick={() => navigate("/admin_panel_de_control")}
             />
 
             <DashboardBoton

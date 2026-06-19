@@ -10,6 +10,7 @@ import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
 import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
 import PerfilAdmin from "./vistasAdmin/perfil_admin";
+import AdminPanelControl from "./vistasAdmin/admin_panel_de_control";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -74,7 +75,7 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
 
-      
+
       {/* Ruta del Perfil del Empleado protegida */}
       <Route path="/perfil_empleado" element={
         <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
@@ -99,6 +100,14 @@ function AppRoutes() {
           <AdminDashboard />
         </ProtectedRoute>
       } />
+
+      {/* Rutas protegidas - Admin */}
+      <Route path="/perfil_admin" element={
+        <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+          <PerfilAdmin />
+        </ProtectedRoute>
+      } />
+
       {/* Ruta del Perfil del Admin protegida */}
       <Route path="/perfil_admin" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
@@ -131,8 +140,13 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       <Route path="/editar_zona" element={
-        <ProtectedRoute allowedRoles={[1,4]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={[1, 4]} usuario={usuario}>
           <EditarZona />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin_panel_de_control" element={
+        <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+          <AdminPanelControl />
         </ProtectedRoute>
       } />
 
