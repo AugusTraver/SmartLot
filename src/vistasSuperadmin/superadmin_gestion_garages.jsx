@@ -230,7 +230,7 @@ function SuperadminGestionGarages() {
 
             <section className="garages-actions superadmin-stagger-stat">
               <button
-                className="btn-nueva-zona"
+                className="btn-nueva-zona-superAdmin"
                 onClick={() => navigate("/agregar_zona")}
               >
                 <CirclePlus size={20} />
@@ -242,7 +242,7 @@ function SuperadminGestionGarages() {
               <div className="stats-card">
                 <div className="stats-header">
                   <h4>Total garages</h4>
-                  <span className="stats-icon">
+                  <span className="stats-icon-superaAdmin">
                     <MapPinned size={24} />
                   </span>
                 </div>
@@ -252,7 +252,7 @@ function SuperadminGestionGarages() {
               <div className="stats-card">
                 <div className="stats-header">
                   <h4>Ocupación media</h4>
-                  <span className="stats-icon">
+                  <span className="stats-icon-superaAdmin">
                     <BarChart3 size={24} />
                   </span>
                 </div>
