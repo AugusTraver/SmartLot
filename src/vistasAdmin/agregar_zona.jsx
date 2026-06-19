@@ -195,7 +195,7 @@ function AgregarZona() {
       navigate("/gestion_garages", { replace: true });
     } else {
       const errorMsg = response.datos?.message || response.datos || 'Error desconocido al conectar con la BD.';
-      setError(`❌ Error al crear la zona: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
+      setError(`❌ Error al crear garage: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
     }
   };
 

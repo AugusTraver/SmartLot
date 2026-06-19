@@ -135,7 +135,7 @@ function AgregarGarajista() {
     <div className="agregar-empleado-page">
       <Header />
       <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600" }}>Agregar Garajista</h3>
-      <p>Registro de nuevo garajista para la zona</p>
+      <p>Registro de nuevo garajista para el garage</p>
       <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
         <FormularioInfoPersonal
           infoPersonalTitulo="Información Personal"

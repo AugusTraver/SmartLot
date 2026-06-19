@@ -359,7 +359,7 @@ function EditarZona() {
       // Usamos Swal para dar feedback de éxito antes de redirigir de forma limpia
       Swal.fire({
         title: "¡Configuración Actualizada!",
-        text: "Los cambios de la zona han sido guardados correctamente.",
+        text: "Los cambios del garage han sido guardados correctamente.",
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
@@ -368,8 +368,8 @@ function EditarZona() {
       navigate("/gestion_garages", { replace: true });
     } else {
       const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
-      const limpio = typeof errorMsg === 'string' ? errorMsg.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim() : 'Error al actualizar la zona.';
-      setError(`❌ Error al actualizar la zona: ${limpio}`);
+      const limpio = typeof errorMsg === 'string' ? errorMsg.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim() : 'Error al actualizar el garage.';
+      setError(`❌ Error al actualizar el garage: ${limpio}`);
     }
   };
 

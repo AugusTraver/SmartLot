@@ -49,7 +49,7 @@ function FormularioCapacidad({ formData = {}, onChange }) {
       </div>
 
       <div className="plazas-resumen">
-        <span>Capacidad total de la zona</span>
+        <span>Capacidad total del garage</span>
         <strong>{capacidad} plazas</strong>
       </div>
       
