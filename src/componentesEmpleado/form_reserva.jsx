@@ -42,7 +42,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     horaFin: initialData?.horaFin || preferences.horaFin || "",
     idGarage: initialData?.idGarage
       ? String(initialData.idGarage)
-      : (garages.length === 1 ? String(obtenerIdGarage(garages[0])) : ""),
+      : "",
     idVehiculo: initialData?.idVehiculo
       ? String(initialData.idVehiculo)
       : (preferences.vehiculoPredeterminado || ""),
