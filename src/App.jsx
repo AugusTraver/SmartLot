@@ -31,6 +31,7 @@ import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
 import NuevaReserva from "./vistasEmpleados/nueva_reserva";
 import PerfilEmpleado from "./vistasEmpleados/perfil_empleado";
 import AgregarVehiculo from "./vistasEmpleados/agregar_vehiculo";
+import HistorialReserva from "./vistasEmpleados/historial_reserva";
 
 // Vistas Adicionales y Utilidades
 import GaragistaDashboard from "./vistasGaragista/garagista_dashboard";
@@ -73,6 +74,12 @@ function AppRoutes() {
           <NuevaReserva />
         </ProtectedRoute>
       } />
+         <Route path="/historial_reserva" element={
+        <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
+          <HistorialReserva />
+        </ProtectedRoute>
+      } />
+      
 
       
       {/* Ruta del Perfil del Empleado protegida */}
