@@ -59,7 +59,7 @@ export default function BrandPanel() {
         {/* Logo Flotante */}
         <div ref={logoRef} className="relative z-10 will-change-transform">
           <img 
-            src="../../public/logoEntero.png" 
+            src="/logoEntero.png" 
             alt="Smartlot Logo" 
             className="w-auto h-32 md:h-44 object-contain drop-shadow-sm pointer-events-none"
           />

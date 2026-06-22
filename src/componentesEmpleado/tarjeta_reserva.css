@@ -105,6 +105,88 @@
   white-space: nowrap;
 }
 
+.empleado-reserva-card--history-past {
+  grid-template-columns: 68px minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.empleado-reserva-status {
+  width: 68px;
+  height: 72px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  color: #ffffff;
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.13);
+}
+
+.empleado-reserva-status svg {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+}
+
+.empleado-reserva-status span {
+  max-width: 58px;
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.empleado-reserva-status--completed {
+  background: linear-gradient(145deg, #16a34a, #22c55e);
+}
+
+.empleado-reserva-status--deleted {
+  background: linear-gradient(145deg, #dc2626, #ef4444);
+}
+
+.empleado-reserva-status--pending {
+  background: linear-gradient(145deg, #64748b, #94a3b8);
+}
+
+.empleado-reserva-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin: -2px 0 7px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.empleado-reserva-location span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empleado-reserva-location span + span::before {
+  content: "-";
+  margin-right: 6px;
+  color: #94a3b8;
+}
+
 .empleado-reserva-info {
   min-width: 0;
   flex: 1;
@@ -253,6 +335,26 @@
   .empleado-reserva-plaza {
     width: 56px;
     height: 70px;
+  }
+
+  .empleado-reserva-card--history-past {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+  }
+
+  .empleado-reserva-status {
+    width: 62px;
+    height: 68px;
+    border-radius: 15px;
+  }
+
+  .empleado-reserva-status svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .empleado-reserva-status span {
+    max-width: 54px;
+    font-size: 8px;
   }
 
   .empleado-reserva-plaza strong,

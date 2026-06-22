@@ -80,6 +80,8 @@ function HistorialReserva() {
           hora_entrada: "09:00",
           hora_salida: "18:30",
           estado: "Completada",
+          entrada: true,
+          salida: true,
         },
         {
           id_reserva: 3,
@@ -89,7 +91,8 @@ function HistorialReserva() {
           nombre_garage: "Oficinas Centrales",
           hora_entrada: "08:30",
           hora_salida: "17:00",
-          estado: "Completada",
+          estado: "Cancelada",
+          borrado: true,
         },
       ];
 
@@ -136,6 +139,7 @@ function HistorialReserva() {
                 <TarjetaReserva
                   key={reservaPasadaPrincipal.id_reserva}
                   reserva={reservaPasadaPrincipal}
+                  variant="historyPast"
                 />
               )}
 
@@ -156,6 +160,7 @@ function HistorialReserva() {
                   <TarjetaReserva
                     key={reserva.id_reserva}
                     reserva={reserva}
+                    variant="historyPast"
                   />
                 ))}
               </div>
