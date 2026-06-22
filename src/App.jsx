@@ -11,6 +11,7 @@ import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
 import PerfilAdmin from "./vistasAdmin/perfil_admin";
 import AdminPanelControl from "./vistasAdmin/admin_panel_de_control";
+import AdminReportesAnalisis from "./vistasAdmin/admin_reportes_analisis";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -154,6 +155,11 @@ function AppRoutes() {
       <Route path="/admin_panel_de_control" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
           <AdminPanelControl />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin_reportes_analisis" element={
+        <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+          <AdminReportesAnalisis />
         </ProtectedRoute>
       } />
 

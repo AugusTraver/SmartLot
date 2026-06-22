@@ -1,0 +1,334 @@
+/* --- Contenedor Principal --- */
+.reservations-container {
+  background-color: #f8fafc;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4%;
+}
+
+/* --- Barra de Búsqueda y Botón Filtro --- */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filter-bar__search-wrap {
+  position: fixed;
+  flex-grow: 1;
+}
+
+.filter-bar__search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.filter-bar__input {
+  width: 100%;
+  height: 3.25rem;
+  padding: 0 1rem 0 3rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  font-size: 1rem;
+  color: #0f172a;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-bar__input:focus {
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.08);
+}
+
+.filter-bar__settings-btn {
+  width: 3.25rem;
+  height: 3.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.filter-bar__settings-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.filter-bar__settings-btn:active {
+  transform: scale(0.97);
+}
+
+/* --- Píldoras de Filtro (Chips) --- */
+.chips-group {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  scrollbar-width: none;
+}
+
+.chips-group::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  padding: 0.625rem 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background-color: #f1f5f9;
+}
+
+.chip--active {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.chip--active:hover {
+  background-color: #1e40af;
+}
+
+/* --- Tabla de Reservas Base (Estilo Mobile-First) --- */
+.reservations-table-wrapper {
+  background-color: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 10px 20px -2px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.reservations-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Forzar la vista de tarjetas apiladas en celular */
+.reservations-table thead {
+  display: none;
+}
+
+.reservations-table tbody, 
+.reservations-table tr, 
+.reservations-table td {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reservations-table__row {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.reservations-table__row:last-child {
+  border-bottom: none;
+}
+
+.reservations-table td {
+  padding: 0.375rem 0;
+  text-align: left;
+}
+
+/* Bloques de Datos */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-info__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info__avatar--blue {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.user-info__avatar--orange {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.user-info__avatar--green {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.user-info__avatar--purple {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.user-info__avatar--pink {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.user-info__avatar--teal {
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+
+.user-info__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cell-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-left: 3.25rem; /* Alinea los datos secundarios debajo del texto del nombre */
+}
+
+.cell-block__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cell-block__subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* --- Control de Paginación --- */
+.pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.pagination__info {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.pagination__btn {
+  height: 2.25rem;
+  min-width: 2.25rem;
+  padding: 0 0.5rem;
+  background-color: #e2e8f0;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination__btn:hover {
+  background-color: #cbd5e1;
+}
+
+.pagination__btn--active {
+  background-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.pagination__btn--active:hover {
+  background-color: #1e40af;
+}
+
+
+/* ==========================================================================
+   💻 MEDIA QUERY: Transformación a Tabla Real de Escritorio (>= 1024px)
+   ========================================================================== */
+@media (min-width: 64rem) {
+  .filter-bar__input {
+    max-width: 24rem;
+  }
+
+  .reservations-table thead {
+    display: table-header-group; /* Restaura la cabecera real de la tabla */
+    background-color: #f8fafc;
+  }
+
+  .reservations-table th {
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.05em;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .reservations-table tbody {
+    display: table-row-group;
+  }
+
+  .reservations-table tr {
+    display: table-row; /* Cambia de bloque vertical a fila horizontal pura */
+    transition: background-color 0.15s ease;
+  }
+
+  .reservations-table__row:hover {
+    background-color: #f8fafc;
+  }
+
+  .reservations-table td {
+    display: table-cell;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .cell-block {
+    padding-left: 0; /* Remueve el sangrado móvil ya que ahora ocupa su propia columna */
+  }
+
+  .pagination {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.5rem;
+  }
+}

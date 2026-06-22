@@ -1,0 +1,87 @@
+/* --- Bloque Principal --- */
+.report-btn {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 1.75rem; /* Bordes muy redondeados como se ve en la captura */
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  cursor: pointer;
+  /* Sombra difuminada ultra-suave idéntica a la imagen */
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 
+              0 8px 16px -6px rgba(15, 23, 42, 0.04);
+  text-align: left;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  
+  /* Enfoque responsivo fluido */
+  width: 100%;
+  max-width: 26rem; /* Se limita elegantemente en teléfonos */
+  box-sizing: border-box;
+  
+  /* Transición suave para rendimiento a 60fps/120fps */
+  transition: background-color 0.2s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Micro-interacciones Premium --- */
+.report-btn:hover {
+  background-color: #f8fafc;
+}
+
+.report-btn:active {
+  transform: scale(0.98); /* Pequeño efecto elástico de hundimiento por GPU */
+}
+
+.report-btn:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 4px;
+}
+
+/* --- Contenedor del Icono --- */
+.report-btn__icon-wrapper {
+  background-color: #e0e7ff; /* Celeste/azul suave de la imagen */
+  color: #1d4ed8;            /* Azul vibrante del icono */
+  padding: 1rem;
+  border-radius: 1.25rem;    /* Redondeado interno en armonía con el botón */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.report-btn__icon {
+  display: block;
+}
+
+/* --- Textos e Información --- */
+.report-btn__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.report-btn__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.report-btn__subtitle {
+  font-size: 0.925rem;
+  font-weight: 400;
+  color: #475569;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   💻 Optimización para Computadora (Pantalla Completa / Dashboard)
+   ========================================================================== */
+@media (min-width: 64rem) {
+  .report-btn {
+    max-width: 32rem; /* Permite que el botón respire y se agrande en monitores */
+    padding: 1.5rem 1.75rem;
+  }
+}
