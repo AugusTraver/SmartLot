@@ -5,18 +5,27 @@ import { ArrowLeft, CircleCheck } from "lucide-react";
 import "./agregar_usuario.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
-import { UsuariosCreate } from "../servicies/API_Usuario";
+import { UsuariosCreate, UsuariosGetAll } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import { showToast } from "../helpers/toast";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
   if (Array.isArray(datos?.datos)) return datos.datos;
   if (Array.isArray(datos?.data)) return datos.data;
   return [];
+};
+
+const normalizarEmail = (email) => email.trim().toLowerCase();
+
+const obtenerMensajeError = (datos, fallback) => {
+  if (typeof datos === "string") return datos;
+  return datos?.message || datos?.mensaje || datos?.error || fallback;
 };
 
 const ROLE_OPTIONS = [
@@ -141,7 +150,10 @@ function AgregarUsuario() {
     ],
     contraseña: [
       { rule: (v) => v?.length > 0, message: "Requerido" },
-      { rule: (v) => v?.length >= 6, message: "Mínimo 6 caracteres" },
+      { rule: (v) => v?.length >= 8, message: "Mínimo 8 caracteres" },
+      { rule: (v) => (v?.match(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/g) || []).length >= 2, message: "Mínimo 2 caracteres especiales" },
+      { rule: (v) => (v?.match(/\d/g) || []).length >= 2, message: "Mínimo 2 números" },
+      { rule: (v) => (v?.match(/[A-Z]/g) || []).length >= 2, message: "Mínimo 2 mayúsculas" },
     ],
     telefono: [
       { rule: (v) => !v || v.trim().length === 0 || /^[+]{0,1}[0-9\s-()]+$/.test(v.trim()), message: "Solo números, espacios, guiones, +, ()" },
@@ -185,11 +197,31 @@ function AgregarUsuario() {
 
     setLoading(true);
 
+    const emailNormalizado = normalizarEmail(formData.email);
+    const usuariosResponse = await UsuariosGetAll();
+
+    if (!usuariosResponse.respuesta) {
+      setLoading(false);
+      setError("No se pudo validar el email antes de crear el usuario.");
+      return;
+    }
+
+    const emailYaExiste = obtenerListado(usuariosResponse.datos).some((usuario) => {
+      if (!usuario?.email) return false;
+      return normalizarEmail(usuario.email) === emailNormalizado;
+    });
+
+    if (emailYaExiste) {
+      setLoading(false);
+      setError("Ya existe un usuario con ese email.");
+      return;
+    }
+
     const payload = {
       id_rol: idRol,
       nombre: formData.nombre.trim(),
       apellido: formData.apellido.trim(),
-      email: formData.email.trim(),
+      email: emailNormalizado,
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
       id_empresa: ROLES_NEED_EMPRESA.includes(idRol) ? Number(formData.id_empresa) : '',
@@ -204,10 +236,11 @@ function AgregarUsuario() {
     const response = await UsuariosCreate(payload);
 
     if (response.respuesta) {
+      showToast(`Usuario ${emailNormalizado} creado. Se enviara una notificacion al email.`, "success");
       navigate("/superadmin/gestion_usuarios", { replace: true });
     } else {
       setLoading(false);
-      setError(response.datos?.message || "Error al crear el usuario.");
+      setError(obtenerMensajeError(response.datos, "Error al crear el usuario."));
     }
   };
 
@@ -290,7 +323,7 @@ function AgregarUsuario() {
               <label>Contraseña</label>
               <input
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="8 caracteres, 2 especiales, 2 números y 2 mayúsculas"
                 value={formData.contraseña}
                 onChange={(e) => handleChange("contraseña", e.target.value)}
                 autoComplete="new-password"

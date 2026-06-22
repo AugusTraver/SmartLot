@@ -94,7 +94,10 @@ function AgregarEmpleado() {
     ],
     contraseña: [
       { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
-      { rule: (v) => v?.length >= 6, message: 'Mínimo 6 caracteres' },
+      { rule: (v) => v?.length >= 8, message: 'Mínimo 8 caracteres' },
+      { rule: (v) => (v?.match(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/g) || []).length >= 2, message: 'Mínimo 2 caracteres especiales' },
+      { rule: (v) => (v?.match(/\d/g) || []).length >= 2, message: 'Mínimo 2 números' },
+      { rule: (v) => (v?.match(/[A-Z]/g) || []).length >= 2, message: 'Mínimo 2 mayúsculas' },
     ],
     telefono: [
       { rule: (v) => !v || v.trim().length === 0 || /^[+]{0,1}[0-9\s-()]+$/.test(v.trim()), message: 'Solo números, espacios, guiones, +, ()' },
