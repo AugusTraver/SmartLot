@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import { ReservasUpdate, ReservasCancel } from "../servicies/API_Reserva";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
 import "./modal_editar_reserva.css";
 
 const obtenerCampo = (item, claves, fallback = "") => {
@@ -17,13 +19,37 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
+  const getSchema = () => ({
+    horaInicio: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v), message: "Formato HH:MM" },
+    ],
+    horaFin: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v), message: "Formato HH:MM" },
+      () => ({ rule: () => !horaInicio || !horaFin || horaInicio < horaFin, message: "Debe ser posterior a hora inicio" }),
+    ],
+  });
+
+  const formData = { horaInicio, horaFin };
+  const validationSchema = getSchema();
+  const { isValid, touched, touch } = useLiveValidation(formData, validationSchema);
+
+  const buildConditions = (fieldName) => {
+    if (!validationSchema[fieldName]) return [];
+    const value = formData[fieldName];
+    return validationSchema[fieldName].map((item) => {
+      if (typeof item === "function") {
+        const result = item(value);
+        return { label: result.message, met: result.rule(value) };
+      }
+      return { label: item.message, met: item.rule(value) };
+    });
+  };
+
   const handleGuardar = useCallback(async () => {
-    if (!horaInicio || !horaFin) {
-      setError("Completa ambas horas.");
-      return;
-    }
-    if (horaInicio >= horaFin) {
-      setError("La hora de fin debe ser posterior a la de inicio.");
+    if (!isValid) {
+      setError("Corrige los errores antes de guardar.");
       return;
     }
 
@@ -145,10 +171,11 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
                 type="time"
                 className="modal-reserva-time-input"
                 value={horaInicio === "--:--" ? "" : horaInicio}
-                onChange={(e) => setHoraInicio(e.target.value)}
+                onChange={(e) => { setHoraInicio(e.target.value); touch("horaInicio"); }}
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("horaInicio")} isTouched={touched.horaInicio} />
             </div>
             <div className="modal-reserva-time-group">
               <label htmlFor="modal-hora-fin">Hora fin</label>
@@ -157,10 +184,11 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
                 type="time"
                 className="modal-reserva-time-input"
                 value={horaFin === "--:--" ? "" : horaFin}
-                onChange={(e) => setHoraFin(e.target.value)}
+                onChange={(e) => { setHoraFin(e.target.value); touch("horaFin"); }}
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("horaFin")} isTouched={touched.horaFin} />
             </div>
           </div>
 

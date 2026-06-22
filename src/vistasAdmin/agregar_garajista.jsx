@@ -7,6 +7,7 @@ import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
+import useLiveValidation from "../hooks/useLiveValidation";
 
 function AgregarGarajista() {
   const navigate = useNavigate();
@@ -25,69 +26,62 @@ function AgregarGarajista() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const getSchema = () => ({
+    nombre: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+    ],
+    apellido: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+    ],
+    email: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), message: 'Email inválido' },
+    ],
+    contraseña: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.length >= 6, message: 'Mínimo 6 caracteres' },
+    ],
+    telefono: [
+      { rule: (v) => !v || v.trim().length === 0 || /^[+]{0,1}[0-9\s-()]+$/.test(v.trim()), message: 'Solo números, espacios, guiones, +, ()' },
+      { rule: (v) => !v || v.trim().length === 0 || v.trim().replace(/\D/g, '').length >= 7, message: 'Mínimo 7 dígitos' },
+    ],
+  });
+
+  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formData[fieldName];
+    return schema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
+
+  const fieldsValidation = {};
+  Object.keys(getSchema()).forEach((field) => {
+    fieldsValidation[field] = {
+      conditions: buildConditions(field),
+      isTouched: touched[field],
+    };
+  });
+
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    handleChangeWithTouch(field, value, setFormData);
   };
 
   const handleGuardarGarajista = async () => {
     setError('');
 
-    if (!formData.nombre || !formData.nombre.trim()) {
-      setError('❌ El nombre es requerido.');
+    if (!isValid) {
+      setError('❌ Corrige los errores antes de guardar.');
       return;
-    }
-    if (formData.nombre.trim().length < 2) {
-      setError('❌ El nombre debe tener al menos 2 caracteres.');
-      return;
-    }
-    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/;
-    if (!nombreRegex.test(formData.nombre.trim())) {
-      setError('❌ El nombre solo debe contener letras.');
-      return;
-    }
-
-    if (!formData.apellido || !formData.apellido.trim()) {
-      setError('❌ El apellido es requerido.');
-      return;
-    }
-    if (formData.apellido.trim().length < 2) {
-      setError('❌ El apellido debe tener al menos 2 caracteres.');
-      return;
-    }
-    if (!nombreRegex.test(formData.apellido.trim())) {
-      setError('❌ El apellido solo debe contener letras.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email || !formData.email.trim()) {
-      setError('❌ El correo electrónico es requerido.');
-      return;
-    }
-    if (!emailRegex.test(formData.email.trim())) {
-      setError('❌ El correo electrónico no tiene un formato válido (ej: usuario@ejemplo.com).');
-      return;
-    }
-
-    if (!formData.contraseña) {
-      setError('❌ La contraseña es requerida.');
-      return;
-    }
-    if (formData.contraseña.length < 6) {
-      setError('❌ La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
-
-    if (formData.telefono && formData.telefono.trim()) {
-      const telefonoRegex = /^[+]{0,1}[0-9\s-()]+$/;
-      if (!telefonoRegex.test(formData.telefono.trim())) {
-        setError('❌ El teléfono solo puede contener números, espacios, guiones, paréntesis o el signo +.');
-        return;
-      }
-      if (formData.telefono.trim().replace(/\D/g, '').length < 7) {
-        setError('❌ El teléfono debe tener al menos 7 dígitos.');
-        return;
-      }
     }
 
     if (!garageId) {
@@ -149,6 +143,7 @@ function AgregarGarajista() {
           formData={formData}
           onChange={handleChange}
           hideSede={true}
+          fieldsValidation={fieldsValidation}
         />
 
         {error && <p className="form-error">{error}</p>}

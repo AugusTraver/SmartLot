@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Calendar, Car, Clock, Plus, Warehouse } from "lucide-react";
 import "./form_reserva.css";
 import { getDiaDesdeFecha, getDiaDisplay } from "../helpers/diasSemana";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -49,6 +51,41 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     dia: "",
   });
 
+  const getSchema = () => ({
+    fecha: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+      { rule: (v) => /^\d{4}-\d{2}-\d{2}$/.test(v), message: "Formato YYYY-MM-DD" },
+    ],
+    horaInicio: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+    ],
+    horaFin: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+      () => ({ rule: () => !formData.horaInicio || !formData.horaFin || formData.horaInicio < formData.horaFin, message: "Debe ser posterior a inicio" }),
+    ],
+    idGarage: [
+      { rule: (v) => v !== "", message: "Selecciona un garage" },
+    ],
+    idVehiculo: [
+      { rule: (v) => v !== "", message: "Selecciona un vehículo" },
+    ],
+  });
+
+  const { isValid, touched, touch } = useLiveValidation(formData, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formData[fieldName];
+    return schema[fieldName].map((item) => {
+      if (typeof item === "function") {
+        const result = item(value);
+        return { label: result.message, met: result.rule(value) };
+      }
+      return { label: item.message, met: item.rule(value) };
+    });
+  };
+
   const garageSeleccionadoObj = garages.find(
     (garage) => String(obtenerIdGarage(garage)) === String(formData.idGarage)
   );
@@ -74,13 +111,8 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(formData.fecha)) {
-      setError("La fecha debe tener un formato valido.");
-      return;
-    }
-
-    if (formData.horaInicio >= formData.horaFin) {
-      setError("La hora de fin debe ser posterior a la hora de inicio.");
+    if (!isValid) {
+      setError("Corrige los errores antes de confirmar.");
       return;
     }
 
@@ -130,8 +162,9 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               required
               autoComplete="off"
             />
+            </div>
+            <FieldValidation conditions={buildConditions("fecha")} isTouched={touched.fecha} />
           </div>
-        </div>
 
         <div className="form-time-fields-row">
           <div className="form-field-group">
@@ -144,11 +177,12 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 type="time"
                 className="form-text-input"
                 value={formData.horaInicio}
-                onChange={handleChange}
+                onChange={(e) => { handleChange(e); touch("horaInicio"); }}
                 required
                 autoComplete="off"
               />
             </div>
+            <FieldValidation conditions={buildConditions("horaInicio")} isTouched={touched.horaInicio} />
           </div>
 
           <div className="form-field-group">
@@ -161,11 +195,12 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 type="time"
                 className="form-text-input"
                 value={formData.horaFin}
-                onChange={handleChange}
+                onChange={(e) => { handleChange(e); touch("horaFin"); }}
                 required
                 autoComplete="off"
               />
             </div>
+            <FieldValidation conditions={buildConditions("horaFin")} isTouched={touched.horaFin} />
           </div>
         </div>
 
@@ -185,7 +220,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               name="idGarage"
               className="form-dropdown-select"
               value={formData.idGarage}
-              onChange={handleChange}
+              onChange={(e) => { handleChange(e); touch("idGarage"); }}
               required
             >
               <option value="" disabled hidden>Selecciona un garage</option>
@@ -199,6 +234,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               })}
             </select>
           </div>
+          <FieldValidation conditions={buildConditions("idGarage")} isTouched={touched.idGarage} />
           
           {/* BLOQUE NUEVO MODIFICADO: Estilos con fondo azul e interior de alto contraste */}
           {formData.idGarage && ubicacionGarageActual && (
@@ -232,7 +268,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               name="idVehiculo"
               className="form-dropdown-select"
               value={formData.idVehiculo}
-              onChange={handleChange}
+              onChange={(e) => { handleChange(e); touch("idVehiculo"); }}
               required
             >
               <option value="" disabled hidden>Selecciona un vehiculo</option>
@@ -246,6 +282,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               })}
             </select>
           </div>
+          <FieldValidation conditions={buildConditions("idVehiculo")} isTouched={touched.idVehiculo} />
         </div>
 
         {error && <p className="form-error-message" role="alert">{error}</p>}

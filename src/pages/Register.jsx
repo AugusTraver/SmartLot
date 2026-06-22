@@ -1,37 +1,49 @@
 import { useState } from 'react';
 import apiClient from '../api/client';
 import PasswordStrength from '../components/PasswordStrength';
-import { validatePassword } from '../validators/password';
+import useLiveValidation from '../hooks/useLiveValidation';
+import FieldValidation from '../components/FieldValidation';
+
+const validationSchema = {
+  nombre: [
+    { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+    { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+    { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+  ],
+  apellido: [
+    { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+    { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+    { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+  ],
+  email: [
+    { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+    { rule: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), message: 'Formato inválido (ej: user@correo.com)' },
+  ],
+  contraseña: [
+    { rule: (v) => v?.length > 0, message: 'Requerido' },
+    { rule: (v) => v?.length >= 8, message: 'Mínimo 8 caracteres' },
+    { rule: (v) => /[A-Z]/.test(v), message: 'Al menos una mayúscula' },
+    { rule: (v) => /[a-z]/.test(v), message: 'Al menos una minúscula' },
+    { rule: (v) => /\d/.test(v), message: 'Al menos un número' },
+  ],
+};
 
 export default function Register() {
   const [form, setForm] = useState({
     nombre: '', apellido: '', email: '',
     contraseña: '', id_rol: 2, id_sede: '', id_empresa: ''
   });
-  const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
-  };
+  const { isValid, touched, getFieldProps } = useLiveValidation(form, validationSchema);
+
+  const registerField = (name) => getFieldProps(name, setForm);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
 
-    const newErrors = {};
-    if (!form.nombre.trim()) newErrors.nombre = 'El nombre es requerido.';
-    if (!form.apellido.trim()) newErrors.apellido = 'El apellido es requerido.';
-    if (!form.email.trim()) newErrors.email = 'El email es requerido.';
-
-    const pwError = validatePassword(form.contraseña);
-    if (pwError) newErrors.contraseña = pwError;
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (!isValid) return;
 
     try {
       await apiClient.post('/api/usuario', form);
@@ -41,26 +53,38 @@ export default function Register() {
     }
   };
 
+  const buildConditions = (field) => {
+    if (!validationSchema[field]) return [];
+    const value = form[field];
+    return validationSchema[field].map((item) => {
+      if (typeof item === 'function') {
+        const result = item(value);
+        return { label: result.message, met: result.rule(value) };
+      }
+      return { label: item.message, met: item.rule(value) };
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} autoComplete="off">
       <h1>Registro</h1>
 
       <input name="nombre" placeholder="Nombre" value={form.nombre}
-             onChange={handleChange} autoComplete="off" />
-      {errors.nombre && <span className="field-error">{errors.nombre}</span>}
+             {...registerField('nombre')} autoComplete="off" />
+      <FieldValidation conditions={buildConditions('nombre')} isTouched={touched.nombre} />
 
       <input name="apellido" placeholder="Apellido" value={form.apellido}
-             onChange={handleChange} autoComplete="off" />
-      {errors.apellido && <span className="field-error">{errors.apellido}</span>}
+             {...registerField('apellido')} autoComplete="off" />
+      <FieldValidation conditions={buildConditions('apellido')} isTouched={touched.apellido} />
 
       <input name="email" type="email" placeholder="Email" value={form.email}
-             onChange={handleChange} autoComplete="off" />
-      {errors.email && <span className="field-error">{errors.email}</span>}
+             {...registerField('email')} autoComplete="off" />
+      <FieldValidation conditions={buildConditions('email')} isTouched={touched.email} />
 
       <input name="contraseña" type="password" placeholder="Contraseña"
-             value={form.contraseña} onChange={handleChange} autoComplete="new-password" />
+             value={form.contraseña} {...registerField('contraseña')} autoComplete="new-password" />
       <PasswordStrength password={form.contraseña} />
-      {errors.contraseña && <span className="field-error">{errors.contraseña}</span>}
+      <FieldValidation conditions={buildConditions('contraseña')} isTouched={touched.contraseña} />
 
       {serverError && <div className="error">{serverError}</div>}
 

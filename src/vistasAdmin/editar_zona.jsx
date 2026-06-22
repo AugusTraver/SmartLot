@@ -27,6 +27,8 @@ import { DIAS_SEMANA } from "../helpers/diasSemana";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -48,7 +50,7 @@ const obtenerHoraGarage = (garage, claves) => {
   return "";
 };
 
-const esHoraValida = (hora) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ""));
+
 
 function EditarZona() {
   const [usuarios, setUsuarios] = useState([]);
@@ -163,6 +165,63 @@ function EditarZona() {
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
 
+  const formDataVal = {
+    nombreGarage,
+    piso,
+    ubicacion,
+    horaApertura,
+    horaCierre,
+    capacidadReservas,
+    capacidadNoReservas,
+    diasSeleccionados,
+  };
+
+  const getSchema = () => ({
+    nombreGarage: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 3, message: 'Mínimo 3 caracteres' },
+    ],
+    piso: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => v === '' || v === null || v === undefined || (!isNaN(Number(v)) && Number.isInteger(Number(v))), message: 'Debe ser número entero' },
+    ],
+    ubicacion: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
+    ],
+    horaApertura: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
+    ],
+    horaCierre: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
+      () => ({ rule: () => !formDataVal.horaApertura || !formDataVal.horaCierre || formDataVal.horaApertura < formDataVal.horaCierre, message: 'Apertura debe ser anterior a cierre' }),
+    ],
+    capacidadReservas: [
+      { rule: (v) => Number.isInteger(v) && v >= 0, message: 'Número entero ≥ 0' },
+    ],
+    capacidadNoReservas: [
+      { rule: (v) => Number.isInteger(v) && v >= 0, message: 'Número entero ≥ 0' },
+    ],
+    diasSeleccionados: [
+      { rule: (v) => Array.isArray(v) && v.length > 0, message: 'Selecciona al menos un día' },
+    ],
+  });
+
+  const { isValid, touched, touch } = useLiveValidation(formDataVal, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formDataVal[fieldName];
+    return schema[fieldName].map((item) => {
+      if (typeof item === 'function') {
+        const result = item(value);
+        return { label: result.message, met: result.rule(value) };
+      }
+      return { label: item.message, met: item.rule(value) };
+    });
+  };
+
   // --- LÓGICA DE DETECCIÓN DE CAMBIOS (DIRTY STATE) ---
   const isDirty = useMemo(() => {
     if (!garageData) return false;
@@ -266,66 +325,8 @@ function EditarZona() {
     e.preventDefault();
     setError('');
 
-    if (!nombreGarage.trim()) {
-      setError('❌ El nombre del garage es requerido.');
-      return;
-    }
-    if (nombreGarage.trim().length < 3) {
-      setError('❌ El nombre del garage debe tener al menos 3 caracteres.');
-      return;
-    }
-
-    if (piso === undefined || piso === null || piso.toString().trim() === "") {
-      setError('❌ El nivel/planta es requerido.');
-      return;
-    }
-    const pisoNum = Number(piso);
-    if (isNaN(pisoNum) || !Number.isInteger(pisoNum)) {
-      setError('❌ El nivel/planta debe ser un número entero válido.');
-      return;
-    }
-
-    if (!ubicacion.trim()) {
-      setError('❌ La ubicación es requerida.');
-      return;
-    }
-    if (ubicacion.trim().length < 5) {
-      setError('❌ La ubicación debe tener al menos 5 caracteres.');
-      return;
-    }
-
-    if (!esHoraValida(horaApertura)) {
-      setError('La hora de apertura es requerida.');
-      return;
-    }
-
-    if (!esHoraValida(horaCierre)) {
-      setError('La hora de cierre es requerida.');
-      return;
-    }
-
-    if (horaApertura >= horaCierre) {
-      setError('La hora de apertura debe ser anterior a la hora de cierre.');
-      return;
-    }
-
-    if (
-      !Number.isInteger(capacidadReservas) ||
-      !Number.isInteger(capacidadNoReservas) ||
-      capacidadReservas < 0 ||
-      capacidadNoReservas < 0
-    ) {
-      setError('❌ Las capacidades de reservas y no reservas deben ser números enteros mayores o iguales a 0.');
-      return;
-    }
-
-    if (capacidad <= 0) {
-      setError('❌ La capacidad total debe ser mayor a 0.');
-      return;
-    }
-
-    if (!diasSeleccionados || diasSeleccionados.length === 0) {
-      setError('❌ Debes seleccionar al menos un día operativo para el garage.');
+    if (!isValid) {
+      setError('❌ Corrige los errores antes de guardar.');
       return;
     }
 
@@ -409,10 +410,11 @@ function EditarZona() {
                 type="text"
                 placeholder="Garage B, Exterior Norte"
                 value={nombreGarage}
-                onChange={(e) => setNombreGarage(e.target.value)}
+                onChange={(e) => { setNombreGarage(e.target.value); touch("nombreGarage"); }}
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("nombreGarage")} isTouched={touched.nombreGarage} />
             </div>
 
             <div className="campo-formulario">
@@ -420,11 +422,12 @@ function EditarZona() {
               <input
                 type="text"
                 value={piso}
-                onChange={(e) => setPiso(e.target.value)}
+                onChange={(e) => { setPiso(e.target.value); touch("piso"); }}
                 placeholder="Ej: Piso 1, Subsuelo"
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("piso")} isTouched={touched.piso} />
             </div>
 
             <div className="campo-formulario">
@@ -433,10 +436,11 @@ function EditarZona() {
                 type="text"
                 placeholder="Ubicación del garage"
                 value={ubicacion}
-                onChange={(e) => setUbicacion(e.target.value)}
+                onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("ubicacion")} isTouched={touched.ubicacion} />
             </div>
           </section>
 
@@ -460,11 +464,13 @@ function EditarZona() {
                     value={horaApertura}
                     onChange={(e) => {
                       setHoraApertura(e.target.value);
+                      touch("horaApertura");
                       if (es24Horas) setEs24Horas(false);
                     }}
                     disabled={es24Horas}
                     required={!es24Horas}
                   />
+                  <FieldValidation conditions={buildConditions("horaApertura")} isTouched={touched.horaApertura} />
                 </div>
               </div>
 
@@ -483,11 +489,13 @@ function EditarZona() {
                     value={horaCierre}
                     onChange={(e) => {
                       setHoraCierre(e.target.value);
+                      touch("horaCierre");
                       if (es24Horas) setEs24Horas(false);
                     }}
                     disabled={es24Horas}
                     required={!es24Horas}
                   />
+                  <FieldValidation conditions={buildConditions("horaCierre")} isTouched={touched.horaCierre} />
                 </div>
               </div>
 
@@ -518,6 +526,7 @@ function EditarZona() {
               <div className="dops-header">
                 <span className="dops-title">Días operativos</span>
               </div>
+              <FieldValidation conditions={buildConditions("diasSeleccionados")} isTouched={touched.diasSeleccionados} />
 
               <div className="dops-grid">
                 <label
@@ -649,9 +658,11 @@ function EditarZona() {
                     onChange={(e) => {
                       const value = Number(e.target.value);
                       setCapacidadReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
+                      touch("capacidadReservas");
                     }}
                     autoComplete="off"
                   />
+                  <FieldValidation conditions={buildConditions("capacidadReservas")} isTouched={touched.capacidadReservas} />
                   <button
                     type="button"
                     onClick={() => setCapacidadReservas((valor) => valor + 1)}
@@ -687,9 +698,11 @@ function EditarZona() {
                     onChange={(e) => {
                       const value = Number(e.target.value);
                       setCapacidadNoReservas(Number.isNaN(value) ? 0 : Math.max(0, value));
+                      touch("capacidadNoReservas");
                     }}
                     autoComplete="off"
                   />
+                  <FieldValidation conditions={buildConditions("capacidadNoReservas")} isTouched={touched.capacidadNoReservas} />
                   <button
                     type="button"
                     onClick={() => setCapacidadNoReservas((valor) => valor + 1)}

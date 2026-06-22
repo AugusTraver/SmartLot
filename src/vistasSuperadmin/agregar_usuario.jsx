@@ -9,6 +9,8 @@ import { UsuariosCreate } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -119,30 +121,57 @@ function AgregarUsuario() {
   }, [formData.id_sede]);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    handleChangeWithTouch(field, value, setFormData);
   };
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/;
+  const getSchema = () => ({
+    nombre: [
+      { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+      { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v?.trim()), message: "Solo letras" },
+    ],
+    apellido: [
+      { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+      { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v?.trim()), message: "Solo letras" },
+    ],
+    email: [
+      { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+      { rule: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v?.trim()), message: "Email inválido" },
+    ],
+    contraseña: [
+      { rule: (v) => v?.length > 0, message: "Requerido" },
+      { rule: (v) => v?.length >= 6, message: "Mínimo 6 caracteres" },
+    ],
+    telefono: [
+      { rule: (v) => !v || v.trim().length === 0 || /^[+]{0,1}[0-9\s-()]+$/.test(v.trim()), message: "Solo números, espacios, guiones, +, ()" },
+      { rule: (v) => !v || v.trim().length === 0 || v.trim().replace(/\D/g, "").length >= 7, message: "Mínimo 7 dígitos" },
+    ],
+    id_rol: [
+      { rule: (v) => v !== "", message: "Selecciona un rol" },
+    ],
+  });
+
+  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formData[fieldName];
+    return schema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
 
   const handleGuardar = async () => {
     setError("");
 
-    if (!formData.nombre.trim()) { setError("El nombre es requerido."); return; }
-    if (formData.nombre.trim().length < 2) { setError("El nombre debe tener al menos 2 caracteres."); return; }
-    if (!nombreRegex.test(formData.nombre.trim())) { setError("El nombre solo debe contener letras."); return; }
-
-    if (!formData.apellido.trim()) { setError("El apellido es requerido."); return; }
-    if (formData.apellido.trim().length < 2) { setError("El apellido debe tener al menos 2 caracteres."); return; }
-    if (!nombreRegex.test(formData.apellido.trim())) { setError("El apellido solo debe contener letras."); return; }
-
-    if (!formData.email.trim()) { setError("El email es requerido."); return; }
-    if (!validateEmail(formData.email.trim())) { setError("El email no tiene un formato válido."); return; }
-
-    if (!formData.contraseña) { setError("La contraseña es requerida."); return; }
-    if (formData.contraseña.length < 6) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
-
-    if (!idRol) { setError("Debes seleccionar un rol."); return; }
+    if (!isValid) {
+      setError("Corrige los errores antes de guardar.");
+      return;
+    }
 
     if (ROLES_NEED_EMPRESA.includes(idRol) && !formData.id_empresa) {
       setError("Debes seleccionar una empresa para este rol.");
@@ -215,6 +244,7 @@ function AgregarUsuario() {
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("nombre")} isTouched={touched.nombre} />
             </div>
 
             <div className="input-group-superadmin">
@@ -227,6 +257,7 @@ function AgregarUsuario() {
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("apellido")} isTouched={touched.apellido} />
             </div>
 
             <div className="input-group-superadmin">
@@ -239,6 +270,7 @@ function AgregarUsuario() {
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("email")} isTouched={touched.email} />
             </div>
 
             <div className="input-group-superadmin">
@@ -251,6 +283,7 @@ function AgregarUsuario() {
                 autoComplete="off"
                 required
               />
+              <FieldValidation conditions={buildConditions("telefono")} isTouched={touched.telefono} />
             </div>
 
             <div className="input-group-superadmin">
@@ -263,6 +296,7 @@ function AgregarUsuario() {
                 autoComplete="new-password"
                 required
               />
+              <FieldValidation conditions={buildConditions("contraseña")} isTouched={touched.contraseña} />
             </div>
 
             <div className="input-group-superadmin">

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
@@ -14,6 +14,7 @@ import apiClient from "../servicies/apiClient";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
+import useLiveValidation from "../hooks/useLiveValidation";
 
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
 
@@ -27,12 +28,33 @@ export default function PerfilEmpleado() {
   
   const { usuario, setUsuario, loading, setRoleTransition } = useAuth();
 
+  const validationSchema = {
+    telefono: [
+      { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+      { rule: (v) => !v || /^[+]{0,1}[0-9\s-()]+$/.test(v), message: "Solo números, +, espacios, (), -" },
+      { rule: (v) => !v || v.replace(/\D/g, "").length >= 7, message: "Mínimo 7 dígitos" },
+    ],
+  };
+
   const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
   const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
   const [vehiculos, setVehiculos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+
+  const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
+  const telefonoField = getFieldProps("telefono", setPersonalData);
+
+  const buildConditions = (fieldName) => {
+    if (!validationSchema[fieldName]) return [];
+    const value = personalData[fieldName];
+    return validationSchema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
 
   const obtenerIdUsuario = (usr) => usr?.id ?? usr?.id_usuario ?? usr?._id;
 
@@ -202,17 +224,9 @@ export default function PerfilEmpleado() {
     e.preventDefault();
     if (guardando) return;
 
+    if (!isValid) return;
+
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
-    if (!telefonoLimpio || telefonoLimpio.length < 7) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Teléfono inválido',
-        text: 'Debes ingresar un número de teléfono válido (mínimo 7 dígitos).',
-        confirmButtonColor: '#3b82f6',
-        zIndex: Z_INDEX.SWAL_DIALOG,
-      });
-      return;
-    }
 
     setGuardando(true);
 
@@ -321,7 +335,15 @@ export default function PerfilEmpleado() {
           </div>
 
           <form onSubmit={handleGuardarCambios} className="perfil-form-wrapper">
-            <FormularioInfoPersonal data={personalData} onChange={handlePersonalChange} />
+            <FormularioInfoPersonal
+              data={personalData}
+              onChange={handlePersonalChange}
+              telefonoFieldValidation={{
+                conditions: buildConditions("telefono"),
+                isTouched: touched.telefono,
+                inputProps: telefonoField,
+              }}
+            />
             
             
             <div className="action-buttons-group">

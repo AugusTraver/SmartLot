@@ -5,31 +5,45 @@ import "./agregar_empresa.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { EmpresasCreate } from "../servicies/API_Empresa";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
+
+const validationSchema = {
+  nombre: [
+    { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+    { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+  ],
+};
 
 function AgregarEmpresa() {
   const navigate = useNavigate();
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
+  const [formData, setFormData] = useState({ nombre: "", descripcion: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { isValid, touched, getFieldProps } = useLiveValidation(formData, validationSchema);
+  const field = (name) => getFieldProps(name, setFormData);
+
+  const buildConditions = (fieldName) => {
+    if (!validationSchema[fieldName]) return [];
+    const value = formData[fieldName];
+    return validationSchema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
 
   const handleGuardar = async () => {
     setError("");
 
-    if (!nombre.trim()) {
-      setError("El nombre de la empresa es requerido.");
-      return;
-    }
-    if (nombre.trim().length < 2) {
-      setError("El nombre debe tener al menos 2 caracteres.");
-      return;
-    }
+    if (!isValid) return;
 
     setLoading(true);
 
     const response = await EmpresasCreate({
-      nombre: nombre.trim(),
-      descripcion: descripcion.trim(),
+      nombre: formData.nombre.trim(),
+      descripcion: formData.descripcion.trim(),
     });
 
     if (response.respuesta) {
@@ -60,19 +74,19 @@ function AgregarEmpresa() {
             <input
               type="text"
               placeholder="Ej: SmartLot Corp"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              {...field("nombre")}
               autoComplete="off"
               required
             />
+            <FieldValidation conditions={buildConditions("nombre")} isTouched={touched.nombre} />
           </div>
 
           <div className="input-group-superadmin">
             <label>Descripción</label>
             <textarea
               placeholder="Descripción de la empresa (opcional)"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
+              value={formData.descripcion}
+              onChange={(e) => setFormData((prev) => ({ ...prev, descripcion: e.target.value }))}
               rows={4}
               autoComplete="off"
               required

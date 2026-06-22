@@ -6,6 +6,18 @@ import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { SedesCreate } from "../servicies/API_Sede";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
+
+const validationSchema = {
+  idEmpresa: [
+    { rule: (v) => v !== "", message: "Selecciona una empresa" },
+  ],
+  nombre: [
+    { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+    { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+  ],
+};
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -32,13 +44,28 @@ const AgregarSedeSkeleton = () => (
 function AgregarSede() {
   const navigate = useNavigate();
   const [empresas, setEmpresas] = useState([]);
-  const [idEmpresa, setIdEmpresa] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
+  const [formData, setFormData] = useState({
+    idEmpresa: "",
+    nombre: "",
+    descripcion: "",
+    ubicacion: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingEmpresas, setLoadingEmpresas] = useState(true);
+
+  const { isValid, touched, getFieldProps } = useLiveValidation(formData, validationSchema);
+  const field = (name) => getFieldProps(name, setFormData);
+
+  const buildConditions = (fieldName) => {
+    if (!validationSchema[fieldName]) return [];
+    const value = formData[fieldName];
+    return validationSchema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -62,26 +89,15 @@ function AgregarSede() {
   const handleGuardar = async () => {
     setError("");
 
-    if (!idEmpresa) {
-      setError("Debes seleccionar una empresa.");
-      return;
-    }
-    if (!nombre.trim()) {
-      setError("El nombre de la sede es requerido.");
-      return;
-    }
-    if (nombre.trim().length < 2) {
-      setError("El nombre debe tener al menos 2 caracteres.");
-      return;
-    }
+    if (!isValid) return;
 
     setLoading(true);
 
     const response = await SedesCreate({
-      id_empresa: Number(idEmpresa),
-      nombre: nombre.trim(),
-      descripcion: descripcion.trim(),
-      ubicacion: ubicacion.trim(),
+      id_empresa: Number(formData.idEmpresa),
+      nombre: formData.nombre.trim(),
+      descripcion: formData.descripcion.trim(),
+      ubicacion: formData.ubicacion.trim(),
     });
 
     if (response.respuesta) {
@@ -112,7 +128,7 @@ function AgregarSede() {
         <section className="agregar-sede-form">
           <div className="input-group-superadmin">
             <label>Empresa</label>
-            <select value={idEmpresa} onChange={(e) => setIdEmpresa(e.target.value)} autoComplete="off" required>
+            <select value={formData.idEmpresa} onChange={(e) => setFormData((prev) => ({ ...prev, idEmpresa: e.target.value }))} autoComplete="off" required>
               <option value="">Seleccionar empresa...</option>
               {empresas.map((emp) => (
                 <option key={emp.id} value={emp.id}>
@@ -127,19 +143,19 @@ function AgregarSede() {
             <input
               type="text"
               placeholder="Ej: Sede Central"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              {...field("nombre")}
               autoComplete="off"
               required
             />
+            <FieldValidation conditions={buildConditions("nombre")} isTouched={touched.nombre} />
           </div>
 
           <div className="input-group-superadmin">
             <label>Descripción</label>
             <textarea
               placeholder="Descripción de la sede (opcional)"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
+              value={formData.descripcion}
+              onChange={(e) => setFormData((prev) => ({ ...prev, descripcion: e.target.value }))}
               rows={3}
               autoComplete="off"
               required
@@ -151,8 +167,8 @@ function AgregarSede() {
             <input
               type="text"
               placeholder="Ej: Av. Corrientes 1234, CABA"
-              value={ubicacion}
-              onChange={(e) => setUbicacion(e.target.value)}
+              value={formData.ubicacion}
+              onChange={(e) => setFormData((prev) => ({ ...prev, ubicacion: e.target.value }))}
               autoComplete="off"
               required
             />

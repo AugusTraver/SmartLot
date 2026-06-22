@@ -1,0 +1,58 @@
+.fv-list {
+  list-style: none;
+  margin: 0.25rem 0 0 0;
+  padding: 0.25rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  animation: fv-slide-in 0.2s ease-out;
+}
+
+@keyframes fv-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fv-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  transition: color 0.15s ease;
+}
+
+.fv-item--met {
+  color: #16a34a;
+}
+
+.fv-item--unmet {
+  color: #dc2626;
+}
+
+.fv-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+
+.fv-item--met .fv-icon svg {
+  stroke: #16a34a;
+}
+
+.fv-item--unmet .fv-icon svg {
+  stroke: #dc2626;
+}
+
+.fv-label {
+  font-weight: 400;
+}

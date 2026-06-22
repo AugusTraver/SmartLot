@@ -8,27 +8,45 @@ import Footer from "../componentesEmpleado/footer_empleado";
 import { useAuth } from "../contexts/useAuth";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
-// NUEVA IMPORTACIÓN: Traemos el servicio para consultar las marcas cargadas en el sistema
-import { MarcasGetAll } from "../servicies/API_Marca"; 
+import { MarcasGetAll } from "../servicies/API_Marca";
+import useLiveValidation from "../hooks/useLiveValidation";
+import FieldValidation from "../components/FieldValidation";
 import "../componentesEmpleado/formulario_PerfilPersonal.css";
 import "../componentesEmpleado/formulario_vehiculo.css";
+
+const validationSchema = {
+  modelo: [
+    { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+  ],
+  patente: [
+    { rule: (v) => v?.trim().length > 0, message: "Requerido" },
+    { rule: (v) => !v || /^[a-zA-Z0-9]{6,8}$/.test(v?.trim()), message: "6-8 caracteres alfanuméricos (ej: AA123BB)" },
+  ],
+};
 
 export default function AgregarVehiculo() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
 
-  const [modelo, setModelo] = useState("");
-  const [idModelo, setIdModelo] = useState("");
-  const [patente, setPatente] = useState("");
+  const [formData, setFormData] = useState({ modelo: "", patente: "", idModelo: "" });
   const [guardando, setGuardando] = useState(false);
   const [modelosGlobales, setModelosGlobales] = useState([]);
-  
-  // NUEVO ESTADO: Guardamos un diccionario llave-valor { id_marca: "NombreMarca" } para cruzar datos al instante
   const [marcasLookup, setMarcasLookup] = useState({});
-  
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const autocompleteRef = useRef(null);
+
+  const { touched } = useLiveValidation(formData, validationSchema);
+
+  const buildConditions = (fieldName) => {
+    if (!validationSchema[fieldName]) return [];
+    const value = formData[fieldName];
+    return validationSchema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
 
   useEffect(() => {
     async function cargarCatalogo() {
@@ -86,8 +104,7 @@ export default function AgregarVehiculo() {
   // CORREGIDO: Buscamos el nombre de la marca dinámicamente en nuestro diccionario cruzando el id_marca
   const handleFiltradoModelo = (e) => {
     const valor = e.target.value;
-    setModelo(valor);
-    setIdModelo("");
+    setFormData((prev) => ({ ...prev, modelo: valor, idModelo: "" }));
 
     if (valor.trim().length > 0 && modelosGlobales.length > 0) {
       const filtrados = modelosGlobales.filter((item) => {
@@ -119,8 +136,7 @@ export default function AgregarVehiculo() {
     
     const textoCompleto = nombreMarca ? `${nombreMarca} ${nombreModelo}` : nombreModelo;
     
-    setModelo(textoCompleto);
-    setIdModelo(item.id);
+    setFormData((prev) => ({ ...prev, modelo: textoCompleto, idModelo: item.id }));
     setMostrarSugerencias(false);
   };
 
@@ -128,9 +144,9 @@ export default function AgregarVehiculo() {
     e.preventDefault();
     if (guardando) return;
 
-    const modeloTrim = modelo?.trim();
-    const patenteTrim = patente?.trim();
-    if (!modeloTrim || !patenteTrim || !idModelo) {
+    const modeloTrim = formData.modelo?.trim();
+    const patenteTrim = formData.patente?.trim();
+    if (!modeloTrim || !patenteTrim || !formData.idModelo) {
       Swal.fire({
         icon: "warning",
         title: "Campos incompletos",
@@ -158,7 +174,7 @@ export default function AgregarVehiculo() {
       setGuardando(true);
       const response = await VehiculosCreate({
         id_usuario: Number(idUsuarioFinal),
-        id_modelo: Number(idModelo),
+        id_modelo: Number(formData.idModelo),
         patente: patenteTrim.toUpperCase(),
       });
       if (response.respuesta) {
@@ -227,13 +243,14 @@ export default function AgregarVehiculo() {
                     type="text"
                     id="nuevo-modelo"
                     className="formulario-input"
-                    value={modelo}
+                    value={formData.modelo}
                     onChange={handleFiltradoModelo}
-                    onFocus={() => modelo && setMostrarSugerencias(true)}
+                    onFocus={() => formData.modelo && setMostrarSugerencias(true)}
                     placeholder="Ej. Toyota Corolla"
                     autoComplete="off"
                     required
                   />
+                  <FieldValidation conditions={buildConditions("modelo")} isTouched={touched.modelo} />
                   {mostrarSugerencias && sugerencias.length > 0 && (
                     <ul className="autocomplete-suggestions-panel" style={{ listStyle: "none", padding: 0, margin: 0, position: "absolute", width: "100%", zIndex: 100, background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px", maxHeight: "200px", overflowY: "auto" }}>
                       {sugerencias.map((item, index) => {
@@ -287,12 +304,13 @@ export default function AgregarVehiculo() {
                     type="text"
                     id="nuevo-patente"
                     className="formulario-input"
-                    value={patente}
-                    onChange={(e) => setPatente(e.target.value)}
+                    value={formData.patente}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, patente: e.target.value }))}
                     placeholder="Ej. AA123BB"
                     autoComplete="off"
                     required
                   />
+                  <FieldValidation conditions={buildConditions("patente")} isTouched={touched.patente} />
                 </div>
               </div>
 

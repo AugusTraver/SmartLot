@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
-import FormularioDetallesVehiculo from "../componentesAdmin/formulario_detallesVehiculo";
 import Header from "../componentesAdmin/header_admin";
 import "./agregar_empleado.css"
 import { CircleCheck } from 'lucide-react';
@@ -11,6 +10,7 @@ import { UsuariosCreate } from "../servicies/API_Usuario";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
+import useLiveValidation from "../hooks/useLiveValidation";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -37,7 +37,7 @@ function AgregarEmpleado() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [modelos, setModelos] = useState([]);
+  const [, setModelos] = useState([]);
   const [sedes, setSedes] = useState([]);
 
   useEffect(() => {
@@ -77,87 +77,76 @@ function AgregarEmpleado() {
     fetchData();
   }, [usuario]);
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const getSchema = () => ({
+    nombre: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+    ],
+    apellido: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 2, message: 'Mínimo 2 caracteres' },
+      { rule: (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/.test(v), message: 'Solo letras' },
+    ],
+    email: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), message: 'Email inválido' },
+    ],
+    contraseña: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.length >= 6, message: 'Mínimo 6 caracteres' },
+    ],
+    telefono: [
+      { rule: (v) => !v || v.trim().length === 0 || /^[+]{0,1}[0-9\s-()]+$/.test(v.trim()), message: 'Solo números, espacios, guiones, +, ()' },
+      { rule: (v) => !v || v.trim().length === 0 || v.trim().replace(/\D/g, '').length >= 7, message: 'Mínimo 7 dígitos' },
+    ],
+    patente: [
+      { rule: (v) => !v || v.trim().length === 0 || /^[a-zA-Z0-9]{6,8}$/.test(v.trim()), message: '6-8 caracteres alfanuméricos' },
+    ],
+    id_modelo: [
+      { rule: (v) => v === null || v === undefined || v === '' || !isNaN(Number(v)), message: 'Selecciona un modelo' },
+    ],
+  });
+
+  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formData[fieldName];
+    return schema[fieldName].map((item) => {
+      const ruleFn = item.rule;
+      const message = item.message;
+      return { label: message, met: ruleFn(value) };
+    });
+  };
+
+  const fieldsValidation = {};
+  Object.keys(getSchema()).forEach((field) => {
+    fieldsValidation[field] = {
+      conditions: buildConditions(field),
+      isTouched: touched[field],
+    };
+  });
+
+  const handleChangeWithTouchWrapper = (field, value) => {
+    handleChangeWithTouch(field, value, setFormData);
   };
 
   const handleGuardarEmpleado = async () => {
     setError('');
 
-    // Validaciones personalizadas
-    if (!formData.nombre || !formData.nombre.trim()) {
-      setError('❌ El nombre es requerido.');
-      return;
-    }
-    if (formData.nombre.trim().length < 2) {
-      setError('❌ El nombre debe tener al menos 2 caracteres.');
-      return;
-    }
-    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/;
-    if (!nombreRegex.test(formData.nombre.trim())) {
-      setError('❌ El nombre solo debe contener letras.');
+    if (!isValid) {
+      setError('❌ Corrige los errores antes de guardar.');
       return;
     }
 
-    if (!formData.apellido || !formData.apellido.trim()) {
-      setError('❌ El apellido es requerido.');
-      return;
-    }
-    if (formData.apellido.trim().length < 2) {
-      setError('❌ El apellido debe tener al menos 2 caracteres.');
-      return;
-    }
-    if (!nombreRegex.test(formData.apellido.trim())) {
-      setError('❌ El apellido solo debe contener letras.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email || !formData.email.trim()) {
-      setError('❌ El correo electrónico es requerido.');
-      return;
-    }
-    if (!emailRegex.test(formData.email.trim())) {
-      setError('❌ El correo electrónico no tiene un formato válido (ej: usuario@ejemplo.com).');
-      return;
-    }
-
-    if (!formData.contraseña) {
-      setError('❌ La contraseña es requerida.');
-      return;
-    }
-    if (formData.contraseña.length < 6) {
-      setError('❌ La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
-
-    if (formData.telefono && formData.telefono.trim()) {
-      const telefonoRegex = /^[+]{0,1}[0-9\s-()]+$/;
-      if (!telefonoRegex.test(formData.telefono.trim())) {
-        setError('❌ El teléfono solo puede contener números, espacios, guiones, paréntesis o el signo +.');
-        return;
-      }
-      if (formData.telefono.trim().replace(/\D/g, '').length < 7) {
-        setError('❌ El teléfono debe tener al menos 7 dígitos.');
-        return;
-      }
-    }
-
-    // Validaciones de vehículo
     const patenteIngresada = formData.patente && formData.patente.trim();
     const modeloSeleccionado = formData.id_modelo;
 
     if ((patenteIngresada && !modeloSeleccionado) || (!patenteIngresada && modeloSeleccionado)) {
       setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como seleccionar un modelo.');
       return;
-    }
-
-    if (patenteIngresada && modeloSeleccionado) {
-      const patenteRegex = /^[a-zA-Z0-9]{6,8}$/;
-      if (!patenteRegex.test(patenteIngresada)) {
-        setError('❌ La patente debe ser alfanumérica y tener entre 6 y 8 caracteres (ej: AAA123 o AB123CD).');
-        return;
-      }
     }
 
     if (!formData.id_empresa) {
@@ -242,12 +231,13 @@ function AgregarEmpleado() {
               sede: 'Sede',
             }}
             formData={formData}
-            onChange={handleChange}
+            onChange={handleChangeWithTouchWrapper}
             sedes={sedes}
             isSedeDisabled={!!usuario?.id_sede}
+            fieldsValidation={fieldsValidation}
           />
 
-       
+        
         {error && <p className="form-error">{error}</p>}
 
         <div className="form-actions">

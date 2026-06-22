@@ -1,8 +1,9 @@
 import { CarFront } from 'lucide-react';
 import "./formularios.css";
 import "./formulario_detallesVehiculo.css";
+import FieldValidation from "../components/FieldValidation";
 
-function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleData, onChange, modelos }) {
+function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleData, onChange, modelos, fieldsValidation = {} }) {
   const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
   const handleModeloChange = (e) => {
     const value = e.target.value;
@@ -19,6 +20,9 @@ function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleDat
           <div className="input-group">
             <input type="text" placeholder="ABC123" value={vehicleData.patente} onChange={(e) => onChange('patente', e.target.value)} required />
             <label>{labels.patente}</label>
+            {fieldsValidation.patente && (
+              <FieldValidation conditions={fieldsValidation.patente.conditions} isTouched={fieldsValidation.patente.isTouched} />
+            )}
           </div>
  
          <div className={`input-group${vehicleData.id_modelo ? ' has-value' : ''}`}>
@@ -33,6 +37,9 @@ function FormularioDetallesVehiculo({ detallesVehiculoTitulo, labels, vehicleDat
              ))}
            </select>
            <label>{labels.modelo}</label>
+           {fieldsValidation.id_modelo && (
+              <FieldValidation conditions={fieldsValidation.id_modelo.conditions} isTouched={fieldsValidation.id_modelo.isTouched} />
+            )}
          </div>
       </section>
  )

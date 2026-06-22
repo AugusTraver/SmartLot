@@ -9,6 +9,7 @@ import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
+import useLiveValidation from "../hooks/useLiveValidation";
 
 function AgregarZona() {
   const navigate = useNavigate();
@@ -61,15 +62,69 @@ function AgregarZona() {
     cargarSedes();
   }, [usuario]);
 
+  const getSchema = () => ({
+    nombre: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 3, message: 'Mínimo 3 caracteres' },
+    ],
+    piso: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => v === '' || v === null || v === undefined || (!isNaN(Number(v)) && Number.isInteger(Number(v))), message: 'Debe ser número entero' },
+    ],
+    ubicacion: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
+    ],
+    hora_apertura: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
+    ],
+    hora_cierre: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
+      () => ({ rule: () => !formData.hora_apertura || !formData.hora_cierre || formData.hora_apertura < formData.hora_cierre, message: 'Apertura debe ser anterior a cierre' }),
+    ],
+    capacidad_reservas: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => v === '' || v === null || v === undefined || (!isNaN(Number(v)) && Number.isInteger(Number(v)) && Number(v) >= 0), message: 'Número entero ≥ 0' },
+    ],
+    capacidad_para_no_reservas: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => v === '' || v === null || v === undefined || (!isNaN(Number(v)) && Number.isInteger(Number(v)) && Number(v) >= 0), message: 'Número entero ≥ 0' },
+    ],
+    dias: [
+      { rule: (v) => Array.isArray(v) && v.length > 0, message: 'Selecciona al menos un día' },
+    ],
+  });
+
+  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+
+  const buildConditions = (fieldName) => {
+    const schema = getSchema();
+    if (!schema[fieldName]) return [];
+    const value = formData[fieldName];
+    return schema[fieldName].map((item) => {
+      if (typeof item === 'function') {
+        const result = item(value);
+        return { label: result.message, met: result.rule(value) };
+      }
+      return { label: item.message, met: item.rule(value) };
+    });
+  };
+
+  const fieldsValidation = {};
+  Object.keys(getSchema()).forEach((field) => {
+    fieldsValidation[field] = {
+      conditions: buildConditions(field),
+      isTouched: touched[field],
+    };
+  });
+
   const handleChange = (field, value) => {
     if (typeof field === "object" && field !== null) {
       setFormData(field);
     } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      handleChangeWithTouch(field, value, setFormData);
     }
   };
-
-  const esHoraValida = (hora) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(hora || ""));
 
   const handleCrearZona = async () => {
     setError("");
@@ -79,96 +134,20 @@ function AgregarZona() {
       return;
     }
 
-    if (!formData.id_sede || formData.id_sede.toString().trim() === "") {
-      setError("❌ La sede es requerida.");
+    if (!isValid) {
+      setError("❌ Corrige los errores antes de guardar.");
       return;
     }
 
     const sedeId = Number(formData.id_sede);
-    if (isNaN(sedeId) || sedeId <= 0) {
+    if (isNaN(sedeId) || sedeId <= 0 || !sedes.some((sede) => Number(sede.id) === sedeId)) {
       setError("❌ La sede seleccionada no es válida.");
       return;
     }
 
-    if (!sedes.some((sede) => Number(sede.id) === sedeId)) {
-      setError("❌ La sede seleccionada no es válida.");
-      return;
-    }
-
-    // Validaciones
-    if (!formData.nombre || !formData.nombre.trim()) {
-      setError("❌ El nombre del garage es requerido.");
-      return;
-    }
-    if (formData.nombre.trim().length < 3) {
-      setError("❌ El nombre del garage debe tener al menos 3 caracteres.");
-      return;
-    }
-
-    if (formData.piso === undefined || formData.piso === null || formData.piso.toString().trim() === "") {
-      setError("❌ El nivel/planta es requerido.");
-      return;
-    }
-    const pisoNum = Number(formData.piso);
-    if (isNaN(pisoNum) || !Number.isInteger(pisoNum)) {
-      setError("❌ El nivel/planta debe ser un número entero válido.");
-      return;
-    }
-
-    if (!formData.ubicacion || !formData.ubicacion.trim()) {
-      setError("❌ La ubicación es requerida.");
-      return;
-    }
-    if (formData.ubicacion.trim().length < 5) {
-      setError("❌ La ubicación debe tener al menos 5 caracteres.");
-      return;
-    }
-
-    if (!esHoraValida(formData.hora_apertura)) {
-      setError("La hora de apertura es requerida.");
-      return;
-    }
-
-    if (!esHoraValida(formData.hora_cierre)) {
-      setError("La hora de cierre es requerida.");
-      return;
-    }
-
-    if (formData.hora_apertura >= formData.hora_cierre) {
-      setError("La hora de apertura debe ser anterior a la hora de cierre.");
-      return;
-    }
-
-    if (formData.capacidad_reservas === undefined || formData.capacidad_reservas === null || formData.capacidad_reservas.toString().trim() === "") {
-      setError("❌ La capacidad de reservas es requerida.");
-      return;
-    }
     const capRes = Number(formData.capacidad_reservas);
-    if (isNaN(capRes) || capRes < 0 || !Number.isInteger(capRes)) {
-      setError("❌ La capacidad de reservas debe ser un número entero mayor o igual a 0.");
-      return;
-    }
-
-    if (formData.capacidad_para_no_reservas === undefined || formData.capacidad_para_no_reservas === null || formData.capacidad_para_no_reservas.toString().trim() === "") {
-      setError("❌ La capacidad para no reservas es requerida.");
-      return;
-    }
     const capNoRes = Number(formData.capacidad_para_no_reservas);
-    if (isNaN(capNoRes) || capNoRes < 0 || !Number.isInteger(capNoRes)) {
-      setError("❌ La capacidad para no reservas debe ser un número entero mayor o igual a 0.");
-      return;
-    }
-
     const cap = capRes + capNoRes;
-    if (cap <= 0) {
-      setError("❌ La capacidad total debe ser mayor a 0.");
-      return;
-    }
-
-    if (!formData.dias || formData.dias.length === 0) {
-      setError("❌ Debes seleccionar al menos un día operativo para el garage.");
-      return;
-    }
 
     setLoading(true);
 
@@ -221,6 +200,7 @@ function AgregarZona() {
             formData={formData}
             onChange={handleChange}
             sedes={sedes}
+            fieldsValidation={fieldsValidation}
           />
 
           <FormularioCapacidad

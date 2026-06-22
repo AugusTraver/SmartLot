@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import "./formulario_zona.css";
 import { DIAS_SEMANA } from "../helpers/diasSemana";
+import FieldValidation from "../components/FieldValidation";
 
 function FormularioZona({
     formData,
     onChange,
-    sedes = []
+    sedes = [],
+    fieldsValidation = {}
 }) {
 
   const toggleDia = (diaApi) => {
@@ -47,6 +49,9 @@ function FormularioZona({
                     required
                 />
                     <label>Nombre del garage</label>
+                    {fieldsValidation.nombre && (
+                      <FieldValidation conditions={fieldsValidation.nombre.conditions} isTouched={fieldsValidation.nombre.isTouched} />
+                    )}
                 </div>
                <section className='inputsNivelYSede'>
                      <div className="fila-inputs">
@@ -60,6 +65,9 @@ function FormularioZona({
                             required
                         />
                         <label>Nivel / Planta</label>
+                        {fieldsValidation.piso && (
+                          <FieldValidation conditions={fieldsValidation.piso.conditions} isTouched={fieldsValidation.piso.isTouched} />
+                        )}
                     </div>
                 </div>
 
@@ -111,6 +119,9 @@ function FormularioZona({
                         required
                     />
                     <label>Ubicacion</label>
+                    {fieldsValidation.ubicacion && (
+                      <FieldValidation conditions={fieldsValidation.ubicacion.conditions} isTouched={fieldsValidation.ubicacion.isTouched} />
+                    )}
                 </div>
 
                 <div className="fila-inputs fila-horarios" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
@@ -129,6 +140,9 @@ function FormularioZona({
                             required={!es24Horas}
                         />
                         <label>Hora de apertura</label>
+                        {fieldsValidation.hora_apertura && (
+                          <FieldValidation conditions={fieldsValidation.hora_apertura.conditions} isTouched={fieldsValidation.hora_apertura.isTouched} />
+                        )}
                     </div>
 
                     <div className="input-group input-group-time" style={{ flex: '1 1 140px' }}>
@@ -146,6 +160,9 @@ function FormularioZona({
                             required={!es24Horas}
                         />
                         <label>Hora de cierre</label>
+                        {fieldsValidation.hora_cierre && (
+                          <FieldValidation conditions={fieldsValidation.hora_cierre.conditions} isTouched={fieldsValidation.hora_cierre.isTouched} />
+                        )}
                     </div>
 
                     <label
@@ -189,6 +206,9 @@ function FormularioZona({
 
                 <div className="dias-semana-section">
                   <label className="dias-semana-label">Días operativos</label>
+                  {fieldsValidation.dias && (
+                    <FieldValidation conditions={fieldsValidation.dias.conditions} isTouched={fieldsValidation.dias.isTouched} />
+                  )}
                   <div className="dias-semana-grid">
                     {DIAS_SEMANA.map((dia) => {
                       const seleccionado = (formData.dias || []).includes(dia.api);

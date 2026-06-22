@@ -1,8 +1,8 @@
 // src/componentesEmpleado/formulario_info_personal.jsx
-import React from "react";
 import { User } from "lucide-react";
+import FieldValidation from "../components/FieldValidation";
 
-export default function FormularioInfoPersonal({ data = {}, onChange }) {
+export default function FormularioInfoPersonal({ data = {}, onChange, telefonoFieldValidation }) {
   return (
     <section
       className=" inforpersonal-contenedor formulario-seccion animate-section" 
@@ -70,10 +70,26 @@ export default function FormularioInfoPersonal({ data = {}, onChange }) {
             name="telefono"
             className="formulario-input"
             value={data.telefono || ""}
-            onChange={onChange}
+            onChange={(e) => {
+              onChange(e);
+              if (telefonoFieldValidation?.inputProps?.onChange) {
+                telefonoFieldValidation.inputProps.onChange(e);
+              }
+            }}
+            onBlur={(e) => {
+              if (telefonoFieldValidation?.inputProps?.onBlur) {
+                telefonoFieldValidation.inputProps.onBlur(e);
+              }
+            }}
             autoComplete="off"
             required
           />
+          {telefonoFieldValidation && (
+            <FieldValidation
+              conditions={telefonoFieldValidation.conditions}
+              isTouched={telefonoFieldValidation.isTouched}
+            />
+          )}
         </div>
       </div>
     </section>
