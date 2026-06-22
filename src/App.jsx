@@ -76,12 +76,12 @@ function AppRoutes() {
           <NuevaReserva />
         </ProtectedRoute>
       } />
-         <Route path="/historial_reserva" element={
+      <Route path="/historial_reserva" element={
         <ProtectedRoute allowedRoles={[2]} usuario={usuario}>
           <HistorialReserva />
         </ProtectedRoute>
       } />
-      
+       
 
 
       {/* Ruta del Perfil del Empleado protegida */}

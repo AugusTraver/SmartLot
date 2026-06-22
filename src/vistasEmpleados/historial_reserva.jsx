@@ -1,41 +1,171 @@
-import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
+import { useEffect, useState } from "react";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
-import "./historial_reserva.css"
-import { useNavigate } from "react-router-dom"
+import HeaderEmpleado from "../componentesEmpleado/header_empleado";
+import FooterEmpleado from "../componentesEmpleado/footer_empleado";
+import "./historial_reserva.css";
 
-function HistorialReserva ()
-{
-    const navigate = useNavigate()
-     const [ReservaAcual, setUltimaReserva] = useState(null);
+function HistorialReservaSkeleton() {
+  return (
+    <>
+      <div className="historial-title-skeleton" aria-label="Cargando historial">
+        <span className="historial-skeleton-line historial-skeleton-title" />
+        <span className="historial-skeleton-line historial-skeleton-subtitle" />
+      </div>
 
- 
-    useEffect(() => {
-    // Simulación de datos que vendrían del backend
-    const ReservaAcual = {
-      nivel: 2,
-      plaza: "B-12",
-      garage: "Oficinas Centrales",
-      entrada: "Hoy, 09:00",
-      salida: "Hoy, 18:00",
-      estado: "Finalizada",
-    };
+      <section className="historial-section historial-section--current historial-skeleton-section">
+        <div className="historial-section-header">
+          <span className="historial-skeleton-line historial-skeleton-kicker" />
+          <span className="historial-skeleton-line historial-skeleton-heading" />
+        </div>
 
-    setUltimaReserva(ReservaAcual);
-  }, []);
-       return (
-    <main className="historial-page">
-      <h1>Historial de Reservas</h1>
-      <p>Gestiona tus estacionamientos pasados y próximos.</p>
-
-      <section className="ultima-reserva-section">
-        <h2>Ultima reserva</h2>
-
-        {ultimaReserva && (
-          <TarjetaReserva reserva={ReservaAcual} />
-        )}
+        <div className="historial-skeleton-card">
+          <span className="historial-skeleton-block historial-skeleton-plaza" />
+          <div className="historial-skeleton-card-info">
+            <span className="historial-skeleton-line historial-skeleton-card-title" />
+            <span className="historial-skeleton-line historial-skeleton-card-text" />
+            <span className="historial-skeleton-line historial-skeleton-card-chip" />
+          </div>
+          <span className="historial-skeleton-block historial-skeleton-action" />
+        </div>
       </section>
-    </main>
+
+      <section className="historial-section historial-section--past">
+        <div className="historial-section-header">
+          <span className="historial-skeleton-line historial-skeleton-kicker" />
+          <span className="historial-skeleton-line historial-skeleton-heading" />
+        </div>
+
+        <div className="historial-skeleton-card">
+          <span className="historial-skeleton-block historial-skeleton-plaza" />
+          <div className="historial-skeleton-card-info">
+            <span className="historial-skeleton-line historial-skeleton-card-title historial-skeleton-card-title-short" />
+            <span className="historial-skeleton-line historial-skeleton-card-text" />
+          </div>
+          <span className="historial-skeleton-block historial-skeleton-action" />
+        </div>
+        <span className="historial-skeleton-block historial-skeleton-toggle" />
+      </section>
+    </>
   );
 }
 
-export default HistorialReserva
+function HistorialReserva() {
+  const [ultimaReserva, setUltimaReserva] = useState(null);
+  const [reservasPasadas, setReservasPasadas] = useState([]);
+  const [mostrarMasPasadas, setMostrarMasPasadas] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+
+    const timer = window.setTimeout(() => {
+      // Simulacion de datos que vendrian del backend.
+      const reservaActual = {
+        fecha: new Date().toISOString().split("T")[0],
+        nombre_zona: "Nivel 2",
+        nro_plaza: "B-12",
+        nombre_garage: "Oficinas Centrales",
+        hora_entrada: "09:00",
+        hora_salida: "18:00",
+        estado: "Finalizada",
+      };
+
+      const reservasPasadas = [
+        {
+          id_reserva: 2,
+          fecha: "2026-06-15",
+          nombre_zona: "Nivel 1",
+          nro_plaza: "A-08",
+          nombre_garage: "Torre Corporativa",
+          hora_entrada: "09:00",
+          hora_salida: "18:30",
+          estado: "Completada",
+        },
+        {
+          id_reserva: 3,
+          fecha: "2026-06-08",
+          nombre_zona: "Nivel 3",
+          nro_plaza: "C-04",
+          nombre_garage: "Oficinas Centrales",
+          hora_entrada: "08:30",
+          hora_salida: "17:00",
+          estado: "Completada",
+        },
+      ];
+
+      setUltimaReserva(reservaActual);
+      setReservasPasadas(reservasPasadas);
+      setLoading(false);
+    }, 700);
+
+    return () => window.clearTimeout(timer); // le pone un tiempo de carga hardcodeado 
+  }, []);
+
+  const reservaPasadaPrincipal = reservasPasadas[0] || null; 
+  const restoReservasPasadas = reservasPasadas.slice(1); 
+  const tieneMasReservasPasadas = restoReservasPasadas.length > 0; 
+
+  return (
+    <div className="historial-page">
+      <HeaderEmpleado />
+      <main className="historial-main">
+        {loading ? (
+          <HistorialReservaSkeleton />
+        ) : (
+          <>
+            <h1>Historial de Reservas</h1>
+            <p>Gestiona tus estacionamientos pasados y proximos.</p>
+
+            <section className="historial-section historial-section--current">
+              <div className="historial-section-header">
+                <span>Resumen</span>
+                <h2>Ultima reserva</h2>
+              </div>
+
+              {ultimaReserva && (
+                <TarjetaReserva reserva={ultimaReserva} />
+              )}
+            </section>
+            <section className="historial-section historial-section--past">
+              <div className="historial-section-header">
+                <span>Actividad</span>
+                <h2>Reservas pasadas</h2>
+              </div>
+
+              {reservaPasadaPrincipal && (
+                <TarjetaReserva
+                  key={reservaPasadaPrincipal.id_reserva}
+                  reserva={reservaPasadaPrincipal}
+                />
+              )}
+
+              {tieneMasReservasPasadas && (
+                <button
+                  type="button"
+                  className={`historial-toggle${mostrarMasPasadas ? " historial-toggle--open" : ""}`}
+                  onClick={() => setMostrarMasPasadas((prev) => !prev)}
+                  aria-expanded={mostrarMasPasadas}
+                >
+                  <span>{mostrarMasPasadas ? "Mostrar menos" : `Mostrar mas (${restoReservasPasadas.length})`}</span>
+                  <span className="historial-toggle-arrow" aria-hidden="true">&gt;</span>
+                </button>
+              )}
+
+              <div className={`historial-rest${mostrarMasPasadas ? " historial-rest--open" : ""}`}>
+                {restoReservasPasadas.map((reserva) => (
+                  <TarjetaReserva
+                    key={reserva.id_reserva}
+                    reserva={reserva}
+                  />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+      </main>
+      <FooterEmpleado />
+    </div>
+  );
+}
+
+export default HistorialReserva;

@@ -12,6 +12,7 @@ const patrones = [
   { patron: /(veh[ií]culo.*no.*encontrad|no.*existe.*veh[ií]culo|veh[ií]culo.*inva[lí]lid)/, texto: "El veh\u00edculo seleccionado no fue encontrado." },
   { patron: /(usuario.*no.*encontrad|no.*existe.*usuario|usuario.*inva[lí]lid)/, texto: "No se pudo identificar al usuario. Inici\u00e1 sesi\u00f3n nuevamente." },
   { patron: /(garage.*disponible|garage.*ocupad)/, texto: "El garage seleccionado no est\u00e1 disponible en este momento. Eleg\u00ed otro o intent\u00e1 de nuevo." },
+  { patron: /(m[a\u00e1]ximo.*reservas|l[i\u00ed]mite.*reservas|2.*reservas.*d[i\u00ed]a)/, texto: "Ya alcanzaste el l\u00edmite de 2 reservas para ese d\u00eda. Finaliz\u00e1 una reserva existente o eleg\u00ed otra fecha." },
 ];
 
 function textoLimpio(texto) {
