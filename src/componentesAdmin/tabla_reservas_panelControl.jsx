@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/useAuth';
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { ReservasGetAll } from '../servicies/API_Reserva';
 import { UsuariosGetAll } from '../servicies/API_Usuario';
 import { GaragesGetAll } from '../servicies/API_Garage';
@@ -8,6 +8,7 @@ import { SedesGetAll } from '../servicies/API_Sede';
 import "./tabla_reservas_panelControl.css";
 
 const AVATAR_COLORS = ["blue", "orange", "green", "purple", "pink", "teal"];
+const ITEMS_PER_PAGE = 3;
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -69,6 +70,8 @@ export default function TablaReservasPanleControl() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeChip, setActiveChip] = useState("Todas");
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     let montado = true;
@@ -207,6 +210,10 @@ export default function TablaReservasPanleControl() {
     });
   }, [reservasCrudas, usuariosMap, garagesMap, usuario]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeChip]);
+
   const chips = useMemo(() => {
     const nombresGarages = garagesList
       .map((g) => g.nombre || g.name || g.descripcion || "Garage")
@@ -235,6 +242,41 @@ export default function TablaReservasPanleControl() {
       return coincideBusqueda && coincideChip;
     });
   }, [reservasNormalizadas, searchTerm, activeChip]);
+
+  const totalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
+  }, [filteredData]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredData.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredData, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const goToPrevPage = useCallback(() => {
+    setCurrentPage(p => Math.max(p - 1, 1));
+  }, []);
+
+  const goToNextPage = useCallback(() => {
+    setCurrentPage(p => Math.min(p + 1, totalPages));
+  }, [totalPages]);
+
+  const goToPage = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
+
+  const pageButtons = useMemo(() => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [totalPages]);
 
   return (
     <div className="reservations-container">
@@ -270,84 +312,116 @@ export default function TablaReservasPanleControl() {
 
       <div className="reservations-table-wrapper">
         <table className="reservations-table">
-          <thead>
+          <thead className="reservations-table__head" onClick={() => setIsOpen(o => !o)}>
             <tr>
-              <th>USUARIO</th>
+              <th>
+                <span className="reservations-table__head-toggle">
+                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  USUARIO
+                </span>
+              </th>
               <th>PLAZA / ZONA</th>
               <th>FECHA / HORA</th>
             </tr>
           </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="3" className="reservations-table__empty">
-                  Cargando reservas...
-                </td>
-              </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan="3" className="reservations-table__empty">
-                  {error}
-                </td>
-              </tr>
-            ) : reservasNormalizadas.length === 0 ? (
-              <tr>
-                <td colSpan="3" className="reservations-table__empty">
-                  No hay reservas disponibles
-                </td>
-              </tr>
-            ) : filteredData.length === 0 ? (
-              <tr>
-                <td colSpan="3" className="reservations-table__empty">
-                  No se encontraron reservas para &quot;{searchTerm}&quot;
-                </td>
-              </tr>
-            ) : (
-              filteredData.map((item) => (
-                <tr key={item.id} className="reservations-table__row">
-                  <td data-label="USUARIO">
-                    <div className="user-info">
-                      <div className={`user-info__avatar user-info__avatar--${item.color}`}>
-                        {item.iniciales}
-                      </div>
-                      <span className="user-info__name">{item.nombre}</span>
-                    </div>
-                  </td>
-                  <td data-label="PLAZA / ZONA">
-                    <div className="cell-block">
-                      <span className="cell-block__title">{item.plaza}</span>
-                      <span className="cell-block__subtitle">{item.zona}</span>
-                    </div>
-                  </td>
-                  <td data-label="FECHA / HORA">
-                    <div className="cell-block">
-                      <span className="cell-block__title">{item.fecha}</span>
-                      <span className="cell-block__subtitle">{item.hora}</span>
-                    </div>
+          {isOpen && (
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="3" className="reservations-table__empty">
+                    Cargando reservas...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
+              ) : error ? (
+                <tr>
+                  <td colSpan="3" className="reservations-table__empty">
+                    {error}
+                  </td>
+                </tr>
+              ) : reservasNormalizadas.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="reservations-table__empty">
+                    No hay reservas disponibles
+                  </td>
+                </tr>
+              ) : paginatedData.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="reservations-table__empty">
+                    No se encontraron reservas para &quot;{searchTerm}&quot;
+                  </td>
+                </tr>
+              ) : (
+                paginatedData.map((item) => (
+                  <tr key={item.id} className="reservations-table__row">
+                    <td data-label="USUARIO">
+                      <div className="user-info">
+                        <div className={`user-info__avatar user-info__avatar--${item.color}`}>
+                          {item.iniciales}
+                        </div>
+                        <span className="user-info__name">{item.nombre}</span>
+                      </div>
+                    </td>
+                    <td data-label="PLAZA / ZONA">
+                      <div className="cell-block">
+                        <span className="cell-block__title">{item.plaza}</span>
+                        <span className="cell-block__subtitle">{item.zona}</span>
+                      </div>
+                    </td>
+                    <td data-label="FECHA / HORA">
+                      <div className="cell-block">
+                        <span className="cell-block__title">{item.fecha}</span>
+                        <span className="cell-block__subtitle">{item.hora}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          )}
         </table>
       </div>
 
-      <footer className="pagination">
-        <span className="pagination__info">
-          {loading
-            ? "Cargando..."
-            : `Mostrando ${filteredData.length} de ${reservasNormalizadas.length} reservas`}
-        </span>
-        <div className="pagination__controls">
-          <button className="pagination__btn" aria-label="Página anterior">
-            <ChevronLeft size={18} />
-          </button>
-          <button className="pagination__btn pagination__btn--active">1</button>
-          <button className="pagination__btn" aria-label="Siguiente página">
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </footer>
+      {isOpen && (
+        <footer className="pagination">
+          <span className="pagination__info">
+            {loading
+              ? "Cargando..."
+              : totalPages <= 1
+                ? `Mostrando ${filteredData.length} de ${reservasNormalizadas.length} reservas`
+                : `Página ${currentPage} de ${totalPages} (${filteredData.length} reservas)`
+            }
+          </span>
+          {totalPages > 1 && (
+            <div className="pagination__controls">
+              <button
+                className="pagination__btn"
+                onClick={goToPrevPage}
+                disabled={currentPage <= 1}
+                aria-label="Página anterior"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              {pageButtons.map(page => (
+                <button
+                  key={page}
+                  className={`pagination__btn ${currentPage === page ? "pagination__btn--active" : ""}`}
+                  onClick={() => goToPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                className="pagination__btn"
+                onClick={goToNextPage}
+                disabled={currentPage >= totalPages}
+                aria-label="Siguiente página"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+        </footer>
+      )}
     </div>
   );
 }

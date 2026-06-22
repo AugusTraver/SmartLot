@@ -6,6 +6,7 @@
   width: 100%;
   box-sizing: border-box;
   margin-top: 4%;
+  border-radius: 2%;
 }
 
 /* --- Barra de Búsqueda y Botón Filtro --- */
@@ -16,7 +17,7 @@
 }
 
 .filter-bar__search-wrap {
-  position: fixed;
+  position: relative;
   flex-grow: 1;
 }
 
@@ -126,9 +127,40 @@
   border-collapse: collapse;
 }
 
-/* Forzar la vista de tarjetas apiladas en celular */
-.reservations-table thead {
-  display: none;
+.reservations-table__head {
+  cursor: pointer;
+  user-select: none;
+  display: block;
+  width: 100%;
+}
+
+.reservations-table__head:hover {
+  background-color: #f1f5f9;
+}
+
+.reservations-table__head-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reservations-table__head tr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reservations-table__head th {
+  display: inline;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-align: left;
+  border: none;
 }
 
 .reservations-table tbody, 
@@ -143,6 +175,8 @@
   padding: 1.25rem 1rem;
   border-bottom: 1px solid #f1f5f9;
   position: relative;
+ 
+  
 }
 
 .reservations-table__row:last-child {
@@ -152,6 +186,8 @@
 .reservations-table td {
   padding: 0.375rem 0;
   text-align: left;
+   height: 20% !important;
+  width: 30% !important;
 }
 
 /* Bloques de Datos */
@@ -277,6 +313,15 @@
   background-color: #1e40af;
 }
 
+.pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination__btn:disabled:hover {
+  background-color: #e2e8f0;
+}
+
 
 /* ==========================================================================
    💻 MEDIA QUERY: Transformación a Tabla Real de Escritorio (>= 1024px)
@@ -286,12 +331,25 @@
     max-width: 24rem;
   }
 
-  .reservations-table thead {
-    display: table-header-group; /* Restaura la cabecera real de la tabla */
+  .reservations-table__head {
+    display: table-header-group;
     background-color: #f8fafc;
+    cursor: pointer;
+    user-select: none;
   }
 
-  .reservations-table th {
+  .reservations-table__head:hover {
+    background-color: #f1f5f9;
+  }
+
+  .reservations-table__head tr {
+    display: table-row;
+    padding: 0;
+    border: none;
+  }
+
+  .reservations-table__head th {
+    display: table-cell;
     padding: 1rem 1.5rem;
     font-size: 0.75rem;
     font-weight: 700;
