@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MessageCircleQuestion, X } from "lucide-react";
 import "./empleados_dashboard.css";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
@@ -10,6 +11,7 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
+import { ConflictosCreate } from "../servicies/API_Conflicto";
 import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
@@ -302,6 +304,11 @@ function EmpleadoDashboard() {
   const [reservaEditando, setReservaEditando] = useState(null);
   const [reservaNormEditando, setReservaNormEditando] = useState(null);
   const [horaSeleccionada, setHoraSeleccionada] = useState("");
+  const [modalReporteOpen, setModalReporteOpen] = useState(false);
+  const [descripcionReporte, setDescripcionReporte] = useState("");
+  const [prioridadReporte, setPrioridadReporte] = useState("Media");
+  const [enviandoReporte, setEnviandoReporte] = useState(false);
+  const [mensajeReporte, setMensajeReporte] = useState(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -571,6 +578,55 @@ function EmpleadoDashboard() {
     setReservaNormEditando(null);
   };
 
+  const abrirModalReporte = () => {
+    setMensajeReporte(null);
+    setModalReporteOpen(true);
+  };
+
+  const cerrarModalReporte = () => {
+    if (enviandoReporte) return;
+    setModalReporteOpen(false);
+    setDescripcionReporte("");
+    setPrioridadReporte("Media");
+    setMensajeReporte(null);
+  };
+
+  const handleEnviarReporte = async (event) => {
+    event.preventDefault();
+    const descripcion = descripcionReporte.trim();
+    const idUsuario = Number(obtenerIdUsuario(perfilUsuario || usuario));
+
+    if (!descripcion) {
+      setMensajeReporte({ tipo: "error", texto: "Describi brevemente el problema." });
+      return;
+    }
+
+    if (!Number.isFinite(idUsuario)) {
+      setMensajeReporte({ tipo: "error", texto: "No se pudo identificar tu usuario." });
+      return;
+    }
+
+    setEnviandoReporte(true);
+    setMensajeReporte(null);
+
+    const resultado = await ConflictosCreate({
+      id_usuario: idUsuario,
+      descripcion,
+      prioridad: prioridadReporte,
+    });
+
+    if (resultado.respuesta) {
+      setModalReporteOpen(false);
+      setDescripcionReporte("");
+      setPrioridadReporte("Media");
+      setMensajeReporte(null);
+    } else {
+      setMensajeReporte({ tipo: "error", texto: resultado.datos?.message || "No se pudo enviar el reporte." });
+    }
+
+    setEnviandoReporte(false);
+  };
+
   return (
     <div className="empleado-dashboard-page">
       <HeaderEmpleado />
@@ -594,6 +650,14 @@ function EmpleadoDashboard() {
             <span>Agenda</span>
             <h2>Mis Reservas Actuales</h2>
           </div>
+          <button
+            type="button"
+            className="empleado-reportar-problema-link"
+            onClick={abrirModalReporte}
+          >
+            <MessageCircleQuestion size={16} />
+            Soporte
+          </button>
         </div>
 
         {error && (
@@ -632,13 +696,66 @@ function EmpleadoDashboard() {
         >
           Nueva reserva
         </button>
-        
+
        <FormularioDetallesVehiculo vehiculos={vehiculos} onVehiculoEliminado={(id) => setVehiculos((prev) => prev.filter((v) => (v.id ?? v.id_vehiculo ?? v._id) !== id))} />
 
       
       </main>
       <FooterEmpleado />
 
+      {modalReporteOpen && (
+        <div className="empleado-reporte-overlay" role="presentation" onMouseDown={cerrarModalReporte}>
+          <section
+            className="empleado-reporte-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="empleado-reporte-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="empleado-reporte-header">
+              <div>
+                <span>Soporte</span>
+                <h2 id="empleado-reporte-title">Reportar problema</h2>
+              </div>
+              <button type="button" className="empleado-reporte-close" onClick={cerrarModalReporte} aria-label="Cerrar reporte">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form className="empleado-reporte-form" onSubmit={handleEnviarReporte}>
+              <label className="empleado-reporte-field">
+                <span>Prioridad</span>
+                <select value={prioridadReporte} onChange={(event) => setPrioridadReporte(event.target.value)}>
+                  <option value="Baja">Baja</option>
+                  <option value="Media">Media</option>
+                  <option value="Alta">Alta</option>
+                </select>
+              </label>
+
+              <label className="empleado-reporte-field">
+                <span>Descripcion</span>
+                <textarea
+                  value={descripcionReporte}
+                  onChange={(event) => setDescripcionReporte(event.target.value)}
+                  placeholder="Contanos que paso"
+                  rows={5}
+                  maxLength={500}
+                />
+              </label>
+
+              {mensajeReporte && (
+                <div className={`empleado-reporte-feedback empleado-reporte-feedback--${mensajeReporte.tipo}`} role="alert">
+                  {mensajeReporte.texto}
+                </div>
+              )}
+
+              <button type="submit" className="empleado-reporte-submit" disabled={enviandoReporte}>
+                {enviandoReporte ? "Enviando..." : "Enviar reporte"}
+              </button>
+            </form>
+          </section>
+        </div>
+      )}
 
       {reservaEditando && reservaNormEditando && (
         <ModalEditarReserva
