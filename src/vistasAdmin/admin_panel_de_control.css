@@ -33,9 +33,11 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   flex-shrink: 0;
+  margin-bottom: 2% !important;
 }
 .textoPanelControl{
  text-align: left;
+ margin-bottom: 2%;
 }
 .boton-back:hover {
   background: #f1f5f9;
@@ -47,7 +49,7 @@
 }
 
 .admin-panel__title {
-  font-size: 32px;
+  font-size: 29px !important;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
@@ -63,6 +65,7 @@
 /* ─── Stats Card ─── */
 
 .stats-card {
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%) !important;
   border-radius: 20px;
   padding: 32px;
   color: white;
@@ -601,245 +604,77 @@
 }
 
 /* ==========================================================================
-   Media Query Especial para Celulares (Mobile Optimization)
-   ========================================================================== */@media (max-width: 47.9375rem) {
+   📱 CELULARES (max 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
   .admin-panel {
     padding: 16px;
-    margin-bottom: 0;
+    margin-bottom: 100px;
   }
 
   .admin-panel__header {
-    flex-wrap: wrap;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .admin-panel__title {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .admin-panel__subtitle {
-    margin: 4px 0 0 0;
-    font-size: 13px;
-    width: 100%;
+    font-size: 12px;
   }
 
   .stats-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
     padding: 20px;
-    border-radius: 16px;
-  }
-
-  .stats-card__header {
-    width: 100%;
-    justify-content: space-between;
+    margin-bottom: 24px;
   }
 
   .stats-card__value {
     font-size: 40px;
-    font-weight: 800;
   }
 
   .stats-card__progress-container {
     width: 100%;
-    min-width: 100%;
+    min-width: unset;
+  }
+
+  .conflicts-section__title {
+    font-size: 17px;
+  }
+
+  .conflicts-section__subtitle {
+    font-size: 12px;
   }
 
   .conflicts-table-shell {
-    display: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .conflicts-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .conflict-card {
-    padding: 16px;
-    gap: 12px;
-    border-radius: 14px;
-  }
-
-  .conflict-card__main-info {
-    margin-bottom: 4px;
-    gap: 10px;
-  }
-
-  .conflict-card__icon-wrapper {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-  }
-
-  .conflict-card__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .conflict-card__title {
-    font-size: 15px;
-  }
-
-  .conflict-card__description {
+  .conflicts-table td {
     font-size: 13px;
-    line-height: 1.5;
-    padding-bottom: 12px;
+    padding: 12px 10px;
   }
 
-  .conflict-card__footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    padding-top: 12px;
+  .conflicts-table th {
+    font-size: 10px;
+    padding: 10px 8px;
   }
 
-  .conflict-card__status {
-    align-self: flex-start;
-    font-size: 11px;
-  }
-
-  .conflict-card__actions {
-    justify-content: flex-start;
-    width: 100%;
-    gap: 8px;
+  .conflicts-table__description {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .conflict-status-select {
-    flex: 1;
-    min-height: 44px;
-    font-size: 13px;
-  }
-
-  .conflict-card__btn {
-    min-height: 44px;
-    padding: 0 16px;
-    font-size: 13px;
-  }
-
-  .conflict-card__btn--primary {
-    flex: 2;
-  }
-
-  .conflict-card__btn--secondary {
-    flex: 1;
-  }
-
-  .conflict-card__btn--danger {
-    width: 44px;
-    flex-shrink: 0;
-  }
-
-  .reserva-table-shell {
-    width: 100%;
-    border: none;
-    background: transparent;
-    margin-bottom: 24px;
-  }
-
-  .reserva-table, 
-  .reserva-table tbody, 
-  .reserva-table tr, 
-  .reserva-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .reserva-table theme,
-  .reserva-table th {
-    display: none;
-  }
-
-  .reserva-table tr {
-    background: #ffffff;
-    border: 1px solid #edf2f7;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr; 
-    align-items: center;
-    gap: 8px;
-  }
-
-  .reserva-table tr:last-child {
-    margin-bottom: 0;
-  }
-
-  .reserva-table td:nth-child(1) {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0;
-    border-bottom: none;
-  }
-
-  .reserva-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  
-  .reserva-avatar--azul { background: #dbeafe; color: #1e40af; }
-  .reserva-avatar--naranja { background: #ffedd5; color: #c2410c; }
-  .reserva-avatar--gris { background: #e2e8f0; color: #475569; }
-
-  .reserva-table td strong {
-    font-size: 14px;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 1px;
-    line-height: 1.2;
-  }
-
-  .reserva-table td:nth-child(2) {
-    padding: 0;
-    border-bottom: none;
-    text-align: left;
-  }
-
-  .reserva-plaza-id {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    display: block;
-  }
-
-  .reserva-zona-name {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 500;
-    display: block;
-    margin-top: 2px;
-  }
-
-  .reserva-table td:nth-child(3) {
-    padding: 0;
-    border-bottom: none;
-    text-align: right;
-  }
-
-  .reserva-fecha-dia {
-    font-size: 13px;
-    font-weight: 600;
-    color: #0f172a;
-    display: block;
-  }
-
-  .reserva-fecha-hora {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 500;
-    display: block;
-    margin-top: 2px;
+    font-size: 12px;
+    min-height: 30px;
+    padding: 0 24px 0 8px;
   }
 }

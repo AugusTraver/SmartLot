@@ -422,3 +422,95 @@
     padding: 1rem 0.5rem;
   }
 }
+
+/* ==========================================================================
+   📱 CELULARES (max 768px) — Overrides para vista móvil
+   ========================================================================== */
+@media (max-width: 768px) {
+  .reservations-container {
+    width: 100%;
+    margin-top: 0;
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .filter-bar__input {
+    margin: 0;
+    height: 2.75rem;
+    font-size: 0.9rem;
+  }
+
+  .filter-bar__search-icon {
+    left: 1rem;
+    top: 50%;
+  }
+
+  .reservations-table-wrapper {
+    width: 100%;
+    margin: 0 0 16px 0;
+    border-radius: 14px;
+  }
+
+  .reservations-table__head tr {
+    padding: 0.75rem 1rem;
+  }
+
+  .reservations-table__head th {
+    font-size: 0.7rem;
+  }
+
+  .reservations-table td {
+    padding: 0.5rem 1rem !important;
+    margin: 0;
+    width: auto !important;
+  }
+
+  .reservations-table__row {
+    padding: 0.75rem 0;
+  }
+
+  .user-info {
+    margin: 0;
+  }
+
+  .user-info__name {
+    font-size: 0.9rem;
+  }
+
+  .cell-block {
+    padding-left: 0;
+  }
+
+  .cell-block__title {
+    font-size: 0.85rem;
+  }
+
+  .cell-block__subtitle {
+    font-size: 0.75rem;
+  }
+
+  .chips-group {
+    margin: 0 0 12px 0;
+    padding-bottom: 4px;
+  }
+
+  .chip {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .pagination {
+    padding: 0.5rem 0 !important;
+    margin: 0;
+  }
+
+  .pagination__info {
+    font-size: 0.75rem;
+  }
+
+  .pagination__btn {
+    height: 2rem;
+    min-width: 2rem;
+    font-size: 0.8rem;
+  }
+}

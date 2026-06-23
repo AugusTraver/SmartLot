@@ -86,3 +86,27 @@
     padding: 0.9rem 1.25rem;
   }
 }
+
+/* ==========================================================================
+   📱 CELULARES (max 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .report-btn {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .report-btn__title {
+    font-size: 1.05rem;
+  }
+
+  .report-btn__subtitle {
+    font-size: 0.8rem;
+  }
+
+  .report-btn__icon-wrapper {
+    padding: 0.65rem;
+  }
+}
