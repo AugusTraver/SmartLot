@@ -337,6 +337,16 @@
   }
 }
 
+/* ── Empty state ── */
+.historial-empty-note {
+  padding: 20px 16px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.5;
+  text-align: center;
+}
+
 @media (max-width: 480px) {
   .historial-main {
     padding-inline: 16px;

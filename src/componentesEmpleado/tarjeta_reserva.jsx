@@ -33,8 +33,8 @@ const obtenerEstadoHistorial = (reserva) => {
     };
   }
 
-  const entradaCompleta = esValorVerdadero(reserva.entrada ?? reserva.ingreso ?? reserva.check_in ?? reserva.checkIn);
-  const salidaCompleta = esValorVerdadero(reserva.salida ?? reserva.egreso ?? reserva.check_out ?? reserva.checkOut);
+  const entradaCompleta = esValorVerdadero(reserva.entrada ?? reserva.ingreso ?? reserva.check_in ?? reserva.checkIn ?? reserva.entro);
+  const salidaCompleta = esValorVerdadero(reserva.salida ?? reserva.egreso ?? reserva.check_out ?? reserva.checkOut ?? reserva.salio);
 
   if (entradaCompleta && salidaCompleta) {
     return {
