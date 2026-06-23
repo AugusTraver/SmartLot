@@ -90,17 +90,18 @@ const GarageSkeletonGrid = () => (    // Muestra 6 tarjetas esqueléticas para s
   </div>
 );
 
-const GarageStatsSkeleton = () => ( // Muestra 2 tarjetas esqueléticas para simular la carga de estadísticas de garages
+const GarageStatsSkeleton = () => (
   <section className="stats-container" aria-label="Cargando resumen de garages">
     {Array.from({ length: 2 }).map((_, index) => (
       <div className="stats-card stats-card-skeleton" key={index}>
-        <div className="stats-header">
-          <span className="skeleton-line skeleton-stat-label" />
-          <span className="skeleton-stat-icon" />
+        <div className="stats-card-content">
+          <div className="stats-card-header">
+            <span className="skeleton-stat-line skeleton-stat-badge" />
+            <span className="skeleton-stat-icon-block" />
+          </div>
+          <span className="skeleton-stat-line skeleton-stat-value-lg" />
+          <span className="skeleton-stat-line skeleton-stat-desc" />
         </div>
-
-        <span className="skeleton-line skeleton-stat-value" />
-        <span className="skeleton-line skeleton-stat-description" />
       </div>
     ))}
   </section>
@@ -217,29 +218,45 @@ function GestionGarages() {
         ) : (
           <section className="stats-container">
             <div className="stats-card">
-              <div className="stats-header">
-                <h4>Total garages</h4>
-                <span className="stats-icon">
-                  <MapPinned size={24} />
-                </span>
+              <div className="stats-card-bg-icon">
+                <MapPinned size={100} />
               </div>
-
-              <h2>{garages.length}</h2>
-
-              <p>Registradas en la base de datos</p>
+              <div className="stats-card-content">
+                <div className="stats-card-header">
+                    <span className="stats-card-badge">Total</span>
+                    <span className="stats-card-icon">
+                    <MapPinned size={18} />
+                  </span>
+                </div>
+                <div className="stats-card-value">
+                  <h2>{garages.length}</h2>
+                </div>
+                <p className="stats-card-footer">
+                    <span className="stats-card-dot" />
+                  <span>Registradas en la base de datos</span>
+                </p>
+              </div>
             </div>
 
             <div className="stats-card">
-              <div className="stats-header">
-                <h4>Ocupacion media</h4>
-                <span className="stats-icon">
-                  <BarChart3 size={24} />
-                </span>
+              <div className="stats-card-bg-icon">
+                <BarChart3 size={100} />
               </div>
-
-              <h2>{`${ocupacionMedia}%`}</h2>
-
-              <p>Calculada sobre la capacidad total</p>
+              <div className="stats-card-content">
+                <div className="stats-card-header">
+                    <span className="stats-card-badge">Ocupación</span>
+                    <span className="stats-card-icon">
+                    <BarChart3 size={18} />
+                  </span>
+                </div>
+                <div className="stats-card-value">
+                  <h2>{`${ocupacionMedia}%`}</h2>
+                </div>
+                <p className="stats-card-footer">
+                    <span className="stats-card-dot" />
+                  <span>Calculada sobre la capacidad total</span>
+                </p>
+              </div>
             </div>
           </section>
         )}
