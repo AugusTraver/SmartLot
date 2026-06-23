@@ -15,6 +15,9 @@ import BotonReportes from "../componentesAdmin/boton_reportes";
 import TablaReservasPanleControl from "../componentesAdmin/tabla_reservas_panelControl";
 import { ConflictosDelete, ConflictosGetAll, ConflictosUpdate } from "../servicies/API_Conflicto";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
+import { GaragesGetAll } from "../servicies/API_Garage";
+import { SedesGetAll } from "../servicies/API_Sede";
+import { useAuth } from '../contexts/useAuth';
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -57,8 +60,10 @@ const estadoClase = (estado) => {
 
 export default function AdminPanelControl() {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
   const [conflictos, setConflictos] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [garagesList, setGaragesList] = useState([]);
   const [loadingConflictos, setLoadingConflictos] = useState(true);
   const [errorConflictos, setErrorConflictos] = useState("");
   const [actualizandoId, setActualizandoId] = useState(null);
@@ -66,14 +71,16 @@ export default function AdminPanelControl() {
   useEffect(() => {
     let montado = true;
 
-    const cargarConflictos = async () => {
+    const cargarDatos = async () => {
       setLoadingConflictos(true);
       setErrorConflictos("");
 
       try {
-        const [conflictosResponse, usuariosResponse] = await Promise.all([
+        const [conflictosResponse, usuariosResponse, garagesResponse, sedesResponse] = await Promise.all([
           ConflictosGetAll(),
           UsuariosGetAll(),
+          GaragesGetAll(),
+          SedesGetAll(),
         ]);
 
         if (!montado) return;
@@ -87,20 +94,43 @@ export default function AdminPanelControl() {
         if (usuariosResponse.respuesta) {
           setUsuarios(obtenerListado(usuariosResponse.datos));
         }
+
+        const garArray = obtenerListado(garagesResponse.datos);
+
+        const adminIdSede = Number(usuario?.id_sede);
+        const empresaAdmin = Number(usuario?.id_empresa);
+        const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
+
+        let garagesFiltrados = garArray;
+        if (adminIdSede) {
+          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
+        } else if (tieneEmpresa) {
+          const sedesArray = obtenerListado(sedesResponse.datos);
+          const sedesIdsEmpresa = new Set(
+            sedesArray
+              .filter((s) => Number(s.id_empresa) === empresaAdmin)
+              .map((s) => Number(s.id))
+          );
+          garagesFiltrados = garArray.filter((g) =>
+            sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede))
+          );
+        }
+
+        setGaragesList(garagesFiltrados);
       } catch (error) {
-        console.error("Error al cargar conflictos:", error);
-        if (montado) setErrorConflictos("Ocurrio un error al cargar los conflictos.");
+        console.error("Error al cargar datos:", error);
+        if (montado) setErrorConflictos("Ocurrio un error al cargar los datos.");
       } finally {
         if (montado) setLoadingConflictos(false);
       }
     };
 
-    cargarConflictos();
+    cargarDatos();
 
     return () => {
       montado = false;
     };
-  }, []);
+  }, [usuario]);
 
   const usuariosPorId = useMemo(
     () => new Map(usuarios.map((usuario) => [Number(usuario.id ?? usuario.id_usuario), usuario])),
@@ -123,6 +153,21 @@ export default function AdminPanelControl() {
   }, [conflictos]);
 
   const pendientes = conflictos.filter((conflicto) => conflicto.estado !== "Resuelto").length;
+
+  const ocupacion = useMemo(() => {
+    let totalOcupados = 0;
+    let totalCapacidad = 0;
+    garagesList.forEach((g) => {
+      const ocupados =
+        Number(g.ocupacion_reservas || 0) + Number(g.ocupacion_no_reservas || 0);
+      totalOcupados += ocupados;
+      const cap =
+        Number(g.capacidad_reservas || 0) + Number(g.capacidad_para_no_reservas || 0);
+      totalCapacidad += cap;
+    });
+    const pct = totalCapacidad > 0 ? Math.round((totalOcupados / totalCapacidad) * 100) : 0;
+    return { porcentaje: pct, ocupados: totalOcupados, capacidad: totalCapacidad };
+  }, [garagesList]);
 
   const handleCambiarEstado = async (conflicto, estado) => {
     setActualizandoId(conflicto.id);
@@ -174,9 +219,11 @@ export default function AdminPanelControl() {
           <span className="stats-card__label">Ocupacion Total</span>
           <BarChart3 className="stats-card__icon" />
         </div>
-        <div className="stats-card__value">84%</div>
+        <div className="stats-card__value">
+          {loadingConflictos ? "--" : `${ocupacion.porcentaje}%`}
+        </div>
         <div className="stats-card__progress-container">
-          <div className="stats-card__progress-bar" />
+          <div className="stats-card__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
         </div>
       </section>
 

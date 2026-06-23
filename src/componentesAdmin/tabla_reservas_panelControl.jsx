@@ -291,9 +291,7 @@ export default function TablaReservasPanleControl() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="filter-bar__settings-btn" aria-label="Configurar filtros">
-          <SlidersHorizontal size={20} />
-        </button>
+       
       </div>
 
       {!loading && (

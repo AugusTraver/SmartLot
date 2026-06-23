@@ -2,11 +2,11 @@
 .report-btn {
   background-color: #ffffff;
   border: none;
-  border-radius: 1.75rem; /* Bordes muy redondeados como se ve en la captura */
-  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.75rem;
   cursor: pointer;
   /* Sombra difuminada ultra-suave idéntica a la imagen */
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 
@@ -16,12 +16,13 @@
   -webkit-font-smoothing: antialiased;
   
   /* Enfoque responsivo fluido */
-  width: 100%;
+  width: 50%;
   max-width: 26rem; /* Se limita elegantemente en teléfonos */
   box-sizing: border-box;
   
   /* Transición suave para rendimiento a 60fps/120fps */
   transition: background-color 0.2s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 3%;
 }
 
 /* --- Micro-interacciones Premium --- */
@@ -40,10 +41,10 @@
 
 /* --- Contenedor del Icono --- */
 .report-btn__icon-wrapper {
-  background-color: #e0e7ff; /* Celeste/azul suave de la imagen */
-  color: #1d4ed8;            /* Azul vibrante del icono */
-  padding: 1rem;
-  border-radius: 1.25rem;    /* Redondeado interno en armonía con el botón */
+  background-color: #e0e7ff;
+  color: #1d4ed8;
+  padding: 0.6rem;
+  border-radius: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +63,7 @@
 }
 
 .report-btn__title {
-  font-size: 1.35rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -70,7 +71,7 @@
 }
 
 .report-btn__subtitle {
-  font-size: 0.925rem;
+  font-size: 0.75rem;
   font-weight: 400;
   color: #475569;
   line-height: 1.3;
@@ -81,7 +82,7 @@
    ========================================================================== */
 @media (min-width: 64rem) {
   .report-btn {
-    max-width: 32rem; /* Permite que el botón respire y se agrande en monitores */
-    padding: 1.5rem 1.75rem;
+    max-width: 26rem;
+    padding: 0.9rem 1.25rem;
   }
 }
