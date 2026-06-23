@@ -1,0 +1,127 @@
+import { Car, Check, Copy, X } from "lucide-react";
+import ModalPortal from "../componentesCompartidos/ModalPortal";
+import "./modal_editar_reserva.css";
+
+const esValorVerdadero = (valor) => {
+  if (valor === true || valor === 1) return true;
+  if (typeof valor === "string") {
+    return ["true", "1", "si", "sí", "completo", "completado"].includes(valor.trim().toLowerCase());
+  }
+  return false;
+};
+
+const obtenerEstadoHistorial = (reserva) => {
+  const estado = String(reserva.estado || reserva.status || "").trim().toLowerCase();
+  const estaBorrada = [
+    reserva.borrado, reserva.borrada, reserva.cancelado, reserva.eliminada,
+    reserva.cancelada, reserva.deleted, reserva.deleted_at, reserva.deletedAt, reserva.DeleteAt,
+  ].some(Boolean) || ["borrada", "borrado", "eliminada", "eliminado", "cancelada", "cancelado"].includes(estado);
+
+  if (estaBorrada) {
+    return { tipo: "deleted", texto: "Borrada", icono: <X size={20} strokeWidth={3.2} />, color: "#dc2626" };
+  }
+
+  const entradaCompleta = esValorVerdadero(reserva.entrada ?? reserva.ingreso ?? reserva.check_in ?? reserva.checkIn ?? reserva.entro);
+  const salidaCompleta = esValorVerdadero(reserva.salida ?? reserva.egreso ?? reserva.check_out ?? reserva.checkOut ?? reserva.salio);
+
+  if (entradaCompleta && salidaCompleta) {
+    return { tipo: "completed", texto: "Completada", icono: <Check size={20} strokeWidth={3.2} />, color: "#16a34a" };
+  }
+
+  return { tipo: "pending", texto: "Registro", icono: <Check size={20} strokeWidth={3.2} />, color: "#64748b" };
+};
+
+function ModalDetalleReserva({ reserva, onClose, onCopy }) {
+  if (!reserva) return null;
+
+  const estado = obtenerEstadoHistorial(reserva);
+  const fechaFormateada = reserva.fecha
+    ? new Date(reserva.fecha).toLocaleDateString("es-AR", { timeZone: "UTC" })
+    : "";
+
+  const vehiculo = reserva.vehiculo;
+  const infoVehiculo = vehiculo
+    ? [vehiculo.patente, vehiculo.marca, vehiculo.modelo].filter(Boolean).join(" · ")
+    : "—";
+
+  return (
+    <ModalPortal onClose={onClose}>
+      <div className="modal-reserva-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-reserva-header">
+          <h2>Detalle de reserva</h2>
+          <button type="button" className="modal-reserva-close" onClick={onClose} aria-label="Cerrar">
+            &#x2715;
+          </button>
+        </div>
+
+        <div className="modal-reserva-body">
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Estado</span>
+            <span
+              className="modal-reserva-field-value"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: estado.color,
+                fontWeight: 700,
+              }}
+            >
+              {estado.icono}
+              {estado.texto}
+            </span>
+          </div>
+
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Fecha</span>
+            <span className="modal-reserva-field-value">{fechaFormateada}</span>
+          </div>
+
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Horario</span>
+            <span className="modal-reserva-field-value">
+              {reserva.hora_entrada?.substring(0, 5) || "00:00"} a {reserva.hora_salida?.substring(0, 5) || "00:00"}
+            </span>
+          </div>
+
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Garage</span>
+            <span className="modal-reserva-field-value">{reserva.nombre_garage || "—"}</span>
+          </div>
+
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Ubicacion</span>
+            <span className="modal-reserva-field-value">
+              {reserva.nro_plaza || "—"} &middot; {reserva.nombre_zona || "Sector"}
+            </span>
+          </div>
+
+          <div className="modal-reserva-field">
+            <span className="modal-reserva-field-label">Vehiculo</span>
+            <span className="modal-reserva-field-value">
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Car size={16} />
+                {infoVehiculo}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div className="modal-reserva-footer">
+          <button
+            type="button"
+            className="modal-reserva-btn-guardar"
+            onClick={() => onCopy?.(reserva)}
+          >
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <Copy size={16} />
+              Copiar reserva
+            </span>
+          </button>
+        </div>
+      </div>
+    </ModalPortal>
+  );
+}
+
+export default ModalDetalleReserva;
