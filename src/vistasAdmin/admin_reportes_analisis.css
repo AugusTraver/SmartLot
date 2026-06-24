@@ -240,7 +240,7 @@
   padding: 20px 24px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #1A73E8 100%)  !important;
   color: white;
   cursor: pointer;
   text-align: left;
@@ -296,6 +296,28 @@
 /* ─── Responsive ─── */
 
 @media (max-width: 768px) {
+  .admin-panel {
+    padding: 16px;
+    margin-bottom: 100px;
+  }
+
+  .admin-panel__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .admin-panel__title {
+    font-size: 22px;
+  }
+
+  .admin-panel__subtitle {
+    font-size: 12px;
+    margin-left: 0;
+    text-align: left;
+  }
+
   .kpi-grid {
     grid-template-columns: 1fr;
     gap: 14px;
