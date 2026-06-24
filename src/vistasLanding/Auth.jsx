@@ -51,7 +51,7 @@ export default function Auth() {
 
 
       {/* ─── LADO DERECHO: BRAND PANEL (BLANCO) ─── */}
-      <div className="w-full md:w-1/2 min-h-screen relative z-0">
+      <div className="hidden md:block w-full md:w-1/2 min-h-screen relative z-0">
         <BrandPanel />
       </div>
 

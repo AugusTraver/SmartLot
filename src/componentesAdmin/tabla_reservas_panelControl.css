@@ -10,12 +10,33 @@
     padding-bottom: 1%;
 }
 
+/* --- Título --- */
+.reservations-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
 /* --- Barra de Búsqueda y Botón Filtro --- */
 .filter-bar {
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 1rem;
 }
+
+.filter-bar__title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-bar__title-icon {
+  color: #475569;
+  flex-shrink: 0;
+}
+
 .reservations-table-wrapper{
   margin-top: -1%;
   margin-bottom: 10%;
@@ -24,37 +45,47 @@
 .filter-bar__search-wrap {
   position: relative;
   width: 100%;
-  max-width: 22rem;
 }
 
 .filter-bar__search-icon {
   position: absolute;
-  left: 2rem;
-  top: 70%;
+  left: 20px !important;
+  top: 50%;
   transform: translateY(-50%);
-  color: #64748b;
+  color: #94a3b8;
   pointer-events: none;
+  transition: color 0.18s ease;
+  
+}
+
+.filter-bar__search-wrap:focus-within .filter-bar__search-icon {
+  color: #2563eb;
 }
 
 .filter-bar__input {
   width: 100%;
-  height: 3.25rem;
-  padding: 0 1rem 0 3rem;
+  min-height: 42px;
+  padding: 0 14px 0 40px;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  font-size: 1rem;
-  color: #0f172a;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 750;
+  color: #1e293b;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  margin-top: 10%;
-  margin-left: 5%
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  margin-left: -64%;
+}
+
+.filter-bar__input::placeholder {
+  color: #94a3b8;
 }
 
 .filter-bar__input:focus {
   outline: none;
-  border-color: #1d4ed8;
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.08);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 8px 22px rgba(15, 23, 42, 0.06);
 }
 
 .filter-bar__settings-btn {
@@ -96,36 +127,50 @@
 }
 
 .chip {
-  padding: 0.625rem 1.25rem;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 15px;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe3ef;
   border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 800;
   color: #475569;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .chip:hover {
-  background-color: #f1f5f9;
+  background-color: #f8fbff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.chip:active {
+  transform: scale(0.97);
 }
 
 .chip--active {
-  background-color: #1d4ed8;
   border-color: #1d4ed8;
-  color: #ffffff;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.12);
 }
 
 .chip--active:hover {
-  background-color: #1e40af;
+  background-color: #dbeafe;
 }
 
 /* --- Tabla de Reservas Base (Estilo Mobile-First) --- */
 .reservations-table-wrapper {
   background-color: #ffffff;
   border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 10px 20px -2px rgba(15, 23, 42, 0.03);
   overflow: hidden;
   margin-bottom: 1.5rem;
@@ -363,6 +408,10 @@
     max-width: 24rem;
   }
 
+  .filter-bar__title-icon {
+    color: #334155;
+  }
+
   .reservations-table__head {
     display: table-header-group;
     background-color: #f8fafc;
@@ -435,17 +484,22 @@
   }
   
   
+  .reservations-title {
+    font-size: 17px;
+  }
+
   .reservations-table__head-toggle{
     margin-left: -20% !important;
   }
   .filter-bar__input {
     margin: 0;
-    height: 2.75rem;
-    font-size: 0.9rem;
+    min-height: 36px;
+    font-size: 13px;
+    padding: 0 10px 0 34px;
   }
 
   .filter-bar__search-icon {
-    left: 1rem;
+    left: 10px;
     top: 50%;
   }
 
@@ -500,8 +554,9 @@
   }
 
   .chip {
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 
   .pagination {

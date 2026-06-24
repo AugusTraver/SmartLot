@@ -25,6 +25,7 @@
 
 .superadmin-conflicts-page .conflicts-section {
   width: 100%;
+  background-color: white !important;
 }
 
 /* ─── Header ─── */
@@ -33,7 +34,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
- margin-bottom: none !important;
+margin-bottom: -1%;
   animation: fadeSlideDown 0.5s ease-out both;
 }
 
@@ -67,14 +68,15 @@
 }
 
 .admin-panel__title {
-  font-size: 29px !important;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
+  font-size: 35px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+
+  margin-bottom: 1% !important;
 }
 
 .admin-panel__subtitle {
-  font-size: 14px;
+  font-size: 14px !important;
   color: #64748b;
   margin: 0 0 0 auto;
   font-weight: 400;
@@ -97,6 +99,8 @@
   grid-template-columns: 1fr auto;
   gap: 8px 16px !important;
   align-items: center;
+  padding-bottom: 0% !important;
+  padding-top: 0% !important;
 }
 
 .stats-card::before {
@@ -307,7 +311,8 @@
   color: #64748b;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-  margin-left: auto;
+  margin-right: auto;
+  order: -1;
 }
 
 .conflicts-search svg {
@@ -343,12 +348,12 @@
 }
 
 .conflicts-table-shell {
-  width: 100%;
-  margin-bottom: 26px;
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
   background: #ffffff;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 10px 20px -2px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .conflicts-table {
@@ -936,7 +941,7 @@
   }
 
   .admin-panel__subtitle {
-    font-size: 12px !important;
+    font-size: 12px ;
     margin-left: 0;
     text-align: left;
   }
@@ -969,7 +974,7 @@
 
   .conflicts-section__title-container {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 10px;
   }
 
@@ -980,25 +985,34 @@
   }
 
   .conflicts-toolbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
   }
 
   .conflicts-toolbar__btn {
-    justify-content: center;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 11px;
+    flex: 0 0 auto;
   }
 
   .conflicts-search {
     width: 100%;
     max-width: none;
     min-width: 0;
-    flex-basis: 100%;
+    flex: 1 1 100%;
     margin-left: 0;
+    order: 0;
   }
 
   .conflicts-table-shell {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
+    margin: 0 0 16px 0;
+    border-radius: 14px;
   }
 
   .conflicts-table td {

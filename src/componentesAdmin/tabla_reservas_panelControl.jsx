@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/useAuth';
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
 import { ReservasGetAll } from '../servicies/API_Reserva';
 import { UsuariosGetAll } from '../servicies/API_Usuario';
 import { GaragesGetAll } from '../servicies/API_Garage';
@@ -281,6 +281,10 @@ export default function TablaReservasPanleControl() {
   return (
     <div className="reservations-container">
       <div className="filter-bar">
+        <div className="filter-bar__title-row">
+          <ClipboardList size={22} className="filter-bar__title-icon" />
+          <h2 className="reservations-title">Tabla de reservas</h2>
+        </div>
         <div className="filter-bar__search-wrap">
           <Search size={20} className="filter-bar__search-icon" />
           <input
@@ -291,7 +295,6 @@ export default function TablaReservasPanleControl() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-       
       </div>
 
       {!loading && (
