@@ -1,24 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Search, Trash2 } from "lucide-react";
+
+import "../vistasAdmin/admin_panel_de_control.css";
+import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
+import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import {
-  ArrowLeft,
-  BarChart3,
-  CheckCircle2,
-  Clock3,
-  MessageCircleQuestion,
-  MessageSquareWarning,
-  RotateCcw,
-  Search,
-  Trash2,
-  X
-} from 'lucide-react';
-import "./admin_panel_de_control.css";
-import Header from '../componentesAdmin/header_admin';
-import FooterEmpleado from '../componentesAdmin/footer_admin';
-import BotonReportes from "../componentesAdmin/boton_reportes";
-import TablaReservasPanleControl from "../componentesAdmin/tabla_reservas_panelControl";
-import {
-  ConflictosCreate,
   ConflictosDelete,
   ConflictosGetAll,
   ConflictosGetPapelera,
@@ -26,16 +13,11 @@ import {
   ConflictosUpdate
 } from "../servicies/API_Conflicto";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
-import { GaragesGetAll } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
-import { useAuth } from '../contexts/useAuth';
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
   if (Array.isArray(datos?.data)) return datos.data;
-  if (Array.isArray(datos?.conflictos)) return datos.conflictos;
-  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
   return [];
 };
 
@@ -73,49 +55,41 @@ const estadoClase = (estado) => {
   return "pendiente";
 };
 
-export default function AdminPanelControl() {
+export default function SuperadminConflictos() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
   const [conflictos, setConflictos] = useState([]);
   const [papelera, setPapelera] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
-  const [garagesList, setGaragesList] = useState([]);
-  const [loadingConflictos, setLoadingConflictos] = useState(true);
-  const [errorConflictos, setErrorConflictos] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [cargandoPapelera, setCargandoPapelera] = useState(false);
+  const [error, setError] = useState("");
   const [actualizandoId, setActualizandoId] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
-  const [cargandoPapelera, setCargandoPapelera] = useState(false);
-  const [modalSoporteOpen, setModalSoporteOpen] = useState(false);
-  const [nuevoConflicto, setNuevoConflicto] = useState({ descripcion: "", prioridad: "Media" });
-  const [enviandoConflicto, setEnviandoConflicto] = useState(false);
-  const [mensajeSoporte, setMensajeSoporte] = useState(null);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
 
-  const cargarPapelera = useCallback(async () => {
+  const cargarPapelera = async () => {
     setCargandoPapelera(true);
-    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: false });
+    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: true });
     if (papeleraResponse.respuesta) {
       setPapelera(obtenerListado(papeleraResponse.datos));
     } else {
-      setErrorConflictos("No se pudo cargar la papelera.");
+      setError("No se pudo cargar la papelera.");
     }
     setCargandoPapelera(false);
-  }, []);
+  };
 
   useEffect(() => {
     let montado = true;
 
     const cargarDatos = async () => {
-      setLoadingConflictos(true);
-      setErrorConflictos("");
+      setLoading(true);
+      setError("");
 
       try {
-        const [conflictosResponse, papeleraResponse, usuariosResponse, garagesResponse, sedesResponse] = await Promise.all([
-          ConflictosGetAll({ superAdmin: false }),
-          ConflictosGetPapelera({ superAdmin: false }),
+        const [conflictosResponse, papeleraResponse, usuariosResponse] = await Promise.all([
+          ConflictosGetAll({ superAdmin: true }),
+          ConflictosGetPapelera({ superAdmin: true }),
           UsuariosGetAll(),
-          GaragesGetAll(),
-          SedesGetAll(),
         ]);
 
         if (!montado) return;
@@ -123,7 +97,7 @@ export default function AdminPanelControl() {
         if (conflictosResponse.respuesta) {
           setConflictos(obtenerListado(conflictosResponse.datos));
         } else {
-          setErrorConflictos("No se pudieron cargar los conflictos.");
+          setError("No se pudieron cargar los conflictos enviados a superadmin.");
         }
 
         if (papeleraResponse.respuesta) {
@@ -133,43 +107,17 @@ export default function AdminPanelControl() {
         if (usuariosResponse.respuesta) {
           setUsuarios(obtenerListado(usuariosResponse.datos));
         }
-
-        const garArray = obtenerListado(garagesResponse.datos);
-
-        const adminIdSede = Number(usuario?.id_sede);
-        const empresaAdmin = Number(usuario?.id_empresa);
-        const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
-
-        let garagesFiltrados = garArray;
-        if (adminIdSede) {
-          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
-        } else if (tieneEmpresa) {
-          const sedesArray = obtenerListado(sedesResponse.datos);
-          const sedesIdsEmpresa = new Set(
-            sedesArray
-              .filter((s) => Number(s.id_empresa) === empresaAdmin)
-              .map((s) => Number(s.id))
-          );
-          garagesFiltrados = garArray.filter((g) =>
-            sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede))
-          );
-        }
-
-        setGaragesList(garagesFiltrados);
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-        if (montado) setErrorConflictos("Ocurrio un error al cargar los datos.");
+      } catch (err) {
+        console.error("Error al cargar conflictos de superadmin:", err);
+        if (montado) setError("Ocurrio un error al cargar los conflictos.");
       } finally {
-        if (montado) setLoadingConflictos(false);
+        if (montado) setLoading(false);
       }
     };
 
     cargarDatos();
-
-    return () => {
-      montado = false;
-    };
-  }, [usuario]);
+    return () => { montado = false; };
+  }, []);
 
   const usuariosPorId = useMemo(
     () => new Map(usuarios.map((usuario) => [Number(usuario.id ?? usuario.id_usuario), usuario])),
@@ -187,27 +135,29 @@ export default function AdminPanelControl() {
       const prioridadDiff = (pesoPrioridad[a.prioridad] ?? 9) - (pesoPrioridad[b.prioridad] ?? 9);
       if (prioridadDiff !== 0) return prioridadDiff;
 
-      return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
+      return new Date(obtenerFechaConflicto(b) || 0) - new Date(obtenerFechaConflicto(a) || 0);
     });
   }, [conflictos]);
 
-  const filtrarConflictos = useCallback((items) => {
+  const filtrarConflictos = useMemo(() => {
     const query = busquedaConflictos.trim().toLowerCase();
-    if (!query) return items;
+    return (items) => {
+      if (!query) return items;
 
-    return items.filter((conflicto) => {
-      const usuarioConflicto = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
-      const nombreUsuario = usuarioConflicto
-        ? `${usuarioConflicto.nombre || ""} ${usuarioConflicto.apellido || ""} ${usuarioConflicto.email || ""}`
-        : "";
-      return [
-        nombreUsuario,
-        conflicto.descripcion,
-        conflicto.prioridad,
-        conflicto.estado,
-        obtenerIdUsuario(conflicto),
-      ].some((valor) => String(valor || "").toLowerCase().includes(query));
-    });
+      return items.filter((conflicto) => {
+        const usuario = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
+        const nombreUsuario = usuario
+          ? `${usuario.nombre || ""} ${usuario.apellido || ""} ${usuario.email || ""}`
+          : "";
+        return [
+          nombreUsuario,
+          conflicto.descripcion,
+          conflicto.prioridad,
+          conflicto.estado,
+          obtenerIdUsuario(conflicto),
+        ].some((valor) => String(valor || "").toLowerCase().includes(query));
+      });
+    };
   }, [busquedaConflictos, usuariosPorId]);
 
   const conflictosVisibles = useMemo(
@@ -222,21 +172,6 @@ export default function AdminPanelControl() {
 
   const pendientes = conflictos.filter((conflicto) => conflicto.estado !== "Resuelto").length;
 
-  const ocupacion = useMemo(() => {
-    let totalOcupados = 0;
-    let totalCapacidad = 0;
-    garagesList.forEach((g) => {
-      const ocupados =
-        Number(g.ocupacion_reservas || 0) + Number(g.ocupacion_no_reservas || 0);
-      totalOcupados += ocupados;
-      const cap =
-        Number(g.capacidad_reservas || 0) + Number(g.capacidad_para_no_reservas || 0);
-      totalCapacidad += cap;
-    });
-    const pct = totalCapacidad > 0 ? Math.round((totalOcupados / totalCapacidad) * 100) : 0;
-    return { porcentaje: pct, ocupados: totalOcupados, capacidad: totalCapacidad };
-  }, [garagesList]);
-
   const handleCambiarEstado = async (conflicto, estado) => {
     setActualizandoId(conflicto.id);
     const payload = {
@@ -244,7 +179,7 @@ export default function AdminPanelControl() {
       descripcion: conflicto.descripcion,
       prioridad: conflicto.prioridad,
       estado,
-      SuperAdmin: conflicto.SuperAdmin === true,
+      SuperAdmin: true,
     };
 
     const resultado = await ConflictosUpdate(conflicto.id, payload);
@@ -252,54 +187,6 @@ export default function AdminPanelControl() {
       setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
     }
     setActualizandoId(null);
-  };
-
-  const handleCrearConflictoSuperadmin = async (event) => {
-    event.preventDefault();
-    const descripcion = nuevoConflicto.descripcion.trim();
-    const idUsuario = Number(obtenerIdUsuario(usuario));
-
-    if (!descripcion) {
-      setMensajeSoporte({ tipo: "error", texto: "Describi brevemente el mensaje." });
-      return;
-    }
-
-    if (!Number.isFinite(idUsuario)) {
-      setMensajeSoporte({ tipo: "error", texto: "No se pudo identificar tu usuario." });
-      return;
-    }
-
-    setEnviandoConflicto(true);
-    setErrorConflictos("");
-    setMensajeSoporte(null);
-    const resultado = await ConflictosCreate({
-      id_usuario: idUsuario,
-      descripcion,
-      prioridad: nuevoConflicto.prioridad,
-      estado: "Pendiente",
-      SuperAdmin: true,
-    });
-
-    if (resultado.respuesta) {
-      setModalSoporteOpen(false);
-      setNuevoConflicto({ descripcion: "", prioridad: "Media" });
-      setMensajeSoporte(null);
-    } else {
-      setMensajeSoporte({ tipo: "error", texto: resultado.datos?.message || "No se pudo enviar el mensaje." });
-    }
-    setEnviandoConflicto(false);
-  };
-
-  const abrirModalSoporte = () => {
-    setMensajeSoporte(null);
-    setModalSoporteOpen(true);
-  };
-
-  const cerrarModalSoporte = () => {
-    if (enviandoConflicto) return;
-    setModalSoporteOpen(false);
-    setNuevoConflicto({ descripcion: "", prioridad: "Media" });
-    setMensajeSoporte(null);
   };
 
   const handleEliminar = async (id) => {
@@ -330,60 +217,37 @@ export default function AdminPanelControl() {
   };
 
   return (
-    <div className="admin-panel">
-      <Header />
-      <header className="admin-panel__header">
+    <div className="admin-panel superadmin-conflicts-page">
+      <HeaderSuperadmin />
+      <header className="admin-panel__header superadmin-conflicts-header">
         <button
           className="boton-back"
-          onClick={() => navigate("/admin_dashboard", { replace: true })}
+          onClick={() => navigate("/superadmin_dashboard", { replace: true })}
           aria-label="Volver al dashboard"
         >
           <ArrowLeft size={24} />
         </button>
 
-        <div className='textoPanelControl'>
-          <h1 className="admin-panel__title">Panel de Control</h1>
+        <div className="textoPanelControl">
+          <h1 className="admin-panel__title">Conflictos de Superadmin</h1>
           <p className="admin-panel__subtitle">
-            Supervision general de reservas, ocupacion y conflictos reportados.
+            Casos enviados por administradores para seguimiento superior.
           </p>
         </div>
       </header>
-
-      <section className="stats-card">
-        <div className="stats-card__header">
-          <span className="stats-card__label">Ocupacion Total</span>
-          <BarChart3 className="stats-card__icon" />
-        </div>
-        <div className="stats-card__value">
-          {loadingConflictos ? "--" : `${ocupacion.porcentaje}%`}
-        </div>
-        <div className="stats-card__progress-container">
-          <div className="stats-card__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
-        </div>
-      </section>
 
       <section className="conflicts-section">
         <div className="conflicts-section__title-container">
           <MessageSquareWarning className="conflicts-section__alert-icon" />
           <div>
-            <h2 className="conflicts-section__title">
-              Conflictos reportados ({pendientes})
-            </h2>
-            <p className="conflicts-section__subtitle">Casos abiertos por empleados y estado de seguimiento.</p>
+            <h2 className="conflicts-section__title">Conflictos recibidos ({pendientes})</h2>
+            <p className="conflicts-section__subtitle">Reportes activos enviados por administradores.</p>
           </div>
-          <button
-            type="button"
-            className="admin-support-btn"
-            onClick={abrirModalSoporte}
-          >
-            <MessageCircleQuestion size={16} />
-            Enviar mensaje a soporte
-          </button>
         </div>
 
-        {errorConflictos && (
+        {error && (
           <div className="conflicts-section__feedback conflicts-section__feedback--error" role="alert">
-            {errorConflictos}
+            {error}
           </div>
         )}
 
@@ -415,19 +279,19 @@ export default function AdminPanelControl() {
           </label>
         </div>
 
-        {loadingConflictos ? (
+        {loading ? (
           <div className="conflicts-section__feedback">Cargando conflictos...</div>
         ) : mostrarPapelera ? (
           cargandoPapelera ? (
             <div className="conflicts-section__feedback">Cargando papelera...</div>
           ) : papeleraVisible.length === 0 ? (
-            <div className="conflicts-section__feedback">No hay conflictos en tu papelera.</div>
+            <div className="conflicts-section__feedback">No hay conflictos en la papelera.</div>
           ) : (
             <div className="conflicts-table-shell">
               <table className="conflicts-table">
                 <thead>
                   <tr>
-                    <th>Empleado</th>
+                    <th>Admin</th>
                     <th>Descripcion</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
@@ -437,9 +301,9 @@ export default function AdminPanelControl() {
                 </thead>
                 <tbody>
                   {papeleraVisible.map((conflicto) => {
-                    const usuarioConflicto = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
-                    const nombreUsuario = usuarioConflicto
-                      ? `${usuarioConflicto.nombre || ""} ${usuarioConflicto.apellido || ""}`.trim() || usuarioConflicto.email
+                    const usuario = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
+                    const nombreUsuario = usuario
+                      ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
                       : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
                     const deshabilitado = actualizandoId === conflicto.id;
 
@@ -447,7 +311,7 @@ export default function AdminPanelControl() {
                       <tr key={conflicto.id}>
                         <td>
                           <strong>{nombreUsuario}</strong>
-                          {usuarioConflicto?.email && <span>{usuarioConflicto.email}</span>}
+                          {usuario?.email && <span>{usuario.email}</span>}
                         </td>
                         <td className="conflicts-table__description">{conflicto.descripcion}</td>
                         <td>
@@ -480,13 +344,13 @@ export default function AdminPanelControl() {
             </div>
           )
         ) : conflictosVisibles.length === 0 ? (
-          <div className="conflicts-section__feedback">No hay conflictos reportados.</div>
+          <div className="conflicts-section__feedback">No hay conflictos enviados a superadmin.</div>
         ) : (
           <div className="conflicts-table-shell">
             <table className="conflicts-table">
               <thead>
                 <tr>
-                  <th>Empleado</th>
+                  <th>Admin</th>
                   <th>Descripcion</th>
                   <th>Prioridad</th>
                   <th>Estado</th>
@@ -549,72 +413,8 @@ export default function AdminPanelControl() {
             </table>
           </div>
         )}
-
-        <div>
-          <TablaReservasPanleControl />
-        </div>
-        <div>
-          <BotonReportes />
-        </div>
       </section>
-      <FooterEmpleado />
-
-      {modalSoporteOpen && (
-        <div className="admin-support-overlay" role="presentation" onMouseDown={cerrarModalSoporte}>
-          <section
-            className="admin-support-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="admin-support-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <div className="admin-support-header">
-              <div>
-                <span>Soporte</span>
-                <h2 id="admin-support-title">Enviar mensaje a soporte</h2>
-              </div>
-              <button type="button" className="admin-support-close" onClick={cerrarModalSoporte} aria-label="Cerrar soporte">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form className="admin-support-form" onSubmit={handleCrearConflictoSuperadmin}>
-              <label className="admin-support-field">
-                <span>Prioridad</span>
-                <select
-                  value={nuevoConflicto.prioridad}
-                  onChange={(event) => setNuevoConflicto((prev) => ({ ...prev, prioridad: event.target.value }))}
-                >
-                  <option value="Baja">Baja</option>
-                  <option value="Media">Media</option>
-                  <option value="Alta">Alta</option>
-                </select>
-              </label>
-
-              <label className="admin-support-field">
-                <span>Descripcion</span>
-                <textarea
-                  value={nuevoConflicto.descripcion}
-                  onChange={(event) => setNuevoConflicto((prev) => ({ ...prev, descripcion: event.target.value }))}
-                  placeholder="Contanos que paso"
-                  rows={5}
-                  maxLength={500}
-                />
-              </label>
-
-              {mensajeSoporte && (
-                <div className={`admin-support-feedback admin-support-feedback--${mensajeSoporte.tipo}`} role="alert">
-                  {mensajeSoporte.texto}
-                </div>
-              )}
-
-              <button type="submit" className="admin-support-submit" disabled={enviandoConflicto}>
-                {enviandoConflicto ? "Enviando..." : "Enviar mensaje"}
-              </button>
-            </form>
-          </section>
-        </div>
-      )}
+      <FooterSuperadmin />
     </div>
   );
 }

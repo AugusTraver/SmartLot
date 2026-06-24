@@ -2,11 +2,29 @@ import apiClient from './apiClient';
 
 const crearRespuesta = (datosIniciales = null) => ({ respuesta: false, datos: datosIniciales });
 
-const ConflictosGetAll = async () => {
+const ConflictosGetAll = async ({ superAdmin = false } = {}) => {
   const returnObject = crearRespuesta([]);
 
   try {
-    const response = await apiClient.get('/api/conflicto');
+    const response = await apiClient.get('/api/conflicto', {
+      params: { superAdmin },
+    });
+    returnObject.respuesta = true;
+    returnObject.datos = response.data;
+  } catch (error) {
+    console.log(error);
+  }
+
+  return returnObject;
+};
+
+const ConflictosGetPapelera = async ({ superAdmin = false } = {}) => {
+  const returnObject = crearRespuesta([]);
+
+  try {
+    const response = await apiClient.get('/api/conflicto/papelera', {
+      params: { superAdmin },
+    });
     returnObject.respuesta = true;
     returnObject.datos = response.data;
   } catch (error) {
@@ -59,9 +77,26 @@ const ConflictosDelete = async (id) => {
   return returnObject;
 };
 
+const ConflictosRestore = async (id) => {
+  const returnObject = crearRespuesta(null);
+
+  try {
+    const response = await apiClient.patch(`/api/conflicto/${id}/restaurar`);
+    returnObject.respuesta = true;
+    returnObject.datos = response.data;
+  } catch (error) {
+    console.log(error);
+    returnObject.datos = error.response?.data || { message: error.message };
+  }
+
+  return returnObject;
+};
+
 export {
   ConflictosGetAll,
+  ConflictosGetPapelera,
   ConflictosCreate,
   ConflictosUpdate,
   ConflictosDelete,
+  ConflictosRestore,
 };

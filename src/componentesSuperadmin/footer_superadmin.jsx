@@ -3,6 +3,7 @@ import {
   House,
   Building2,
   MapPin,
+  MessageSquareWarning,
   Users,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -39,6 +40,12 @@ function FooterSuperadmin() {
         icono={<Users size={28} />}
         onClick={() => navigate("/superadmin/gestion_usuarios")}
         isActive={isPathActive("/superadmin/gestion_usuarios")}
+      />
+      <FooterBotton
+        titulo="CONFLICTOS"
+        icono={<MessageSquareWarning size={28} />}
+        onClick={() => navigate("/superadmin/conflictos")}
+        isActive={isPathActive("/superadmin/conflictos")}
       />
     </footer>
   );
