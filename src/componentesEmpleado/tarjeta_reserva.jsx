@@ -64,14 +64,22 @@ function TarjetaReserva({ reserva, onClick, onCopy, variant = "default" }) {
 
   const vehiculo = reserva.vehiculo;
   const tieneVehiculo = vehiculo && (vehiculo.patente || vehiculo.marca || vehiculo.modelo);
+  const handleCardKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick?.(reserva);
+    }
+  };
 
   return (
     <section className="empleado-reservas-section">
-      <button
-        type="button"
+      <div
         className={`empleado-reserva-card${esHistorialPasado ? " empleado-reserva-card--history-past" : ""}`}
+        role="button"
+        tabIndex={0}
         aria-label={`Reserva en ${reserva.nombre_garage || "Garage"}`}
         onClick={() => onClick?.(reserva)}
+        onKeyDown={handleCardKeyDown}
       >
         {esHistorialPasado ? (
           <div
@@ -130,7 +138,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, variant = "default" }) {
           </button>
           <span className="empleado-reserva-arrow" aria-hidden="true">&gt;</span>
         </div>
-      </button>
+      </div>
     </section>
   );
 }

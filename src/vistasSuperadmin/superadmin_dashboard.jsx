@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Building2, MapPin, Car, UserPlus, Building, LayoutDashboard } from "lucide-react";
+import { Users, Building2, MapPin, Car, MessageSquareWarning } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -100,12 +100,12 @@ function SuperadminDashboard() {
               <span className="skeleton-line skeleton-subtitle" />
             </div>
             <div className="superadmin-stats-grid">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <StatSkeleton key={i} />
               ))}
             </div>
             <div className="superadmin-dashboard-grid">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <div className="superadmin-dashboard-card superadmin-dashboard-card-skeleton" key={i}>
                   <span className="skeleton-line skeleton-card-icon" />
                   <span className="skeleton-line skeleton-card-title" />
@@ -169,6 +169,14 @@ function SuperadminDashboard() {
                   titulo="Gestión de Garages"
                   descripcion="Administrar todos los garages del sistema"
                   onClick={() => navigate("/superadmin/gestion_garages")}
+                />
+              </div>
+              <div className="superadmin-stagger-card">
+                <SuperadminDashboardBoton
+                  icono={<MessageSquareWarning />}
+                  titulo="Conflictos"
+                  descripcion="Ver conflictos enviados por administradores"
+                  onClick={() => navigate("/superadmin/conflictos")}
                 />
               </div>
             </div>
