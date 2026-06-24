@@ -433,7 +433,11 @@
     border-radius: 16px;
     padding: 12px;
   }
-
+  
+  
+  .reservations-table__head-toggle{
+    margin-left: -20% !important;
+  }
   .filter-bar__input {
     margin: 0;
     height: 2.75rem;
@@ -457,6 +461,7 @@
 
   .reservations-table__head th {
     font-size: 0.7rem;
+    margin-left: 6%;
   }
 
   .reservations-table td {

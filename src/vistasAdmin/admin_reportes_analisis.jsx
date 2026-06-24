@@ -1,63 +1,141 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  BarChart3, 
-  FileText, 
-  Download, 
-  TrendingUp 
+import {
+  ArrowLeft,
+  FileText,
+  Download,
+  TrendingUp,
+  BarChart3,
+  Users,
+  Clock,
+  Zap
 } from 'lucide-react';
-import "./admin_panel_de_control.css"; // Comparten base de layout del panel
-       // El CSS purificado sin :root que creamos recién
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid
+} from 'recharts';
+import "./admin_reportes_analisis.css";
+import Header from '../componentesAdmin/header_admin';
+import FooterEmpleado from '../componentesAdmin/footer_admin';
+
+const datosReporte = {
+  ocupacionMedia: 72.4,
+  usuariosActivos: 1284,
+  tiempoPromedio: "4.2 hrs",
+  horasPico: "14:00 - 18:00",
+  tendencia: [
+    { dia: "Lun", valor: 65 },
+    { dia: "Mar", valor: 70 },
+    { dia: "Mie", valor: 68 },
+    { dia: "Jue", valor: 75 },
+    { dia: "Vie", valor: 82 },
+    { dia: "Sab", valor: 78 },
+    { dia: "Dom", valor: 55 },
+  ]
+};
 
 export default function AdminReportesAnalisis() {
   const navigate = useNavigate();
 
-  const handleDownload = (tipo) => {
-    console.log(`Iniciando descarga de reporte en formato: ${tipo}`);
-    // Aquí irá la lógica de tu API para descargar o generar el PDF/Excel
+  const exportarExcel = () => {
+    const filas = [
+      ["Metrica", "Valor"],
+      ["Ocupacion Media", `${datosReporte.ocupacionMedia}%`],
+      ["Usuarios Activos", datosReporte.usuariosActivos],
+      ["Tiempo Promedio", datosReporte.tiempoPromedio],
+      ["Horas Pico", datosReporte.horasPico],
+      [],
+      ["Tendencia Diaria"],
+      ["Dia", "Ocupacion (%)"],
+      ...datosReporte.tendencia.map(d => [d.dia, d.valor]),
+    ];
+
+    const bom = "\uFEFF";
+    const csv = bom + filas.map(f => f.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "reporte_smartlot.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const kpis = [
+    {
+      label: "Ocupacion Media",
+      value: `${datosReporte.ocupacionMedia}%`,
+      icon: BarChart3,
+      color: "#1d4ed8",
+      bg: "#eff6ff",
+    },
+    {
+      label: "Usuarios Activos",
+      value: datosReporte.usuariosActivos.toLocaleString(),
+      icon: Users,
+      color: "#059669",
+      bg: "#ecfdf5",
+    },
+    {
+      label: "Tiempo Promedio",
+      value: datosReporte.tiempoPromedio,
+      icon: Clock,
+      color: "#d97706",
+      bg: "#fffbeb",
+    },
+    {
+      label: "Horas Pico",
+      value: datosReporte.horasPico,
+      icon: Zap,
+      color: "#dc2626",
+      bg: "#fef2f2",
+    },
+  ];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="trend-tooltip">
+          <span className="trend-tooltip__label">{label}</span>
+          <span className="trend-tooltip__value">{payload[0].value}%</span>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
     <div className="admin-panel">
-      {/* Encabezado */}
+      <Header />
       <header className="admin-panel__header">
-        <button 
-          className="admin-panel__back-btn" 
+        <button
+          className="admin-panel__back-btn"
           onClick={() => navigate("/admin_panel_de_control", { replace: true })}
         >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="admin-panel__title">Reportes y Análisis</h1>
+        <h1 className="admin-panel__title">Reportes y Analisis</h1>
         <p className="admin-panel__subtitle">
-          Visualiza el rendimiento general y descarga auditorías del sistema.
+          Visualiza el rendimiento general y descarga auditorias del sistema.
         </p>
       </header>
 
-      {/* Columna / Sección de Métricas Rápidas en Reportes */}
-      <section className="stats-card">
-        <div className="stats-card__header">
-          <span className="stats-card__label">Eficiencia de Plazas</span>
-          <TrendingUp className="stats-card__icon" />
+      <section className="reportes-section">
+        <div className="reportes-section__title-container">
+          <Download size={20} className="reportes-section__icon" />
+          <h2 className="reportes-section__title">Exportar Datos</h2>
         </div>
-        <div className="stats-card__value">92%</div>
-        <div className="stats-card__progress-container">
-          <div className="stats-card__progress-bar" style={{ width: '92%' }} />
-        </div>
-      </section>
-
-      {/* Sección donde se integra tu nuevo Botón Premium */}
-      <section className="conflicts-section">
-        <div className="conflicts-section__title-container">
-          <FileText size={20} className="conflicts-section__alert-icon" style={{ color: '#1d4ed8' }} />
-          <h2 className="conflicts-section__title">Exportar Datos</h2>
-        </div>
-
-        <div className="conflicts-section__list">
-          {/* El botón solicitado integrado nativamente */}
-          <button 
-            className="report-btn" 
-            onClick={() => handleDownload('GENERAL_MUTIPLE')}
+        <div className="export-actions">
+          <button
+            className="report-btn"
+            onClick={() => console.log("Ver Reportes")}
           >
             <div className="report-btn__icon-wrapper">
               <BarChart3 size={24} className="report-btn__icon" />
@@ -67,27 +145,66 @@ export default function AdminReportesAnalisis() {
               <span className="report-btn__subtitle">Descargar informes en PDF/Excel</span>
             </div>
           </button>
-
-          {/* Tarjeta de soporte o acciones adicionales de reportes para rellenar el layout */}
-          <article className="conflict-card" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
-            <div className="conflict-card__main-info">
-              <div className="conflict-card__icon-wrapper" style={{ backgroundColor: '#dcfce7', color: '#15803d' }}>
-                <Download size={20} />
-              </div>
-              <div className="conflict-card__meta">
-                <div className="conflict-card__header">
-                  <h3 className="conflict-card__title" style={{ color: '#15803d' }}>Cierre del Mes</h3>
-                  <span className="conflict-card__badge" style={{ backgroundColor: 'rgba(187, 247, 208, 0.4)', color: '#15803d' }}>Listo</span>
-                </div>
-                <p className="conflict-card__location" style={{ color: 'rgba(21, 128, 61, 0.7)' }}>Periodo Actual</p>
-              </div>
+          <button className="report-btn report-btn--excel" onClick={exportarExcel}>
+            <div className="report-btn__icon-wrapper">
+              <FileText size={24} className="report-btn__icon" />
             </div>
-            <p className="conflict-card__description">
-              El informe consolidado de auditoría de ocupación y reservas está optimizado.
-            </p>
-          </article>
+            <div className="report-btn__content">
+              <span className="report-btn__title">Exportar a Excel</span>
+              <span className="report-btn__subtitle">Descargar reporte en CSV</span>
+            </div>
+          </button>
         </div>
       </section>
+
+      <section className="kpi-grid">
+        {kpis.map((kpi, i) => (
+          <article className="kpi-card" key={kpi.label} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+            <div className="kpi-card__header">
+              <div className="kpi-card__icon-wrapper" style={{ backgroundColor: kpi.bg, color: kpi.color }}>
+                <kpi.icon size={22} />
+              </div>
+              <span className="kpi-card__label">{kpi.label}</span>
+            </div>
+            <span className="kpi-card__value">{kpi.value}</span>
+          </article>
+        ))}
+      </section>
+
+      <section className="reportes-section">
+        <div className="reportes-section__title-container">
+          <TrendingUp size={20} className="reportes-section__icon" />
+          <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
+        </div>
+        <div className="trend-chart-wrapper">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis
+                dataKey="dia"
+                tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
+                axisLine={{ stroke: "#e2e8f0" }}
+                tickLine={false}
+              />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
+              <Bar
+                dataKey="valor"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={48}
+                fill="url(#barGradient)"
+              />
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#1d4ed8" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      <FooterEmpleado />
     </div>
   );
 }
