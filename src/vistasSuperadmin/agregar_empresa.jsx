@@ -11,7 +11,7 @@ import FieldValidation from "../components/FieldValidation";
 const validationSchema = {
   nombre: [
     { rule: (v) => v?.trim().length > 0, message: "Requerido" },
-    { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+    { rule: (v) => v?.trim().length >= 2, message: "Minimo 2 caracteres" },
   ],
 };
 
