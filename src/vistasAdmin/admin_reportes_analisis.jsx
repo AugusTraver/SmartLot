@@ -177,30 +177,19 @@ export default function AdminReportesAnalisis() {
         >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="admin-panel__title">Reportes y Analisis</h1>
-        <p className="admin-panel__subtitle">
-          Visualiza el rendimiento general y descarga auditorias del sistema.
-        </p>
+        <div>
+          <h1 className="admin-panel__title">Reportes y Analisis</h1>
+          <p className="admin-panel__subtitle">
+            Visualiza el rendimiento general y descarga auditorias del sistema.
+          </p>
+        </div>
+
       </header>
 
       <section className="reportes-section">
-        <div className="reportes-section__title-container">
-          <Download size={20} className="reportes-section__icon" />
-          <h2 className="reportes-section__title">Exportar Datos</h2>
-        </div>
+
         <div className="export-actions">
-          <button
-            className="report-btn"
-            onClick={() => console.log("Ver Reportes")}
-          >
-            <div className="report-btn__icon-wrapper">
-              <BarChart3 size={24} className="report-btn__icon" />
-            </div>
-            <div className="report-btn__content">
-              <span className="report-btn__title">Ver Reportes</span>
-              <span className="report-btn__subtitle">Descargar informes en PDF/Excel</span>
-            </div>
-          </button>
+
           <button className="report-btn report-btn--excel" onClick={exportarExcel}>
             <div className="report-btn__icon-wrapper">
               <FileText size={24} className="report-btn__icon" />

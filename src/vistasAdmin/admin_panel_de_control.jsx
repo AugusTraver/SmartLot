@@ -120,25 +120,48 @@ export default function AdminPanelControl() {
 
         if (!montado) return;
 
-        if (conflictosResponse.respuesta) {
-          setConflictos(obtenerListado(conflictosResponse.datos));
-        } else {
-          setErrorConflictos("No se pudieron cargar los conflictos.");
-        }
-
-        if (papeleraResponse.respuesta) {
-          setPapelera(obtenerListado(papeleraResponse.datos));
-        }
-
-        if (usuariosResponse.respuesta) {
-          setUsuarios(obtenerListado(usuariosResponse.datos));
-        }
-
-        const garArray = obtenerListado(garagesResponse.datos);
-
         const adminIdSede = Number(usuario?.id_sede);
         const empresaAdmin = Number(usuario?.id_empresa);
         const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
+
+        if (usuariosResponse.respuesta) {
+          const usuariosList = obtenerListado(usuariosResponse.datos);
+
+          let usuariosFiltrados = usuariosList;
+          if (adminIdSede) {
+            usuariosFiltrados = usuariosList.filter((u) => Number(u.id_sede ?? u.idSede) === adminIdSede);
+          } else if (tieneEmpresa) {
+            usuariosFiltrados = usuariosList.filter((u) => Number(u.id_empresa ?? u.idEmpresa) === empresaAdmin);
+          }
+
+          const userIdsSet = new Set(usuariosFiltrados.map((u) => Number(obtenerIdUsuario(u))));
+
+          setUsuarios(usuariosFiltrados);
+
+          if (conflictosResponse.respuesta) {
+            const allConflictos = obtenerListado(conflictosResponse.datos);
+            setConflictos(allConflictos.filter((c) => userIdsSet.has(Number(obtenerIdUsuario(c)))));
+          } else {
+            setErrorConflictos("No se pudieron cargar los conflictos.");
+          }
+
+          if (papeleraResponse.respuesta) {
+            const allPapelera = obtenerListado(papeleraResponse.datos);
+            setPapelera(allPapelera.filter((p) => userIdsSet.has(Number(obtenerIdUsuario(p)))));
+          }
+        } else {
+          if (conflictosResponse.respuesta) {
+            setConflictos(obtenerListado(conflictosResponse.datos));
+          } else {
+            setErrorConflictos("No se pudieron cargar los conflictos.");
+          }
+
+          if (papeleraResponse.respuesta) {
+            setPapelera(obtenerListado(papeleraResponse.datos));
+          }
+        }
+
+        const garArray = obtenerListado(garagesResponse.datos);
 
         let garagesFiltrados = garArray;
         if (adminIdSede) {
