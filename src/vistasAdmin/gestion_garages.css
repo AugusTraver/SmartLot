@@ -224,6 +224,59 @@
   background: #cbd5e1;
 }
 
+/* ── Stats Card Variants ── */
+.stats-card--total {
+  background: linear-gradient(135deg, #eef2ff 0%, #ffffff 50%) !important;
+}
+
+.stats-card--total .stats-card-badge {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.stats-card--total .stats-card-icon {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.stats-card--total .stats-card-dot {
+  background: #a5b4fc;
+}
+
+.stats-card--total:hover {
+  box-shadow: 0 24px 48px rgba(67, 56, 202, 0.15);
+}
+
+.stats-card--total .stats-card-bg-icon {
+  color: #4338ca;
+}
+
+.stats-card--ocupacion {
+  background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 50%) !important;
+}
+
+.stats-card--ocupacion .stats-card-badge {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.stats-card--ocupacion .stats-card-icon {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.stats-card--ocupacion .stats-card-dot {
+  background: #6ee7b7;
+}
+
+.stats-card--ocupacion:hover {
+  box-shadow: 0 24px 48px rgba(5, 150, 105, 0.15);
+}
+
+.stats-card--ocupacion .stats-card-bg-icon {
+  color: #059669;
+}
+
 .gestion-garages-container {
   width: 100%;
   padding: 0 0 130px;

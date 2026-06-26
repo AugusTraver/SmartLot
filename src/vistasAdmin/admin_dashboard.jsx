@@ -62,8 +62,8 @@ function AdminDashboard() {
           <div className="dashboard-grid">
             <DashboardBoton
               icono={<UserPlus />}
-              titulo="Gestión de Empleados"
-              descripcion="Gestionar y agregar nuevos empleados"
+              titulo="Gestión de Usuarios"
+              descripcion="Gestionar y agregar nuevos usuarios"
               onClick={() => navigate("/gestion_de_empleados")}
             />
 

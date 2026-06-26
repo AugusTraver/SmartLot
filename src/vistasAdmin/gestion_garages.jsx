@@ -217,7 +217,7 @@ function GestionGarages() {
           <GarageStatsSkeleton />
         ) : (
           <section className="stats-container">
-            <div className="stats-card">
+            <div className="stats-card stats-card--total">
               <div className="stats-card-bg-icon">
                 <MapPinned size={100} />
               </div>
@@ -238,7 +238,7 @@ function GestionGarages() {
               </div>
             </div>
 
-            <div className="stats-card">
+            <div className="stats-card stats-card--ocupacion">
               <div className="stats-card-bg-icon">
                 <BarChart3 size={100} />
               </div>

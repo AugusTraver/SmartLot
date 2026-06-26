@@ -249,7 +249,7 @@ function SuperadminGestionGarages() {
                   <div className="stats-card-header">
                     <span className="stats-card-badge">Total</span>
                     <span className="stats-card-icon">
-                      <MapPinned size={18} />
+                      <MapPinned  size={18} />
                     </span>
                   </div>
                   <div className="stats-card-value">

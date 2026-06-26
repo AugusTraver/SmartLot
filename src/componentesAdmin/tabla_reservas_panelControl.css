@@ -265,7 +265,9 @@
   width: 0.5% !important;
 }
 
-
+.reservations-table__empty{
+  padding-left: 24px !important;
+}
 
 /* Bloques de Datos */
 .user-info {
@@ -530,6 +532,10 @@
     padding: 0.5rem 1rem !important;
     margin: 0;
     width: auto !important;
+  }
+
+  .reservations-table__empty {
+    padding-left: 24px !important;
   }
 
   .reservations-table__row {
