@@ -424,18 +424,18 @@ margin-bottom: -1%;
 }
 
 .conflict-priority--alta {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #ff6262 !important;
+  color: #991b1b !important;
 }
 
 .conflict-priority--media {
-  background: #fef3c7;
-  color: #92400e;
+  background: #ffdb4a !important;
+  color: #92400e !important;
 }
 
 .conflict-priority--baja {
-  background: #dcfce7;
-  color: #166534;
+  background: #51f389;
+  color: #166534 !important ;
 }
 
 .conflict-status-select {
