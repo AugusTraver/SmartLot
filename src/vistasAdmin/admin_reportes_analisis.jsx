@@ -51,6 +51,50 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const ReportesSkeleton = () => (
+  <>
+    <section className="reportes-section">
+      <div className="export-actions">
+        <article className="report-btn-skeleton" aria-label="Cargando accion de exportacion">
+          <span className="reportes-skeleton-icon" />
+          <div className="report-btn__content">
+            <span className="reportes-skeleton-line reportes-skeleton-title" />
+            <span className="reportes-skeleton-line reportes-skeleton-subtitle" />
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section className="kpi-grid" aria-label="Cargando indicadores">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <article className="kpi-card kpi-card-skeleton" key={index}>
+          <div className="kpi-card__header">
+            <span className="reportes-skeleton-icon" />
+            <span className="reportes-skeleton-line reportes-skeleton-kpi-label" />
+          </div>
+          <span className="reportes-skeleton-line reportes-skeleton-kpi-value" />
+        </article>
+      ))}
+    </section>
+
+    <section className="reportes-section" aria-label="Cargando grafico de tendencia">
+      <div className="reportes-section__title-container">
+        <span className="reportes-skeleton-small-icon" />
+        <span className="reportes-skeleton-line reportes-skeleton-section-title" />
+      </div>
+      <div className="trend-chart-wrapper trend-chart-wrapper-skeleton">
+        <span className="reportes-skeleton-axis reportes-skeleton-axis-y" />
+        <div className="reportes-skeleton-bars">
+          {[62, 74, 68, 82, 96, 88, 52].map((height, index) => (
+            <span className="reportes-skeleton-bar" style={{ height: `${height}%` }} key={index} />
+          ))}
+        </div>
+        <span className="reportes-skeleton-axis reportes-skeleton-axis-x" />
+      </div>
+    </section>
+  </>
+);
+
 const generarGraficoTendenciaPng = (tendencia) => {
   const canvas = document.createElement("canvas");
   const ancho = 560;
@@ -303,7 +347,7 @@ export default function AdminReportesAnalisis() {
   ];
 
   return (
-    <div className="admin-panel">
+    <div className="admin-panel admin-reportes-page">
       <Header />
       <header className="admin-panel__header">
         <button
@@ -320,76 +364,78 @@ export default function AdminReportesAnalisis() {
         </div>
       </header>
 
-      <section className="reportes-section">
-        <div className="export-actions">
-          <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading}>
-            <div className="report-btn__icon-wrapper">
-              <FileText size={24} className="report-btn__icon" />
+      {loading ? (
+        <ReportesSkeleton />
+      ) : (
+        <>
+          <section className="reportes-section">
+            <div className="export-actions">
+              <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading}>
+                <div className="report-btn__icon-wrapper">
+                  <FileText size={24} className="report-btn__icon" />
+                </div>
+                <div className="report-btn__content">
+                  <span className="report-btn__title">Exportar a Excel</span>
+                  <span className="report-btn__subtitle">Descargar reporte en XLSX</span>
+                </div>
+              </button>
             </div>
-            <div className="report-btn__content">
-              <span className="report-btn__title">Exportar a Excel</span>
-              <span className="report-btn__subtitle">Descargar reporte en XLSX</span>
-            </div>
-          </button>
-        </div>
-      </section>
+          </section>
 
-      {error && (
-        <p style={{ color: "#dc2626", padding: "12px 0", fontWeight: 600 }} role="alert">
-          {error}
-        </p>
-      )}
-
-      <section className="kpi-grid">
-        {kpis.map((kpi, i) => (
-          <article className="kpi-card" key={kpi.label} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
-            <div className="kpi-card__header">
-              <div className="kpi-card__icon-wrapper" style={{ backgroundColor: kpi.bg, color: kpi.color }}>
-                <kpi.icon size={22} />
-              </div>
-              <span className="kpi-card__label">{kpi.label}</span>
-            </div>
-            <span className="kpi-card__value">{kpi.value}</span>
-          </article>
-        ))}
-      </section>
-
-      <section className="reportes-section">
-        <div className="reportes-section__title-container">
-          <TrendingUp size={20} className="reportes-section__icon" />
-          <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
-        </div>
-        <div className="trend-chart-wrapper">
-          {loading ? (
-            <p style={{ textAlign: "center", color: "#64748b", padding: "60px 0" }}>Cargando tendencia...</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                <XAxis
-                  dataKey="dia"
-                  tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
-                  axisLine={{ stroke: "#e2e8f0" }}
-                  tickLine={false}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
-                <Bar
-                  dataKey="valor"
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={48}
-                  fill="url(#barGradient)"
-                />
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1d4ed8" />
-                    <stop offset="100%" stopColor="#3b82f6" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
+          {error && (
+            <p style={{ color: "#dc2626", padding: "12px 0", fontWeight: 600 }} role="alert">
+              {error}
+            </p>
           )}
-        </div>
-      </section>
+
+          <section className="kpi-grid">
+            {kpis.map((kpi, i) => (
+              <article className="kpi-card" key={kpi.label} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+                <div className="kpi-card__header">
+                  <div className="kpi-card__icon-wrapper" style={{ backgroundColor: kpi.bg, color: kpi.color }}>
+                    <kpi.icon size={22} />
+                  </div>
+                  <span className="kpi-card__label">{kpi.label}</span>
+                </div>
+                <span className="kpi-card__value">{kpi.value}</span>
+              </article>
+            ))}
+          </section>
+
+          <section className="reportes-section">
+            <div className="reportes-section__title-container">
+              <TrendingUp size={20} className="reportes-section__icon" />
+              <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
+            </div>
+            <div className="trend-chart-wrapper">
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis
+                    dataKey="dia"
+                    tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
+                  <Bar
+                    dataKey="valor"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={48}
+                    fill="url(#barGradient)"
+                  />
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#1d4ed8" />
+                      <stop offset="100%" stopColor="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+        </>
+      )}
 
       <FooterEmpleado />
     </div>

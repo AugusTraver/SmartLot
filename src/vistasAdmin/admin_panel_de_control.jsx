@@ -75,6 +75,59 @@ const estadoClase = (estado) => {
   return "pendiente";
 };
 
+const PanelStatsSkeleton = () => (
+  <section className="stats-card stats-card--skeleton" aria-label="Cargando ocupacion total">
+    <div className="stats-card__header">
+      <span className="panel-skeleton-line panel-skeleton-label" />
+      <span className="panel-skeleton-icon" />
+    </div>
+    <span className="panel-skeleton-line panel-skeleton-value" />
+    <span className="panel-skeleton-progress" />
+  </section>
+);
+
+const ConflictsTableSkeleton = ({ rows = 4 }) => (
+  <div className="conflicts-table-shell conflicts-table-shell--skeleton" aria-label="Cargando conflictos">
+    <table className="conflicts-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Descripcion</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th aria-label="Acciones" />
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: rows }).map((_, index) => (
+          <tr key={index}>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-name" />
+              <span className="panel-skeleton-line panel-skeleton-email" />
+            </td>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-description" />
+            </td>
+            <td>
+              <span className="panel-skeleton-pill" />
+            </td>
+            <td>
+              <span className="panel-skeleton-select" />
+            </td>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-date" />
+            </td>
+            <td>
+              <span className="panel-skeleton-action" />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 const getAdminConflictScope = (usuario) => {
   const idSede = obtenerIdSede(usuario);
   const idEmpresa = obtenerIdEmpresa(usuario);
@@ -421,18 +474,22 @@ export default function AdminPanelControl() {
         </div>
       </header>
 
-      <section className="stats-card">
-        <div className="stats-card__header">
-          <span className="stats-card__label">Ocupacion Total</span>
-          <BarChart3 className="stats-card__icon" />
-        </div>
-        <div className="stats-card__value">
-          {loadingConflictos ? "--" : `${ocupacion.porcentaje}%`}
-        </div>
-        <div className="stats-card__progress-container">
-          <div className="stats-card__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
-        </div>
-      </section>
+      {loadingConflictos ? (
+        <PanelStatsSkeleton />
+      ) : (
+        <section className="stats-card">
+          <div className="stats-card__header">
+            <span className="stats-card__label">Ocupacion Total</span>
+            <BarChart3 className="stats-card__icon" />
+          </div>
+          <div className="stats-card__value">
+            {`${ocupacion.porcentaje}%`}
+          </div>
+          <div className="stats-card__progress-container">
+            <div className="stats-card__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
+          </div>
+        </section>
+      )}
 
       <section className="conflicts-section">
         <div className="conflicts-section__title-container">
@@ -488,10 +545,10 @@ export default function AdminPanelControl() {
         </div>
 
         {loadingConflictos ? (
-          <div className="conflicts-section__feedback">Cargando conflictos...</div>
+          <ConflictsTableSkeleton />
         ) : mostrarPapelera ? (
           cargandoPapelera ? (
-            <div className="conflicts-section__feedback">Cargando papelera...</div>
+            <ConflictsTableSkeleton rows={3} />
           ) : papeleraVisible.length === 0 ? (
             <div className="conflicts-section__feedback">No hay conflictos en tu papelera.</div>
           ) : (

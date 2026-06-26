@@ -100,7 +100,7 @@ function SuperadminDashboard() {
               <span className="skeleton-line skeleton-subtitle" />
             </div>
             <div className="superadmin-stats-grid">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 4 }).map((_, i) => (
                 <StatSkeleton key={i} />
               ))}
             </div>
