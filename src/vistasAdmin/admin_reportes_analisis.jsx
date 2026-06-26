@@ -1,8 +1,8 @@
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   FileText,
-  Download,
   TrendingUp,
   BarChart3,
   Users,
@@ -21,23 +21,23 @@ import "./admin_reportes_analisis.css";
 import Header from '../componentesAdmin/header_admin';
 import FooterEmpleado from '../componentesAdmin/footer_admin';
 import { exportarReporteExcel } from '../util/exportar_reportes_excel';
+import { useAuth } from '../contexts/useAuth';
+import { GaragesGetAll } from "../servicies/API_Garage";
+import { UsuariosGetAll } from "../servicies/API_Usuario";
+import { ReservasGetAll } from "../servicies/API_Reserva";
+import { SedesGetAll } from "../servicies/API_Sede";
 
 
-const datosReporte = {
-  ocupacionMedia: 72.4,
-  usuariosActivos: 1284,
-  tiempoPromedio: "4.2 hrs",
-  horasPico: "14:00 - 18:00",
-  tendencia: [
-    { dia: "Lun", valor: 65 },
-    { dia: "Mar", valor: 70 },
-    { dia: "Mie", valor: 68 },
-    { dia: "Jue", valor: 75 },
-    { dia: "Vie", valor: 82 },
-    { dia: "Sab", valor: 78 },
-    { dia: "Dom", valor: 55 },
-  ]
+const obtenerListado = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.reservas)) return datos.reservas;
+  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
+  return [];
 };
+
+const obtenerIdUsuario = (item) => item?.id_usuario ?? item?.idUsuario ?? item?.usuario_id ?? item?.id;
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -129,38 +129,173 @@ const generarGraficoTendenciaPng = (tendencia) => {
 
 export default function AdminReportesAnalisis() {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
+  const [garages, setGarages] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [reservas, setReservas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let montado = true;
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const [garRes, usuRes, resRes, sedesRes] = await Promise.all([
+          GaragesGetAll(),
+          UsuariosGetAll(),
+          ReservasGetAll(),
+          SedesGetAll(),
+        ]);
+
+        if (!montado) return;
+
+        const garArray = obtenerListado(garRes.datos);
+        const usuArray = obtenerListado(usuRes.datos);
+        const resArray = obtenerListado(resRes.datos);
+
+        const adminIdSede = Number(usuario?.id_sede);
+        const empresaAdmin = Number(usuario?.id_empresa);
+        const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
+
+        let garagesFiltrados = garArray;
+        let usuariosFiltrados = usuArray;
+        let reservasFiltradas = resArray;
+
+        if (adminIdSede) {
+          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
+          const userIds = new Set(
+            usuArray.filter((u) => Number(u.id_sede ?? u.idSede) === adminIdSede).map((u) => Number(obtenerIdUsuario(u)))
+          );
+          usuariosFiltrados = usuArray.filter((u) => userIds.has(Number(obtenerIdUsuario(u))));
+          const garageIds = new Set(garagesFiltrados.map((g) => Number(g.id_garage ?? g.idGarage ?? g.id)));
+          reservasFiltradas = resArray.filter((r) => garageIds.has(Number(r.id_garage ?? r.idGarage ?? r.garage_id)));
+        } else if (tieneEmpresa) {
+          const sedesArray = obtenerListado(sedesRes.datos);
+          const sedesIdsEmpresa = new Set(
+            sedesArray.filter((s) => Number(s.id_empresa) === empresaAdmin).map((s) => Number(s.id))
+          );
+          garagesFiltrados = garArray.filter((g) => sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede)));
+          const userIds = new Set(
+            usuArray.filter((u) => Number(u.id_empresa ?? u.idEmpresa) === empresaAdmin).map((u) => Number(obtenerIdUsuario(u)))
+          );
+          usuariosFiltrados = usuArray.filter((u) => userIds.has(Number(obtenerIdUsuario(u))));
+          const garageIds = new Set(garagesFiltrados.map((g) => Number(g.id_garage ?? g.idGarage ?? g.id)));
+          reservasFiltradas = resArray.filter((r) => garageIds.has(Number(r.id_garage ?? r.idGarage ?? r.garage_id)));
+        }
+
+        setGarages(garagesFiltrados);
+        setUsuarios(usuariosFiltrados);
+        setReservas(reservasFiltradas);
+      } catch (err) {
+        console.error("Error al cargar datos de reportes:", err);
+        if (montado) setError("Error al cargar los datos.");
+      } finally {
+        if (montado) setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => { montado = false; };
+  }, [usuario]);
+
+  const datosReporte = useMemo(() => {
+    let totalOcupados = 0;
+    let totalCapacidad = 0;
+    garages.forEach((g) => {
+      totalOcupados += Number(g.ocupacion_reservas || 0) + Number(g.ocupacion_no_reservas || 0);
+      totalCapacidad += Number(g.capacidad_reservas || 0) + Number(g.capacidad_para_no_reservas || 0);
+    });
+    const ocupacionMedia = totalCapacidad > 0 ? Math.round((totalOcupados / totalCapacidad) * 100) : 0;
+
+    const usuariosActivos = usuarios.filter((u) => u.activo !== false).length;
+
+    let totalHoras = 0;
+    let count = 0;
+    reservas.forEach((r) => {
+      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
+      const salida = r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin;
+      if (entrada && salida) {
+        const diff = (new Date(salida) - new Date(entrada)) / (1000 * 60 * 60);
+        if (diff > 0 && diff < 24) {
+          totalHoras += diff;
+          count++;
+        }
+      }
+    });
+    const tiempoPromedio = count > 0 ? `${(totalHoras / count).toFixed(1)} hrs` : "—";
+
+    const horasCount = {};
+    reservas.forEach((r) => {
+      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
+      if (entrada) {
+        const hora = new Date(entrada).getHours();
+        horasCount[hora] = (horasCount[hora] || 0) + 1;
+      }
+    });
+    let mejorRango = "";
+    let mejorSuma = 0;
+    for (let h = 0; h <= 22; h++) {
+      const suma = (horasCount[h] || 0) + (horasCount[h + 1] || 0);
+      if (suma > mejorSuma) {
+        mejorSuma = suma;
+        mejorRango = `${String(h).padStart(2, "0")}:00 - ${String(h + 2).padStart(2, "0")}:00`;
+      }
+    }
+    const horasPico = mejorRango || "—";
+
+    const diasSemana = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+    const diaCount = [0, 0, 0, 0, 0, 0, 0];
+    reservas.forEach((r) => {
+      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
+      if (entrada) {
+        const dia = new Date(entrada).getDay();
+        diaCount[dia]++;
+      }
+    });
+    const maxCount = Math.max(...diaCount, 1);
+    const tendencia = diasSemana.map((dia, i) => ({
+      dia,
+      valor: Math.round((diaCount[i] / maxCount) * 100),
+    }));
+
+    return { ocupacionMedia, usuariosActivos, tiempoPromedio, horasPico, tendencia };
+  }, [garages, usuarios, reservas]);
 
   const exportarExcel = async () => {
+    if (loading) return;
     const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
-
     await exportarReporteExcel(datosReporte, { graficoTendencia });
   };
 
   const kpis = [
     {
       label: "Ocupacion Media",
-      value: `${datosReporte.ocupacionMedia}%`,
+      value: loading ? "—" : `${datosReporte.ocupacionMedia}%`,
       icon: BarChart3,
       color: "#1d4ed8",
       bg: "#eff6ff",
     },
     {
       label: "Usuarios Activos",
-      value: datosReporte.usuariosActivos.toLocaleString(),
+      value: loading ? "—" : datosReporte.usuariosActivos.toLocaleString(),
       icon: Users,
       color: "#059669",
       bg: "#ecfdf5",
     },
     {
       label: "Tiempo Promedio",
-      value: datosReporte.tiempoPromedio,
+      value: loading ? "—" : datosReporte.tiempoPromedio,
       icon: Clock,
       color: "#d97706",
       bg: "#fffbeb",
     },
     {
       label: "Horas Pico",
-      value: datosReporte.horasPico,
+      value: loading ? "—" : datosReporte.horasPico,
       icon: Zap,
       color: "#dc2626",
       bg: "#fef2f2",
@@ -183,14 +318,11 @@ export default function AdminReportesAnalisis() {
             Visualiza el rendimiento general y descarga auditorias del sistema.
           </p>
         </div>
-
       </header>
 
       <section className="reportes-section">
-
         <div className="export-actions">
-
-          <button className="report-btn report-btn--excel" onClick={exportarExcel}>
+          <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading}>
             <div className="report-btn__icon-wrapper">
               <FileText size={24} className="report-btn__icon" />
             </div>
@@ -201,6 +333,12 @@ export default function AdminReportesAnalisis() {
           </button>
         </div>
       </section>
+
+      {error && (
+        <p style={{ color: "#dc2626", padding: "12px 0", fontWeight: 600 }} role="alert">
+          {error}
+        </p>
+      )}
 
       <section className="kpi-grid">
         {kpis.map((kpi, i) => (
@@ -222,30 +360,34 @@ export default function AdminReportesAnalisis() {
           <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
         </div>
         <div className="trend-chart-wrapper">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-              <XAxis
-                dataKey="dia"
-                tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
-                axisLine={{ stroke: "#e2e8f0" }}
-                tickLine={false}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
-              <Bar
-                dataKey="valor"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={48}
-                fill="url(#barGradient)"
-              />
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1d4ed8" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <p style={{ textAlign: "center", color: "#64748b", padding: "60px 0" }}>Cargando tendencia...</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis
+                  dataKey="dia"
+                  tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
+                  axisLine={{ stroke: "#e2e8f0" }}
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
+                <Bar
+                  dataKey="valor"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={48}
+                  fill="url(#barGradient)"
+                />
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1d4ed8" />
+                    <stop offset="100%" stopColor="#3b82f6" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </section>
 
