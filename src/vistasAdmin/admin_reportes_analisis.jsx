@@ -10,9 +10,10 @@ import {
   Zap
 } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
+  YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid
@@ -43,8 +44,11 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="trend-tooltip">
-        <span className="trend-tooltip__label">{label}</span>
+        <span className="trend-tooltip__day">{label}</span>
         <span className="trend-tooltip__value">{payload[0].value}%</span>
+        <div className="trend-tooltip__bar">
+          <div className="trend-tooltip__fill" style={{ width: `${payload[0].value}%` }} />
+        </div>
       </div>
     );
   }
@@ -171,6 +175,34 @@ const generarGraficoTendenciaPng = (tendencia) => {
   return canvas.toDataURL("image/png");
 };
 
+const CustomDot = (props) => {
+  const { cx, cy, index } = props;
+  if (!cx || !cy) return null;
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={4}
+      fill="#2563eb"
+      stroke="#ffffff"
+      strokeWidth={2.5}
+      style={{ animationDelay: `${0.6 + index * 0.08}s` }}
+      className="trend-chart-dot"
+    />
+  );
+};
+
+const CustomActiveDot = (props) => {
+  const { cx, cy } = props;
+  if (!cx || !cy) return null;
+  return (
+    <>
+      <circle cx={cx} cy={cy} r={10} fill="rgba(37, 99, 235, 0.12)" stroke="none" />
+      <circle cx={cx} cy={cy} r={6} fill="#2563eb" stroke="#ffffff" strokeWidth={3} />
+    </>
+  );
+};
+
 export default function AdminReportesAnalisis() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
@@ -255,7 +287,7 @@ export default function AdminReportesAnalisis() {
     });
     const ocupacionMedia = totalCapacidad > 0 ? Math.round((totalOcupados / totalCapacidad) * 100) : 0;
 
-    const usuariosActivos = usuarios.filter((u) => u.activo !== false).length;
+    const usuariosActivos = usuarios.filter((u) => u.activo !== false && Number(u.id_rol) !== 1).length;
 
     let totalHoras = 0;
     let count = 0;
@@ -408,30 +440,70 @@ export default function AdminReportesAnalisis() {
               <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
             </div>
             <div className="trend-chart-wrapper">
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={datosReporte.tendencia} margin={{ top: 8, right: 8, left: -16, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <div className="trend-chart-accent" />
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={datosReporte.tendencia} margin={{ top: 16, right: 12, left: -8, bottom: 8 }}>
+                  <defs>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.35} />
+                      <stop offset="40%" stopColor="#3b82f6" stopOpacity={0.12} />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="areaStroke" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#1d4ed8" />
+                      <stop offset="100%" stopColor="#60a5fa" />
+                    </linearGradient>
+                    <filter id="areaGlow">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="2 4"
+                    stroke="#e2e8f0"
+                    vertical={false}
+                  />
                   <XAxis
                     dataKey="dia"
-                    tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    tick={{ fontSize: 13, fill: "#64748b", fontWeight: 600, letterSpacing: "0.02em" }}
+                    axisLine={{ stroke: "#e2e8f0", strokeWidth: 1 }}
                     tickLine={false}
+                    dy={6}
                   />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(29, 78, 216, 0.06)" }} />
-                  <Bar
+                  <YAxis
+                    domain={[0, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                    tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 500 }}
+                    axisLine={false}
+                    tickLine={false}
+                    dx={-4}
+                    width={40}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ stroke: "#94a3b8", strokeDasharray: "3 3", strokeWidth: 1 }}
+                  />
+                  <Area
+                    type="monotone"
                     dataKey="valor"
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={48}
-                    fill="url(#barGradient)"
+                    stroke="url(#areaStroke)"
+                    strokeWidth={3}
+                    fill="url(#areaGradient)"
+                    filter="url(#areaGlow)"
+                    animationDuration={1200}
+                    animationEasing="ease-out"
+                    dot={<CustomDot />}
+                    activeDot={CustomActiveDot}
                   />
-                  <defs>
-                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#1d4ed8" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                </BarChart>
+                </AreaChart>
               </ResponsiveContainer>
+              <div className="trend-chart-footer">
+                <span className="trend-chart-footer__dot" />
+                <span>Ocupación promedio por día de la semana</span>
+              </div>
             </div>
           </section>
         </>

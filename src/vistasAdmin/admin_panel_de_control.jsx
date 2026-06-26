@@ -76,8 +76,8 @@ const estadoClase = (estado) => {
 };
 
 const PanelStatsSkeleton = () => (
-  <section className="stats-card stats-card--skeleton" aria-label="Cargando ocupacion total">
-    <div className="stats-card__header">
+  <section className="panel-stats-card panel-stats--skeleton" aria-label="Cargando ocupacion total">
+    <div className="panel-stats__header">
       <span className="panel-skeleton-line panel-skeleton-label" />
       <span className="panel-skeleton-icon" />
     </div>
@@ -477,16 +477,16 @@ export default function AdminPanelControl() {
       {loadingConflictos ? (
         <PanelStatsSkeleton />
       ) : (
-        <section className="stats-card">
-          <div className="stats-card__header">
-            <span className="stats-card__label">Ocupacion Total</span>
-            <BarChart3 className="stats-card__icon" />
+        <section className="panel-stats-card">
+          <div className="panel-stats__header">
+            <span className="panel-stats__label">Ocupacion Total</span>
+            <BarChart3 className="panel-stats__icon" />
           </div>
-          <div className="stats-card__value">
+          <div className="panel-stats__value">
             {`${ocupacion.porcentaje}%`}
           </div>
-          <div className="stats-card__progress-container">
-            <div className="stats-card__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
+          <div className="panel-stats__progress-container">
+            <div className="panel-stats__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
           </div>
         </section>
       )}
