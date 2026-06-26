@@ -1,9 +1,20 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const VEHICULOS_TTL_MS = 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateVehiculosDependencies = () => {
+    invalidateByPrefix('vehiculos:');
+    invalidateByPrefix('reservas:');
+};
 
-const VehiculosGetAll = async () => {
+const VehiculosGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +22,29 @@ const VehiculosGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'vehiculos:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: VEHICULOS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const VehiculosGetById = async (id) => {
+const VehiculosGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +52,22 @@ const VehiculosGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'vehiculos:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: VEHICULOS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +86,13 @@ const VehiculosCreate = async (vehiculo) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateVehiculosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -87,12 +111,13 @@ const VehiculosUpdate = async (id, vehiculo) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateVehiculosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -110,12 +135,13 @@ const VehiculosDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateVehiculosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

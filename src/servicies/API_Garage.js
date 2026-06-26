@@ -1,10 +1,24 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const GARAGES_TTL_MS = 5 * 60 * 1000;
+const OCUPACION_TTL_MS = 15 * 1000;
 
-console.log('[API_Garage] Usando URL base:', apiUrl);
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
-const GaragesGetAll = async () => {
+const invalidateGaragesDependencies = () => {
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('reservas:disponibilidad:');
+};
+
+const GaragesGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -12,23 +26,29 @@ const GaragesGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'garages:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: GARAGES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const GaragesGetOcupacionReserva = async (id) => {
+const GaragesGetOcupacionReserva = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -36,23 +56,29 @@ const GaragesGetOcupacionReserva = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'garages:ocupacion-reserva:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: OCUPACION_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const GaragesGetOcupacionNoReserva = async (id) => {
+const GaragesGetOcupacionNoReserva = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -60,23 +86,29 @@ const GaragesGetOcupacionNoReserva = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'garages:ocupacion-no-reserva:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: OCUPACION_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const GaragesGetById = async (id) => {
+const GaragesGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -84,16 +116,22 @@ const GaragesGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'garages:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: GARAGES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -106,29 +144,19 @@ const GaragesCreate = async (garage) => {
 
     let url = '/api/garage';
 
-    console.group('[API_Garage.GaragesCreate]');
-    console.log('🔵 URL:', url);
-    console.log('🔵 Payload a enviar:', JSON.stringify(garage, null, 2));
-    console.groupEnd();
-
     try {
 
         const response = await apiClient.post(url, garage);
 
-        console.log('[API_Garage.GaragesCreate] ✅ Respuesta exitosa (Status:', response.status, ')');
-        console.log('[API_Garage.GaragesCreate] Datos retornados:', response.data);
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateGaragesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.error('[API_Garage.GaragesCreate] ❌ Error en POST:');
-        console.error('  Status:', error.response?.status);
-        console.error('  Mensaje del servidor:', error.response?.data);
-        console.error('  Error:', error.message);
-        
+        logApiError(error);
         returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
@@ -148,16 +176,13 @@ const GaragesUpdate = async (id, garage) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateGaragesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.error('[API_Garage.GaragesUpdate] ❌ Error en PUT:');
-        console.error('  Status:', error.response?.status);
-        console.error('  Mensaje del servidor:', error.response?.data);
-        console.error('  Error:', error.message);
-
+        logApiError(error);
         returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
@@ -176,12 +201,13 @@ const GaragesDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateGaragesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

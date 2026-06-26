@@ -1,9 +1,21 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const MARCAS_TTL_MS = 10 * 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateMarcasDependencies = () => {
+    invalidateByPrefix('marcas:');
+    invalidateByPrefix('modelos:');
+    invalidateByPrefix('vehiculos:');
+};
 
-const MarcasGetAll = async () => {
+const MarcasGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +23,29 @@ const MarcasGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'marcas:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: MARCAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const MarcasGetById = async (id) => {
+const MarcasGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +53,22 @@ const MarcasGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'marcas:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: MARCAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +87,13 @@ const MarcasCreate = async (marca) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateMarcasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -87,12 +112,13 @@ const MarcasUpdate = async (id, marca) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateMarcasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -110,12 +136,13 @@ const MarcasDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateMarcasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

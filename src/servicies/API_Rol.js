@@ -1,9 +1,20 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const ROLES_TTL_MS = 10 * 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateRolesDependencies = () => {
+    invalidateByPrefix('roles:');
+    invalidateByPrefix('usuarios:');
+};
 
-const RolesGetAll = async () => {
+const RolesGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +22,29 @@ const RolesGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'roles:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: ROLES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const RolesGetById = async (id) => {
+const RolesGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +52,22 @@ const RolesGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'roles:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: ROLES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +86,13 @@ const RolesCreate = async (rol) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateRolesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -87,12 +111,13 @@ const RolesUpdate = async (id, rol) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateRolesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -110,12 +135,13 @@ const RolesDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateRolesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

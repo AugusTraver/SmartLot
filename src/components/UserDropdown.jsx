@@ -8,6 +8,7 @@ import { Z_INDEX } from '../helpers/zIndex';
 import { LogOut, User, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from '../helpers/superadminSession';
+import { clearCache } from '../cache/cacheStore';
 import apiClient from '../api/client';
 
 const ROLE_LABELS = {
@@ -143,6 +144,7 @@ export default function UserDropdown() {
     if (superadminBackup) {
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
+      clearCache();
       setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });

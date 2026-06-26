@@ -1,9 +1,20 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const MODELOS_TTL_MS = 10 * 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateModelosDependencies = () => {
+    invalidateByPrefix('modelos:');
+    invalidateByPrefix('vehiculos:');
+};
 
-const ModelosGetAll = async () => {
+const ModelosGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +22,29 @@ const ModelosGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'modelos:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: MODELOS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const ModelosGetById = async (id) => {
+const ModelosGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +52,22 @@ const ModelosGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'modelos:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: MODELOS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +86,13 @@ const ModelosCreate = async (modelo) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateModelosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -87,12 +111,13 @@ const ModelosUpdate = async (id, modelo) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateModelosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -110,12 +135,13 @@ const ModelosDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateModelosDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

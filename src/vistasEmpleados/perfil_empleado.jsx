@@ -10,7 +10,9 @@ import Footer from "../componentesEmpleado/footer_empleado";
 
 import { useAuth } from "../contexts/useAuth";
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from "../helpers/superadminSession";
+import { clearCache } from "../cache/cacheStore";
 import apiClient from "../servicies/apiClient";
+import { UsuariosGetById } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
@@ -112,9 +114,12 @@ export default function PerfilEmpleado() {
       try {
         const id = Number(obtenerIdUsuario(usuario));
         if (!id) return;
-        const res = await apiClient.get(`/api/usuario/${id}`);
+        const res = await UsuariosGetById(id);
         if (!montado) return;
-        const userData = res.data;
+        const userData = res.respuesta ? res.datos : null;
+        if (!userData) {
+          throw new Error("No se pudo cargar el perfil completo.");
+        }
         
         const payload = {
           nombre: userData.nombre || "",
@@ -285,6 +290,7 @@ export default function PerfilEmpleado() {
     if (superadminBackup) {
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
+      clearCache();
       setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });

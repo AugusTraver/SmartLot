@@ -1,9 +1,23 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const SEDES_TTL_MS = 10 * 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateSedesDependencies = () => {
+    invalidateByPrefix('sedes:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+};
 
-const SedesGetAll = async () => {
+const SedesGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +25,29 @@ const SedesGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'sedes:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: SEDES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const SedesGetById = async (id) => {
+const SedesGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +55,22 @@ const SedesGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'sedes:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: SEDES_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +89,13 @@ const SedesCreate = async (sede) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateSedesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -87,12 +114,13 @@ const SedesUpdate = async (id, sede) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateSedesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -110,12 +138,13 @@ const SedesDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateSedesDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

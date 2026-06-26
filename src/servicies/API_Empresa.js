@@ -1,9 +1,24 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const EMPRESAS_TTL_MS = 10 * 60 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateEmpresasDependencies = () => {
+    invalidateByPrefix('empresas:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('sedes:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+};
 
-const EmpresasGetAll = async () => {
+const EmpresasGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +26,29 @@ const EmpresasGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'empresas:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: EMPRESAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const EmpresasGetById = async (id) => {
+const EmpresasGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,21 +56,27 @@ const EmpresasGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'empresas:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: EMPRESAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
-const EmpresasGetAuditoria = async () => {
+const EmpresasGetAuditoria = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -57,16 +84,22 @@ const EmpresasGetAuditoria = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'empresas:auditoria',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: EMPRESAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -85,12 +118,13 @@ const EmpresasCreate = async (empresa) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateEmpresasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -109,12 +143,13 @@ const EmpresasUpdate = async (id, empresa) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateEmpresasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -132,12 +167,13 @@ const EmpresasDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateEmpresasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

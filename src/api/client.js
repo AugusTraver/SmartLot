@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import { Z_INDEX } from '../helpers/zIndex';
 import { mensajeToast } from '../helpers/erroresMensajes';
 import { navigateTo } from './navigation';
+import { clearCache, invalidateByPrefix } from '../cache/cacheStore';
 
 const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
 
@@ -45,8 +46,104 @@ function processQueue(error) {
   failedQueue = [];
 }
 
+function shouldClearCacheForAuthUrl(url = '') {
+  return url.includes('/api/usuario/login')
+    || url.includes('/api/usuario/logout')
+    || url.includes('/api/usuario/impersonate');
+}
+
+function invalidateCacheForMutation(config = {}) {
+  const method = config.method?.toLowerCase();
+  const url = config.url || '';
+
+  if (!['post', 'put', 'patch', 'delete'].includes(method)) {
+    return;
+  }
+
+  if (url.includes('/api/usuario/refresh')) {
+    return;
+  }
+
+  if (url.includes('/api/usuario')) {
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('vehiculos:');
+  }
+
+  if (url.includes('/api/empresa')) {
+    invalidateByPrefix('empresas:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('sedes:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+  }
+
+  if (url.includes('/api/sede')) {
+    invalidateByPrefix('sedes:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+  }
+
+  if (url.includes('/api/garage')) {
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('usuarios:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('reservas:disponibilidad:');
+  }
+
+  if (url.includes('/api/reserva')) {
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('garages:ocupacion-');
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('reservas:disponibilidad:');
+  }
+
+  if (url.includes('/api/conflicto')) {
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('garages:ocupacion-');
+    invalidateByPrefix('reservas:disponibilidad:');
+  }
+
+  if (url.includes('/api/vehiculo')) {
+    invalidateByPrefix('vehiculos:');
+    invalidateByPrefix('reservas:');
+  }
+
+  if (url.includes('/api/marca')) {
+    invalidateByPrefix('marcas:');
+    invalidateByPrefix('modelos:');
+    invalidateByPrefix('vehiculos:');
+  }
+
+  if (url.includes('/api/modelo')) {
+    invalidateByPrefix('modelos:');
+    invalidateByPrefix('vehiculos:');
+  }
+
+  if (url.includes('/api/rol')) {
+    invalidateByPrefix('roles:');
+    invalidateByPrefix('usuarios:');
+  }
+}
+
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (shouldClearCacheForAuthUrl(response.config?.url)) {
+      clearCache();
+    }
+
+    invalidateCacheForMutation(response.config);
+
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     const data = error.response?.data;
@@ -71,6 +168,7 @@ apiClient.interceptors.response.use(
       } catch {
         processQueue(error);
         if (!originalRequest._skipAuthRedirect) {
+          clearCache();
           navigateTo('/login');
         }
         return Promise.reject(error);
@@ -82,6 +180,7 @@ apiClient.interceptors.response.use(
     switch (status) {
       case 401:
         if (!originalRequest._skipAuthRedirect) {
+          clearCache();
           navigateTo('/login');
         }
         break;

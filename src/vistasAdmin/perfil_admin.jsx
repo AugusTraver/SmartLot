@@ -7,6 +7,7 @@ import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from "../helpers/superadminSession";
+import { clearCache } from "../cache/cacheStore";
 import apiClient from "../api/client";
 import "./perfil_admin.css";
 
@@ -48,6 +49,7 @@ export default function PerfilAdmin() {
     if (superadminBackup) {
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
+      clearCache();
       setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });

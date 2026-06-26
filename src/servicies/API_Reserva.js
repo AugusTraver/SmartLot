@@ -1,9 +1,23 @@
 import apiClient from './apiClient';
+import { getFromCache, invalidateByPrefix } from '../cache/cacheStore';
 
+const RESERVAS_TTL_MS = 15 * 1000;
 
+const logApiError = (error) => {
+    if (import.meta.env.DEV) {
+        console.log(error);
+    }
+};
 
+const invalidateReservasDependencies = () => {
+    invalidateByPrefix('reservas:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('garages:ocupacion-');
+    invalidateByPrefix('conflictos:');
+    invalidateByPrefix('reservas:disponibilidad:');
+};
 
-const ReservasGetAll = async () => {
+const ReservasGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -11,23 +25,29 @@ const ReservasGetAll = async () => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'reservas:all',
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: RESERVAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const ReservasGetById = async (id) => {
+const ReservasGetById = async (id, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -35,16 +55,22 @@ const ReservasGetById = async (id) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'reservas:id:' + id,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: RESERVAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -63,12 +89,13 @@ const ReservasCreate = async (reserva) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateReservasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         returnObject.datos = error.response?.data || { message: error.message };
         return returnObject;
     }
@@ -88,12 +115,13 @@ const ReservasUpdate = async (id, reserva) => {
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
+        invalidateReservasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -111,12 +139,13 @@ const ReservasDelete = async (id) => {
         await apiClient.delete(url);
 
         returnObject.respuesta = true;
+        invalidateReservasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
@@ -134,19 +163,20 @@ const ReservasCancel = async (id) => {
         await apiClient.post(url);
 
         returnObject.respuesta = true;
+        invalidateReservasDependencies();
 
         return returnObject;
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
 
 
-const ReservasGetByUsuario = async (idUsuario) => {
+const ReservasGetByUsuario = async (idUsuario, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -205,23 +235,29 @@ const ReservasGetByUsuario = async (idUsuario) => {
 
     try {
 
-        const response = await apiClient.get(url, { validateStatus: () => true });
+        return await getFromCache(
+            'reservas:usuario:' + idUsuario,
+            async () => {
+                const response = await apiClient.get(url, { validateStatus: () => true });
 
-        if (response.status >= 200 && response.status < 300) {
-            returnObject.respuesta = true;
-            returnObject.datos = response.data;
-        }
+                if (response.status >= 200 && response.status < 300) {
+                    returnObject.respuesta = true;
+                    returnObject.datos = response.data;
+                }
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: RESERVAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };
 
-const ReservasGetDisponibilidadPorHora = async (garageId, fecha) => {
+const ReservasGetDisponibilidadPorHora = async (garageId, fecha, { force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -229,16 +265,22 @@ const ReservasGetDisponibilidadPorHora = async (garageId, fecha) => {
 
     try {
 
-        const response = await apiClient.get(url);
+        return await getFromCache(
+            'reservas:disponibilidad:' + garageId + ':' + fecha,
+            async () => {
+                const response = await apiClient.get(url);
 
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
 
-        return returnObject;
+                return returnObject;
+            },
+            { ttlMs: RESERVAS_TTL_MS, force }
+        );
 
     } catch (error) {
 
-        console.log(error);
+        logApiError(error);
         return returnObject;
     }
 };

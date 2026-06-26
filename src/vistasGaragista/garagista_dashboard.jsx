@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/client";
+import { clearCache } from "../cache/cacheStore";
 import { useAuth } from "../contexts/useAuth";
 import {
   eliminarSuperadminBackup,
@@ -19,6 +20,7 @@ export default function GaragistaDashboard() {
 
     if (cookies.length > 1 && superadminBackup && usuarioImpersonado) {
       eliminarUsuarioImpersonado();
+      clearCache();
       setRoleTransition(true);
       setUsuario(superadminBackup);
       navigate("/superadmin_dashboard", { replace: true });
