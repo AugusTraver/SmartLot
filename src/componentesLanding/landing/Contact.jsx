@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -95,10 +96,10 @@ export default function Contact() {
                 Dejá de perder tiempo gestionando planillas. Implementá SmartLot hoy mismo y mejorá la experiencia de tu equipo.
               </p>
               
-              <button className="cta-content group flex items-center gap-2 px-10 py-5 bg-brand-blue text-white rounded-2xl font-bold text-base hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 shadow-xl shadow-brand-deep/20">
-                <span>Contactar a Ventas</span>
+              <Link to="/sobre-nosotros" className="cta-content group flex items-center gap-2 px-10 py-5 bg-brand-blue text-white rounded-2xl font-bold text-base hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 shadow-xl shadow-brand-deep/20">
+                <span>Sobre nosotros</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" aria-hidden="true" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>

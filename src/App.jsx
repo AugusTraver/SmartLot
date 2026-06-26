@@ -28,6 +28,7 @@ import SuperadminConflictos from "./vistasSuperadmin/superadmin_conflictos";
 import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
 import AuthCallback from "./vistasLanding/AuthCallback";
+import SobreNosotros from "./vistasLanding/SobreNosotros";
 
 // Vistas de Empleados (Conexión corregida del perfil de empleado)
 import EmpleadoDashboard from "./vistasEmpleados/empleados_dashboard";
@@ -59,6 +60,7 @@ function AppRoutes() {
     <Routes>
       {/* Rutas públicas */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/sobre-nosotros" element={<SobreNosotros />} />
       <Route path="/login" element={<Auth />} />
       <Route path="/register" element={<Auth />} />
       <Route path="/register-form" element={<Register />} />
