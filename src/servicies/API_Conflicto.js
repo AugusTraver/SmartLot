@@ -19,12 +19,22 @@ const invalidateConflictosDependencies = () => {
   invalidateByPrefix('reservas:disponibilidad:');
 };
 
-const ConflictosGetAll = async ({ superAdmin = false, force = false } = {}) => {
+const getConflictScopeKey = ({ superAdmin = false, idEmpresa, idSede, idUsuario, scopeKey } = {}) => {
+  if (scopeKey) return scopeKey;
+  if (superAdmin) return 'superadmin';
+  if (idSede) return 'sede:' + idSede;
+  if (idEmpresa) return 'empresa:' + idEmpresa;
+  if (idUsuario) return 'usuario:' + idUsuario;
+  return 'tenant:unknown';
+};
+
+const ConflictosGetAll = async ({ superAdmin = false, force = false, idEmpresa, idSede, idUsuario, scopeKey } = {}) => {
   const returnObject = crearRespuesta([]);
+  const tenantKey = getConflictScopeKey({ superAdmin, idEmpresa, idSede, idUsuario, scopeKey });
 
   try {
     return await getFromCache(
-      'conflictos:all:' + superAdmin,
+      'conflictos:all:' + superAdmin + ':' + tenantKey,
       async () => {
         const response = await apiClient.get('/api/conflicto', {
           params: { superAdmin },
@@ -43,12 +53,13 @@ const ConflictosGetAll = async ({ superAdmin = false, force = false } = {}) => {
   return returnObject;
 };
 
-const ConflictosGetPapelera = async ({ superAdmin = false, force = false } = {}) => {
+const ConflictosGetPapelera = async ({ superAdmin = false, force = false, idEmpresa, idSede, idUsuario, scopeKey } = {}) => {
   const returnObject = crearRespuesta([]);
+  const tenantKey = getConflictScopeKey({ superAdmin, idEmpresa, idSede, idUsuario, scopeKey });
 
   try {
     return await getFromCache(
-      'conflictos:papelera:' + superAdmin,
+      'conflictos:papelera:' + superAdmin + ':' + tenantKey,
       async () => {
         const response = await apiClient.get('/api/conflicto/papelera', {
           params: { superAdmin },

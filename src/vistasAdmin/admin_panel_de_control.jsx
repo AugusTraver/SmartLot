@@ -40,6 +40,8 @@ const obtenerListado = (datos) => {
 };
 
 const obtenerIdUsuario = (item) => item?.id_usuario ?? item?.idUsuario ?? item?.usuario_id ?? item?.id;
+const obtenerIdEmpresa = (item) => item?.id_empresa ?? item?.idEmpresa ?? item?.empresa_id ?? item?.empresaId;
+const obtenerIdSede = (item) => item?.id_sede ?? item?.idSede ?? item?.sede_id ?? item?.sedeId;
 const obtenerFechaConflicto = (item) =>
   item?.fecha_creacion ?? item?.fechaCreacion ?? item?.created_at ?? item?.createdAt ?? item?.CreateAt;
 const obtenerFechaBorrado = (item) =>
@@ -73,6 +75,41 @@ const estadoClase = (estado) => {
   return "pendiente";
 };
 
+const getAdminConflictScope = (usuario) => {
+  const idSede = obtenerIdSede(usuario);
+  const idEmpresa = obtenerIdEmpresa(usuario);
+  const idUsuario = obtenerIdUsuario(usuario);
+
+  return {
+    idSede,
+    idEmpresa,
+    idUsuario,
+    scopeKey: idSede
+      ? 'sede:' + idSede
+      : idEmpresa
+        ? 'empresa:' + idEmpresa
+      : 'usuario:' + (idUsuario || 'unknown'),
+  };
+};
+
+const perteneceAlTenantAdmin = (conflicto, usuariosPorId, scope) => {
+  const conflictoEmpresa = obtenerIdEmpresa(conflicto);
+  const conflictoSede = obtenerIdSede(conflicto);
+  const usuarioConflicto = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
+  const usuarioEmpresa = obtenerIdEmpresa(usuarioConflicto);
+  const usuarioSede = obtenerIdSede(usuarioConflicto);
+
+  if (scope.idSede) {
+    return Number(conflictoSede || usuarioSede) === Number(scope.idSede);
+  }
+
+  if (scope.idEmpresa) {
+    return Number(conflictoEmpresa || usuarioEmpresa) === Number(scope.idEmpresa);
+  }
+
+  return false;
+};
+
 export default function AdminPanelControl() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
@@ -91,16 +128,18 @@ export default function AdminPanelControl() {
   const [mensajeSoporte, setMensajeSoporte] = useState(null);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
 
-  const cargarPapelera = useCallback(async () => {
+  const conflictScope = useMemo(() => getAdminConflictScope(usuario), [usuario]);
+
+  const cargarPapelera = useCallback(async ({ force = false } = {}) => {
     setCargandoPapelera(true);
-    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: false });
+    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: false, force, ...conflictScope });
     if (papeleraResponse.respuesta) {
       setPapelera(obtenerListado(papeleraResponse.datos));
     } else {
       setErrorConflictos("No se pudo cargar la papelera.");
     }
     setCargandoPapelera(false);
-  }, []);
+  }, [conflictScope]);
 
   useEffect(() => {
     let montado = true;
@@ -111,8 +150,8 @@ export default function AdminPanelControl() {
 
       try {
         const [conflictosResponse, papeleraResponse, usuariosResponse, garagesResponse, sedesResponse] = await Promise.all([
-          ConflictosGetAll({ superAdmin: false }),
-          ConflictosGetPapelera({ superAdmin: false }),
+          ConflictosGetAll({ superAdmin: false, ...conflictScope }),
+          ConflictosGetPapelera({ superAdmin: false, ...conflictScope }),
           UsuariosGetAll(),
           GaragesGetAll(),
           SedesGetAll(),
@@ -169,18 +208,28 @@ export default function AdminPanelControl() {
     return () => {
       montado = false;
     };
-  }, [usuario]);
+  }, [usuario, conflictScope]);
 
   const usuariosPorId = useMemo(
     () => new Map(usuarios.map((usuario) => [Number(usuario.id ?? usuario.id_usuario), usuario])),
     [usuarios]
   );
 
+  const conflictosTenant = useMemo(
+    () => conflictos.filter((conflicto) => perteneceAlTenantAdmin(conflicto, usuariosPorId, conflictScope)),
+    [conflictos, usuariosPorId, conflictScope]
+  );
+
+  const papeleraTenant = useMemo(
+    () => papelera.filter((conflicto) => perteneceAlTenantAdmin(conflicto, usuariosPorId, conflictScope)),
+    [papelera, usuariosPorId, conflictScope]
+  );
+
   const conflictosOrdenados = useMemo(() => {
     const pesoEstado = { Pendiente: 0, "En Proceso": 1, Resuelto: 2 };
     const pesoPrioridad = { Alta: 0, Media: 1, Baja: 2 };
 
-    return [...conflictos].sort((a, b) => {
+    return [...conflictosTenant].sort((a, b) => {
       const estadoDiff = (pesoEstado[a.estado] ?? 9) - (pesoEstado[b.estado] ?? 9);
       if (estadoDiff !== 0) return estadoDiff;
 
@@ -189,7 +238,7 @@ export default function AdminPanelControl() {
 
       return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
     });
-  }, [conflictos]);
+  }, [conflictosTenant]);
 
   const filtrarConflictos = useCallback((items) => {
     const query = busquedaConflictos.trim().toLowerCase();
@@ -216,11 +265,11 @@ export default function AdminPanelControl() {
   );
 
   const papeleraVisible = useMemo(
-    () => filtrarConflictos(papelera),
-    [papelera, filtrarConflictos]
+    () => filtrarConflictos(papeleraTenant),
+    [papeleraTenant, filtrarConflictos]
   );
 
-  const pendientes = conflictos.filter((conflicto) => conflicto.estado !== "Resuelto").length;
+  const pendientes = conflictosTenant.filter((conflicto) => conflicto.estado !== "Resuelto").length;
 
   const ocupacion = useMemo(() => {
     let totalOcupados = 0;
@@ -307,7 +356,7 @@ export default function AdminPanelControl() {
     const resultado = await ConflictosDelete(id);
     if (resultado.respuesta) {
       setConflictos((prev) => prev.filter((item) => item.id !== id));
-      await cargarPapelera();
+      await cargarPapelera({ force: true });
     }
     setActualizandoId(null);
   };
@@ -319,14 +368,14 @@ export default function AdminPanelControl() {
       setPapelera((prev) => prev.filter((item) => item.id !== id));
       setConflictos((prev) => [resultado.datos, ...prev.filter((item) => item.id !== id)]);
       setMostrarPapelera(false);
-      await cargarPapelera();
+      await cargarPapelera({ force: true });
     }
     setActualizandoId(null);
   };
 
   const handleMostrarPapelera = () => {
     setMostrarPapelera(true);
-    cargarPapelera();
+    cargarPapelera({ force: true });
   };
 
   return (
@@ -393,7 +442,7 @@ export default function AdminPanelControl() {
             className={`conflicts-toolbar__btn ${!mostrarPapelera ? "active" : ""}`}
             onClick={() => setMostrarPapelera(false)}
           >
-            Activos ({conflictos.length})
+            Activos ({conflictosTenant.length})
           </button>
           <button
             type="button"
@@ -401,7 +450,7 @@ export default function AdminPanelControl() {
             onClick={handleMostrarPapelera}
           >
             <Trash2 size={15} />
-            Papelera ({papelera.length})
+            Papelera ({papeleraTenant.length})
           </button>
           <label className="conflicts-search">
             <Search size={16} />
