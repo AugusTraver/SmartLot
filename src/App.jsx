@@ -146,7 +146,7 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       <Route path="/agregar_zona" element={
-        <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={[1,4]} usuario={usuario}>
           <AgregarZona />
         </ProtectedRoute>
       } />

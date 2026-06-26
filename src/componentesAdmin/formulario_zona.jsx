@@ -1,14 +1,37 @@
 import { useState, useRef } from 'react';
+import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
 import "./formulario_zona.css";
 import { DIAS_SEMANA } from "../helpers/diasSemana";
 import FieldValidation from "../components/FieldValidation";
+
+const libraries = ['places'];
 
 function FormularioZona({
     formData,
     onChange,
     sedes = [],
-    fieldsValidation = {}
+    fieldsValidation = {},
+    onCoordenadasChange
 }) {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
+    libraries
+  });
+
+  const autocompleteRef = useRef(null);
+
+  const handlePlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+    if (place?.geometry) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const direccion = place.formatted_address || '';
+      onChange('ubicacion', direccion);
+      if (onCoordenadasChange) {
+        onCoordenadasChange({ lat, lng, direccion });
+      }
+    }
+  };
 
   const toggleDia = (diaApi) => {
     const current = formData.dias || [];
@@ -110,14 +133,30 @@ function FormularioZona({
                </section>
               
                 <div className="input-group">
-                    <input
-                        type="text"
-                        placeholder=" "
-                        value={formData.ubicacion || ''}
-                        onChange={(e) => onChange('ubicacion', e.target.value)}
-                        autoComplete="off"
-                        required
-                    />
+                    {isLoaded ? (
+                        <Autocomplete
+                            onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
+                            onPlaceChanged={handlePlaceChanged}
+                        >
+                            <input
+                                type="text"
+                                placeholder=" "
+                                value={formData.ubicacion || ''}
+                                onChange={(e) => onChange('ubicacion', e.target.value)}
+                                autoComplete="off"
+                                required
+                            />
+                        </Autocomplete>
+                    ) : (
+                        <input
+                            type="text"
+                            placeholder=" "
+                            value={formData.ubicacion || ''}
+                            onChange={(e) => onChange('ubicacion', e.target.value)}
+                            autoComplete="off"
+                            required
+                        />
+                    )}
                     <label>Ubicacion</label>
                     {fieldsValidation.ubicacion && (
                       <FieldValidation conditions={fieldsValidation.ubicacion.conditions} isTouched={fieldsValidation.ubicacion.isTouched} />

@@ -26,6 +26,7 @@ function AgregarZona() {
     id_sede: usuario?.id_sede ?? "",
     dias: []
   });
+  const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [sedes, setSedes] = useState([]);
   const [sedesLoading, setSedesLoading] = useState(true);
   const [error, setError] = useState("");
@@ -156,9 +157,11 @@ function AgregarZona() {
       nombre: formData.nombre.trim(),
       piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
+      latitud: coordenadas.lat,
+      longitud: coordenadas.lng,
       hora_apertura: formData.hora_apertura,
       hora_cierre: formData.hora_cierre,
-      estado: true, // Siempre activo al crear, ya no se maneja desde el formulario
+      estado: true,
       capacidad: cap,
       capacidad_para_no_reservas: capNoRes,
       capacidad_reservas: capRes,
@@ -201,6 +204,7 @@ function AgregarZona() {
             onChange={handleChange}
             sedes={sedes}
             fieldsValidation={fieldsValidation}
+            onCoordenadasChange={setCoordenadas}
           />
 
           <FormularioCapacidad

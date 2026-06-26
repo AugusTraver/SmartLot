@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
 import "./editar_zona.css";
 import Header from "../componentesAdmin/header_admin";
 import {
@@ -29,6 +30,8 @@ import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+
+const libraries = ['places'];
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -161,9 +164,28 @@ function EditarZona() {
     }
   };
 
+  const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
+    libraries
+  });
+
+  const autocompleteRef = useRef(null);
+
+  const handlePlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+    if (place?.geometry) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const direccion = place.formatted_address || '';
+      setUbicacion(direccion);
+      setCoordenadas({ lat, lng, direccion });
+    }
+  };
 
   const formDataVal = {
     nombreGarage,
@@ -342,6 +364,8 @@ function EditarZona() {
        nombre: nombreGarage.trim(),
        piso: Number(piso),
        ubicacion: ubicacion.trim(),
+       latitud: coordenadas.lat,
+       longitud: coordenadas.lng,
        hora_apertura: horaApertura,
        hora_cierre: horaCierre,
        estado: estadoActivo,
@@ -432,14 +456,30 @@ function EditarZona() {
 
             <div className="campo-formulario">
               <label>Ubicación</label>
-              <input
-                type="text"
-                placeholder="Ubicación del garage"
-                value={ubicacion}
-                onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
-                autoComplete="off"
-                required
-              />
+              {isLoaded ? (
+                <Autocomplete
+                  onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
+                  onPlaceChanged={handlePlaceChanged}
+                >
+                  <input
+                    type="text"
+                    placeholder="Ubicación del garage"
+                    value={ubicacion}
+                    onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
+                    autoComplete="off"
+                    required
+                  />
+                </Autocomplete>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Ubicación del garage"
+                  value={ubicacion}
+                  onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
+                  autoComplete="off"
+                  required
+                />
+              )}
               <FieldValidation conditions={buildConditions("ubicacion")} isTouched={touched.ubicacion} />
             </div>
           </section>

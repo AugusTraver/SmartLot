@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
+import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
 import "./agregar_sede.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
@@ -8,6 +9,8 @@ import { SedesCreate } from "../servicies/API_Sede";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+
+const libraries = ['places'];
 
 const validationSchema = {
   idEmpresa: [
@@ -50,9 +53,28 @@ function AgregarSede() {
     descripcion: "",
     ubicacion: "",
   });
+  const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingEmpresas, setLoadingEmpresas] = useState(true);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
+    libraries
+  });
+
+  const autocompleteRef = useRef(null);
+
+  const handlePlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+    if (place?.geometry) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const direccion = place.formatted_address || '';
+      setFormData((prev) => ({ ...prev, ubicacion: direccion }));
+      setCoordenadas({ lat, lng, direccion });
+    }
+  };
 
   const { isValid, touched, getFieldProps } = useLiveValidation(formData, validationSchema);
   const field = (name) => getFieldProps(name, setFormData);
@@ -98,6 +120,8 @@ function AgregarSede() {
       nombre: formData.nombre.trim(),
       descripcion: formData.descripcion.trim(),
       ubicacion: formData.ubicacion.trim(),
+      latitud: coordenadas.lat,
+      longitud: coordenadas.lng,
     });
 
     if (response.respuesta) {
@@ -164,14 +188,30 @@ function AgregarSede() {
 
           <div className="input-group-superadmin">
             <label>Ubicación</label>
-            <input
-              type="text"
-              placeholder="Ej: Av. Corrientes 1234, CABA"
-              value={formData.ubicacion}
-              onChange={(e) => setFormData((prev) => ({ ...prev, ubicacion: e.target.value }))}
-              autoComplete="off"
-              required
-            />
+            {isLoaded ? (
+              <Autocomplete
+                onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
+                onPlaceChanged={handlePlaceChanged}
+              >
+                <input
+                  type="text"
+                  placeholder="Ej: Av. Corrientes 1234, CABA"
+                  value={formData.ubicacion}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, ubicacion: e.target.value }))}
+                  autoComplete="off"
+                  required
+                />
+              </Autocomplete>
+            ) : (
+              <input
+                type="text"
+                placeholder="Ej: Av. Corrientes 1234, CABA"
+                value={formData.ubicacion}
+                onChange={(e) => setFormData((prev) => ({ ...prev, ubicacion: e.target.value }))}
+                autoComplete="off"
+                required
+              />
+            )}
           </div>
 
           {error && <p className="form-error-superadmin">{error}</p>}
