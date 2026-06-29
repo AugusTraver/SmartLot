@@ -40,7 +40,7 @@ export default function LandingPage() {
             <Hero startAnimation={true} />
             <StatsTicker />
             <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
-            <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
+            <Suspense fallback={<SkeletonFallback />}></Suspense>
           </main>
           <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
         </div>
@@ -63,7 +63,7 @@ export default function LandingPage() {
           <Hero startAnimation={startHero} />
           <StatsTicker />
           <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
-          <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
+          <Suspense fallback={<SkeletonFallback />}></Suspense>
         </main>
         <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
       </div>

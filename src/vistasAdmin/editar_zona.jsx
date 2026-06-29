@@ -193,6 +193,7 @@ function EditarZona() {
     ubicacion: [
       { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
       { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
+      () => ({ rule: () => coordenadas.lat !== null && coordenadas.lng !== null, message: 'Selecciona una ubicación válida del mapa' }),
     ],
     horaApertura: [
       { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },

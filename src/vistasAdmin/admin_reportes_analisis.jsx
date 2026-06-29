@@ -88,10 +88,57 @@ const ReportesSkeleton = () => (
       </div>
       <div className="trend-chart-wrapper trend-chart-wrapper-skeleton">
         <span className="reportes-skeleton-axis reportes-skeleton-axis-y" />
-        <div className="reportes-skeleton-bars">
-          {[62, 74, 68, 82, 96, 88, 52].map((height, index) => (
-            <span className="reportes-skeleton-bar" style={{ height: `${height}%` }} key={index} />
-          ))}
+        <div className="reportes-skeleton-area-chart">
+          <div className="reportes-skeleton-area-chart-bg">
+            <svg className="reportes-skeleton-svg" viewBox="0 0 460 190" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="skelGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#64748b" stopOpacity="0.20" />
+                  <stop offset="40%" stopColor="#94a3b8" stopOpacity="0.08" />
+                  <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.02" />
+                </linearGradient>
+                <linearGradient id="skelGradGlow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.12" />
+                  <stop offset="100%" stopColor="#94a3b8" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="skelLineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#cbd5e1" />
+                  <stop offset="60%" stopColor="#94a3b8" />
+                  <stop offset="100%" stopColor="#64748b" />
+                </linearGradient>
+                <filter id="skelBlur">
+                  <feGaussianBlur stdDeviation="8" />
+                </filter>
+              </defs>
+              <g className="skel-grid-group">
+                {[38, 76, 114, 152].map((y, i) => (
+                  <line key={y} x1="0" y1={y} x2="460" y2={y}
+                    stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4"
+                    className="skel-grid-line" style={{ animationDelay: `${i * 0.08}s` }} />
+                ))}
+              </g>
+              <path className="skel-area-glow"
+                d="M30,135 Q63,105 96.7,97.5 Q130,80 163.3,75 Q196.7,100 230,105 Q263.3,80 296.7,67.5 Q330,50 363.3,45 Q396.7,75 430,90 L430,180 L30,180 Z"
+                fill="url(#skelGradGlow)" filter="url(#skelBlur)" />
+              <path className="skel-area-fill"
+                d="M30,135 Q63,105 96.7,97.5 Q130,80 163.3,75 Q196.7,100 230,105 Q263.3,80 296.7,67.5 Q330,50 363.3,45 Q396.7,75 430,90 L430,180 L30,180 Z"
+                fill="url(#skelGrad)" />
+              <path className="skel-line"
+                d="M30,135 Q63,105 96.7,97.5 Q130,80 163.3,75 Q196.7,100 230,105 Q263.3,80 296.7,67.5 Q330,50 363.3,45 Q396.7,75 430,90"
+                fill="none" stroke="url(#skelLineGrad)" strokeWidth="3" strokeLinecap="round" />
+              {[
+                { x: 30, y: 135 }, { x: 96.7, y: 97.5 }, { x: 163.3, y: 75 },
+                { x: 230, y: 105 }, { x: 296.7, y: 67.5 }, { x: 363.3, y: 45 }, { x: 430, y: 90 },
+              ].map((d, i) => (
+                <g key={i} className="skel-dot-group" style={{ animationDelay: `${0.25 + i * 0.1}s` }}>
+                  <circle cx={d.x} cy={d.y} r="10" fill="#94a3b8" className="skel-dot-glow" />
+                  <circle cx={d.x} cy={d.y} r="0" fill="#cbd5e1" stroke="#ffffff" strokeWidth="2.5" className="skel-dot">
+                    <animate attributeName="r" values="0;5;3.5;4.5;4" dur="0.45s" begin={`${0.25 + i * 0.1}s`} fill="freeze" />
+                  </circle>
+                </g>
+              ))}
+            </svg>
+          </div>
         </div>
         <span className="reportes-skeleton-axis reportes-skeleton-axis-x" />
       </div>
@@ -100,6 +147,8 @@ const ReportesSkeleton = () => (
 );
 
 const generarGraficoTendenciaPng = (tendencia) => {
+  if (!tendencia || tendencia.length < 2) return null;
+
   const canvas = document.createElement("canvas");
   const ancho = 560;
   const alto = 240;
@@ -108,69 +157,106 @@ const generarGraficoTendenciaPng = (tendencia) => {
   canvas.width = ancho * escala;
   canvas.height = alto * escala;
 
-  const contexto = canvas.getContext("2d");
-  contexto.scale(escala, escala);
-  contexto.fillStyle = "#ffffff";
-  contexto.fillRect(0, 0, ancho, alto);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(escala, escala);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, ancho, alto);
 
   const margen = { top: 18, right: 18, bottom: 36, left: 48 };
   const areaAncho = ancho - margen.left - margen.right;
   const areaAlto = alto - margen.top - margen.bottom;
   const maxValor = 100;
-  const espacio = areaAncho / tendencia.length;
-  const anchoBarra = Math.min(38, espacio * 0.48);
 
-  contexto.strokeStyle = "#e2e8f0";
-  contexto.lineWidth = 1;
-  contexto.font = "11px Arial";
+  const catmullRom = (p0, p1, p2, p3, t) => {
+    const t2 = t * t, t3 = t2 * t;
+    return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+  };
 
-  for (let i = 0; i <= 4; i += 1) {
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#e2e8f0";
+
+  for (let i = 0; i <= 4; i++) {
     const valor = (maxValor / 4) * i;
     const y = margen.top + areaAlto - (valor / maxValor) * areaAlto;
+    ctx.fillStyle = "#64748b";
+    ctx.textAlign = "right";
+    ctx.fillText(`${Math.round(valor)}%`, margen.left - 8, y + 4);
+    ctx.beginPath();
+    ctx.moveTo(margen.left, y);
+    ctx.lineTo(ancho - margen.right, y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
 
-    contexto.fillStyle = "#64748b";
-    contexto.textAlign = "right";
-    contexto.fillText(`${Math.round(valor)}%`, margen.left - 8, y + 4);
+  const puntos = tendencia.map((item, index) => ({
+    x: margen.left + (areaAncho / (tendencia.length - 1)) * index,
+    y: margen.top + areaAlto - (item.valor / maxValor) * areaAlto,
+    valor: item.valor,
+    dia: item.dia,
+  }));
 
-    contexto.beginPath();
-    contexto.moveTo(margen.left, y);
-    contexto.lineTo(ancho - margen.right, y);
-    contexto.stroke();
+  const curva = [];
+  const segs = 40;
+  for (let i = 0; i < puntos.length - 1; i++) {
+    const p0 = puntos[Math.max(0, i - 1)];
+    const p1 = puntos[i];
+    const p2 = puntos[i + 1];
+    const p3 = puntos[Math.min(puntos.length - 1, i + 2)];
+    for (let t = 0; t <= segs; t++) {
+      const tt = t / segs;
+      curva.push({ x: catmullRom(p0.x, p1.x, p2.x, p3.x, tt), y: catmullRom(p0.y, p1.y, p2.y, p3.y, tt) });
+    }
   }
 
-  contexto.strokeStyle = "#94a3b8";
-  contexto.beginPath();
-  contexto.moveTo(margen.left, margen.top);
-  contexto.lineTo(margen.left, margen.top + areaAlto);
-  contexto.lineTo(ancho - margen.right, margen.top + areaAlto);
-  contexto.stroke();
+  const unicos = [];
+  for (let i = 0; i < curva.length; i++) {
+    if (i === 0 || Math.abs(curva[i].x - curva[i - 1].x) > 0.01 || Math.abs(curva[i].y - curva[i - 1].y) > 0.01) {
+      unicos.push(curva[i]);
+    }
+  }
 
-  tendencia.forEach((item, index) => {
-    const centroX = margen.left + espacio * index + espacio / 2;
-    const alturaBarra = (item.valor / maxValor) * areaAlto;
-    const x = centroX - anchoBarra / 2;
-    const y = margen.top + areaAlto - alturaBarra;
+  const gradFill = ctx.createLinearGradient(0, margen.top, 0, margen.top + areaAlto);
+  gradFill.addColorStop(0, "rgba(37, 99, 235, 0.35)");
+  gradFill.addColorStop(0.4, "rgba(59, 130, 246, 0.12)");
+  gradFill.addColorStop(1, "rgba(59, 130, 246, 0.02)");
 
-    const gradiente = contexto.createLinearGradient(0, y, 0, margen.top + areaAlto);
-    gradiente.addColorStop(0, "#1d4ed8");
-    gradiente.addColorStop(1, "#3b82f6");
+  ctx.beginPath();
+  ctx.moveTo(unicos[0].x, margen.top + areaAlto);
+  unicos.forEach((p) => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(unicos[unicos.length - 1].x, margen.top + areaAlto);
+  ctx.closePath();
+  ctx.fillStyle = gradFill;
+  ctx.fill();
 
-    contexto.fillStyle = gradiente;
-    contexto.beginPath();
-    contexto.roundRect(x, y, anchoBarra, alturaBarra, 6);
-    contexto.fill();
+  const gradStroke = ctx.createLinearGradient(0, 0, ancho, 0);
+  gradStroke.addColorStop(0, "#1d4ed8");
+  gradStroke.addColorStop(1, "#60a5fa");
 
-    contexto.fillStyle = "#111827";
-    contexto.font = "bold 11px Arial";
-    contexto.textAlign = "center";
-    contexto.fillText(`${item.valor}%`, centroX, y - 6);
+  ctx.beginPath();
+  ctx.moveTo(unicos[0].x, unicos[0].y);
+  for (let i = 1; i < unicos.length; i++) ctx.lineTo(unicos[i].x, unicos[i].y);
+  ctx.strokeStyle = gradStroke;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.stroke();
 
-    contexto.fillStyle = "#64748b";
-    contexto.font = "bold 11px Arial";
-    contexto.fillText(item.dia, centroX, alto - 14);
+  puntos.forEach((p) => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#2563eb";
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
   });
 
-  contexto.textAlign = "start";
+  ctx.fillStyle = "#64748b";
+  ctx.font = "bold 11px -apple-system, system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  puntos.forEach((p) => ctx.fillText(p.dia, p.x, alto - 14));
 
   return canvas.toDataURL("image/png");
 };
