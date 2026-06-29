@@ -303,7 +303,14 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
             >
               <div style={{ display: "flex", gap: "0.35rem" }}>
                 <span style={{ color: "#1164e8", opacity: 0.9 }}>Ubicacion:</span>
-                <span style={{ color: "#4481e2", fontWeight: "600" }}>{ubicacionGarageActual}</span>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ubicacionGarageActual)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#4481e2", fontWeight: "600", textDecoration: "underline" }}
+                >
+                  {ubicacionGarageActual}
+                </a>
               </div>
 
               {loadingDistancia && (

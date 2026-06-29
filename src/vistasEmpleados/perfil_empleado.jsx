@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut, Lock } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
@@ -19,6 +19,7 @@ import { MarcasGetAll } from "../servicies/API_Marca";
 import useLiveValidation from "../hooks/useLiveValidation";
 
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
+import FieldValidation from "../components/FieldValidation";
 
 import "../componentesEmpleado/formulario_PerfilPersonal.css";
 
@@ -36,10 +37,17 @@ export default function PerfilEmpleado() {
       { rule: (v) => !v || /^[+]{0,1}[0-9\s-()]+$/.test(v), message: "Solo números, +, espacios, (), -" },
       { rule: (v) => !v || v.replace(/\D/g, "").length >= 7, message: "Mínimo 7 dígitos" },
     ],
+    contraseña: [
+      { rule: (v) => !v || v?.length > 0, message: "Requerido" },
+      { rule: (v) => !v || v?.length >= 8, message: "Mínimo 8 caracteres" },
+      { rule: (v) => !v || (v?.match(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/g) || []).length >= 2, message: "Mínimo 2 caracteres especiales" },
+      { rule: (v) => !v || (v?.match(/\d/g) || []).length >= 2, message: "Mínimo 2 números" },
+      { rule: (v) => !v || (v?.match(/[A-Z]/g) || []).length >= 2, message: "Mínimo 2 mayúsculas" },
+    ],
   };
 
-  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
-  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "" });
+  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
+  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
   const [vehiculos, setVehiculos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
@@ -47,6 +55,7 @@ export default function PerfilEmpleado() {
 
   const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
   const telefonoField = getFieldProps("telefono", setPersonalData);
+  const contraseñaField = getFieldProps("contraseña", setPersonalData);
 
   const buildConditions = (fieldName) => {
     if (!validationSchema[fieldName]) return [];
@@ -65,7 +74,8 @@ export default function PerfilEmpleado() {
       personalData.nombre !== originalPersonalData.nombre ||
       personalData.apellido !== originalPersonalData.apellido ||
       personalData.email !== originalPersonalData.email ||
-      personalData.telefono !== originalPersonalData.telefono;
+      personalData.telefono !== originalPersonalData.telefono ||
+      personalData.contraseña !== originalPersonalData.contraseña;
     
     setIsDirty(haCambiado);
   }, [personalData, originalPersonalData]);
@@ -232,6 +242,8 @@ export default function PerfilEmpleado() {
     if (!isValid) return;
 
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
+    const nuevaContraseña = personalData.contraseña?.trim() || "";
+    const contraseñaCambiada = nuevaContraseña.length > 0;
 
     setGuardando(true);
 
@@ -247,7 +259,13 @@ export default function PerfilEmpleado() {
         telefono: telefonoLimpio
       });
 
-      const datosActualizados = { ...personalData, telefono: telefonoLimpio };
+      if (contraseñaCambiada) {
+        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contraseña`, {
+          contraseña: nuevaContraseña
+        });
+      }
+
+      const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "" };
       setPersonalData(datosActualizados);
       setOriginalPersonalData(datosActualizados);
 
@@ -259,16 +277,27 @@ export default function PerfilEmpleado() {
         return actualizado;
       });
 
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Teléfono actualizado correctamente',
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-        zIndex: Z_INDEX.SWAL_DIALOG,
-      });
+      if (contraseñaCambiada) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Contraseña actualizada',
+          text: 'Tu contraseña se actualizó correctamente. Por seguridad, vuelve a iniciar sesión.',
+          confirmButtonColor: '#3b82f6',
+          zIndex: Z_INDEX.SWAL_DIALOG,
+        });
+        handleCerrarSesion();
+      } else {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Teléfono actualizado correctamente',
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+          zIndex: Z_INDEX.SWAL_DIALOG,
+        });
+      }
 
     } catch (error) {
       console.error("Error al guardar cambios:", error);
@@ -350,8 +379,35 @@ export default function PerfilEmpleado() {
                 inputProps: telefonoField,
               }}
             />
-            
-            
+
+            <section className="formulario-seccion animate-section">
+              <div className="form-card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#fff1f2", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Lock size={20} style={{ color: "#e11d48" }} />
+                </div>
+                <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
+                  Cambiar Contraseña
+                </h3>
+              </div>
+              <div className="formulario-grid">
+                <div className="formulario-grupo">
+                  <label htmlFor="contraseña">Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    id="contraseña"
+                    name="contraseña"
+                    className="formulario-input"
+                    placeholder="8 caracteres, 2 especiales, 2 números y 2 mayúsculas"
+                    value={contraseñaField.value}
+                    onChange={contraseñaField.onChange}
+                    onBlur={contraseñaField.onBlur}
+                    autoComplete="new-password"
+                  />
+                  <FieldValidation conditions={buildConditions("contraseña")} isTouched={touched.contraseña} />
+                </div>
+              </div>
+            </section>
+
             <div className="action-buttons-group">
               <button type="submit" className="btn-primary-action" disabled={guardando}>
                 <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
