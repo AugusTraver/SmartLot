@@ -131,7 +131,13 @@ const GaragesGetById = async (id, { force = false } = {}) => {
 
     } catch (error) {
 
-        logApiError(error);
+        if (import.meta.env.DEV) {
+            console.group("GaragesGetById error (id: " + id + ")");
+            console.log("Status:", error.response?.status);
+            console.log("Data:", error.response?.data);
+            console.log("Full error:", error);
+            console.groupEnd();
+        }
         return returnObject;
     }
 };
@@ -214,11 +220,38 @@ const GaragesDelete = async (id) => {
 
 
 
+const GaragesGetDistanciaSede = async (id) => {
+    let returnObject = { respuesta: false, datos: null };
+    let url = '/api/garage/' + id + '/distancia-sede';
+    try {
+        const response = await apiClient.get(url, { _skipToast: true });
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+        if (import.meta.env.DEV) {
+            const data = response.data;
+            if (!data?.sede?.latitud || !data?.garage?.latitud) {
+                console.warn("GaragesGetDistanciaSede: respuesta sin coordenadas completas", data);
+            }
+        }
+        return returnObject;
+    } catch (error) {
+        if (import.meta.env.DEV) {
+            console.group("GaragesGetDistanciaSede error (id: " + id + ")");
+            console.log("Status:", error.response?.status);
+            console.log("Data:", error.response?.data);
+            console.groupEnd();
+        }
+        returnObject.datos = error.response?.data || { message: error.message };
+        return returnObject;
+    }
+};
+
 export {
     GaragesGetAll,
     GaragesGetOcupacionReserva,
     GaragesGetOcupacionNoReserva,
     GaragesGetById,
+    GaragesGetDistanciaSede,
     GaragesCreate,
     GaragesUpdate,
     GaragesDelete

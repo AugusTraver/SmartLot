@@ -225,8 +225,10 @@
    ========================================================================= */
 
 /* 1. Inputs y textareas cuando tienen foco o texto */
+.input-group:focus-within label,
 .input-group input:focus~label,
 .input-group input:not(:placeholder-shown)~label,
+.input-group.has-value label,
 .input-group-time label,
 .input-group textarea:focus~label,
 .input-group textarea:not(:placeholder-shown)~label {

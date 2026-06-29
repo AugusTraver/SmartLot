@@ -150,6 +150,10 @@ apiClient.interceptors.response.use(
     const status = data?.statusCode ?? error.response?.status ?? 0;
     const message = data?.message ?? 'Error de conexión con el servidor.';
 
+    if (originalRequest._skipToast) {
+      return Promise.reject(error);
+    }
+
     // 401 → intentar refresh automático (excepto refresh y auth endpoints)
     if (status === 401 && !originalRequest._isRetry && !originalRequest.url?.includes('/refresh') && !originalRequest.url?.includes('/auth/')) {
       if (isRefreshing) {

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Calendar, Car, Clock, Plus, Warehouse } from "lucide-react";
+import { Calendar, Car, Clock, Loader, MapPin, Plus, Warehouse } from "lucide-react";
 import "./form_reserva.css";
 import { getDiaDesdeFecha, getDiaDisplay } from "../helpers/diasSemana";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import { GaragesGetDistanciaSede } from "../servicies/API_Garage";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -38,6 +40,14 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     }
   })();
   const [error, setError] = useState("");
+  const [distanciaInfo, setDistanciaInfo] = useState(null);
+  const [loadingDistancia, setLoadingDistancia] = useState(false);
+  const [distanciaError, setDistanciaError] = useState("");
+
+  const { isLoaded: mapsLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
+  });
+
   const [formData, setFormData] = useState({
     fecha: "",
     horaInicio: initialData?.horaInicio || preferences.horaInicio || "",
@@ -107,6 +117,46 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
       return { ...prev, dia: diaApi };
     });
   }, [formData.fecha]);
+
+  useEffect(() => {
+    if (!formData.idGarage) {
+      setDistanciaInfo(null);
+      setDistanciaError("");
+      return;
+    }
+
+    let cancel = false;
+    const fetchDistancia = async () => {
+      setLoadingDistancia(true);
+      setDistanciaError("");
+      setDistanciaInfo(null);
+
+      const result = await GaragesGetDistanciaSede(Number(formData.idGarage));
+      if (cancel) return;
+
+      setLoadingDistancia(false);
+
+      if (result.respuesta) {
+        setDistanciaInfo(result.datos);
+      } else {
+        const errorData = result.datos;
+        if (import.meta.env.DEV) {
+          console.warn("Error distancia-sede:", errorData);
+        }
+        const fallbackMsg = "No se pudo calcular la distancia.";
+        if (!errorData) {
+          setDistanciaError(fallbackMsg);
+          return;
+        }
+        const msg = errorData?.message || errorData?.error || fallbackMsg;
+        setDistanciaError(msg);
+      }
+    };
+
+    fetchDistancia();
+
+    return () => { cancel = true; };
+  }, [formData.idGarage]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -236,25 +286,162 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
           </div>
           <FieldValidation conditions={buildConditions("idGarage")} isTouched={touched.idGarage} />
           
-          {/* BLOQUE NUEVO MODIFICADO: Estilos con fondo azul e interior de alto contraste */}
           {formData.idGarage && ubicacionGarageActual && (
-            <div 
+            <div
               style={{
                 marginTop: "0.5rem",
                 fontSize: "0.85rem",
                 fontWeight: "500",
                 display: "flex",
+                flexDirection: "column",
                 gap: "0.35rem",
-                padding: "0.5rem 0.75rem",
+                padding: "0.75rem",
                 borderRadius: "8px",
                 backgroundColor: "rgb(255, 255, 255)",
-                color: "#ffffff",
                 border: "1px solid rgb(59, 130, 246)",
-
               }}
             >
-              <span style={{ color: "#1164e8ff", opacity: 0.9 }}>Ubicacion:</span>
-              <span style={{ color: "#4481e2ff", fontWeight: "600" }}>{ubicacionGarageActual}</span>
+              <div style={{ display: "flex", gap: "0.35rem" }}>
+                <span style={{ color: "#1164e8", opacity: 0.9 }}>Ubicacion:</span>
+                <span style={{ color: "#4481e2", fontWeight: "600" }}>{ubicacionGarageActual}</span>
+              </div>
+
+              {loadingDistancia && (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b", fontSize: "0.8rem" }}>
+                  <Loader size={14} className="animate-spin" />
+                  Calculando distancia...
+                </div>
+              )}
+
+              {distanciaError && (
+                <div style={{ display: "flex", gap: "0.35rem", color: "#dc2626", fontSize: "0.8rem" }}>
+                  <MapPin size={14} style={{ marginTop: 1 }} />
+                  <span>{distanciaError}</span>
+                </div>
+              )}
+
+              {distanciaInfo && (() => {
+                const esMismaUbic = (
+                  distanciaInfo.distancia?.distanciaValor !== null &&
+                  distanciaInfo.distancia?.distanciaValor < 50
+                );
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}>
+                    {esMismaUbic ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          padding: "0.35rem 0.5rem",
+                          backgroundColor: "#dbeafe",
+                          borderRadius: "6px",
+                          color: "#1e40af",
+                          fontWeight: "600",
+                        }}
+                      >
+                        <MapPin size={14} />
+                        El garage se encuentra en la misma sede
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ display: "flex", gap: "0.35rem" }}>
+                          <span style={{ color: "#1164e8", opacity: 0.9 }}>Distancia:</span>
+                          <span style={{ color: "#075985", fontWeight: "600" }}>
+                            {distanciaInfo.distancia?.distanciaTexto || "—"}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", gap: "0.35rem" }}>
+                          <span style={{ color: "#1164e8", opacity: 0.9 }}>Tiempo estimado:</span>
+                          <span style={{ color: "#075985", fontWeight: "600" }}>
+                            {distanciaInfo.distancia?.duracionTexto || "—"}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <div style={{ display: "flex", gap: "0.35rem" }}>
+                      <span style={{ color: "#1164e8", opacity: 0.9 }}>Sede:</span>
+                      <span style={{ color: "#4481e2", fontWeight: "600" }}>
+                        {distanciaInfo.sede?.nombre || distanciaInfo.sede?.ubicacion || "—"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {distanciaInfo && mapsLoaded && (() => {
+                const sedeLat = distanciaInfo.sede?.latitud;
+                const sedeLng = distanciaInfo.sede?.longitud;
+                const garageLat = distanciaInfo.garage?.latitud;
+                const garageLng = distanciaInfo.garage?.longitud;
+                const tieneCoordsSede = sedeLat != null && sedeLng != null;
+                const tieneCoordsGarage = garageLat != null && garageLng != null;
+
+                const esMismaUbic = (
+                  distanciaInfo.distancia?.distanciaValor !== null &&
+                  distanciaInfo.distancia?.distanciaValor < 50
+                );
+
+                const puedeMostrarMapa = esMismaUbic
+                  ? tieneCoordsSede
+                  : tieneCoordsSede && tieneCoordsGarage;
+
+                if (!puedeMostrarMapa) {
+                  if (import.meta.env.DEV) {
+                    console.warn("Coordenadas faltantes para el mapa:", {
+                      sede: { lat: sedeLat, lng: sedeLng },
+                      garage: { lat: garageLat, lng: garageLng },
+                    });
+                  }
+                  return (
+                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
+                      <MapPin size={16} style={{ marginBottom: "0.25rem" }} />
+                      <div>No hay coordenadas disponibles para mostrar el mapa.</div>
+                    </div>
+                  );
+                }
+
+                const centro = esMismaUbic
+                  ? { lat: sedeLat, lng: sedeLng }
+                  : { lat: (sedeLat + garageLat) / 2, lng: (sedeLng + garageLng) / 2 };
+
+                return (
+                  <div style={{ marginTop: "0.5rem", borderRadius: "8px", overflow: "hidden", height: "180px" }}>
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "100%" }}
+                      center={centro}
+                      zoom={esMismaUbic ? 15 : 13}
+                      options={{
+                        streetViewControl: false,
+                        mapTypeControl: false,
+                        fullscreenControl: false,
+                      }}
+                    >
+                      {esMismaUbic ? (
+                        <Marker
+                          position={{ lat: sedeLat, lng: sedeLng }}
+                          label={{ text: "S/G", color: "#fff", fontWeight: "bold", fontSize: "12px" }}
+                          title={"Sede y Garage: " + (distanciaInfo.sede.nombre || "")}
+                        />
+                      ) : (
+                        <>
+                          <Marker
+                            position={{ lat: sedeLat, lng: sedeLng }}
+                            label={{ text: "S", color: "#fff", fontWeight: "bold", fontSize: "14px" }}
+                            title={"Sede: " + (distanciaInfo.sede.nombre || "")}
+                          />
+                          <Marker
+                            position={{ lat: garageLat, lng: garageLng }}
+                            label={{ text: "G", color: "#fff", fontWeight: "bold", fontSize: "14px" }}
+                            title={"Garage: " + (distanciaInfo.garage.nombre || "")}
+                          />
+                        </>
+                      )}
+                    </GoogleMap>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

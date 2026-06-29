@@ -26,6 +26,7 @@ import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import { DIAS_SEMANA } from "../helpers/diasSemana";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import SelectorDiasOperativos from "../componentesAdmin/selector_dias_operativos";
 import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
 import useLiveValidation from "../hooks/useLiveValidation";
@@ -145,24 +146,6 @@ function EditarZona() {
     }
     return [];
   });
-
-  const todosSeleccionados = diasSeleccionados.length === DIAS_SEMANA.length;
-
-  const toggleDia = (diaApi) => {
-    setDiasSeleccionados((prev) => {
-      const index = prev.indexOf(diaApi);
-      if (index >= 0) return prev.filter(d => d !== diaApi);
-      return [...prev, diaApi];
-    });
-  };
-
-  const toggleTodosLosDias = () => {
-    if (todosSeleccionados) {
-      setDiasSeleccionados([]);
-    } else {
-      setDiasSeleccionados(DIAS_SEMANA.map(d => d.api));
-    }
-  };
 
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [error, setError] = useState('');
@@ -562,70 +545,11 @@ function EditarZona() {
               </label>
             </div>
 
-            <div className="dops-panel">
-              <div className="dops-header">
-                <span className="dops-title">Días operativos</span>
-              </div>
-              <FieldValidation conditions={buildConditions("diasSeleccionados")} isTouched={touched.diasSeleccionados} />
-
-              <div className="dops-grid">
-                <label
-                  className={`dops-chip ${todosSeleccionados ? 'dops-chip--active' : ''}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={todosSeleccionados}
-                    onChange={toggleTodosLosDias}
-                  />
-                  <span className="dops-chip-content">
-                    <span className="dops-mark">
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                        <path d="M2 5l2.5 2.5 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </span>
-                    <span className="dops-chip-name">Toda la semana</span>
-                    <span className="dops-chip-hint">Lun–Dom</span>
-                  </span>
-                </label>
-
-                {DIAS_SEMANA.map((dia) => {
-                  const seleccionado = diasSeleccionados.includes(dia.api);
-                  return (
-                    <label
-                      key={dia.api}
-                      className={`dops-chip ${seleccionado ? 'dops-chip--active' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={seleccionado}
-                        onChange={() => toggleDia(dia.api)}
-                      />
-                      <span className="dops-chip-content">
-                        <span className="dops-mark">
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                            <path d="M2 5l2.5 2.5 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </span>
-                        <span className="dops-chip-name">{dia.display}</span>
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-
-              <div className="dops-footer">
-                <span className="dops-count">
-                  <span className="dops-count-num">{diasSeleccionados.length}</span>
-                  <span className="dops-count-den">/{DIAS_SEMANA.length} días</span>
-                </span>
-                <span className="dops-track">
-                  <span
-                    className="dops-track-fill"
-                    style={{ width: `${(diasSeleccionados.length / DIAS_SEMANA.length) * 100}%` }}
-                  />
-                </span>
-              </div>
-            </div>
+            <SelectorDiasOperativos
+              value={diasSeleccionados}
+              onChange={setDiasSeleccionados}
+              validation={{ conditions: buildConditions("diasSeleccionados"), isTouched: touched.diasSeleccionados }}
+            />
           </section>
 
           <section className="bloque-formulario">

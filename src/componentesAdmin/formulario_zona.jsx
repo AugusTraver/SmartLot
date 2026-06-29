@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
 import "./formulario_zona.css";
-import { DIAS_SEMANA } from "../helpers/diasSemana";
 import FieldValidation from "../components/FieldValidation";
+import SelectorDiasOperativos from "./selector_dias_operativos";
 
 const libraries = ['places'];
 
@@ -31,18 +31,6 @@ function FormularioZona({
         onCoordenadasChange({ lat, lng, direccion });
       }
     }
-  };
-
-  const toggleDia = (diaApi) => {
-    const current = formData.dias || [];
-    const index = current.indexOf(diaApi);
-    let nuevos;
-    if (index >= 0) {
-      nuevos = current.filter(d => d !== diaApi);
-    } else {
-      nuevos = [...current, diaApi];
-    }
-    onChange('dias', nuevos);
   };
 
     const [isOpenSede, setIsOpenSede] = useState(false);
@@ -132,7 +120,7 @@ function FormularioZona({
 
                </section>
               
-                <div className="input-group">
+                <div className={`input-group ${formData.ubicacion ? 'has-value' : ''}`}>
                     {isLoaded ? (
                         <Autocomplete
                             onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
@@ -243,27 +231,11 @@ function FormularioZona({
                     </label>
                 </div>
 
-                <div className="dias-semana-section">
-                  <label className="dias-semana-label">Días operativos</label>
-                  {fieldsValidation.dias && (
-                    <FieldValidation conditions={fieldsValidation.dias.conditions} isTouched={fieldsValidation.dias.isTouched} />
-                  )}
-                  <div className="dias-semana-grid">
-                    {DIAS_SEMANA.map((dia) => {
-                      const seleccionado = (formData.dias || []).includes(dia.api);
-                      return (
-                        <label key={dia.api} className={`dia-chip ${seleccionado ? 'dia-seleccionado' : ''}`}>
-                          <input
-                            type="checkbox"
-                            checked={seleccionado}
-                            onChange={() => toggleDia(dia.api)}
-                          />
-                          <span>{dia.display}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
+                <SelectorDiasOperativos
+                  value={formData.dias || []}
+                  onChange={(arr) => onChange('dias', arr)}
+                  validation={fieldsValidation.dias ? { conditions: fieldsValidation.dias.conditions, isTouched: fieldsValidation.dias.isTouched } : undefined}
+                />
             </div>
         </div>
     );

@@ -1,10 +1,13 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CirclePlus, Building2, Pencil, Trash2, X, Check } from "lucide-react";
+import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+const libraries = ["places"];
 
 import "./gestion_sedes.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
@@ -45,6 +48,27 @@ function GestionSedes() {
   const [editNombre, setEditNombre] = useState("");
   const [editDescripcion, setEditDescripcion] = useState("");
   const [editUbicacion, setEditUbicacion] = useState("");
+  const [editLatitud, setEditLatitud] = useState(null);
+  const [editLongitud, setEditLongitud] = useState(null);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
+    libraries,
+  });
+
+  const autocompleteRef = useRef(null);
+
+  const handlePlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+    if (place?.geometry) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const direccion = place.formatted_address || "";
+      setEditUbicacion(direccion);
+      setEditLatitud(lat);
+      setEditLongitud(lng);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -81,6 +105,8 @@ function GestionSedes() {
     setEditNombre(sede.nombre || "");
     setEditDescripcion(sede.descripcion || "");
     setEditUbicacion(sede.ubicacion || "");
+    setEditLatitud(sede.latitud ?? null);
+    setEditLongitud(sede.longitud ?? null);
   };
 
   const handleSaveEdit = async () => {
@@ -94,12 +120,14 @@ function GestionSedes() {
       nombre: editNombre.trim(),
       descripcion: editDescripcion.trim(),
       ubicacion: editUbicacion.trim(),
+      latitud: editLatitud,
+      longitud: editLongitud,
     });
     if (res.respuesta) {
       setSedes((prev) =>
         prev.map((s) =>
           s.id === editingId
-            ? { ...s, nombre: editNombre.trim(), descripcion: editDescripcion.trim(), ubicacion: editUbicacion.trim() }
+            ? { ...s, nombre: editNombre.trim(), descripcion: editDescripcion.trim(), ubicacion: editUbicacion.trim(), latitud: editLatitud, longitud: editLongitud }
             : s
         )
       );
@@ -216,7 +244,16 @@ function GestionSedes() {
                     <div className="sede-card-edit">
                       <input type="text" value={editNombre} onChange={(e) => setEditNombre(e.target.value)} placeholder="Nombre" />
                       <textarea value={editDescripcion} onChange={(e) => setEditDescripcion(e.target.value)} placeholder="Descripción" rows={2} />
-                      <input type="text" value={editUbicacion} onChange={(e) => setEditUbicacion(e.target.value)} placeholder="Ubicación" />
+                      {isLoaded ? (
+                        <Autocomplete
+                          onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
+                          onPlaceChanged={handlePlaceChanged}
+                        >
+                          <input type="text" value={editUbicacion} onChange={(e) => setEditUbicacion(e.target.value)} placeholder="Ubicación" />
+                        </Autocomplete>
+                      ) : (
+                        <input type="text" value={editUbicacion} onChange={(e) => setEditUbicacion(e.target.value)} placeholder="Ubicación" />
+                      )}
                     </div>
                     <div className="sede-card-edit-actions">
                       <button className="edit-btn save" onClick={handleSaveEdit}><Check size={18} /></button>

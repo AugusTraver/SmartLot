@@ -38,11 +38,20 @@ function AgregarZona() {
       const response = await SedesGetAll();
 
       if (response.respuesta && Array.isArray(response.datos) && response.datos.length > 0) {
-        const sedesFiltradas = usuario?.id_sede
-          ? response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede))
-          : response.datos.filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa));
+        const sedesFiltradas = usuario?.id_rol === 4
+          ? response.datos
+          : usuario?.id_sede
+            ? response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede))
+            : response.datos.filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa));
         setSedes(sedesFiltradas);
-        if (usuario?.id_sede) {
+        if (usuario?.id_rol === 4) {
+          if (sedesFiltradas.length > 0) {
+            setFormData((prev) => ({
+              ...prev,
+              id_sede: prev.id_sede || String(sedesFiltradas[0].id)
+            }));
+          }
+        } else if (usuario?.id_sede) {
           setFormData((prev) => ({
             ...prev,
             id_sede: String(usuario.id_sede)
