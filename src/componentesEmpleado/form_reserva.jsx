@@ -321,14 +321,13 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
               )}
 
               {distanciaInfo && (() => {
-                const esMismaUbic = (
-                  distanciaInfo.distancia?.distanciaValor !== null &&
-                  distanciaInfo.distancia?.distanciaValor < 50
-                );
+                const dist = distanciaInfo.distancia || {};
+                const distValor = dist.distanciaValor ?? dist.distancia_valor;
+                const esMismaUbic = distValor != null && distValor < 50;
 
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}>
-                    {esMismaUbic ? (
+                    {esMismaUbic && (
                       <div
                         style={{
                           display: "flex",
@@ -344,21 +343,6 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                         <MapPin size={14} />
                         El garage se encuentra en la misma sede
                       </div>
-                    ) : (
-                      <>
-                        <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <span style={{ color: "#1164e8", opacity: 0.9 }}>Distancia:</span>
-                          <span style={{ color: "#075985", fontWeight: "600" }}>
-                            {distanciaInfo.distancia?.distanciaTexto || "—"}
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <span style={{ color: "#1164e8", opacity: 0.9 }}>Tiempo estimado:</span>
-                          <span style={{ color: "#075985", fontWeight: "600" }}>
-                            {distanciaInfo.distancia?.duracionTexto || "—"}
-                          </span>
-                        </div>
-                      </>
                     )}
                     <div style={{ display: "flex", gap: "0.35rem" }}>
                       <span style={{ color: "#1164e8", opacity: 0.9 }}>Sede:</span>
@@ -370,7 +354,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 );
               })()}
 
-              {distanciaInfo && mapsLoaded && (() => {
+              {distanciaInfo && (() => {
                 const sedeLat = distanciaInfo.sede?.latitud;
                 const sedeLng = distanciaInfo.sede?.longitud;
                 const garageLat = distanciaInfo.garage?.latitud;
@@ -378,23 +362,46 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                 const tieneCoordsSede = sedeLat != null && sedeLng != null;
                 const tieneCoordsGarage = garageLat != null && garageLng != null;
 
-                const esMismaUbic = (
-                  distanciaInfo.distancia?.distanciaValor !== null &&
-                  distanciaInfo.distancia?.distanciaValor < 50
-                );
+                const dist = distanciaInfo.distancia || {};
+                const distValor = dist.distanciaValor ?? dist.distancia_valor;
+                const distTexto = dist.distanciaTexto ?? dist.distancia_texto;
+                const durTexto = dist.duracionTexto ?? dist.duracion_texto;
+                const esMismaUbic = distValor != null && distValor < 50;
+
+                if (import.meta.env.DEV) {
+                  console.log("[DistanciaSede] datos recibidos:", distanciaInfo, { distValor, distTexto, durTexto });
+                }
 
                 const puedeMostrarMapa = esMismaUbic
                   ? tieneCoordsSede
                   : tieneCoordsSede && tieneCoordsGarage;
 
-                if (!puedeMostrarMapa) {
-                  if (import.meta.env.DEV) {
+                if (!mapsLoaded || !puedeMostrarMapa) {
+                  if (!puedeMostrarMapa && import.meta.env.DEV) {
                     console.warn("Coordenadas faltantes para el mapa:", {
                       sede: { lat: sedeLat, lng: sedeLng },
                       garage: { lat: garageLat, lng: garageLng },
                     });
                   }
-                  return (
+                  const mostrarDistancia = !esMismaUbic && (
+                    distTexto || durTexto
+                  );
+                  return mostrarDistancia ? (
+                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
+                      <MapPin size={16} style={{ marginBottom: "0.25rem" }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", alignItems: "center" }}>
+                        <div>{puedeMostrarMapa ? "Cargando mapa..." : "No hay coordenadas disponibles para mostrar el mapa."}</div>
+                        <div style={{ display: "flex", gap: "1.5rem", marginTop: "0.15rem" }}>
+                          <span style={{ fontWeight: 600, color: "#075985" }}>
+                            Distancia: {distTexto || "—"}
+                          </span>
+                          <span style={{ fontWeight: 600, color: "#075985" }}>
+                            Tiempo: {durTexto || "—"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
                     <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
                       <MapPin size={16} style={{ marginBottom: "0.25rem" }} />
                       <div>No hay coordenadas disponibles para mostrar el mapa.</div>
@@ -407,7 +414,31 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                   : { lat: (sedeLat + garageLat) / 2, lng: (sedeLng + garageLng) / 2 };
 
                 return (
-                  <div style={{ marginTop: "0.5rem", borderRadius: "8px", overflow: "hidden", height: "180px" }}>
+                  <div style={{ marginTop: "0.5rem", borderRadius: "8px", overflow: "hidden", height: "180px", position: "relative" }}>
+                    {!esMismaUbic && (
+                      <div style={{
+                        position: "absolute",
+                        top: "8px",
+                        left: "8px",
+                        zIndex: 10,
+                        backgroundColor: "rgba(255,255,255,0.92)",
+                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        fontSize: "0.8rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                        backdropFilter: "blur(4px)",
+                      }}>
+                        <div style={{ display: "flex", gap: "0.35rem" }}>
+                          <span style={{ color: "#1164e8", fontWeight: 600 }}>Distancia:</span>
+                          <span style={{ color: "#075985", fontWeight: 600 }}>
+                            {distTexto || "—"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     <GoogleMap
                       mapContainerStyle={{ width: "100%", height: "100%" }}
                       center={centro}
