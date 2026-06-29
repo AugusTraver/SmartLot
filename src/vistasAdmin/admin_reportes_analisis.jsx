@@ -476,11 +476,11 @@ export default function AdminReportesAnalisis() {
                   <YAxis
                     domain={[0, 100]}
                     tickFormatter={(v) => `${v}%`}
-                    tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 500 }}
+                    tick={{ fontSize: 13, fill: "#475569", fontWeight: 600, letterSpacing: "0.02em" }}
                     axisLine={false}
                     tickLine={false}
-                    dx={-4}
-                    width={40}
+                    dx={-2}
+                    width={48}
                   />
                   <Tooltip
                     content={<CustomTooltip />}

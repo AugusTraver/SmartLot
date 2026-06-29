@@ -10,7 +10,9 @@
   color: #0f172a;
   margin-bottom: 10%;
 }
-
+.recharts-surface{
+  width: 101% !important;
+}
 .admin-panel__headerReportes {
   display: flex;
   align-items: center;
@@ -184,6 +186,11 @@
   height: 3px;
   border-radius: 0 0 3px 3px;
   background: linear-gradient(90deg, #2563eb, #60a5fa, #93c5fd);
+}
+
+.recharts-text.recharts-cartesian-axis-tick-value {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
 }
 
 .trend-chart-dot {
