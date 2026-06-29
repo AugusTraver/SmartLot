@@ -28,6 +28,7 @@ import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { SedesGetAll } from "../servicies/API_Sede";
 
+const REPORTES_MIN_LOADING_MS = 650;
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -302,6 +303,7 @@ export default function AdminReportesAnalisis() {
     let montado = true;
 
     const fetchData = async () => {
+      const inicioCarga = Date.now();
       setLoading(true);
       setError("");
 
@@ -356,6 +358,10 @@ export default function AdminReportesAnalisis() {
         console.error("Error al cargar datos de reportes:", err);
         if (montado) setError("Error al cargar los datos.");
       } finally {
+        const tiempoRestante = Math.max(0, REPORTES_MIN_LOADING_MS - (Date.now() - inicioCarga));
+        if (tiempoRestante > 0) {
+          await new Promise((resolve) => setTimeout(resolve, tiempoRestante));
+        }
         if (montado) setLoading(false);
       }
     };

@@ -150,11 +150,6 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
           </div>
 
           <div className="modal-reserva-field">
-            <span className="modal-reserva-field-label">Plaza</span>
-            <span className="modal-reserva-field-value">{reservaNorm?.nro_plaza || "—"} &middot; {reservaNorm?.nombre_zona || "Sector"}</span>
-          </div>
-
-          <div className="modal-reserva-field">
             <span className="modal-reserva-field-label">Vehiculo</span>
             <span className="modal-reserva-field-value">{reservaNorm?.plaza || "—"}</span>
           </div>

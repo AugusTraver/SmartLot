@@ -175,7 +175,7 @@ export default function SobreNosotros() {
             <CheckCircle2 size={24} />
             <h2>SmartLot ordena la gestion para que estacionar deje de ser un problema operativo.</h2>
             <Link to="/" className="about-secondary about-secondary--dark">
-              Volver a la landing
+              Volver al inicio 
             </Link>
           </section>
         </main>

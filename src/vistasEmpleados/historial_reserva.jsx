@@ -8,6 +8,75 @@ import { useAuth } from "../contexts/useAuth";
 import { ReservasGetByUsuario } from "../servicies/API_Reserva";
 import "./historial_reserva.css";
 
+const obtenerCampo = (item, claves, fallback = "") => {
+  if (!item || typeof item !== "object") return fallback;
+  for (const clave of claves) {
+    const valor = item[clave];
+    if (valor !== undefined && valor !== null && valor !== "") return valor;
+  }
+  return fallback;
+};
+
+const normalizarFechaHora = (valor) => {
+  if (!valor) return null;
+  const texto = String(valor).trim().replace(" ", "T");
+  const fecha = new Date(texto);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const extraerFecha = (valor) => {
+  if (!valor) return "";
+  return String(valor).trim().split(/[T ]/)[0] || "";
+};
+
+const extraerHora = (valor) => {
+  if (!valor) return "";
+  const partes = String(valor).trim().split(/[T ]/);
+  const hora = partes.length > 1 ? partes[1] : partes[0];
+  return hora ? hora.substring(0, 5) : "";
+};
+
+const obtenerIdUsuario = (usuario) =>
+  usuario?.id ?? usuario?.id_usuario ?? usuario?.idUsuario ?? usuario?.usuario_id ?? usuario?.usuarioId;
+
+const obtenerSalidaReserva = (reserva) => {
+  const fechaSalidaCompleta = obtenerCampo(reserva, [
+    "fecha_salida",
+    "fechaSalida",
+    "fecha_finalizacion",
+    "fechaFinalizacion",
+    "fecha_fin",
+    "fechaFin",
+  ]);
+
+  const salidaDesdeCompleta = normalizarFechaHora(fechaSalidaCompleta);
+  if (salidaDesdeCompleta) return salidaDesdeCompleta;
+
+  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"]);
+  const horaSalida = obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"]);
+  return normalizarFechaHora(fecha && horaSalida ? `${fecha}T${horaSalida}` : "");
+};
+
+const normalizarReservaHistorial = (reserva) => {
+  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]);
+  const fechaSalida = obtenerCampo(reserva, [
+    "fecha_salida",
+    "fechaSalida",
+    "fecha_finalizacion",
+    "fechaFinalizacion",
+    "fecha_fin",
+    "fechaFin",
+  ]);
+  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFecha(fechaEntrada || fechaSalida));
+
+  return {
+    ...reserva,
+    fecha,
+    hora_entrada: obtenerCampo(reserva, ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"], extraerHora(fechaEntrada)),
+    hora_salida: obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"], extraerHora(fechaSalida)),
+  };
+};
+
 function HistorialReservaSkeleton() {
   return (
     <>
@@ -56,6 +125,7 @@ function HistorialReservaSkeleton() {
 function HistorialReserva() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
+  const idUsuario = obtenerIdUsuario(usuario);
   const [ultimaReserva, setUltimaReserva] = useState(null);
   const [reservasPasadas, setReservasPasadas] = useState([]);
   const [mostrarMasPasadas, setMostrarMasPasadas] = useState(false);
@@ -80,21 +150,29 @@ function HistorialReserva() {
   };
 
   useEffect(() => {
-    if (!usuario?.id) return;
+    if (!idUsuario) {
+      setUltimaReserva(null);
+      setReservasPasadas([]);
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
 
-    ReservasGetByUsuario(usuario.id).then((res) => {
+    ReservasGetByUsuario(idUsuario, { force: true }).then((res) => {
       if (cancelled) return;
 
       const datos = Array.isArray(res?.datos) ? res.datos : [];
 
       const ahora = new Date();
-      const pasadas = datos.filter((r) => {
-        if (!r.fecha || !r.hora_salida) return false;
-        const salida = new Date(`${r.fecha}T${r.hora_salida}:00`);
-        return salida < ahora;
-      });
+      const pasadas = datos
+        .map((reserva) => {
+          const salida = obtenerSalidaReserva(reserva);
+          return salida ? { reserva: normalizarReservaHistorial(reserva), salida } : null;
+        })
+        .filter((item) => item && item.salida < ahora)
+        .sort((a, b) => b.salida.getTime() - a.salida.getTime())
+        .map((item) => item.reserva);
 
       setUltimaReserva(pasadas[0] || null);
       setReservasPasadas(pasadas.slice(1));
@@ -108,7 +186,7 @@ function HistorialReserva() {
     });
 
     return () => { cancelled = true; };
-  }, [usuario?.id]);
+  }, [idUsuario]);
 
   const reservaPasadaPrincipal = reservasPasadas[0] || null;
   const restoReservasPasadas = reservasPasadas.slice(1);
