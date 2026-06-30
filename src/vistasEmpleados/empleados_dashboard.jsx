@@ -19,6 +19,9 @@ import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detall
 
 const GARAGE_DASHBOARD_STORAGE_KEY = "smartlot_empleado_dashboard_garage";
 
+const MAX_PALABRAS = 300;
+const contarPalabras = (texto) => (texto || "").trim().split(/\s+/).filter(Boolean).length;
+
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
@@ -601,6 +604,11 @@ function EmpleadoDashboard() {
       return;
     }
 
+    if (contarPalabras(descripcion) > MAX_PALABRAS) {
+      setMensajeReporte({ tipo: "error", texto: `La descripcion no puede tener mas de ${MAX_PALABRAS} palabras.` });
+      return;
+    }
+
     if (!Number.isFinite(idUsuario)) {
       setMensajeReporte({ tipo: "error", texto: "No se pudo identificar tu usuario." });
       return;
@@ -739,8 +747,11 @@ function EmpleadoDashboard() {
                   onChange={(event) => setDescripcionReporte(event.target.value)}
                   placeholder="Contanos que paso"
                   rows={5}
-                  maxLength={500}
+                  maxLength={3000}
                 />
+                <span className={`empleado-reporte-wordcount ${contarPalabras(descripcionReporte) > MAX_PALABRAS ? "empleado-reporte-wordcount--exceeded" : ""}`}>
+                  {contarPalabras(descripcionReporte)}/{MAX_PALABRAS} palabras
+                </span>
               </label>
 
               {mensajeReporte && (

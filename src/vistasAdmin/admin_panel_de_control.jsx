@@ -30,6 +30,9 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { useAuth } from '../contexts/useAuth';
 
+const MAX_PALABRAS = 300;
+const contarPalabras = (texto) => (texto || "").trim().split(/\s+/).filter(Boolean).length;
+
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
@@ -389,6 +392,11 @@ export default function AdminPanelControl() {
       return;
     }
 
+    if (contarPalabras(descripcion) > MAX_PALABRAS) {
+      setMensajeSoporte({ tipo: "error", texto: `La descripcion no puede tener mas de ${MAX_PALABRAS} palabras.` });
+      return;
+    }
+
     if (!Number.isFinite(idUsuario)) {
       setMensajeSoporte({ tipo: "error", texto: "No se pudo identificar tu usuario." });
       return;
@@ -727,8 +735,11 @@ export default function AdminPanelControl() {
                   onChange={(event) => setNuevoConflicto((prev) => ({ ...prev, descripcion: event.target.value }))}
                   placeholder="Contanos que paso"
                   rows={5}
-                  maxLength={500}
+                  maxLength={3000}
                 />
+                <span className={`admin-support-wordcount ${contarPalabras(nuevoConflicto.descripcion) > MAX_PALABRAS ? "admin-support-wordcount--exceeded" : ""}`}>
+                  {contarPalabras(nuevoConflicto.descripcion)}/{MAX_PALABRAS} palabras
+                </span>
               </label>
 
               {mensajeSoporte && (
