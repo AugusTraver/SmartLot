@@ -19,6 +19,7 @@ import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 
+import ToastUndo from "../componentesShared/ToastUndo";
 import "./gestion_de_empleados.css";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
@@ -185,6 +186,13 @@ const GestionEmpleados = () => {
   const [garagesMap, setGaragesMap] = useState({});
   const [showArchived, setShowArchived] = useState(false);
   const [filtroRolSwitch, setFiltroRolSwitch] = useState("Empleado");
+  const [toast, setToast] = useState(null);
+  const toastKeyRef = useRef(0);
+
+  const mostrarToast = (mensaje, onDeshacer) => {
+    toastKeyRef.current += 1;
+    setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
+  };
 
   useEffect(() => {
     setSelectedSede("");
@@ -349,21 +357,6 @@ const GestionEmpleados = () => {
   }, [showArchived]);
 
   const handleArchivarEmpleado = async (id, name) => {
-    const result = await Swal.fire({
-      title: "@Archivar a este empleado?",
-      text: `${name || "Este empleado"} quedará inactivo y se moverá a archivados.`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#2563EB",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Sí, archivar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-      zIndex: Z_INDEX.SWAL_DIALOG,
-    });
-
-    if (!result.isConfirmed) return;
-
     try {
       const response = await UsuariosPatchEstado(id, false);
 
@@ -377,6 +370,16 @@ const GestionEmpleados = () => {
             setEmpleados((prev) =>
               prev.map((emp) =>
                 emp.id === id ? { ...emp, activo: false } : emp
+              )
+            );
+          }
+        });
+        mostrarToast("Empleado archivado", async () => {
+          const restore = await UsuariosPatchEstado(id, true);
+          if (restore.respuesta) {
+            setEmpleados((prev) =>
+              prev.map((emp) =>
+                emp.id === id ? { ...emp, activo: true } : emp
               )
             );
           }
@@ -862,6 +865,15 @@ const GestionEmpleados = () => {
             </div>
           </div>
         </ModalPortal>
+      )}
+
+      {toast && (
+        <ToastUndo
+          key={toast.id}
+          message={toast.mensaje}
+          onUndo={toast.onDeshacer}
+          onClose={() => setToast(null)}
+        />
       )}
 
       <FooterAdmin />

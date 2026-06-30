@@ -25,6 +25,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import { DIAS_SEMANA } from "../helpers/diasSemana";
+import ToastUndo from "../componentesShared/ToastUndo";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import SelectorDiasOperativos from "../componentesAdmin/selector_dias_operativos";
 import { GaragesUpdate } from "../servicies/API_Garage";
@@ -63,22 +64,15 @@ function EditarZona() {
   const location = useLocation();
   const garageData = location.state?.garage;
 
+  const [toast, setToast] = useState(null);
+  const toastKeyRef = useRef(0);
+
+  const mostrarToast = (mensaje, onDeshacer) => {
+    toastKeyRef.current += 1;
+    setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
+  };
+
   const handleArchivarEmpleado = async (id, nombre) => {
-    const result = await Swal.fire({
-      title: "¿Archivar a este garajista?",
-      text: `${nombre || "Este garajista"} quedará inactivo y se moverá a archivados.`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#2563EB",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Sí, archivar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-      zIndex: Z_INDEX.SWAL_DIALOG,
-    });
-
-    if (!result.isConfirmed) return;
-
     try {
       const response = await UsuariosPatchEstado(id, false);
 
@@ -88,13 +82,15 @@ function EditarZona() {
             (user.id ?? user.id_usuario) === id ? { ...user, activo: false } : user
           )
         );
-        Swal.fire({
-          title: "Garajista archivado",
-          text: "El garajista ahora está inactivo y se puede restaurar más tarde.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          zIndex: Z_INDEX.SWAL_DIALOG,
+        mostrarToast("Garajista archivado", async () => {
+          const restore = await UsuariosPatchEstado(id, true);
+          if (restore.respuesta) {
+            setUsuarios((prev) =>
+              prev.map((user) =>
+                (user.id ?? user.id_usuario) === id ? { ...user, activo: true } : user
+              )
+            );
+          }
         });
       } else {
         Swal.fire("Error", "No se pudo archivar al garajista.", "error");
@@ -774,6 +770,15 @@ function EditarZona() {
           </div>
         </form>
       </main>
+
+      {toast && (
+        <ToastUndo
+          key={toast.id}
+          message={toast.mensaje}
+          onUndo={toast.onDeshacer}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

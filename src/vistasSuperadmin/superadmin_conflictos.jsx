@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Search, Trash2 } from "lucide-react";
 
 import "../vistasAdmin/admin_panel_de_control.css";
+import ToastUndo from "../componentesShared/ToastUndo";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import {
@@ -66,6 +67,13 @@ export default function SuperadminConflictos() {
   const [actualizandoId, setActualizandoId] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
+  const [toast, setToast] = useState(null);
+  const toastKeyRef = useRef(0);
+
+  const mostrarToast = (mensaje, onDeshacer) => {
+    toastKeyRef.current += 1;
+    setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
+  };
 
   const cargarPapelera = async () => {
     setCargandoPapelera(true);
@@ -193,8 +201,10 @@ export default function SuperadminConflictos() {
     setActualizandoId(id);
     const resultado = await ConflictosDelete(id);
     if (resultado.respuesta) {
-      setConflictos((prev) => prev.filter((item) => item.id !== id));
+      const idEliminado = id;
+      setConflictos((prev) => prev.filter((item) => item.id !== idEliminado));
       await cargarPapelera();
+      mostrarToast("Conflicto eliminado", () => handleRestaurar(idEliminado));
     }
     setActualizandoId(null);
   };
@@ -414,6 +424,16 @@ export default function SuperadminConflictos() {
           </div>
         )}
       </section>
+
+      {toast && (
+        <ToastUndo
+          key={toast.id}
+          message={toast.mensaje}
+          onUndo={toast.onDeshacer}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <FooterSuperadmin />
     </div>
   );
