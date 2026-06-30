@@ -48,15 +48,15 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
   agregarTitulo(doc, "Reporte de SmartLot");
 
   doc.setTextColor(30, 30, 30);
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.text(`Fecha de generación: ${obtenerFechaArchivo()}`, 14, 35);
 
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("Resumen general", 14, 50);
 
   autoTable(doc, {
-    startY: 58,
+    startY: 55,
     head: [["Métrica", "Valor"]],
     body: [
       ["Ocupación media", metricas.ocupacionMedia ?? "-"],
@@ -68,6 +68,8 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     styles: {
       halign: "center",
       valign: "middle",
+      fontSize: 9,
+      cellPadding: 2,
     },
     headStyles: {
       fillColor: [17, 24, 39],
@@ -75,29 +77,29 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     },
   });
 
-  let posicionY = doc.lastAutoTable.finalY + 15;
+  let posicionY = doc.lastAutoTable.finalY + 9;
 
   if (graficoBase64) {
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("Gráfico de tendencia", 14, posicionY);
 
-    doc.addImage(graficoBase64, "PNG", 14, posicionY + 8, 180, 80);
+    doc.addImage(graficoBase64, "PNG", 14, posicionY + 5, 180, 60);
 
-    posicionY += 100;
+    posicionY += 72;
   }
 
-  if (posicionY > 230) {
+  if (posicionY > 238) {
     doc.addPage();
     posicionY = 25;
   }
 
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("Tendencia semanal", 14, posicionY);
 
   autoTable(doc, {
-    startY: posicionY + 8,
+    startY: posicionY + 5,
     head: [["Día", "Ocupación"]],
     body: tendenciaSemanal.map((item) => [
       item.dia ?? "-",
@@ -106,6 +108,8 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     styles: {
       halign: "center",
       valign: "middle",
+      fontSize: 9,
+      cellPadding: 2,
     },
     headStyles: {
       fillColor: [17, 24, 39],
