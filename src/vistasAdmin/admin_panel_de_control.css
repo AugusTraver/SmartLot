@@ -776,6 +776,19 @@ margin-bottom: -1%;
   opacity: 0.65;
 }
 
+.admin-support-wordcount {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.admin-support-wordcount--exceeded {
+  color: #dc2626;
+}
+
 /* ─── Conflict Card ─── */
 
 .conflict-card {
