@@ -27,6 +27,7 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { SedesGetAll } from "../servicies/API_Sede";
+import { exportarReportePDF } from "../util/exportar_reporte_pdf";
 
 const REPORTES_MIN_LOADING_MS = 650;
 
@@ -438,7 +439,14 @@ export default function AdminReportesAnalisis() {
     const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
     await exportarReporteExcel(datosReporte, { graficoTendencia });
   };
+   const exportarPDF = () => {
+    if (loading) return;
+    const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
 
+    exportarReportePDF(datosReporte, {
+    graficoTendencia,
+  });
+};
   const kpis = [
     {
       label: "Ocupacion Media",
@@ -501,6 +509,15 @@ export default function AdminReportesAnalisis() {
                 <div className="report-btn__content">
                   <span className="report-btn__title">Exportar a Excel</span>
                   <span className="report-btn__subtitle">Descargar reporte en XLSX</span>
+                </div>
+              </button>
+              <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading}>
+                <div className="report-btn__icon-wrapper">
+                  <FileText size={24} className="report-btn__icon" />
+                </div>
+                <div className="report-btn__content">
+                  <span className="report-btn__title">Exportar a PDF</span>
+                  <span className="report-btn__subtitle">Descargar reporte en PDF</span>
                 </div>
               </button>
             </div>
