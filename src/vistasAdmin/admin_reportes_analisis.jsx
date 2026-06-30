@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -291,6 +291,42 @@ const CustomActiveDot = (props) => {
   );
 };
 
+const AnimatedNumber = ({ value, suffix = "", duration = 1800, startDelay = 0 }) => {
+  const [display, setDisplay] = useState(0);
+  const [highlight, setHighlight] = useState(false);
+  const rafRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof value !== "number") return;
+
+    timerRef.current = setTimeout(() => {
+      setHighlight(true);
+      const startTime = performance.now();
+      const to = Math.max(0, value);
+      const step = (now) => {
+        const t = Math.min((now - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        setDisplay(Math.round(to * ease));
+        if (t < 1) {
+          rafRef.current = requestAnimationFrame(step);
+        } else {
+          setHighlight(false);
+        }
+      };
+      rafRef.current = requestAnimationFrame(step);
+    }, startDelay);
+
+    return () => {
+      clearTimeout(timerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, duration, startDelay]);
+
+  if (typeof value !== "number") return <>{value}</>;
+  return <span className={highlight ? "kpi-counter--highlight" : ""}>{display.toLocaleString()}{suffix}</span>;
+};
+
 export default function AdminReportesAnalisis() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
@@ -299,6 +335,7 @@ export default function AdminReportesAnalisis() {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [exportState, setExportState] = useState(null);
 
   useEffect(() => {
     let montado = true;
@@ -397,18 +434,35 @@ export default function AdminReportesAnalisis() {
     });
     const tiempoPromedio = count > 0 ? `${(totalHoras / count).toFixed(1)} hrs` : "—";
 
-    const horasCount = {};
+    const extraerHora = (str) => {
+      if (!str) return -1;
+      const m = String(str).match(/(\d{2}):\d{2}/);
+      return m ? parseInt(m[1], 10) : new Date(str).getHours();
+    };
+
+    const horaOcupada = {};
     reservas.forEach((r) => {
       const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
-      if (entrada) {
-        const hora = new Date(entrada).getHours();
-        horasCount[hora] = (horasCount[hora] || 0) + 1;
+      const salida = r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin;
+      if (entrada && salida) {
+        const hInicio = extraerHora(entrada);
+        const hFin = extraerHora(salida);
+        if (hInicio >= 0 && hFin >= 0 && hInicio !== hFin) {
+          if (hFin > hInicio) {
+            for (let h = hInicio; h < hFin; h++) {
+              horaOcupada[h] = (horaOcupada[h] || 0) + 1;
+            }
+          } else {
+            for (let h = hInicio; h < 24; h++) horaOcupada[h] = (horaOcupada[h] || 0) + 1;
+            for (let h = 0; h < hFin; h++) horaOcupada[h] = (horaOcupada[h] || 0) + 1;
+          }
+        }
       }
     });
     let mejorRango = "";
     let mejorSuma = 0;
     for (let h = 0; h <= 22; h++) {
-      const suma = (horasCount[h] || 0) + (horasCount[h + 1] || 0);
+      const suma = (horaOcupada[h] || 0) + (horaOcupada[h + 1] || 0);
       if (suma > mejorSuma) {
         mejorSuma = suma;
         mejorRango = `${String(h).padStart(2, "0")}:00 - ${String(h + 2).padStart(2, "0")}:00`;
@@ -434,10 +488,28 @@ export default function AdminReportesAnalisis() {
     return { ocupacionMedia, usuariosActivos, tiempoPromedio, horasPico, tendencia };
   }, [garages, usuarios, reservas]);
 
+  const navegarConTransicion = (ruta) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => navigate(ruta, { replace: true }));
+    } else {
+      navigate(ruta, { replace: true });
+    }
+  };
+
   const exportarExcel = async () => {
-    if (loading) return;
-    const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
-    await exportarReporteExcel(datosReporte, { graficoTendencia });
+    if (loading || exportState) return;
+    try {
+      setExportState("generating");
+      await new Promise((r) => setTimeout(r, 350));
+      const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
+      setExportState("building");
+      await new Promise((r) => setTimeout(r, 300));
+      await exportarReporteExcel(datosReporte, { graficoTendencia });
+      setExportState("downloading");
+      await new Promise((r) => setTimeout(r, 400));
+    } finally {
+      setExportState(null);
+    }
   };
    const exportarPDF = () => {
     if (loading) return;
@@ -451,6 +523,8 @@ export default function AdminReportesAnalisis() {
     {
       label: "Ocupacion Media",
       value: loading ? "—" : `${datosReporte.ocupacionMedia}%`,
+      raw: loading ? null : datosReporte.ocupacionMedia,
+      suffix: "%",
       icon: BarChart3,
       color: "#1d4ed8",
       bg: "#eff6ff",
@@ -458,6 +532,8 @@ export default function AdminReportesAnalisis() {
     {
       label: "Usuarios Activos",
       value: loading ? "—" : datosReporte.usuariosActivos.toLocaleString(),
+      raw: loading ? null : datosReporte.usuariosActivos,
+      suffix: "",
       icon: Users,
       color: "#059669",
       bg: "#ecfdf5",
@@ -484,7 +560,7 @@ export default function AdminReportesAnalisis() {
       <header className="admin-panel__header">
         <button
           className="admin-panel__back-btn"
-          onClick={() => navigate("/admin_panel_de_control", { replace: true })}
+          onClick={() => navegarConTransicion("/admin_panel_de_control")}
         >
           <ArrowLeft size={24} />
         </button>
@@ -538,7 +614,13 @@ export default function AdminReportesAnalisis() {
                   </div>
                   <span className="kpi-card__label">{kpi.label}</span>
                 </div>
-                <span className="kpi-card__value">{kpi.value}</span>
+                <span className="kpi-card__value kpi-card__value--animate">
+                  {kpi.raw !== undefined ? (
+                    <AnimatedNumber value={kpi.raw} suffix={kpi.suffix || ""} startDelay={(0.65 + i * 0.08) * 1000} />
+                  ) : (
+                    kpi.value
+                  )}
+                </span>
               </article>
             ))}
           </section>
@@ -619,6 +701,29 @@ export default function AdminReportesAnalisis() {
       )}
 
       <FooterEmpleado />
+
+      {exportState && (
+        <div className="export-overlay">
+          <div className="export-modal">
+            <h3 className="export-modal__title">Exportando reporte</h3>
+            <p className="export-modal__subtitle">Preparando tu archivo Excel...</p>
+            <div className="export-steps">
+              <div className={`export-step ${exportState === "generating" ? "export-step--active" : exportState !== "generating" ? "export-step--done" : ""}`}>
+                <span className="export-step__icon">{exportState === "generating" ? "..." : "✓"}</span>
+                <span className="export-step__label">Generando grafico de tendencia</span>
+              </div>
+              <div className={`export-step ${exportState === "building" ? "export-step--active" : exportState === "downloading" ? "export-step--done" : ""}`}>
+                <span className="export-step__icon">{exportState === "building" ? "..." : exportState === "downloading" ? "✓" : ""}</span>
+                <span className="export-step__label">Armando archivo Excel</span>
+              </div>
+              <div className={`export-step ${exportState === "downloading" ? "export-step--active" : ""}`}>
+                <span className="export-step__icon">{exportState === "downloading" ? "..." : ""}</span>
+                <span className="export-step__label">Descargando reporte</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

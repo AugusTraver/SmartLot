@@ -1040,6 +1040,336 @@ margin-bottom: -1%;
   }
 }
 
+/* ─── Toast ─── */
+
+.toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #2563eb;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15), 0 2px 8px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.toast--exiting {
+  animation: toastSlideOut 0.25s ease-in both;
+}
+
+.toast__message {
+  flex: 1;
+  line-height: 1.3;
+}
+
+.toast__undo {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid #2563eb;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.toast__undo:hover {
+  background: #dbeafe;
+  border-color: #1d4ed8;
+}
+
+.toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  animation: toastShrink 5s linear forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.94);
+  }
+}
+
+@keyframes toastShrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* ─── Employee Popover ─── */
+
+.employee-cell {
+  position: relative;
+}
+
+.employee-cell__trigger {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.employee-popover {
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  top: calc(100% + 12px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.15), 0 2px 8px rgba(15, 23, 42, 0.04);
+  min-width: 240px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.employee-cell__trigger:hover .employee-popover,
+.employee-cell__trigger:focus-within .employee-popover {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.employee-popover::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(45deg);
+}
+
+.employee-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.employee-popover__avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.employee-popover__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.employee-popover__email {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.employee-popover__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.employee-popover__detail {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+/* ─── Urgent Pulse ─── */
+
+.conflict-row--urgent td:first-child {
+  position: relative;
+}
+
+.conflict-row--urgent td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #dc2626;
+  animation: urgentPulse 2s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 4px rgba(220, 38, 38, 0.15); }
+  50% { opacity: 1; box-shadow: 0 0 12px rgba(220, 38, 38, 0.35); }
+}
+
+/* ─── Compact Mode ─── */
+
+.conflicts-table-shell--compact .conflicts-table td {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.conflicts-table-shell--compact .conflicts-table th {
+  padding: 8px 12px;
+  font-size: 10px;
+}
+
+.conflicts-table-shell--compact .conflicts-table__description {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conflicts-table-shell--compact .conflict-status-select {
+  min-height: 28px;
+  font-size: 12px;
+  padding: 0 22px 0 8px;
+}
+
+.conflicts-table-shell--compact .conflict-priority {
+  min-height: 24px;
+  font-size: 11px;
+  padding: 0 8px;
+}
+
+.conflicts-table-shell--compact .conflict-delete-btn,
+.conflicts-table-shell--compact .conflict-restore-btn {
+  width: 30px;
+  height: 30px;
+}
+
+.conflicts-table-shell--compact .conflicts-table td strong {
+  font-size: 13px;
+  margin-bottom: 1px;
+}
+
+/* ─── Last Updated ─── */
+
+.last-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.last-updated__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+.last-updated--stale .last-updated__dot {
+  background: #f59e0b;
+}
+
+.last-updated--stale {
+  color: #f59e0b;
+}
+
+/* ─── Toolbar extras ─── */
+
+.conflicts-toolbar__btn--compact {
+ 
+  min-width: 36px;
+  padding: 0 10px;
+}
+
+.conflicts-toolbar__btn--compact svg {
+  transition: transform 0.2s ease;
+}
+
+.conflicts-toolbar__btn--compact.active svg {
+  transform: rotate(180deg);
+}
+
+/* ─── View Transitions ─── */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: vtFadeOut 0.25s ease-out both;
+}
+
+::view-transition-new(root) {
+  animation: vtFadeIn 0.35s ease-out both;
+}
+
+@keyframes vtFadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-12px); }
+}
+
+@keyframes vtFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ==========================================================================
    📱 CELULARES (max 768px)
    ========================================================================== */

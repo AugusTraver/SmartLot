@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -183,6 +183,34 @@ export default function AdminPanelControl() {
   const [enviandoConflicto, setEnviandoConflicto] = useState(false);
   const [mensajeSoporte, setMensajeSoporte] = useState(null);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
+  const [toast, setToast] = useState(null);
+  const [compactMode, setCompactMode] = useState(false);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+  const toastTimeoutRef = useRef(null);
+  const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
+  const [isStale, setIsStale] = useState(false);
+
+  const mostrarToast = (mensaje, onDeshacer) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToast({ mensaje, onDeshacer });
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 5000);
+  };
+
+  useEffect(() => {
+    if (!ultimaActualizacion) return;
+    const update = () => {
+      const segs = Math.floor((Date.now() - ultimaActualizacion) / 1000);
+      if (segs < 60) {
+        setTiempoTranscurrido(`Actualizado hace ${segs}s`);
+      } else {
+        setTiempoTranscurrido(`Actualizado hace ${Math.floor(segs / 60)}m`);
+      }
+      setIsStale(segs > 300);
+    };
+    update();
+    const interval = setInterval(update, 10000);
+    return () => clearInterval(interval);
+  }, [ultimaActualizacion]);
 
   const conflictScope = useMemo(() => getAdminConflictScope(usuario), [usuario]);
 
@@ -278,7 +306,10 @@ export default function AdminPanelControl() {
         console.error("Error al cargar datos:", error);
         if (montado) setErrorConflictos("Ocurrio un error al cargar los datos.");
       } finally {
-        if (montado) setLoadingConflictos(false);
+        if (montado) {
+          setLoadingConflictos(false);
+          setUltimaActualizacion(Date.now());
+        }
       }
     };
 
@@ -366,6 +397,8 @@ export default function AdminPanelControl() {
   }, [garagesList]);
 
   const handleCambiarEstado = async (conflicto, estado) => {
+    const estadoAnterior = conflicto.estado;
+    if (estadoAnterior === estado) return;
     setActualizandoId(conflicto.id);
     const payload = {
       id_usuario: obtenerIdUsuario(conflicto),
@@ -378,6 +411,12 @@ export default function AdminPanelControl() {
     const resultado = await ConflictosUpdate(conflicto.id, payload);
     if (resultado.respuesta) {
       setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
+      mostrarToast(`Estado cambiado a "${estado}"`, async () => {
+        const revert = await ConflictosUpdate(conflicto.id, { ...payload, estado: estadoAnterior });
+        if (revert.respuesta) {
+          setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? revert.datos : item));
+        }
+      });
     }
     setActualizandoId(null);
   };
@@ -439,8 +478,12 @@ export default function AdminPanelControl() {
     setActualizandoId(id);
     const resultado = await ConflictosDelete(id);
     if (resultado.respuesta) {
+      const conflictoEliminado = conflictos.find((c) => c.id === id);
       setConflictos((prev) => prev.filter((item) => item.id !== id));
       await cargarPapelera({ force: true });
+      mostrarToast("Conflicto eliminado", () => {
+        if (conflictoEliminado) handleRestaurar(id);
+      });
     }
     setActualizandoId(null);
   };
@@ -462,13 +505,21 @@ export default function AdminPanelControl() {
     cargarPapelera({ force: true });
   };
 
+  const navegarConTransicion = (ruta) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => navigate(ruta, { replace: true }));
+    } else {
+      navigate(ruta, { replace: true });
+    }
+  };
+
   return (
     <div className="admin-panel">
       <Header />
       <header className="admin-panel__header">
         <button
           className="boton-back"
-          onClick={() => navigate("/admin_dashboard", { replace: true })}
+          onClick={() => navegarConTransicion("/admin_dashboard")}
           aria-label="Volver al dashboard"
         >
           <ArrowLeft size={24} />
@@ -506,7 +557,12 @@ export default function AdminPanelControl() {
             <h2 className="conflicts-section__title">
               Conflictos reportados ({pendientes})
             </h2>
-            <p className="conflicts-section__subtitle">Casos abiertos por empleados y estado de seguimiento.</p>
+            <p className="conflicts-section__subtitle">Casos abiertos por empleados y estado de seguimiento.
+              <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
+                <span className="last-updated__dot" />
+                {tiempoTranscurrido}
+              </span>
+            </p>
           </div>
           <button
             type="button"
@@ -550,6 +606,18 @@ export default function AdminPanelControl() {
               aria-label="Buscar conflictos"
             />
           </label>
+          <button
+            type="button"
+            className={`conflicts-toolbar__btn conflicts-toolbar__btn--compact ${compactMode ? "active" : ""}`}
+            onClick={() => setCompactMode((prev) => !prev)}
+            aria-label={compactMode ? "Modo expandido" : "Modo compacto"}
+            title={compactMode ? "Modo expandido" : "Modo compacto"}
+          >
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="1" y="9" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </button>
         </div>
 
         {loadingConflictos ? (
@@ -560,7 +628,7 @@ export default function AdminPanelControl() {
           ) : papeleraVisible.length === 0 ? (
             <div className="conflicts-section__feedback">No hay conflictos en tu papelera.</div>
           ) : (
-            <div className="conflicts-table-shell">
+            <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
               <table className="conflicts-table">
                 <thead>
                   <tr>
@@ -619,7 +687,7 @@ export default function AdminPanelControl() {
         ) : conflictosVisibles.length === 0 ? (
           <div className="conflicts-section__feedback">No hay conflictos reportados.</div>
         ) : (
-          <div className="conflicts-table-shell">
+          <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
             <table className="conflicts-table">
               <thead>
                 <tr>
@@ -638,9 +706,10 @@ export default function AdminPanelControl() {
                     ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
                     : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
                   const deshabilitado = actualizandoId === conflicto.id;
+                  const esUrgente = conflicto.prioridad === "Alta" && conflicto.estado !== "Resuelto";
 
                   return (
-                    <tr key={conflicto.id}>
+                    <tr key={conflicto.id} className={esUrgente ? "conflict-row--urgent" : ""}>
                       <td>
                         <strong>{nombreUsuario}</strong>
                         {usuario?.email && <span>{usuario.email}</span>}
@@ -695,6 +764,18 @@ export default function AdminPanelControl() {
         </div>
       </section>
       <FooterEmpleado />
+
+      {toast && (
+        <div className="toast-container">
+          <div className="toast">
+            <span className="toast__message">{toast.mensaje}</span>
+            <button className="toast__undo" onClick={() => { toast.onDeshacer(); setToast(null); if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current); }}>
+              Deshacer
+            </button>
+            <div className="toast__progress" />
+          </div>
+        </div>
+      )}
 
       {modalSoporteOpen && (
         <div className="admin-support-overlay" role="presentation" onMouseDown={cerrarModalSoporte}>

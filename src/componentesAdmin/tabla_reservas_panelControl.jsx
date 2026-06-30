@@ -206,6 +206,9 @@ export default function TablaReservasPanleControl() {
         garage_nombre: garageNombre,
         fecha: fechaDisplay,
         hora: `${horaInicio} - ${horaFin}`,
+        email: userData.email ?? "",
+        telefono: userData.telefono ?? "",
+        userId: idUsuario,
       };
     });
   }, [reservasCrudas, usuariosMap, garagesMap, usuario]);
@@ -359,7 +362,34 @@ export default function TablaReservasPanleControl() {
                         <div className={`user-info__avatar user-info__avatar--${item.color}`}>
                           {item.iniciales}
                         </div>
-                        <span className="user-info__name">{item.nombre}</span>
+                        <div
+                          className="user-info__trigger"
+                          onMouseEnter={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            if (window.innerHeight - rect.bottom < 280) {
+                              e.currentTarget.classList.add("user-info__trigger--up");
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.classList.remove("user-info__trigger--up");
+                          }}
+                        >
+                          <span className="user-info__name">{item.nombre}</span>
+                          {(item.email || item.telefono) && (
+                            <div className="user-info__popover">
+                              <div className="user-info__popover-header">
+                                <div className="user-info__popover-avatar">{item.iniciales}</div>
+                                <div>
+                                  <div className="user-info__popover-name">{item.nombre}</div>
+                                  {item.email && <div className="user-info__popover-email">{item.email}</div>}
+                                </div>
+                              </div>
+                              <div className="user-info__popover-details">
+                                {item.telefono && <span className="user-info__popover-detail">{item.telefono}</span>}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td data-label="PLAZA / ZONA">

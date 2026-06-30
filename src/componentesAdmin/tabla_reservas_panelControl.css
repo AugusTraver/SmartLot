@@ -324,6 +324,115 @@
   color: #0f172a;
 }
 
+.user-info__trigger {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.user-info__popover {
+  position: absolute;
+  z-index: 100;
+  left: 0;
+  top: calc(100% + 12px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.15), 0 2px 8px rgba(15, 23, 42, 0.04);
+  min-width: 240px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.user-info__trigger:hover .user-info__popover,
+.user-info__trigger:focus-within .user-info__popover {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.user-info__popover::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(45deg);
+}
+
+.user-info__popover-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.user-info__popover-avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.user-info__popover-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.user-info__popover-email {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.user-info__popover-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.user-info__popover-detail {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.user-info__trigger--up .user-info__popover {
+  top: auto;
+  bottom: calc(100% + 12px);
+}
+
+.user-info__trigger--up .user-info__popover::before {
+  top: auto;
+  bottom: -6px;
+  border: 1px solid #e2e8f0;
+  border-left: none;
+  border-top: none;
+}
+
 .cell-block {
   display: flex;
   flex-direction: column;
