@@ -153,6 +153,10 @@
   background: linear-gradient(145deg, #dc2626, #ef4444);
 }
 
+.empleado-reserva-status--missed {
+  background: linear-gradient(145deg, #dc2626, #ef4444);
+}
+
 .empleado-reserva-status--pending {
   background: linear-gradient(145deg, #64748b, #94a3b8);
 }

@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/useAuth';
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
 import { ReservasGetAll } from '../servicies/API_Reserva';
 import { UsuariosGetAll } from '../servicies/API_Usuario';
 import { GaragesGetAll } from '../servicies/API_Garage';
@@ -19,17 +19,42 @@ const obtenerListado = (datos) => {
   return [];
 };
 
+const tieneZonaHoraria = (valor) => /[zZ]$|[+-]\d{2}:?\d{2}$/.test(valor);
+
 const extraerFechaStr = (datetime) => {
   if (!datetime) return "";
-  const conEspacio = datetime.split(" ");
+  const valor = String(datetime);
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
+  const conEspacio = valor.split(" ");
   if (conEspacio.length > 1) return conEspacio[0];
-  return datetime.split("T")[0];
+  return valor.split("T")[0];
 };
 
 const extraerHoraLocal = (fechaStr) => {
   if (!fechaStr) return "--:--";
   const valor = String(fechaStr);
   if (/^\d{2}:\d{2}/.test(valor)) return valor.slice(0, 5);
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
   if (valor.includes("T")) {
     const hora = valor.split("T")[1]?.slice(0, 5);
     return hora || "--:--";
@@ -37,6 +62,33 @@ const extraerHoraLocal = (fechaStr) => {
   const partes = valor.split(" ");
   if (partes.length > 1) return partes[1].slice(0, 5);
   return "--:--";
+};
+
+const obtenerFechaHoraReserva = (reserva, clavesFechaCompleta, clavesHora) => {
+  for (const clave of clavesFechaCompleta) {
+    const valor = reserva[clave];
+    if (valor !== undefined && valor !== null && valor !== "") return valor;
+  }
+
+  const fecha = reserva.fecha ?? reserva.fecha_reserva ?? reserva.fechaReserva;
+  if (!fecha) return "";
+
+  for (const clave of clavesHora) {
+    const hora = reserva[clave];
+    if (hora !== undefined && hora !== null && hora !== "") {
+      return `${String(fecha).split(/[T ]/)[0]}T${String(hora)}`;
+    }
+  }
+
+  return fecha;
+};
+
+const obtenerOrdenFechaHora = (fechaHora) => {
+  if (!fechaHora) return 0;
+  const valor = String(fechaHora);
+  if (/^\d{2}:\d{2}/.test(valor)) return 0;
+  const fecha = new Date(tieneZonaHoraria(valor) ? valor : valor.replace(" ", "T"));
+  return Number.isNaN(fecha.getTime()) ? 0 : fecha.getTime();
 };
 
 const esMismaFecha = (fechaA, fechaB) =>
@@ -49,8 +101,11 @@ const formatearFecha = (fecha) => {
   const fechaReserva = new Date(`${fecha}T00:00:00`);
   if (Number.isNaN(fechaReserva.getTime())) return fecha;
   const hoy = new Date();
+  const ayer = new Date();
+  ayer.setDate(hoy.getDate() - 1);
   const manana = new Date();
   manana.setDate(hoy.getDate() + 1);
+  if (esMismaFecha(fechaReserva, ayer)) return "Ayer";
   if (esMismaFecha(fechaReserva, hoy)) return "Hoy";
   if (esMismaFecha(fechaReserva, manana)) return "Mañana";
   return new Intl.DateTimeFormat("es-AR", {
@@ -72,6 +127,7 @@ export default function TablaReservasPanleControl() {
   const [activeChip, setActiveChip] = useState("Todas");
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [fechaReferenciaOrden] = useState(() => Date.now());
 
   useEffect(() => {
     let montado = true;
@@ -184,13 +240,22 @@ export default function TablaReservasPanleControl() {
       const idGarage = r.id_garage ?? r.idGarage ?? r.garage_id;
       const garageNombre = garagesMap[idGarage] ?? "Garage";
 
-      const fechaEntrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
-      const fechaSalida = r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin;
+      const fechaEntrada = obtenerFechaHoraReserva(
+        r,
+        ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"],
+        ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"]
+      );
+      const fechaSalida = obtenerFechaHoraReserva(
+        r,
+        ["fecha_salida", "fechaSalida", "fecha_fin", "fechaFin"],
+        ["hora_salida", "horaSalida", "hora_fin", "horaFin"]
+      );
 
       const fechaStr = extraerFechaStr(fechaEntrada);
       const fechaDisplay = formatearFecha(fechaStr);
       const horaInicio = extraerHoraLocal(fechaEntrada);
       const horaFin = extraerHoraLocal(fechaSalida);
+      const fechaOrden = obtenerOrdenFechaHora(fechaEntrada);
 
       const plaza = r.plaza ?? r.nro_plaza ?? r.numero_plaza ?? r.espacio ?? "—";
       const zona = r.nombre_zona ?? r.zona ?? r.nivel ?? r.sector ?? "—";
@@ -209,13 +274,15 @@ export default function TablaReservasPanleControl() {
         email: userData.email ?? "",
         telefono: userData.telefono ?? "",
         userId: idUsuario,
+        fechaOrden,
       };
+    }).sort((a, b) => {
+      if (!a.fechaOrden && !b.fechaOrden) return 0;
+      if (!a.fechaOrden) return 1;
+      if (!b.fechaOrden) return -1;
+      return Math.abs(a.fechaOrden - fechaReferenciaOrden) - Math.abs(b.fechaOrden - fechaReferenciaOrden);
     });
-  }, [reservasCrudas, usuariosMap, garagesMap, usuario]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, activeChip]);
+  }, [reservasCrudas, usuariosMap, garagesMap, usuario, fechaReferenciaOrden]);
 
   const chips = useMemo(() => {
     const nombresGarages = garagesList
@@ -250,23 +317,19 @@ export default function TablaReservasPanleControl() {
     return Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
   }, [filteredData]);
 
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredData.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredData, currentPage]);
+  const safeCurrentPage = Math.min(currentPage, totalPages);
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  const paginatedData = useMemo(() => {
+    const start = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+    return filteredData.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredData, safeCurrentPage]);
 
   const goToPrevPage = useCallback(() => {
-    setCurrentPage(p => Math.max(p - 1, 1));
-  }, []);
+    setCurrentPage(p => Math.max(Math.min(p, totalPages) - 1, 1));
+  }, [totalPages]);
 
   const goToNextPage = useCallback(() => {
-    setCurrentPage(p => Math.min(p + 1, totalPages));
+    setCurrentPage(p => Math.min(Math.min(p, totalPages) + 1, totalPages));
   }, [totalPages]);
 
   const goToPage = useCallback((page) => {
@@ -295,7 +358,10 @@ export default function TablaReservasPanleControl() {
             placeholder="Buscar usuario, plaza o garage..."
             className="filter-bar__input"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
           />
         </div>
       </div>
@@ -306,7 +372,10 @@ export default function TablaReservasPanleControl() {
             <button
               key={chip}
               className={`chip ${activeChip === chip ? "chip--active" : ""}`}
-              onClick={() => setActiveChip(chip)}
+              onClick={() => {
+                setActiveChip(chip);
+                setCurrentPage(1);
+              }}
             >
               {chip}
             </button>
@@ -419,7 +488,7 @@ export default function TablaReservasPanleControl() {
               ? "Cargando..."
               : totalPages <= 1
                 ? `Mostrando ${filteredData.length} de ${reservasNormalizadas.length} reservas`
-                : `Página ${currentPage} de ${totalPages} (${filteredData.length} reservas)`
+                : `Página ${safeCurrentPage} de ${totalPages} (${filteredData.length} reservas)`
             }
           </span>
           {totalPages > 1 && (
@@ -427,7 +496,7 @@ export default function TablaReservasPanleControl() {
               <button
                 className="pagination__btn"
                 onClick={goToPrevPage}
-                disabled={currentPage <= 1}
+                disabled={safeCurrentPage <= 1}
                 aria-label="Página anterior"
               >
                 <ChevronLeft size={18} />
@@ -435,7 +504,7 @@ export default function TablaReservasPanleControl() {
               {pageButtons.map(page => (
                 <button
                   key={page}
-                  className={`pagination__btn ${currentPage === page ? "pagination__btn--active" : ""}`}
+                  className={`pagination__btn ${safeCurrentPage === page ? "pagination__btn--active" : ""}`}
                   onClick={() => goToPage(page)}
                 >
                   {page}
@@ -444,7 +513,7 @@ export default function TablaReservasPanleControl() {
               <button
                 className="pagination__btn"
                 onClick={goToNextPage}
-                disabled={currentPage >= totalPages}
+                disabled={safeCurrentPage >= totalPages}
                 aria-label="Siguiente página"
               >
                 <ChevronRight size={18} />

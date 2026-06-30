@@ -4,8 +4,12 @@ import "./tarjeta_reserva.css";
 
 const esValorVerdadero = (valor) => {
   if (valor === true || valor === 1) return true;
+  if (valor === false || valor === 0 || valor === null || valor === undefined) return false;
   if (typeof valor === "string") {
-    return ["true", "1", "si", "s\u00ed", "completo", "completado"].includes(valor.trim().toLowerCase());
+    const texto = valor.trim().toLowerCase();
+    if (!texto || ["false", "0", "no", "null", "undefined"].includes(texto)) return false;
+    if (["true", "1", "si", "s\u00ed", "completo", "completado"].includes(texto)) return true;
+    return !Number.isNaN(new Date(valor).getTime());
   }
   return false;
 };
@@ -33,8 +37,28 @@ const obtenerEstadoHistorial = (reserva) => {
     };
   }
 
-  const entradaCompleta = esValorVerdadero(reserva.entrada ?? reserva.ingreso ?? reserva.check_in ?? reserva.checkIn ?? reserva.entro);
-  const salidaCompleta = esValorVerdadero(reserva.salida ?? reserva.egreso ?? reserva.check_out ?? reserva.checkOut ?? reserva.salio);
+  const entradaCompleta = [
+    reserva.entrada,
+    reserva.ingreso,
+    reserva.check_in,
+    reserva.checkIn,
+    reserva.entro,
+    reserva.entrada_registrada,
+    reserva.entradaRegistrada,
+    reserva.fecha_entrada_real,
+    reserva.fechaEntradaReal,
+  ].some(esValorVerdadero);
+  const salidaCompleta = [
+    reserva.salida,
+    reserva.egreso,
+    reserva.check_out,
+    reserva.checkOut,
+    reserva.salio,
+    reserva.salida_registrada,
+    reserva.salidaRegistrada,
+    reserva.fecha_salida_real,
+    reserva.fechaSalidaReal,
+  ].some(esValorVerdadero);
 
   if (entradaCompleta && salidaCompleta) {
     return {
@@ -46,10 +70,10 @@ const obtenerEstadoHistorial = (reserva) => {
   }
 
   return {
-    tipo: "pending",
-    texto: "Registro",
-    aria: "Reserva pasada sin entrada y salida completas",
-    icono: <Check size={25} strokeWidth={3.2} />,
+    tipo: "missed",
+    texto: "Sin registro",
+    aria: "Reserva pasada sin entrada y salida registradas",
+    icono: <X size={24} strokeWidth={3.2} />,
   };
 };
 
