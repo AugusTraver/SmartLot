@@ -16,7 +16,7 @@ const patrones = [
 ];
 
 function textoLimpio(texto) {
-  return texto.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim();
+  return texto.replace(/\s+/g, " ").trim();
 }
 
 function mensajeAmigable(datosError, nombreGarage) {
