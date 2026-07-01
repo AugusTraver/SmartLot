@@ -56,6 +56,48 @@ const estadoClase = (estado) => {
   return "pendiente";
 };
 
+const ConflictsTableSkeleton = ({ rows = 4 }) => (
+  <div className="conflicts-table-shell conflicts-table-shell--skeleton" aria-label="Cargando conflictos">
+    <table className="conflicts-table">
+      <thead>
+        <tr>
+          <th>Admin</th>
+          <th>Descripcion</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th aria-label="Acciones" />
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: rows }).map((_, index) => (
+          <tr key={index}>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-name" />
+              <span className="panel-skeleton-line panel-skeleton-email" />
+            </td>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-description" />
+            </td>
+            <td>
+              <span className="panel-skeleton-pill" />
+            </td>
+            <td>
+              <span className="panel-skeleton-select" />
+            </td>
+            <td>
+              <span className="panel-skeleton-line panel-skeleton-date" />
+            </td>
+            <td>
+              <span className="panel-skeleton-action" />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 export default function SuperadminConflictos() {
   const navigate = useNavigate();
   const [conflictos, setConflictos] = useState([]);
@@ -69,6 +111,10 @@ export default function SuperadminConflictos() {
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
   const [toast, setToast] = useState(null);
   const toastKeyRef = useRef(0);
+  const [compactMode, setCompactMode] = useState(true);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+  const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
+  const [isStale, setIsStale] = useState(false);
 
   const mostrarToast = (mensaje, onDeshacer) => {
     toastKeyRef.current += 1;
@@ -119,13 +165,32 @@ export default function SuperadminConflictos() {
         console.error("Error al cargar conflictos de superadmin:", err);
         if (montado) setError("Ocurrio un error al cargar los conflictos.");
       } finally {
-        if (montado) setLoading(false);
+        if (montado) {
+          setLoading(false);
+          setUltimaActualizacion(Date.now());
+        }
       }
     };
 
     cargarDatos();
     return () => { montado = false; };
   }, []);
+
+  useEffect(() => {
+    if (!ultimaActualizacion) return;
+    const update = () => {
+      const segs = Math.floor((Date.now() - ultimaActualizacion) / 1000);
+      if (segs < 60) {
+        setTiempoTranscurrido(`Actualizado hace ${segs}s`);
+      } else {
+        setTiempoTranscurrido(`Actualizado hace ${Math.floor(segs / 60)}m`);
+      }
+      setIsStale(segs > 300);
+    };
+    update();
+    const interval = setInterval(update, 10000);
+    return () => clearInterval(interval);
+  }, [ultimaActualizacion]);
 
   const usuariosPorId = useMemo(
     () => new Map(usuarios.map((usuario) => [Number(usuario.id ?? usuario.id_usuario), usuario])),
@@ -226,13 +291,21 @@ export default function SuperadminConflictos() {
     cargarPapelera();
   };
 
+  const navegarConTransicion = (ruta) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => navigate(ruta, { replace: true }));
+    } else {
+      navigate(ruta, { replace: true });
+    }
+  };
+
   return (
     <div className="admin-panel superadmin-conflicts-page">
       <HeaderSuperadmin />
       <header className="admin-panel__header superadmin-conflicts-header">
         <button
           className="boton-back"
-          onClick={() => navigate("/superadmin_dashboard", { replace: true })}
+          onClick={() => navegarConTransicion("/superadmin_dashboard")}
           aria-label="Volver al dashboard"
         >
           <ArrowLeft size={24} />
@@ -251,7 +324,12 @@ export default function SuperadminConflictos() {
           <MessageSquareWarning className="conflicts-section__alert-icon" />
           <div>
             <h2 className="conflicts-section__title">Conflictos recibidos ({pendientes})</h2>
-            <p className="conflicts-section__subtitle">Reportes activos enviados por administradores.</p>
+            <p className="conflicts-section__subtitle">Reportes activos enviados por administradores.
+              <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
+                <span className="last-updated__dot" />
+                {tiempoTranscurrido}
+              </span>
+            </p>
           </div>
         </div>
 
@@ -287,17 +365,29 @@ export default function SuperadminConflictos() {
               aria-label="Buscar conflictos"
             />
           </label>
+          <button
+            type="button"
+            className={`conflicts-toolbar__btn conflicts-toolbar__btn--compact ${compactMode ? "active" : ""}`}
+            onClick={() => setCompactMode((prev) => !prev)}
+            aria-label={compactMode ? "Modo expandido" : "Modo compacto"}
+            title={compactMode ? "Modo expandido" : "Modo compacto"}
+          >
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+              <rect x="1" y="9" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </button>
         </div>
 
         {loading ? (
-          <div className="conflicts-section__feedback">Cargando conflictos...</div>
+          <ConflictsTableSkeleton />
         ) : mostrarPapelera ? (
           cargandoPapelera ? (
-            <div className="conflicts-section__feedback">Cargando papelera...</div>
+            <ConflictsTableSkeleton rows={3} />
           ) : papeleraVisible.length === 0 ? (
             <div className="conflicts-section__feedback">No hay conflictos en la papelera.</div>
           ) : (
-            <div className="conflicts-table-shell">
+            <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
               <table className="conflicts-table">
                 <thead>
                   <tr>
@@ -356,7 +446,7 @@ export default function SuperadminConflictos() {
         ) : conflictosVisibles.length === 0 ? (
           <div className="conflicts-section__feedback">No hay conflictos enviados a superadmin.</div>
         ) : (
-          <div className="conflicts-table-shell">
+          <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
             <table className="conflicts-table">
               <thead>
                 <tr>

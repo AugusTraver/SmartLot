@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   FileText,
   TrendingUp,
   BarChart3,
@@ -44,12 +46,16 @@ const obtenerIdUsuario = (item) => item?.id_usuario ?? item?.idUsuario ?? item?.
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
+    const data = payload[0].payload;
     return (
       <div className="trend-tooltip">
         <span className="trend-tooltip__day">{label}</span>
-        <span className="trend-tooltip__value">{payload[0].value}%</span>
+        <span className="trend-tooltip__value">{data.valor}%</span>
+        {data.count !== undefined && (
+          <span className="trend-tooltip__count">{data.count} reservas</span>
+        )}
         <div className="trend-tooltip__bar">
-          <div className="trend-tooltip__fill" style={{ width: `${payload[0].value}%` }} />
+          <div className="trend-tooltip__fill" style={{ width: `${data.valor}%` }} />
         </div>
       </div>
     );
@@ -336,6 +342,8 @@ export default function AdminReportesAnalisis() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [exportState, setExportState] = useState(null);
+  const [granularidad, setGranularidad] = useState("semana");
+  const [fechaActual, setFechaActual] = useState(() => new Date());
 
   useEffect(() => {
     let montado = true;
@@ -488,6 +496,196 @@ export default function AdminReportesAnalisis() {
     return { ocupacionMedia, usuariosActivos, tiempoPromedio, horasPico, tendencia };
   }, [garages, usuarios, reservas]);
 
+  const tendenciaDinamica = useMemo(() => {
+    if (!reservas.length) return [];
+    const hoy = new Date();
+    const diaInicio = new Date(fechaActual);
+    let buckets = [];
+
+    switch (granularidad) {
+      case "dia": {
+        const fechaStr = diaInicio.toISOString().split("T")[0];
+        buckets = Array.from({ length: 24 }, (_, h) => {
+          const inicio = new Date(`${fechaStr}T${String(h).padStart(2, "0")}:00:00`);
+          const fin = new Date(`${fechaStr}T${String(h + 1).padStart(2, "0")}:00:00`);
+          const count = reservas.filter((r) => {
+            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
+            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
+            return entrada < fin && salida > inicio;
+          }).length;
+          return { dia: `${String(h).padStart(2, "0")}:00`, count };
+        });
+        break;
+      }
+      case "semana": {
+        const diaSemana = diaInicio.getDay();
+        const lunes = new Date(diaInicio);
+        lunes.setDate(diaInicio.getDate() - ((diaSemana + 6) % 7));
+        const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+        buckets = diasSemana.map((nombre, i) => {
+          const d = new Date(lunes);
+          d.setDate(lunes.getDate() + i);
+          const fechaStr = d.toISOString().split("T")[0];
+          const count = reservas.filter((r) => {
+            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
+            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
+            const entradaDate = entrada.toISOString().split("T")[0];
+            const salidaDate = salida.toISOString().split("T")[0];
+            return entradaDate <= fechaStr && salidaDate >= fechaStr;
+          }).length;
+          return { dia: nombre, count };
+        });
+        break;
+      }
+      case "mes": {
+        const año = diaInicio.getFullYear();
+        const mes = diaInicio.getMonth();
+        const diasEnMes = new Date(año, mes + 1, 0).getDate();
+        buckets = Array.from({ length: diasEnMes }, (_, d) => {
+          const fechaStr = `${año}-${String(mes + 1).padStart(2, "0")}-${String(d + 1).padStart(2, "0")}`;
+          const count = reservas.filter((r) => {
+            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
+            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
+            const entradaDate = entrada.toISOString().split("T")[0];
+            const salidaDate = salida.toISOString().split("T")[0];
+            return entradaDate <= fechaStr && salidaDate >= fechaStr;
+          }).length;
+          return { dia: String(d + 1), count };
+        });
+        break;
+      }
+      case "año": {
+        const añoNum = diaInicio.getFullYear();
+        const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        buckets = meses.map((nombre, i) => {
+          const count = reservas.filter((r) => {
+            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
+            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
+            const eAño = entrada.getFullYear();
+            const eMes = entrada.getMonth();
+            const sAño = salida.getFullYear();
+            const sMes = salida.getMonth();
+            return (
+              (eAño < añoNum || (eAño === añoNum && eMes <= i)) &&
+              (sAño > añoNum || (sAño === añoNum && sMes >= i))
+            );
+          }).length;
+          return { dia: nombre, count };
+        });
+        break;
+      }
+    }
+
+    const maxCount = Math.max(...buckets.map((b) => b.count), 1);
+    return buckets.map((b) => ({ ...b, valor: Math.round((b.count / maxCount) * 100) }));
+  }, [reservas, granularidad, fechaActual]);
+
+  const periodLabel = useMemo(() => {
+    switch (granularidad) {
+      case "dia":
+        return fechaActual.toLocaleDateString("es-AR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      case "semana": {
+        const diaSemana = fechaActual.getDay();
+        const lunes = new Date(fechaActual);
+        lunes.setDate(fechaActual.getDate() - ((diaSemana + 6) % 7));
+        const domingo = new Date(lunes);
+        domingo.setDate(lunes.getDate() + 6);
+        const fmtInicio = lunes.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+        const fmtFin = domingo.toLocaleDateString("es-AR", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+        return `${fmtInicio} - ${fmtFin}`;
+      }
+      case "mes":
+        return fechaActual.toLocaleDateString("es-AR", {
+          month: "long",
+          year: "numeric",
+        });
+      case "año":
+        return String(fechaActual.getFullYear());
+      default:
+        return "";
+    }
+  }, [granularidad, fechaActual]);
+
+  const puedeAvanzar = useMemo(() => {
+    const hoy = new Date();
+    hoy.setHours(23, 59, 59, 999);
+    switch (granularidad) {
+      case "dia": {
+        const sig = new Date(fechaActual);
+        sig.setDate(fechaActual.getDate() + 1);
+        sig.setHours(0, 0, 0, 0);
+        return sig <= hoy;
+      }
+      case "semana": {
+        const sig = new Date(fechaActual);
+        sig.setDate(fechaActual.getDate() + 7);
+        return sig <= hoy;
+      }
+      case "mes": {
+        const sig = new Date(fechaActual);
+        sig.setMonth(fechaActual.getMonth() + 1);
+        sig.setDate(1);
+        return sig <= hoy;
+      }
+      case "año": {
+        const sig = new Date(fechaActual);
+        sig.setFullYear(fechaActual.getFullYear() + 1);
+        sig.setMonth(0, 1);
+        return sig <= hoy;
+      }
+      default:
+        return false;
+    }
+  }, [granularidad, fechaActual]);
+
+  const navegarAtras = () => {
+    const nueva = new Date(fechaActual);
+    switch (granularidad) {
+      case "dia":
+        nueva.setDate(fechaActual.getDate() - 1);
+        break;
+      case "semana":
+        nueva.setDate(fechaActual.getDate() - 7);
+        break;
+      case "mes":
+        nueva.setMonth(fechaActual.getMonth() - 1);
+        break;
+      case "año":
+        nueva.setFullYear(fechaActual.getFullYear() - 1);
+        break;
+    }
+    setFechaActual(nueva);
+  };
+
+  const navegarAdelante = () => {
+    const nueva = new Date(fechaActual);
+    const hoy = new Date();
+    hoy.setHours(23, 59, 59, 999);
+    switch (granularidad) {
+      case "dia":
+        nueva.setDate(fechaActual.getDate() + 1);
+        break;
+      case "semana":
+        nueva.setDate(fechaActual.getDate() + 7);
+        break;
+      case "mes":
+        nueva.setMonth(fechaActual.getMonth() + 1);
+        break;
+      case "año":
+        nueva.setFullYear(fechaActual.getFullYear() + 1);
+        break;
+    }
+    if (nueva <= hoy) setFechaActual(nueva);
+  };
+
   const navegarConTransicion = (ruta) => {
     if (document.startViewTransition) {
       document.startViewTransition(() => navigate(ruta, { replace: true }));
@@ -630,10 +828,37 @@ export default function AdminReportesAnalisis() {
               <TrendingUp size={20} className="reportes-section__icon" />
               <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
             </div>
+            <div className="trend-controls">
+              <div className="trend-granularidad">
+                {["dia", "semana", "mes", "año"].map((g) => (
+                  <button
+                    key={g}
+                    className={`trend-granularidad-btn ${granularidad === g ? "active" : ""}`}
+                    onClick={() => setGranularidad(g)}
+                  >
+                    {g === "dia" ? "Día" : g === "semana" ? "Semana" : g === "mes" ? "Mes" : "Año"}
+                  </button>
+                ))}
+              </div>
+              <div className="trend-nav">
+                <button className="trend-nav-btn" onClick={navegarAtras} aria-label="Anterior">
+                  <ChevronLeft size={20} />
+                </button>
+                <span className="trend-nav-label">{periodLabel}</span>
+                <button
+                  className="trend-nav-btn"
+                  onClick={navegarAdelante}
+                  disabled={!puedeAvanzar}
+                  aria-label="Siguiente"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
             <div className="trend-chart-wrapper">
               <div className="trend-chart-accent" />
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={datosReporte.tendencia} margin={{ top: 16, right: 12, left: -8, bottom: 8 }}>
+                <AreaChart data={tendenciaDinamica} margin={{ top: 16, right: 12, left: -8, bottom: 8 }}>
                   <defs>
                     <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#2563eb" stopOpacity={0.35} />
@@ -693,7 +918,15 @@ export default function AdminReportesAnalisis() {
               </ResponsiveContainer>
               <div className="trend-chart-footer">
                 <span className="trend-chart-footer__dot" />
-                <span>Ocupación promedio por día de la semana</span>
+                <span>
+                  {granularidad === "dia"
+                    ? "Reservas por hora del día seleccionado"
+                    : granularidad === "semana"
+                      ? "Reservas por día de la semana"
+                      : granularidad === "mes"
+                        ? "Reservas por día del mes"
+                        : "Reservas por mes del año"}
+                </span>
               </div>
             </div>
           </section>
