@@ -184,7 +184,7 @@ export default function AdminPanelControl() {
   const [mensajeSoporte, setMensajeSoporte] = useState(null);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
   const [toast, setToast] = useState(null);
-  const [compactMode, setCompactMode] = useState(false);
+  const [compactMode, setCompactMode] = useState(true);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
   const toastTimeoutRef = useRef(null);
   const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
