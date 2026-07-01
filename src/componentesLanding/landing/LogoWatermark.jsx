@@ -7,6 +7,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function LogoWatermark({ heroRef }) {
   const container = useRef(null);
+  const frameImgRef = useRef(null);
   const staticImgRef = useRef(null);
   const wrapperRef = useRef(null);
 
@@ -21,7 +22,7 @@ export default function LogoWatermark({ heroRef }) {
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set(wrapperRef.current, { opacity: 0.08, scale: 2.5 });
+      gsap.set(wrapperRef.current, { opacity: 1, scale: 2.5 });
       gsap.set(staticImgRef.current, { opacity: 1 });
     });
 
@@ -73,14 +74,12 @@ export default function LogoWatermark({ heroRef }) {
         transformOrigin: '50% 50%',
         transformPerspective: 1000,
       }, 0)
-      .set(getHeroLogo, {
-        position: 'fixed',
-        top: () => getHeroRect().top,
-        left: () => getHeroRect().left,
-        width: () => getHeroRect().width,
-        height: () => getHeroRect().height,
-        margin: 0,
-      }, 0)
+      .set(getHeroLogo, { opacity: 0 }, 0)
+      .call(() => {
+        frameImgRef.current.src = '/GIF_IMGS_LOGO/ffout001.gif';
+      }, [], 0)
+      .set(frameImgRef.current, { opacity: 1 }, 0)
+      .set(staticImgRef.current, { opacity: 0 }, 0)
 
       .to(state, {
         currentFrame: 119,
@@ -88,14 +87,11 @@ export default function LogoWatermark({ heroRef }) {
         ease: "none",
         onUpdate: () => {
           const frame = Math.round(state.currentFrame) + 1;
-          const heroLogo = getHeroLogo();
-          if (heroLogo) {
-            heroLogo.src = `/GIF_IMGS_LOGO/ffout${String(frame).padStart(3, '0')}.gif`;
-          }
+          frameImgRef.current.src = `/GIF_IMGS_LOGO/ffout${String(frame).padStart(3, '0')}.gif`;
         }
       }, 0.02)
 
-      .to(getHeroLogo, { opacity: 0, duration: 0.03 }, 0.30)
+      .to(frameImgRef.current, { opacity: 0, duration: 0.03 }, 0.30)
       .to(staticImgRef.current, { opacity: 1, duration: 0.03 }, 0.30)
 
       .to(wrapperRef.current, {
@@ -106,10 +102,10 @@ export default function LogoWatermark({ heroRef }) {
         scale: 2.8,
         rotationY: 60,
         rotationX: 12,
-        opacity: 0.08,
-        duration: 0.45,
+        opacity: 1,
+        duration: 0.78,
         ease: "power2.inOut",
-      }, 0.35)
+      }, 0.02)
 
       .to(wrapperRef.current, {
         duration: 0.20,
@@ -123,6 +119,13 @@ export default function LogoWatermark({ heroRef }) {
   return (
     <div ref={container} className="fixed inset-0 pointer-events-none z-0">
       <div ref={wrapperRef} className="logo-watermark">
+        <img
+          ref={frameImgRef}
+          src=""
+          alt=""
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{ opacity: 0 }}
+        />
         <img
           ref={staticImgRef}
           src="/logo.png"

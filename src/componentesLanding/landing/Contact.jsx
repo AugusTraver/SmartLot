@@ -83,7 +83,7 @@ export default function Contact() {
             </defs>
           </svg>
 
-          <div className="relative z-10 w-full h-full bg-white/70 backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-center border border-white/80">
+          <div className="relative z-10 w-full h-full bg-[rgba(253,252,249,0.65)] backdrop-blur-2xl rounded-[2.5rem] p-10 md:p-16 text-center border border-white/80">
             
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 

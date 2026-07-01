@@ -71,7 +71,7 @@ const Hero = forwardRef(function Hero({ startAnimation }, ref) {
 
           <div className="hero-logo-container relative flex justify-center lg:justify-end z-20">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-brand-navy rounded-full blur-[100px] opacity-[0.07] -z-10"></div>
-            <img src="/GIF_IMGS_LOGO/ffout001.gif" alt="SmartLot" width="500" height="134" className="floating-logo w-full max-w-[480px] h-auto drop-shadow-xl" />
+            <img src="/GIF_IMGS_LOGO/ffout001.gif" alt="SmartLot" width="500" height="134" className="floating-logo w-full max-w-[480px] h-auto drop-shadow-xl" style={{ mixBlendMode: 'multiply' }} />
           </div>
 
         </div>
