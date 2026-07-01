@@ -625,7 +625,6 @@ export default function AdminReportesAnalisis() {
 
   const tendenciaDinamica = useMemo(() => {
     if (!reservas.length) return [];
-    const hoy = new Date();
     const diaInicio = new Date(fechaActual);
     let buckets = [];
 
