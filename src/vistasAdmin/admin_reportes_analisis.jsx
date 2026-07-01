@@ -30,6 +30,7 @@ import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { exportarReportePDF } from "../util/exportar_reporte_pdf";
+import logoSmartLot from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 
 const REPORTES_MIN_LOADING_MS = 650;
 
@@ -124,7 +125,10 @@ const parsearFechaHora = (fechaHora) => {
   if (!fechaHora) return null;
   const valor = String(fechaHora);
   if (/^\d{1,2}:\d{2}/.test(valor)) return null;
-  const fecha = new Date(tieneZonaHoraria(valor) ? valor : valor.replace(" ", "T"));
+  const valorNormalizado = /^\d{4}-\d{2}-\d{2}$/.test(valor)
+    ? `${valor}T00:00:00`
+    : valor.replace(" ", "T");
+  const fecha = new Date(tieneZonaHoraria(valor) ? valor : valorNormalizado);
   return Number.isNaN(fecha.getTime()) ? null : fecha;
 };
 
@@ -184,6 +188,110 @@ const sumarOcupacionPorHora = (acumulador, minutosEntrada, minutosSalida) => {
 const formatearRangoHoras = (horaInicio, duracionHoras = 2) => {
   const horaFin = (horaInicio + duracionHoras) % 24;
   return `${String(horaInicio).padStart(2, "0")}:00 - ${String(horaFin).padStart(2, "0")}:00`;
+};
+
+const obtenerIntervaloReserva = (reserva) => {
+  const entrada = obtenerFechaEntradaReserva(reserva);
+  const salida = obtenerFechaSalidaReserva(reserva);
+  const inicio = parsearFechaHora(entrada);
+  const fin = parsearFechaHora(salida);
+
+  if (!inicio || !fin) return null;
+
+  if (fin <= inicio) {
+    const finAjustado = new Date(fin);
+    finAjustado.setDate(finAjustado.getDate() + 1);
+    return { inicio, fin: finAjustado };
+  }
+
+  return { inicio, fin };
+};
+
+const seSolapaConRango = (reserva, inicioRango, finRango) => {
+  const intervalo = obtenerIntervaloReserva(reserva);
+  return Boolean(intervalo && intervalo.inicio < finRango && intervalo.fin > inicioRango);
+};
+
+const contarReservasEnRango = (reservas, inicioRango, finRango) =>
+  reservas.filter((reserva) => seSolapaConRango(reserva, inicioRango, finRango)).length;
+
+const obtenerRangoPeriodo = (fecha, granularidad) => {
+  const inicio = new Date(fecha);
+  inicio.setHours(0, 0, 0, 0);
+
+  switch (granularidad) {
+    case "dia": {
+      const fin = new Date(inicio);
+      fin.setDate(inicio.getDate() + 1);
+      return { inicio, fin };
+    }
+    case "semana": {
+      const diaSemana = inicio.getDay();
+      inicio.setDate(inicio.getDate() - ((diaSemana + 6) % 7));
+      const fin = new Date(inicio);
+      fin.setDate(inicio.getDate() + 7);
+      return { inicio, fin };
+    }
+    case "mes": {
+      inicio.setDate(1);
+      const fin = new Date(inicio);
+      fin.setMonth(inicio.getMonth() + 1);
+      return { inicio, fin };
+    }
+    case "año": {
+      inicio.setMonth(0, 1);
+      const fin = new Date(inicio);
+      fin.setFullYear(inicio.getFullYear() + 1);
+      return { inicio, fin };
+    }
+    default:
+      return { inicio, fin: new Date(inicio) };
+  }
+};
+
+const calcularHorasPico = (reservasPeriodo) => {
+  const horaOcupada = Array(24).fill(0);
+
+  reservasPeriodo.forEach((r) => {
+    const entrada = obtenerFechaEntradaReserva(r);
+    const salida = obtenerFechaSalidaReserva(r);
+    const minutosEntrada = extraerMinutosLocales(entrada);
+    const minutosSalida = extraerMinutosLocales(salida);
+    if (minutosEntrada !== null && minutosSalida !== null && minutosEntrada !== minutosSalida) {
+      sumarOcupacionPorHora(horaOcupada, minutosEntrada, minutosSalida);
+    }
+  });
+
+  let mejorRango = "";
+  let mejorSuma = 0;
+  for (let h = 0; h < 24; h++) {
+    const suma = horaOcupada[h] + horaOcupada[(h + 1) % 24];
+    if (suma > mejorSuma) {
+      mejorSuma = suma;
+      mejorRango = formatearRangoHoras(h);
+    }
+  }
+
+  return mejorRango || "—";
+};
+
+const normalizarGranularidadLabel = (granularidad) => {
+  if (granularidad === "dia") return "Dia";
+  if (granularidad === "semana") return "Semana";
+  if (granularidad === "mes") return "Mes";
+  return "Año";
+};
+
+const cargarImagenBase64 = async (src) => {
+  const response = await fetch(src);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -484,6 +592,7 @@ export default function AdminReportesAnalisis() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [exportState, setExportState] = useState(null);
+  const [exportFormat, setExportFormat] = useState("");
   const [granularidad, setGranularidad] = useState("semana");
   const [fechaActual, setFechaActual] = useState(() => new Date());
 
@@ -625,77 +734,53 @@ export default function AdminReportesAnalisis() {
 
   const tendenciaDinamica = useMemo(() => {
     if (!reservas.length) return [];
-    const diaInicio = new Date(fechaActual);
+    const { inicio: inicioPeriodo } = obtenerRangoPeriodo(fechaActual, granularidad);
     let buckets = [];
 
     switch (granularidad) {
       case "dia": {
-        const fechaStr = diaInicio.toISOString().split("T")[0];
         buckets = Array.from({ length: 24 }, (_, h) => {
-          const inicio = new Date(`${fechaStr}T${String(h).padStart(2, "0")}:00:00`);
-          const fin = new Date(`${fechaStr}T${String(h + 1).padStart(2, "0")}:00:00`);
-          const count = reservas.filter((r) => {
-            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
-            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
-            return entrada < fin && salida > inicio;
-          }).length;
+          const inicio = new Date(inicioPeriodo);
+          inicio.setHours(h, 0, 0, 0);
+          const fin = new Date(inicio);
+          fin.setHours(h + 1, 0, 0, 0);
+          const count = contarReservasEnRango(reservas, inicio, fin);
           return { dia: `${String(h).padStart(2, "0")}:00`, count };
         });
         break;
       }
       case "semana": {
-        const diaSemana = diaInicio.getDay();
-        const lunes = new Date(diaInicio);
-        lunes.setDate(diaInicio.getDate() - ((diaSemana + 6) % 7));
         const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
         buckets = diasSemana.map((nombre, i) => {
-          const d = new Date(lunes);
-          d.setDate(lunes.getDate() + i);
-          const fechaStr = d.toISOString().split("T")[0];
-          const count = reservas.filter((r) => {
-            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
-            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
-            const entradaDate = entrada.toISOString().split("T")[0];
-            const salidaDate = salida.toISOString().split("T")[0];
-            return entradaDate <= fechaStr && salidaDate >= fechaStr;
-          }).length;
+          const inicio = new Date(inicioPeriodo);
+          inicio.setDate(inicioPeriodo.getDate() + i);
+          const fin = new Date(inicio);
+          fin.setDate(inicio.getDate() + 1);
+          const count = contarReservasEnRango(reservas, inicio, fin);
           return { dia: nombre, count };
         });
         break;
       }
       case "mes": {
-        const año = diaInicio.getFullYear();
-        const mes = diaInicio.getMonth();
+        const año = inicioPeriodo.getFullYear();
+        const mes = inicioPeriodo.getMonth();
         const diasEnMes = new Date(año, mes + 1, 0).getDate();
         buckets = Array.from({ length: diasEnMes }, (_, d) => {
-          const fechaStr = `${año}-${String(mes + 1).padStart(2, "0")}-${String(d + 1).padStart(2, "0")}`;
-          const count = reservas.filter((r) => {
-            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
-            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
-            const entradaDate = entrada.toISOString().split("T")[0];
-            const salidaDate = salida.toISOString().split("T")[0];
-            return entradaDate <= fechaStr && salidaDate >= fechaStr;
-          }).length;
+          const inicio = new Date(año, mes, d + 1);
+          const fin = new Date(inicio);
+          fin.setDate(inicio.getDate() + 1);
+          const count = contarReservasEnRango(reservas, inicio, fin);
           return { dia: String(d + 1), count };
         });
         break;
       }
       case "año": {
-        const añoNum = diaInicio.getFullYear();
+        const añoNum = inicioPeriodo.getFullYear();
         const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         buckets = meses.map((nombre, i) => {
-          const count = reservas.filter((r) => {
-            const entrada = new Date(r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio);
-            const salida = new Date(r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin);
-            const eAño = entrada.getFullYear();
-            const eMes = entrada.getMonth();
-            const sAño = salida.getFullYear();
-            const sMes = salida.getMonth();
-            return (
-              (eAño < añoNum || (eAño === añoNum && eMes <= i)) &&
-              (sAño > añoNum || (sAño === añoNum && sMes >= i))
-            );
-          }).length;
+          const inicio = new Date(añoNum, i, 1);
+          const fin = new Date(añoNum, i + 1, 1);
+          const count = contarReservasEnRango(reservas, inicio, fin);
           return { dia: nombre, count };
         });
         break;
@@ -739,6 +824,22 @@ export default function AdminReportesAnalisis() {
         return "";
     }
   }, [granularidad, fechaActual]);
+
+  const reservasPeriodo = useMemo(() => {
+    const { inicio, fin } = obtenerRangoPeriodo(fechaActual, granularidad);
+    return reservas.filter((reserva) => seSolapaConRango(reserva, inicio, fin));
+  }, [reservas, granularidad, fechaActual]);
+
+  const datosReporteVisible = useMemo(() => ({
+    ...datosReporte,
+    horasPico: calcularHorasPico(reservasPeriodo),
+    tendencia: tendenciaDinamica,
+    granularidad,
+    granularidadLabel: normalizarGranularidadLabel(granularidad),
+    periodo: periodLabel,
+    reservasTotales: reservasPeriodo.length,
+    etiquetaDimension: granularidad === "dia" ? "Hora" : granularidad === "año" ? "Mes" : "Dia",
+  }), [datosReporte, reservasPeriodo, tendenciaDinamica, granularidad, periodLabel]);
 
   const puedeAvanzar = useMemo(() => {
     const hoy = new Date();
@@ -823,26 +924,42 @@ export default function AdminReportesAnalisis() {
   const exportarExcel = async () => {
     if (loading || exportState) return;
     try {
+      setExportFormat("Excel");
       setExportState("generating");
       await new Promise((r) => setTimeout(r, 350));
-      const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
+      const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
+      const logoBase64 = await cargarImagenBase64(logoSmartLot);
       setExportState("building");
       await new Promise((r) => setTimeout(r, 300));
-      await exportarReporteExcel(datosReporte, { graficoTendencia });
+      await exportarReporteExcel(datosReporteVisible, { graficoTendencia, logoBase64 });
       setExportState("downloading");
       await new Promise((r) => setTimeout(r, 400));
     } finally {
       setExportState(null);
+      setExportFormat("");
     }
   };
-   const exportarPDF = () => {
-    if (loading) return;
-    const graficoTendencia = generarGraficoTendenciaPng(datosReporte.tendencia);
-
-    exportarReportePDF(datosReporte, {
-    graficoTendencia,
-  });
-};
+  const exportarPDF = async () => {
+    if (loading || exportState) return;
+    try {
+      setExportFormat("PDF");
+      setExportState("generating");
+      await new Promise((r) => setTimeout(r, 350));
+      const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
+      const logoBase64 = await cargarImagenBase64(logoSmartLot);
+      setExportState("building");
+      await new Promise((r) => setTimeout(r, 300));
+      exportarReportePDF(datosReporteVisible, {
+        graficoTendencia,
+        logoBase64,
+      });
+      setExportState("downloading");
+      await new Promise((r) => setTimeout(r, 400));
+    } finally {
+      setExportState(null);
+      setExportFormat("");
+    }
+  };
   const kpis = [
     {
       label: "Ocupacion Media",
@@ -871,7 +988,7 @@ export default function AdminReportesAnalisis() {
     },
     {
       label: "Horas Pico",
-      value: loading ? "—" : datosReporte.horasPico,
+      value: loading ? "—" : datosReporteVisible.horasPico,
       icon: Zap,
       color: "#dc2626",
       bg: "#fef2f2",
@@ -902,7 +1019,7 @@ export default function AdminReportesAnalisis() {
         <>
           <section className="reportes-section">
             <div className="export-actions">
-              <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading}>
+              <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading || exportState}>
                 <div className="report-btn__icon-wrapper">
                   <FileText size={24} className="report-btn__icon" />
                 </div>
@@ -911,7 +1028,7 @@ export default function AdminReportesAnalisis() {
                   <span className="report-btn__subtitle">Descargar reporte en XLSX</span>
                 </div>
               </button>
-              <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading}>
+              <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading || exportState}>
                 <div className="report-btn__icon-wrapper">
                   <FileText size={24} className="report-btn__icon" />
                 </div>
@@ -1065,15 +1182,15 @@ export default function AdminReportesAnalisis() {
         <div className="export-overlay">
           <div className="export-modal">
             <h3 className="export-modal__title">Exportando reporte</h3>
-            <p className="export-modal__subtitle">Preparando tu archivo Excel...</p>
+            <p className="export-modal__subtitle">Preparando tu archivo {exportFormat || "reporte"}...</p>
             <div className="export-steps">
               <div className={`export-step ${exportState === "generating" ? "export-step--active" : exportState !== "generating" ? "export-step--done" : ""}`}>
                 <span className="export-step__icon">{exportState === "generating" ? "..." : "✓"}</span>
-                <span className="export-step__label">Generando grafico de tendencia</span>
+                <span className="export-step__label">Generando grafico y logo</span>
               </div>
               <div className={`export-step ${exportState === "building" ? "export-step--active" : exportState === "downloading" ? "export-step--done" : ""}`}>
                 <span className="export-step__icon">{exportState === "building" ? "..." : exportState === "downloading" ? "✓" : ""}</span>
-                <span className="export-step__label">Armando archivo Excel</span>
+                <span className="export-step__label">Armando archivo {exportFormat || "reporte"}</span>
               </div>
               <div className={`export-step ${exportState === "downloading" ? "export-step--active" : ""}`}>
                 <span className="export-step__icon">{exportState === "downloading" ? "..." : ""}</span>

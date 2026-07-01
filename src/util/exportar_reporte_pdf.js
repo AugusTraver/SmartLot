@@ -7,14 +7,20 @@ const obtenerFechaArchivo = () => {
   return new Date().toISOString().split("T")[0];
 };
 
-const agregarTitulo = (doc, titulo) => {
+const agregarTitulo = (doc, titulo, logoBase64) => {
   doc.setFillColor(79, 70, 229);
   doc.rect(0, 0, 210, 25, "F");
+
+  if (logoBase64) {
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(12, 4, 34, 17, 2, 2, "F");
+    doc.addImage(logoBase64, "PNG", 14, 6, 30, 12);
+  }
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text(titulo, 105, 16, { align: "center" });
+  doc.text(titulo, logoBase64 ? 118 : 105, 16, { align: "center" });
 };
 
 const agregarFooter = (doc) => {
@@ -42,10 +48,14 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     ...item,
     ocupacion: item.ocupacion ?? (item.valor != null ? `${item.valor}%` : undefined),
   }));
+  const etiquetaDimension = reporte.etiquetaDimension ?? metricasBase.etiquetaDimension ?? "Periodo";
+  const granularidadLabel = reporte.granularidadLabel ?? metricasBase.granularidadLabel ?? "Periodo";
+  const periodo = reporte.periodo ?? metricasBase.periodo ?? "-";
   const graficoBase64 = reporte.graficoBase64 ?? opciones.graficoBase64 ?? opciones.graficoTendencia ?? null;
+  const logoBase64 = reporte.logoBase64 ?? opciones.logoBase64 ?? null;
   const doc = new jsPDF("p", "mm", "a4");
 
-  agregarTitulo(doc, "Reporte de SmartLot");
+  agregarTitulo(doc, "Reporte de SmartLot", logoBase64);
 
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(10);
@@ -63,6 +73,8 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
       ["Usuarios activos", metricas.usuariosActivos ?? "-"],
       ["Tiempo promedio", metricas.tiempoPromedio ?? "-"],
       ["Hora pico", metricas.horaPico ?? "-"],
+      ["Periodo", periodo],
+      ["Vista", granularidadLabel],
       ["Reservas totales", metricas.reservasTotales ?? "-"],
     ],
     styles: {
@@ -96,13 +108,14 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("Tendencia semanal", 14, posicionY);
+  doc.text(`Tendencia por ${granularidadLabel.toLowerCase()}`, 14, posicionY);
 
   autoTable(doc, {
     startY: posicionY + 5,
-    head: [["Día", "Ocupación"]],
+    head: [[etiquetaDimension, "Reservas", "Ocupación"]],
     body: tendenciaSemanal.map((item) => [
       item.dia ?? "-",
+      item.count ?? "-",
       item.ocupacion ?? "-",
     ]),
     styles: {

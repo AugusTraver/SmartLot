@@ -86,6 +86,24 @@ const obtenerFechaActual = () => {
   });
 };
 
+const insertarLogoSmartLot = (workbook, worksheet, logoBase64) => {
+  if (!logoBase64) return;
+
+  const logoId = workbook.addImage({
+    base64: logoBase64,
+    extension: "png",
+  });
+
+  worksheet.addImage(logoId, {
+    tl: { col: 3, row: 0 },
+    ext: { width: 210, height: 62 },
+  });
+
+  for (let fila = 1; fila <= 3; fila += 1) {
+    worksheet.getRow(fila).height = Math.max(worksheet.getRow(fila).height || 15, 22);
+  }
+};
+
 const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia) => {
   const tituloGrafico = worksheet.getCell("D4");
 
@@ -135,7 +153,10 @@ const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia) => {
 
 export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   const workbook = new ExcelJS.Workbook();
-  const { graficoTendencia } = opciones;
+  const { graficoTendencia, logoBase64 } = opciones;
+  const granularidadLabel = datosReporte.granularidadLabel ?? "Periodo";
+  const etiquetaDimension = datosReporte.etiquetaDimension ?? "Periodo";
+  const periodo = datosReporte.periodo ?? "-";
 
   workbook.creator = "SmartLot";
   workbook.created = new Date();
@@ -152,6 +173,7 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
 
   hojaResumen.getCell("A2").value = `Generado el: ${obtenerFechaActual()}`;
   hojaResumen.getCell("A2").font = { italic: true };
+  insertarLogoSmartLot(workbook, hojaResumen, logoBase64);
 
   hojaResumen.addRow([]);
 
@@ -162,6 +184,9 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   hojaResumen.addRow(["Usuarios activos", datosReporte.usuariosActivos]);
   hojaResumen.addRow(["Tiempo promedio", datosReporte.tiempoPromedio]);
   hojaResumen.addRow(["Horas pico", datosReporte.horasPico]);
+  hojaResumen.addRow(["Periodo", periodo]);
+  hojaResumen.addRow(["Vista", granularidadLabel]);
+  hojaResumen.addRow(["Reservas totales", datosReporte.reservasTotales ?? "-"]);
 
   hojaResumen.autoFilter = {
     from: "A4",
@@ -184,34 +209,39 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   // HOJA 2: TENDENCIA SEMANAL
   // =========================
 
-  const hojaTendencia = workbook.addWorksheet("Tendencia semanal");
+  const hojaTendencia = workbook.addWorksheet(`Tendencia ${granularidadLabel}`);
 
-  hojaTendencia.mergeCells("A1:B1");
-  hojaTendencia.getCell("A1").value = "Tendencia semanal de ocupación";
+  hojaTendencia.mergeCells("A1:C1");
+  hojaTendencia.getCell("A1").value = `Tendencia por ${granularidadLabel.toLowerCase()} - ${periodo}`;
   aplicarEstiloTitulo(hojaTendencia.getCell("A1"));
 
   hojaTendencia.getCell("A2").value = `Generado el: ${obtenerFechaActual()}`;
   hojaTendencia.getCell("A2").font = { italic: true };
+  insertarLogoSmartLot(workbook, hojaTendencia, logoBase64);
 
   hojaTendencia.addRow([]);
 
-  const headerTendencia = hojaTendencia.addRow(["Día", "Ocupación (%)"]);
+  const headerTendencia = hojaTendencia.addRow([etiquetaDimension, "Reservas", "Ocupación (%)"]);
   aplicarEstiloHeader(headerTendencia);
 
   datosReporte.tendencia.forEach((item) => {
-    hojaTendencia.addRow([item.dia, item.valor]);
+    hojaTendencia.addRow([item.dia, item.count ?? 0, item.valor]);
   });
 
   hojaTendencia.autoFilter = {
     from: "A4",
-    to: "B4",
+    to: "C4",
   };
 
   aplicarBordes(hojaTendencia);
   ajustarColumnas(hojaTendencia);
 
-  hojaTendencia.getColumn(2).numFmt = '0"%"';
+  hojaTendencia.getColumn(3).numFmt = '0"%"';
   hojaTendencia.getColumn(2).alignment = {
+    horizontal: "center",
+    vertical: "middle",
+  };
+  hojaTendencia.getColumn(3).alignment = {
     horizontal: "center",
     vertical: "middle",
   };
