@@ -41,6 +41,148 @@ const obtenerListado = (datos) => {
 };
 
 const obtenerIdUsuario = (item) => item?.id_usuario ?? item?.idUsuario ?? item?.usuario_id ?? item?.id;
+const TIME_ZONE_AR = "America/Argentina/Buenos_Aires";
+
+const tieneZonaHoraria = (valor) => /[zZ]$|[+-]\d{2}:?\d{2}$/.test(valor);
+
+const obtenerCampo = (item, claves) => {
+  for (const clave of claves) {
+    const valor = item?.[clave];
+    if (valor !== undefined && valor !== null && valor !== "") return valor;
+  }
+  return "";
+};
+
+const obtenerFechaHoraReserva = (reserva, clavesFechaCompleta, clavesHora) => {
+  const fechaCompleta = obtenerCampo(reserva, clavesFechaCompleta);
+  if (fechaCompleta) return fechaCompleta;
+
+  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"]);
+  if (!fecha) return "";
+
+  const hora = obtenerCampo(reserva, clavesHora);
+  if (hora) return `${String(fecha).split(/[T ]/)[0]}T${String(hora)}`;
+
+  return fecha;
+};
+
+const obtenerFechaEntradaReserva = (reserva) =>
+  obtenerFechaHoraReserva(
+    reserva,
+    ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"],
+    ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"]
+  );
+
+const obtenerFechaSalidaReserva = (reserva) =>
+  obtenerFechaHoraReserva(
+    reserva,
+    ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"],
+    ["hora_salida", "horaSalida", "hora_fin", "horaFin"]
+  );
+
+const formateadorHoraLocal = new Intl.DateTimeFormat("es-AR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  hourCycle: "h23",
+  timeZone: TIME_ZONE_AR,
+});
+
+const formateadorFechaLocal = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: TIME_ZONE_AR,
+});
+
+const extraerMinutosLocales = (fechaHora) => {
+  if (!fechaHora) return null;
+  const valor = String(fechaHora);
+
+  if (/^\d{1,2}:\d{2}/.test(valor)) {
+    const [hora, minutos] = valor.split(":").map(Number);
+    return hora * 60 + minutos;
+  }
+
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      const [hora, minutos] = formateadorHoraLocal.format(fecha).split(":").map(Number);
+      return hora * 60 + minutos;
+    }
+  }
+
+  const match = valor.match(/[T ](\d{1,2}):(\d{2})/);
+  if (!match) return null;
+
+  return Number(match[1]) * 60 + Number(match[2]);
+};
+
+const parsearFechaHora = (fechaHora) => {
+  if (!fechaHora) return null;
+  const valor = String(fechaHora);
+  if (/^\d{1,2}:\d{2}/.test(valor)) return null;
+  const fecha = new Date(tieneZonaHoraria(valor) ? valor : valor.replace(" ", "T"));
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const obtenerFechaLocalISO = (fechaHora) => {
+  if (!fechaHora) return "";
+  const valor = String(fechaHora);
+
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    return Number.isNaN(fecha.getTime()) ? "" : formateadorFechaLocal.format(fecha);
+  }
+
+  return valor.split(/[T ]/)[0] || "";
+};
+
+const obtenerDiaSemanaLocal = (fechaHora) => {
+  const fechaIso = obtenerFechaLocalISO(fechaHora);
+  if (!fechaIso) return null;
+  const fecha = new Date(`${fechaIso}T00:00:00`);
+  return Number.isNaN(fecha.getTime()) ? null : fecha.getDay();
+};
+
+const calcularHorasEntre = (entrada, salida) => {
+  const fechaEntrada = parsearFechaHora(entrada);
+  const fechaSalida = parsearFechaHora(salida);
+
+  if (fechaEntrada && fechaSalida) {
+    const diff = (fechaSalida - fechaEntrada) / (1000 * 60 * 60);
+    return diff > 0 ? diff : null;
+  }
+
+  const minutosEntrada = extraerMinutosLocales(entrada);
+  const minutosSalida = extraerMinutosLocales(salida);
+  if (minutosEntrada === null || minutosSalida === null) return null;
+
+  const duracion = minutosSalida > minutosEntrada
+    ? minutosSalida - minutosEntrada
+    : (24 * 60 - minutosEntrada) + minutosSalida;
+
+  return duracion > 0 ? duracion / 60 : null;
+};
+
+const sumarOcupacionPorHora = (acumulador, minutosEntrada, minutosSalida) => {
+  let inicio = minutosEntrada;
+  let fin = minutosSalida;
+  if (fin <= inicio) fin += 24 * 60;
+
+  for (let hora = 0; hora < 24; hora++) {
+    const inicioHora = hora * 60;
+    const finHora = inicioHora + 60;
+    const solapamiento = Math.max(0, Math.min(fin, finHora) - Math.max(inicio, inicioHora));
+    const solapamientoDiaSiguiente = Math.max(0, Math.min(fin, finHora + 24 * 60) - Math.max(inicio, inicioHora + 24 * 60));
+    acumulador[hora] += solapamiento + solapamientoDiaSiguiente;
+  }
+};
+
+const formatearRangoHoras = (horaInicio, duracionHoras = 2) => {
+  const horaFin = (horaInicio + duracionHoras) % 24;
+  return `${String(horaInicio).padStart(2, "0")}:00 - ${String(horaFin).padStart(2, "0")}:00`;
+};
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -422,50 +564,33 @@ export default function AdminReportesAnalisis() {
     let totalHoras = 0;
     let count = 0;
     reservas.forEach((r) => {
-      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
-      const salida = r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin;
-      if (entrada && salida) {
-        const diff = (new Date(salida) - new Date(entrada)) / (1000 * 60 * 60);
-        if (diff > 0 && diff < 24) {
-          totalHoras += diff;
-          count++;
-        }
+      const entrada = obtenerFechaEntradaReserva(r);
+      const salida = obtenerFechaSalidaReserva(r);
+      const diff = calcularHorasEntre(entrada, salida);
+      if (diff !== null && diff < 24) {
+        totalHoras += diff;
+        count++;
       }
     });
     const tiempoPromedio = count > 0 ? `${(totalHoras / count).toFixed(1)} hrs` : "—";
 
-    const extraerHora = (str) => {
-      if (!str) return -1;
-      const m = String(str).match(/(\d{2}):\d{2}/);
-      return m ? parseInt(m[1], 10) : new Date(str).getHours();
-    };
-
-    const horaOcupada = {};
+    const horaOcupada = Array(24).fill(0);
     reservas.forEach((r) => {
-      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
-      const salida = r.fecha_salida ?? r.fechaSalida ?? r.fecha_fin;
-      if (entrada && salida) {
-        const hInicio = extraerHora(entrada);
-        const hFin = extraerHora(salida);
-        if (hInicio >= 0 && hFin >= 0 && hInicio !== hFin) {
-          if (hFin > hInicio) {
-            for (let h = hInicio; h < hFin; h++) {
-              horaOcupada[h] = (horaOcupada[h] || 0) + 1;
-            }
-          } else {
-            for (let h = hInicio; h < 24; h++) horaOcupada[h] = (horaOcupada[h] || 0) + 1;
-            for (let h = 0; h < hFin; h++) horaOcupada[h] = (horaOcupada[h] || 0) + 1;
-          }
-        }
+      const entrada = obtenerFechaEntradaReserva(r);
+      const salida = obtenerFechaSalidaReserva(r);
+      const minutosEntrada = extraerMinutosLocales(entrada);
+      const minutosSalida = extraerMinutosLocales(salida);
+      if (minutosEntrada !== null && minutosSalida !== null && minutosEntrada !== minutosSalida) {
+        sumarOcupacionPorHora(horaOcupada, minutosEntrada, minutosSalida);
       }
     });
     let mejorRango = "";
     let mejorSuma = 0;
-    for (let h = 0; h <= 22; h++) {
-      const suma = (horaOcupada[h] || 0) + (horaOcupada[h + 1] || 0);
+    for (let h = 0; h < 24; h++) {
+      const suma = horaOcupada[h] + horaOcupada[(h + 1) % 24];
       if (suma > mejorSuma) {
         mejorSuma = suma;
-        mejorRango = `${String(h).padStart(2, "0")}:00 - ${String(h + 2).padStart(2, "0")}:00`;
+        mejorRango = formatearRangoHoras(h);
       }
     }
     const horasPico = mejorRango || "—";
@@ -473,10 +598,12 @@ export default function AdminReportesAnalisis() {
     const diasSemana = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
     const diaCount = [0, 0, 0, 0, 0, 0, 0];
     reservas.forEach((r) => {
-      const entrada = r.fecha_entrada ?? r.fechaEntrada ?? r.fecha_inicio;
+      const entrada = obtenerFechaEntradaReserva(r);
       if (entrada) {
-        const dia = new Date(entrada).getDay();
-        diaCount[dia]++;
+        const dia = obtenerDiaSemanaLocal(entrada);
+        if (dia !== null) {
+          diaCount[dia]++;
+        }
       }
     });
     const maxCount = Math.max(...diaCount, 1);
