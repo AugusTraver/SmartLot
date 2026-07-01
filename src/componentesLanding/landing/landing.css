@@ -25,3 +25,8 @@
   line-height: 1.6;
   margin: 0;
 }
+
+.logo-watermark {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}

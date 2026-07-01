@@ -1,10 +1,8 @@
-import { useRef } from 'react';
+import { forwardRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-export default function Hero({ startAnimation }) { 
-  const container = useRef();
-
+const Hero = forwardRef(function Hero({ startAnimation }, ref) {
   useGSAP(() => {
     if (!startAnimation) return;
 
@@ -42,12 +40,12 @@ export default function Hero({ startAnimation }) {
     });
 
   }, { 
-    scope: container,
+    scope: ref,
     dependencies: [startAnimation] 
   });
 
   return (
-    <section ref={container} className="relative pt-32 pb-12 overflow-hidden bg-transparent min-h-[75vh] flex items-center z-10">
+    <section ref={ref} className="relative pt-32 pb-12 overflow-hidden bg-transparent min-h-[75vh] flex items-center z-10">
       <div className="max-w-6xl mx-auto px-6 w-full relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           
@@ -80,4 +78,6 @@ export default function Hero({ startAnimation }) {
       </div>
     </section>
   );
-}
+});
+
+export default Hero;

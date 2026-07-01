@@ -1,10 +1,11 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import Navbar from '../componentesLanding/landing/Navbar';
 import Hero from '../componentesLanding/landing/Hero';
 import '../componentesLanding/landing/landing.css';
 import StatsTicker from '../componentesLanding/landing/StatsTicker';
 import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
 import IntroAnimation from '../componentesLanding/landing/IntroAnimation';
+import LogoWatermark from '../componentesLanding/landing/LogoWatermark';
 
 const BentoGrid = lazy(() => import('../componentesLanding/landing/BentoGrid'));
 const Demo = lazy(() => import('../componentesLanding/landing/Demo'));
@@ -21,6 +22,7 @@ function SkeletonFallback() {
 export default function LandingPage() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
   const [startHero, setStartHero] = useState(false);
+  const heroRef = useRef(null);
 
   const prefersReducedMotion = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,12 +39,13 @@ export default function LandingPage() {
         <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
           <Navbar />
           <main id="main-content" className="relative z-10">
-            <Hero startAnimation={true} />
+            <Hero ref={heroRef} startAnimation={true} />
             <StatsTicker />
             <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
             <Suspense fallback={<SkeletonFallback />}></Suspense>
           </main>
           <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+          <LogoWatermark heroRef={heroRef} />
         </div>
       </>
     );
@@ -60,12 +63,13 @@ export default function LandingPage() {
       <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
         <Navbar />
         <main id="main-content" className="relative z-10">
-          <Hero startAnimation={startHero} />
+          <Hero ref={heroRef} startAnimation={startHero} />
           <StatsTicker />
           <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
           <Suspense fallback={<SkeletonFallback />}></Suspense>
         </main>
         <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+        <LogoWatermark heroRef={heroRef} />
       </div>
     </>
   );
