@@ -26,6 +26,10 @@ export default function AuthCallback() {
       .then((res) => {
         const usuario = res.data.usuario;
         setUsuario(usuario);
+        if (!usuario) {
+          navigate('/login', { replace: true, state: { error: 'No se recibieron datos del usuario.' } });
+          return;
+        }
         const rutas = {
           1: '/admin_dashboard',
           2: '/empleados_dashboard',

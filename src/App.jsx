@@ -43,6 +43,7 @@ import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { useAuth } from "./contexts/useAuth";
 import { setNavigate } from "./api/navigation";
 
@@ -224,7 +225,9 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <ErrorBoundary>
+        <AppRoutes />
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

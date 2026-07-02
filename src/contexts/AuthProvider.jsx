@@ -9,7 +9,10 @@ export function AuthProvider({ children }) {
   const [roleTransition, setRoleTransition] = useState(false);
 
   useEffect(() => {
-    apiClient.get('/api/usuario/me', { _skipAuthRedirect: true })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    apiClient.get('/api/usuario/me', { _skipAuthRedirect: true, signal: controller.signal })
       .then((res) => {
         const impersonado = obtenerUsuarioImpersonado();
         if (impersonado && haySuperadminBackup()) {
@@ -26,7 +29,9 @@ export function AuthProvider({ children }) {
         eliminarUsuarioImpersonado();
         eliminarSuperadminBackup();
       })
-      .finally(() => setLoading(false));
+      .finally(() => { clearTimeout(timeout); setLoading(false); });
+
+    return () => { controller.abort(); clearTimeout(timeout); };
   }, []);
 
   return (

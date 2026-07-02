@@ -44,9 +44,10 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   const [loadingDistancia, setLoadingDistancia] = useState(false);
   const [distanciaError, setDistanciaError] = useState("");
 
-  const { isLoaded: mapsLoaded } = useJsApiLoader({
+  const { isLoaded: mapsLoaded, loadError: mapsLoadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
   });
+  if (mapsLoadError) console.warn('form_reserva: Google Maps no cargó:', mapsLoadError);
 
   const [formData, setFormData] = useState({
     fecha: "",

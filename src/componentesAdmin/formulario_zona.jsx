@@ -13,10 +13,11 @@ function FormularioZona({
     fieldsValidation = {},
     onCoordenadasChange
 }) {
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
     libraries
   });
+  if (loadError) console.warn('formulario_zona: Google Maps no cargó:', loadError);
 
   const autocompleteRef = useRef(null);
 
