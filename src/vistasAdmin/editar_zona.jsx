@@ -143,7 +143,12 @@ function EditarZona() {
     return [];
   });
 
-  const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
+  const [coordenadas, setCoordenadas] = useState(() => {
+    if (garageData?.latitud || garageData?.longitud) {
+      return { lat: garageData.latitud ?? null, lng: garageData.longitud ?? null, direccion: garageData.ubicacion || '' };
+    }
+    return { lat: null, lng: null, direccion: '' };
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
@@ -184,7 +189,6 @@ function EditarZona() {
     ],
     piso: [
       { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
-      { rule: (v) => v === '' || v === null || v === undefined || (!isNaN(Number(v)) && Number.isInteger(Number(v))), message: 'Debe ser número entero' },
     ],
     ubicacion: [
       { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
@@ -328,6 +332,7 @@ function EditarZona() {
     setError('');
 
     if (!isValid) {
+      touchAll();
       setError('❌ Corrige los errores antes de guardar.');
       return;
     }
@@ -339,42 +344,47 @@ function EditarZona() {
 
     setLoading(true);
 
-    const payload = {
-       id_sede: garageData.id_sede,
-       nombre: nombreGarage.trim(),
-       piso: Number(piso),
-       ubicacion: ubicacion.trim(),
-       latitud: coordenadas.lat,
-       longitud: coordenadas.lng,
-       hora_apertura: horaApertura,
-       hora_cierre: horaCierre,
-       estado: estadoActivo,
-       capacidad: Number(capacidad),
-       capacidad_reservas: Number(capacidadReservas),
-       capacidad_para_no_reservas: Number(capacidadNoReservas),
-       dias: diasSeleccionados
-    };
+    try {
+      const payload = {
+         id_sede: garageData.id_sede,
+         nombre: nombreGarage.trim(),
+         piso: String(piso ?? '').trim(),
+         ubicacion: ubicacion.trim(),
+         latitud: coordenadas.lat ?? null,
+         longitud: coordenadas.lng ?? null,
+         hora_apertura: horaApertura,
+         hora_cierre: horaCierre,
+         estado: estadoActivo,
+         capacidad: Number(capacidad),
+         capacidad_reservas: Number(capacidadReservas),
+         capacidad_para_no_reservas: Number(capacidadNoReservas),
+         dias: diasSeleccionados
+      };
 
-    const id = obtenerIdGarage(garageData);
+      const id = obtenerIdGarage(garageData);
 
-    const response = await GaragesUpdate(id, payload);
-    setLoading(false);
+      const response = await GaragesUpdate(id, payload);
 
-    if (response.respuesta) {
-      // Usamos Swal para dar feedback de éxito antes de redirigir de forma limpia
-      Swal.fire({
-        title: "¡Configuración Actualizada!",
-        text: "Los cambios del garage han sido guardados correctamente.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        zIndex: Z_INDEX.SWAL_DIALOG,
-      });
-      navigate("/gestion_garages", { replace: true });
-    } else {
-      const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
-      const limpio = typeof errorMsg === 'string' ? errorMsg.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim() : 'Error al actualizar el garage.';
-      setError(`❌ Error al actualizar el garage: ${limpio}`);
+      if (response.respuesta) {
+        Swal.fire({
+          title: "¡Configuración Actualizada!",
+          text: "Los cambios del garage han sido guardados correctamente.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          zIndex: Z_INDEX.SWAL_DIALOG,
+        });
+        navigate("/gestion_garages", { replace: true });
+      } else {
+        const errorMsg = response.datos?.message || response.datos || 'Error desconocido al actualizar en la BD.';
+        const limpio = typeof errorMsg === 'string' ? errorMsg.replace(/\b\d{2,}\b/g, "").replace(/\s+/g, " ").trim() : 'Error al actualizar el garage.';
+        setError(`❌ Error al actualizar el garage: ${limpio}`);
+      }
+    } catch (err) {
+      console.error('Error inesperado al guardar:', err);
+      setError('❌ Ocurrió un error inesperado. Revisa la consola para más detalles.');
+    } finally {
+      setLoading(false);
     }
   };
 

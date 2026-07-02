@@ -29,6 +29,7 @@ function showToast(message, icon = 'error') {
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
 
