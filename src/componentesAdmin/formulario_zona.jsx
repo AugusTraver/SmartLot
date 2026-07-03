@@ -152,8 +152,8 @@ function FormularioZona({
                     )}
                 </div>
 
-                <div className="fila-inputs fila-horarios" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                    <div className="input-group input-group-time" style={{ flex: '1 1 140px' }}>
+                <div className="fila-inputs fila-horarios">
+                    <div className="input-group input-group-time">
                         <input
                             ref={aperturaRef}
                             type="time"
@@ -173,7 +173,7 @@ function FormularioZona({
                         )}
                     </div>
 
-                    <div className="input-group input-group-time" style={{ flex: '1 1 140px' }}>
+                    <div className="input-group input-group-time">
                         <input
                             ref={cierreRef}
                             type="time"
@@ -193,20 +193,7 @@ function FormularioZona({
                         )}
                     </div>
 
-                    <label
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            fontSize: '0.85rem',
-                            fontWeight: 500,
-                            color: '#475569',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            paddingBottom: '12px',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
+                    <label className="checkbox-24-horas">
                         <input
                             type="checkbox"
                             checked={es24Horas}
@@ -220,12 +207,6 @@ function FormularioZona({
                                     onChange('hora_apertura', '');
                                     onChange('hora_cierre', '');
                                 }
-                            }}
-                            style={{
-                                width: '16px',
-                                height: '16px',
-                                accentColor: '#2563eb',
-                                cursor: 'pointer',
                             }}
                         />
                         Abierto 24 horas

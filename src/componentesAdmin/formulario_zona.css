@@ -39,7 +39,39 @@
 }
 
 .fila-horarios {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fila-horarios .input-group-time {
+  flex: 1 1 140px;
+  margin-bottom: 0;
+}
+
+.checkbox-24-horas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 54px;
+  padding-top: 18px;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.checkbox-24-horas input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  flex: 0 0 16px;
 }
 
 /* =========================================================================
@@ -299,7 +331,18 @@
 
 @media (max-width: 480px) {
   .fila-horarios {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .fila-horarios .input-group-time,
+  .checkbox-24-horas {
+    width: 100%;
+  }
+
+  .checkbox-24-horas {
+    min-height: auto;
+    padding-top: 0;
   }
 }
 
