@@ -282,6 +282,8 @@ const normalizarGranularidadLabel = (granularidad) => {
   return "Año";
 };
 
+const limitarPorcentaje = (valor) => Math.min(100, Math.max(0, Number(valor) || 0));
+
 const cargarImagenBase64 = async (src) => {
   const response = await fetch(src);
   const blob = await response.blob();
@@ -424,6 +426,9 @@ const generarGraficoTendenciaPng = (tendencia) => {
   const areaAncho = ancho - margen.left - margen.right;
   const areaAlto = alto - margen.top - margen.bottom;
   const maxValor = 100;
+  const yMin = margen.top;
+  const yMax = margen.top + areaAlto;
+  const limitarY = (valor) => Math.min(yMax, Math.max(yMin, valor));
 
   const catmullRom = (p0, p1, p2, p3, t) => {
     const t2 = t * t, t3 = t2 * t;
@@ -449,8 +454,8 @@ const generarGraficoTendenciaPng = (tendencia) => {
 
   const puntos = tendencia.map((item, index) => ({
     x: margen.left + (areaAncho / (tendencia.length - 1)) * index,
-    y: margen.top + areaAlto - (item.valor / maxValor) * areaAlto,
-    valor: item.valor,
+    y: margen.top + areaAlto - (limitarPorcentaje(item.valor) / maxValor) * areaAlto,
+    valor: limitarPorcentaje(item.valor),
     dia: item.dia,
   }));
 
@@ -463,7 +468,10 @@ const generarGraficoTendenciaPng = (tendencia) => {
     const p3 = puntos[Math.min(puntos.length - 1, i + 2)];
     for (let t = 0; t <= segs; t++) {
       const tt = t / segs;
-      curva.push({ x: catmullRom(p0.x, p1.x, p2.x, p3.x, tt), y: catmullRom(p0.y, p1.y, p2.y, p3.y, tt) });
+      curva.push({
+        x: catmullRom(p0.x, p1.x, p2.x, p3.x, tt),
+        y: limitarY(catmullRom(p0.y, p1.y, p2.y, p3.y, tt)),
+      });
     }
   }
 
@@ -928,10 +936,9 @@ export default function AdminReportesAnalisis() {
       setExportState("generating");
       await new Promise((r) => setTimeout(r, 350));
       const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
-      const logoBase64 = await cargarImagenBase64(logoSmartLot);
       setExportState("building");
       await new Promise((r) => setTimeout(r, 300));
-      await exportarReporteExcel(datosReporteVisible, { graficoTendencia, logoBase64 });
+      await exportarReporteExcel(datosReporteVisible, { graficoTendencia });
       setExportState("downloading");
       await new Promise((r) => setTimeout(r, 400));
     } finally {
@@ -1134,6 +1141,7 @@ export default function AdminReportesAnalisis() {
                   />
                   <YAxis
                     domain={[0, 100]}
+                    ticks={[0, 25, 50, 75, 100]}
                     tickFormatter={(v) => `${v}%`}
                     tick={{ fontSize: 13, fill: "#475569", fontWeight: 600, letterSpacing: "0.02em" }}
                     axisLine={false}
@@ -1186,7 +1194,9 @@ export default function AdminReportesAnalisis() {
             <div className="export-steps">
               <div className={`export-step ${exportState === "generating" ? "export-step--active" : exportState !== "generating" ? "export-step--done" : ""}`}>
                 <span className="export-step__icon">{exportState === "generating" ? "..." : "✓"}</span>
-                <span className="export-step__label">Generando grafico y logo</span>
+                <span className="export-step__label">
+                  Generando grafico{exportFormat === "PDF" ? " y logo" : ""}
+                </span>
               </div>
               <div className={`export-step ${exportState === "building" ? "export-step--active" : exportState === "downloading" ? "export-step--done" : ""}`}>
                 <span className="export-step__icon">{exportState === "building" ? "..." : exportState === "downloading" ? "✓" : ""}</span>

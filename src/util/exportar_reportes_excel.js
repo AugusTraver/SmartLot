@@ -6,14 +6,14 @@ import { saveAs } from "file-saver";
 const aplicarEstiloTitulo = (celda) => {
   celda.font = {
     bold: true,
-    size: 18,
+    size: 17,
     color: { argb: "FFFFFFFF" },
   };
 
   celda.fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FF4F46E5" },
+    fgColor: { argb: "FF0F172A" },
   };
 
   celda.alignment = {
@@ -23,6 +23,8 @@ const aplicarEstiloTitulo = (celda) => {
 };
 
 const aplicarEstiloHeader = (fila) => {
+  fila.height = 24;
+
   fila.eachCell((celda) => {
     celda.font = {
       bold: true,
@@ -32,7 +34,7 @@ const aplicarEstiloHeader = (fila) => {
     celda.fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FF111827" },
+      fgColor: { argb: "FF1E293B" },
     };
 
     celda.alignment = {
@@ -41,29 +43,46 @@ const aplicarEstiloHeader = (fila) => {
     };
 
     celda.border = {
-      top: { style: "thin" },
-      left: { style: "thin" },
-      bottom: { style: "thin" },
-      right: { style: "thin" },
+      top: { style: "thin", color: { argb: "FFCBD5E1" } },
+      left: { style: "thin", color: { argb: "FFCBD5E1" } },
+      bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
+      right: { style: "thin", color: { argb: "FFCBD5E1" } },
     };
   });
 };
 
 const aplicarBordes = (worksheet) => {
   worksheet.eachRow((fila) => {
+    fila.height = Math.max(fila.height || 0, 21);
+
     fila.eachCell((celda) => {
       celda.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" },
+        top: { style: "thin", color: { argb: "FFE2E8F0" } },
+        left: { style: "thin", color: { argb: "FFE2E8F0" } },
+        bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+        right: { style: "thin", color: { argb: "FFE2E8F0" } },
       };
 
       celda.alignment = {
+        ...(celda.alignment || {}),
         vertical: "middle",
       };
     });
   });
+};
+
+const aplicarFilasAlternadas = (worksheet, desdeFila) => {
+  for (let rowNumber = desdeFila; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+    if ((rowNumber - desdeFila) % 2 !== 0) continue;
+
+    worksheet.getRow(rowNumber).eachCell((celda) => {
+      celda.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF8FAFC" },
+      };
+    });
+  }
 };
 
 const ajustarColumnas = (worksheet) => {
@@ -86,24 +105,6 @@ const obtenerFechaActual = () => {
   });
 };
 
-const insertarLogoSmartLot = (workbook, worksheet, logoBase64) => {
-  if (!logoBase64) return;
-
-  const logoId = workbook.addImage({
-    base64: logoBase64,
-    extension: "png",
-  });
-
-  worksheet.addImage(logoId, {
-    tl: { col: 3, row: 0 },
-    ext: { width: 210, height: 62 },
-  });
-
-  for (let fila = 1; fila <= 3; fila += 1) {
-    worksheet.getRow(fila).height = Math.max(worksheet.getRow(fila).height || 15, 22);
-  }
-};
-
 const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia) => {
   const tituloGrafico = worksheet.getCell("D4");
 
@@ -117,17 +118,17 @@ const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia) => {
   tituloGrafico.fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FF111827" },
+    fgColor: { argb: "FF1E293B" },
   };
   tituloGrafico.alignment = {
     vertical: "middle",
     horizontal: "center",
   };
   tituloGrafico.border = {
-    top: { style: "thin" },
-    left: { style: "thin" },
-    bottom: { style: "thin" },
-    right: { style: "thin" },
+    top: { style: "thin", color: { argb: "FFCBD5E1" } },
+    left: { style: "thin", color: { argb: "FFCBD5E1" } },
+    bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
+    right: { style: "thin", color: { argb: "FFCBD5E1" } },
   };
 
   const imagenId = workbook.addImage({
@@ -153,7 +154,7 @@ const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia) => {
 
 export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   const workbook = new ExcelJS.Workbook();
-  const { graficoTendencia, logoBase64 } = opciones;
+  const { graficoTendencia } = opciones;
   const granularidadLabel = datosReporte.granularidadLabel ?? "Periodo";
   const etiquetaDimension = datosReporte.etiquetaDimension ?? "Periodo";
   const periodo = datosReporte.periodo ?? "-";
@@ -166,14 +167,17 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   // =========================
 
   const hojaResumen = workbook.addWorksheet("Resumen");
+  hojaResumen.properties.tabColor = { argb: "FF2563EB" };
+  hojaResumen.views = [{ state: "frozen", ySplit: 4 }];
 
-  hojaResumen.mergeCells("A1:B1");
+  hojaResumen.mergeCells("A1:J1");
   hojaResumen.getCell("A1").value = "Reporte de datos - SmartLot";
   aplicarEstiloTitulo(hojaResumen.getCell("A1"));
+  hojaResumen.getRow(1).height = 28;
 
   hojaResumen.getCell("A2").value = `Generado el: ${obtenerFechaActual()}`;
-  hojaResumen.getCell("A2").font = { italic: true };
-  insertarLogoSmartLot(workbook, hojaResumen, logoBase64);
+  hojaResumen.getCell("A2").font = { italic: true, color: { argb: "FF475569" } };
+  hojaResumen.getCell("A2").alignment = { vertical: "middle" };
 
   hojaResumen.addRow([]);
 
@@ -193,6 +197,7 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
     to: "B4",
   };
 
+  aplicarFilasAlternadas(hojaResumen, 5);
   aplicarBordes(hojaResumen);
   ajustarColumnas(hojaResumen);
 
@@ -210,14 +215,17 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
   // =========================
 
   const hojaTendencia = workbook.addWorksheet(`Tendencia ${granularidadLabel}`);
+  hojaTendencia.properties.tabColor = { argb: "FF0F766E" };
+  hojaTendencia.views = [{ state: "frozen", ySplit: 4 }];
 
-  hojaTendencia.mergeCells("A1:C1");
+  hojaTendencia.mergeCells("A1:J1");
   hojaTendencia.getCell("A1").value = `Tendencia por ${granularidadLabel.toLowerCase()} - ${periodo}`;
   aplicarEstiloTitulo(hojaTendencia.getCell("A1"));
+  hojaTendencia.getRow(1).height = 28;
 
   hojaTendencia.getCell("A2").value = `Generado el: ${obtenerFechaActual()}`;
-  hojaTendencia.getCell("A2").font = { italic: true };
-  insertarLogoSmartLot(workbook, hojaTendencia, logoBase64);
+  hojaTendencia.getCell("A2").font = { italic: true, color: { argb: "FF475569" } };
+  hojaTendencia.getCell("A2").alignment = { vertical: "middle" };
 
   hojaTendencia.addRow([]);
 
@@ -233,6 +241,7 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
     to: "C4",
   };
 
+  aplicarFilasAlternadas(hojaTendencia, 5);
   aplicarBordes(hojaTendencia);
   ajustarColumnas(hojaTendencia);
 
