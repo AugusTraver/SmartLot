@@ -1,7 +1,7 @@
-import { Component } from 'react';
+import { Component, Fragment } from 'react';
 
 export default class ErrorBoundary extends Component {
-  state = { hasError: false, error: null };
+  state = { hasError: false, error: null, retryKey: 0 };
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
@@ -12,7 +12,11 @@ export default class ErrorBoundary extends Component {
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState(prev => ({ hasError: false, error: null, retryKey: prev.retryKey + 1 }));
+  };
+
+  handleGoHome = () => {
+    window.location.href = '/';
   };
 
   render() {
@@ -27,16 +31,24 @@ export default class ErrorBoundary extends Component {
           <p style={{ color: '#64748b', marginBottom: '1.5rem', maxWidth: '400px' }}>
             Ocurrió un error inesperado. Esto puede deberse a un problema de conexión o a un error temporal.
           </p>
-          <button onClick={this.handleRetry} style={{
-            padding: '0.65rem 1.5rem', background: '#2563eb', color: '#fff',
-            border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem'
-          }}>
-            Reintentar
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button onClick={this.handleRetry} style={{
+              padding: '0.65rem 1.5rem', background: '#2563eb', color: '#fff',
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem'
+            }}>
+              Reintentar
+            </button>
+            <button onClick={this.handleGoHome} style={{
+              padding: '0.65rem 1.5rem', background: '#64748b', color: '#fff',
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem'
+            }}>
+              Volver al inicio
+            </button>
+          </div>
         </div>
       );
     }
 
-    return this.props.children;
+    return <Fragment key={this.state.retryKey}>{this.props.children}</Fragment>;
   }
 }
