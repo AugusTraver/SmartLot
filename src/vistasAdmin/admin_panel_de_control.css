@@ -503,6 +503,14 @@ margin-bottom: -1%;
   border-bottom: none;
 }
 
+.conflict-row--resolving {
+  pointer-events: none;
+}
+
+.conflict-row--resolving td {
+  animation: conflictRowFadeOut 0.52s ease forwards;
+}
+
 .conflicts-table td strong {
   display: block;
   margin-bottom: 3px;
@@ -1256,6 +1264,17 @@ margin-bottom: -1%;
 @keyframes urgentPulse {
   0%, 100% { opacity: 0.5; box-shadow: 0 0 4px rgba(220, 38, 38, 0.15); }
   50% { opacity: 1; box-shadow: 0 0 12px rgba(220, 38, 38, 0.35); }
+}
+
+@keyframes conflictRowFadeOut {
+  from {
+    opacity: 1;
+    background: #f0fdf4;
+  }
+  to {
+    opacity: 0;
+    background: #ffffff;
+  }
 }
 
 /* ─── Compact Mode ─── */

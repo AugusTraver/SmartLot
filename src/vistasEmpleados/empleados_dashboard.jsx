@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircleQuestion, X } from "lucide-react";
 import "./empleados_dashboard.css";
@@ -312,6 +312,7 @@ function EmpleadoDashboard() {
   const [prioridadReporte, setPrioridadReporte] = useState("Media");
   const [enviandoReporte, setEnviandoReporte] = useState(false);
   const [mensajeReporte, setMensajeReporte] = useState(null);
+  const reporteSuccessTimeoutRef = useRef(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -448,6 +449,14 @@ function EmpleadoDashboard() {
     return () => { montado = false; };
   }, [garageSeleccionadoId, fechaSeleccionada]);
 
+  useEffect(() => {
+    return () => {
+      if (reporteSuccessTimeoutRef.current) {
+        clearTimeout(reporteSuccessTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const vehiculosPorId = useMemo(
     () => new Map(vehiculos.map((vehiculo) => [Number(obtenerIdVehiculo(vehiculo)), vehiculo])),
     [vehiculos]
@@ -582,12 +591,20 @@ function EmpleadoDashboard() {
   };
 
   const abrirModalReporte = () => {
+    if (reporteSuccessTimeoutRef.current) {
+      clearTimeout(reporteSuccessTimeoutRef.current);
+      reporteSuccessTimeoutRef.current = null;
+    }
     setMensajeReporte(null);
     setModalReporteOpen(true);
   };
 
   const cerrarModalReporte = () => {
     if (enviandoReporte) return;
+    if (reporteSuccessTimeoutRef.current) {
+      clearTimeout(reporteSuccessTimeoutRef.current);
+      reporteSuccessTimeoutRef.current = null;
+    }
     setModalReporteOpen(false);
     setDescripcionReporte("");
     setPrioridadReporte("Media");
@@ -624,10 +641,14 @@ function EmpleadoDashboard() {
     });
 
     if (resultado.respuesta) {
-      setModalReporteOpen(false);
       setDescripcionReporte("");
       setPrioridadReporte("Media");
-      setMensajeReporte(null);
+      setMensajeReporte({ tipo: "success", texto: "Mensaje enviado correctamente." });
+      reporteSuccessTimeoutRef.current = setTimeout(() => {
+        setModalReporteOpen(false);
+        setMensajeReporte(null);
+        reporteSuccessTimeoutRef.current = null;
+      }, 1600);
     } else {
       setMensajeReporte({ tipo: "error", texto: resultado.datos?.message || "No se pudo enviar el reporte." });
     }
@@ -760,7 +781,7 @@ function EmpleadoDashboard() {
                 </div>
               )}
 
-              <button type="submit" className="empleado-reporte-submit" disabled={enviandoReporte}>
+              <button type="submit" className="empleado-reporte-submit" disabled={enviandoReporte || mensajeReporte?.tipo === "success"}>
                 {enviandoReporte ? "Enviando..." : "Enviar reporte"}
               </button>
             </form>

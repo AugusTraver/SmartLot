@@ -186,6 +186,7 @@ export default function AdminPanelControl() {
   const [toast, setToast] = useState(null);
   const [compactMode, setCompactMode] = useState(true);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+  const [conflictosResolviendo, setConflictosResolviendo] = useState(() => new Set());
   const toastTimeoutRef = useRef(null);
   const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
   const [isStale, setIsStale] = useState(false);
@@ -410,13 +411,40 @@ export default function AdminPanelControl() {
 
     const resultado = await ConflictosUpdate(conflicto.id, payload);
     if (resultado.respuesta) {
-      setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
-      mostrarToast(`Estado cambiado a "${estado}"`, async () => {
-        const revert = await ConflictosUpdate(conflicto.id, { ...payload, estado: estadoAnterior });
-        if (revert.respuesta) {
-          setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? revert.datos : item));
+      if (estado === "Resuelto") {
+        const resultadoEliminar = await ConflictosDelete(conflicto.id);
+        if (resultadoEliminar.respuesta) {
+          setConflictosResolviendo((prev) => new Set(prev).add(conflicto.id));
+          await new Promise((resolve) => setTimeout(resolve, 520));
+          setConflictos((prev) => prev.filter((item) => item.id !== conflicto.id));
+          setConflictosResolviendo((prev) => {
+            const next = new Set(prev);
+            next.delete(conflicto.id);
+            return next;
+          });
+          await cargarPapelera({ force: true });
+          mostrarToast("Conflicto resuelto y enviado a papelera", async () => {
+            const restaurado = await ConflictosRestore(conflicto.id);
+            if (!restaurado.respuesta) return;
+
+            const revert = await ConflictosUpdate(conflicto.id, { ...payload, estado: estadoAnterior });
+            const conflictoRestaurado = revert.respuesta ? revert.datos : restaurado.datos;
+            setPapelera((prev) => prev.filter((item) => item.id !== conflicto.id));
+            setConflictos((prev) => [conflictoRestaurado, ...prev.filter((item) => item.id !== conflicto.id)]);
+            await cargarPapelera({ force: true });
+          });
+        } else {
+          setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
         }
-      });
+      } else {
+        setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
+        mostrarToast(`Estado cambiado a "${estado}"`, async () => {
+          const revert = await ConflictosUpdate(conflicto.id, { ...payload, estado: estadoAnterior });
+          if (revert.respuesta) {
+            setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? revert.datos : item));
+          }
+        });
+      }
     }
     setActualizandoId(null);
   };
@@ -707,9 +735,16 @@ export default function AdminPanelControl() {
                     : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
                   const deshabilitado = actualizandoId === conflicto.id;
                   const esUrgente = conflicto.prioridad === "Alta" && conflicto.estado !== "Resuelto";
+                  const resolviendo = conflictosResolviendo.has(conflicto.id);
 
                   return (
-                    <tr key={conflicto.id} className={esUrgente ? "conflict-row--urgent" : ""}>
+                    <tr
+                      key={conflicto.id}
+                      className={[
+                        esUrgente ? "conflict-row--urgent" : "",
+                        resolviendo ? "conflict-row--resolving" : "",
+                      ].filter(Boolean).join(" ")}
+                    >
                       <td>
                         <strong>{nombreUsuario}</strong>
                         {usuario?.email && <span>{usuario.email}</span>}
@@ -725,7 +760,7 @@ export default function AdminPanelControl() {
                           className={`conflict-status-select conflict-status-select--${estadoClase(conflicto.estado)}`}
                           value={conflicto.estado || "Pendiente"}
                           onChange={(event) => handleCambiarEstado(conflicto, event.target.value)}
-                          disabled={deshabilitado}
+                          disabled={deshabilitado || resolviendo}
                         >
                           <option value="Pendiente">Pendiente</option>
                           <option value="En Proceso">En Proceso</option>
@@ -742,7 +777,7 @@ export default function AdminPanelControl() {
                         <button
                           className="conflict-delete-btn"
                           onClick={() => handleEliminar(conflicto.id)}
-                          disabled={deshabilitado}
+                          disabled={deshabilitado || resolviendo}
                           aria-label="Eliminar conflicto"
                         >
                           {conflicto.estado === "Resuelto" ? <CheckCircle2 size={15} /> : <Trash2 size={15} />}
