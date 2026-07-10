@@ -1136,11 +1136,7 @@ export default function AdminReportesAnalisis() {
                   />
                   <YAxis
                     domain={[0, 100]}
-<<<<<<< HEAD
                     ticks={[0, 25, 50, 75, 100]}
-=======
-                    allowDataOverflow={true}
->>>>>>> landing-refactor
                     tickFormatter={(v) => `${v}%`}
                     tick={{ fontSize: 13, fill: "#475569", fontWeight: 600, letterSpacing: "0.02em" }}
                     axisLine={false}

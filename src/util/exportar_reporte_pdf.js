@@ -7,9 +7,6 @@ const obtenerFechaArchivo = () => {
   return new Date().toISOString().split("T")[0];
 };
 
-<<<<<<< HEAD
-const agregarTitulo = (doc, titulo, logoBase64) => {
-=======
 const obtenerFechaLegible = () => {
   return new Date().toLocaleString("es-AR", {
     dateStyle: "short",
@@ -18,7 +15,6 @@ const obtenerFechaLegible = () => {
 };
 
 const agregarTitulo = (doc, titulo) => {
->>>>>>> landing-refactor
   doc.setFillColor(79, 70, 229);
   doc.rect(0, 0, 210, 25, "F");
 
@@ -66,16 +62,12 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
   const logoBase64 = reporte.logoBase64 ?? opciones.logoBase64 ?? null;
   const doc = new jsPDF("p", "mm", "a4");
 
-<<<<<<< HEAD
-  agregarTitulo(doc, "Reporte de SmartLot", logoBase64);
-=======
   agregarTitulo(doc, "Reporte de Datos");
 
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(`Fecha de generación: ${obtenerFechaLegible()}`, 14, 35);
->>>>>>> landing-refactor
 
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(13);
@@ -90,12 +82,6 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
       ["Usuarios activos", metricas.usuariosActivos ?? "-"],
       ["Tiempo promedio", metricas.tiempoPromedio ?? "-"],
       ["Hora pico", metricas.horaPico ?? "-"],
-<<<<<<< HEAD
-      ["Periodo", periodo],
-      ["Vista", granularidadLabel],
-      ["Reservas totales", metricas.reservasTotales ?? "-"],
-=======
->>>>>>> landing-refactor
     ],
     styles: {
       halign: "center",
@@ -138,12 +124,8 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
 
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
-<<<<<<< HEAD
-  doc.text(`Tendencia por ${granularidadLabel.toLowerCase()}`, 14, posicionY);
-=======
   doc.setTextColor(30, 30, 30);
   doc.text("Tendencia semanal", 14, posicionY);
->>>>>>> landing-refactor
 
   autoTable(doc, {
     startY: posicionY + 5,
