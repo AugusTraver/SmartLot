@@ -35,7 +35,7 @@ const reservasSimuladas = [
     conductor: "Martina Lopez",
     horaReserva: "08:30",
     plaza: "A-04",
-    vehiculo: "Toyota Corolla gris",
+    vehiculo: "Toyota Corolla",
     patenteInterna: "AB123CD",
     estado: "Pendiente",
   },
@@ -44,7 +44,7 @@ const reservasSimuladas = [
     conductor: "Nicolas Farias",
     horaReserva: "09:15",
     plaza: "B-11",
-    vehiculo: "Ford Focus azul",
+    vehiculo: "Ford Focus",
     patenteInterna: "AC 456 EF",
     estado: "Pendiente",
   },
@@ -53,7 +53,7 @@ const reservasSimuladas = [
     conductor: "Lucia Benitez",
     horaReserva: "07:50",
     plaza: "C-02",
-    vehiculo: "Jeep Renegade blanca",
+    vehiculo: "Jeep Renegade",
     patenteInterna: "AD-789-GH",
     estado: "Dentro",
     horaEntrada: "07:54",
@@ -63,7 +63,7 @@ const reservasSimuladas = [
     conductor: "Santiago Vera",
     horaReserva: "07:10",
     plaza: "A-09",
-    vehiculo: "Volkswagen Taos negra",
+    vehiculo: "Volkswagen Taos",
     patenteInterna: "AE321JK",
     estado: "Dentro",
     horaEntrada: "07:18",
@@ -73,7 +73,7 @@ const reservasSimuladas = [
     conductor: "Paula Sosa",
     horaReserva: "06:40",
     plaza: "D-01",
-    vehiculo: "Renault Sandero rojo",
+    vehiculo: "Renault Sandero",
     patenteInterna: "AF654LM",
     estado: "Finalizado",
     horaEntrada: "06:45",
@@ -84,7 +84,7 @@ const reservasSimuladas = [
     conductor: "Diego Morales",
     horaReserva: "06:15",
     plaza: "B-05",
-    vehiculo: "Chevrolet Cruze blanco",
+    vehiculo: "Chevrolet Cruze",
     patenteInterna: "AG987NO",
     estado: "Finalizado",
     horaEntrada: "06:23",
@@ -95,7 +95,7 @@ const reservasSimuladas = [
     conductor: "Camila Torres",
     horaReserva: "08:05",
     plaza: "A-12",
-    vehiculo: "Fiat Cronos plata",
+    vehiculo: "Fiat Cronos",
     patenteInterna: "AH111PQ",
     estado: "Dentro",
     horaEntrada: "08:07",
@@ -105,7 +105,7 @@ const reservasSimuladas = [
     conductor: "Rafael Medina",
     horaReserva: "09:40",
     plaza: "C-07",
-    vehiculo: "Peugeot 208 azul",
+    vehiculo: "Peugeot 208",
     patenteInterna: "AI222RS",
     estado: "Pendiente",
   },
@@ -114,7 +114,7 @@ const reservasSimuladas = [
     conductor: "Valentina Castro",
     horaReserva: "07:35",
     plaza: "D-09",
-    vehiculo: "Honda HR-V gris",
+    vehiculo: "Honda HR-V",
     patenteInterna: "AJ333TU",
     estado: "Dentro",
     horaEntrada: "07:39",
@@ -124,7 +124,7 @@ const reservasSimuladas = [
     conductor: "Federico Luna",
     horaReserva: "07:25",
     plaza: "B-02",
-    vehiculo: "Citroen C4 negro",
+    vehiculo: "Citroen C4",
     patenteInterna: "AK444VW",
     estado: "Dentro",
     horaEntrada: "07:32",
@@ -134,7 +134,7 @@ const reservasSimuladas = [
     conductor: "Julieta Romero",
     horaReserva: "08:20",
     plaza: "C-11",
-    vehiculo: "Nissan Kicks blanca",
+    vehiculo: "Nissan Kicks",
     patenteInterna: "AL555XY",
     estado: "Dentro",
     horaEntrada: "08:22",
@@ -144,7 +144,7 @@ const reservasSimuladas = [
     conductor: "Mateo Herrera",
     horaReserva: "08:45",
     plaza: "D-04",
-    vehiculo: "Toyota Yaris rojo",
+    vehiculo: "Toyota Yaris",
     patenteInterna: "AM666ZA",
     estado: "Dentro",
     horaEntrada: "08:49",
@@ -154,7 +154,7 @@ const reservasSimuladas = [
     conductor: "Sofia Aguirre",
     horaReserva: "09:00",
     plaza: "A-16",
-    vehiculo: "Kia Seltos plata",
+    vehiculo: "Kia Seltos",
     patenteInterna: "AN777BC",
     estado: "Dentro",
     horaEntrada: "09:03",
@@ -202,6 +202,7 @@ export default function GaragistaDashboard() {
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [patenteIngresada, setPatenteIngresada] = useState("");
   const [errorVerificacion, setErrorVerificacion] = useState("");
+  const [patenteVerificada, setPatenteVerificada] = useState(false);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
   const fechaActual = useMemo(() => obtenerFechaActual(), []);
@@ -229,15 +230,17 @@ export default function GaragistaDashboard() {
     setReservaSeleccionada(reserva);
     setPatenteIngresada("");
     setErrorVerificacion("");
+    setPatenteVerificada(false);
   };
 
   const cerrarVerificacion = () => {
     setReservaSeleccionada(null);
     setPatenteIngresada("");
     setErrorVerificacion("");
+    setPatenteVerificada(false);
   };
 
-  const confirmarAcceso = (event) => {
+  const verificarPatente = (event) => {
     event.preventDefault();
     if (!reservaSeleccionada) return;
 
@@ -248,6 +251,13 @@ export default function GaragistaDashboard() {
       setErrorVerificacion("La patente ingresada no coincide con la reserva.");
       return;
     }
+
+    setErrorVerificacion("");
+    setPatenteVerificada(true);
+  };
+
+  const confirmarAcceso = () => {
+    if (!reservaSeleccionada || !patenteVerificada) return;
 
     const horaEntrada = obtenerHoraActual();
     setReservas((reservasActuales) =>
@@ -499,11 +509,15 @@ export default function GaragistaDashboard() {
 
       {reservaSeleccionada ? (
         <ModalPortal onClose={cerrarVerificacion} overlayClassName="garagista-modal-overlay">
-          <form className="garagista-modal" onSubmit={confirmarAcceso} onClick={(e) => e.stopPropagation()}>
+          <form className="garagista-modal" onSubmit={verificarPatente} onClick={(e) => e.stopPropagation()}>
             <div className="garagista-modal__header">
               <div>
-                <h2>Verificar patente</h2>
-                <p>Ingresá la patente del vehículo para confirmar el acceso.</p>
+                <h2>{patenteVerificada ? "Confirmar vehículo" : "Verificar patente"}</h2>
+                <p>
+                  {patenteVerificada
+                    ? "Revisá los datos antes de registrar el ingreso."
+                    : "Ingresá la patente del vehículo para confirmar el acceso."}
+                </p>
               </div>
               <button
                 className="garagista-modal__close"
@@ -515,32 +529,51 @@ export default function GaragistaDashboard() {
               </button>
             </div>
 
-            <label className="garagista-modal__field">
-              <span>Patente</span>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Ej: AB123CD"
-                value={patenteIngresada}
-                onChange={(event) => {
-                  setPatenteIngresada(event.target.value);
-                  setErrorVerificacion("");
-                }}
-              />
-            </label>
+            {patenteVerificada ? (
+              <div className="garagista-vehicle-confirmation" role="status">
+                <span className="garagista-vehicle-confirmation__icon">
+                  <CarFront size={25} />
+                </span>
+                <div>
+                  <span>El vehículo que ingresará es</span>
+                  <strong>{reservaSeleccionada.vehiculo}</strong>
+                  <small>Patente {reservaSeleccionada.patenteInterna}</small>
+                </div>
+              </div>
+            ) : (
+              <>
+                <label className="garagista-modal__field">
+                  <span>Patente</span>
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="Ej: AB123CD"
+                    value={patenteIngresada}
+                    onChange={(event) => {
+                      setPatenteIngresada(event.target.value);
+                      setErrorVerificacion("");
+                    }}
+                  />
+                </label>
 
-            {errorVerificacion ? (
-              <p className="garagista-modal__error" role="alert">
-                {errorVerificacion}
-              </p>
-            ) : null}
+                {errorVerificacion ? (
+                  <p className="garagista-modal__error" role="alert">
+                    {errorVerificacion}
+                  </p>
+                ) : null}
+              </>
+            )}
 
             <div className="garagista-modal__actions">
               <button className="garagista-cancel-btn" type="button" onClick={cerrarVerificacion}>
                 Cancelar
               </button>
-              <button className="garagista-primary-btn" type="submit">
-                Confirmar acceso
+              <button
+                className="garagista-primary-btn"
+                type={patenteVerificada ? "button" : "submit"}
+                onClick={patenteVerificada ? confirmarAcceso : undefined}
+              >
+                {patenteVerificada ? "Confirmar" : "Verificar patente"}
               </button>
             </div>
           </form>
