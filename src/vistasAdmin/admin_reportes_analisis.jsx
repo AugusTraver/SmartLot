@@ -459,6 +459,9 @@ const generarGraficoTendenciaPng = (tendencia) => {
     dia: item.dia,
   }));
 
+  const yMin = margen.top;
+  const yMax = margen.top + areaAlto;
+
   const curva = [];
   const segs = 40;
   for (let i = 0; i < puntos.length - 1; i++) {
@@ -468,9 +471,16 @@ const generarGraficoTendenciaPng = (tendencia) => {
     const p3 = puntos[Math.min(puntos.length - 1, i + 2)];
     for (let t = 0; t <= segs; t++) {
       const tt = t / segs;
+<<<<<<< HEAD
       curva.push({
         x: catmullRom(p0.x, p1.x, p2.x, p3.x, tt),
         y: limitarY(catmullRom(p0.y, p1.y, p2.y, p3.y, tt)),
+=======
+      const rawY = catmullRom(p0.y, p1.y, p2.y, p3.y, tt);
+      curva.push({
+        x: catmullRom(p0.x, p1.x, p2.x, p3.x, tt),
+        y: Math.max(yMin, Math.min(yMax, rawY)),
+>>>>>>> landing-refactor
       });
     }
   }
@@ -1141,7 +1151,11 @@ export default function AdminReportesAnalisis() {
                   />
                   <YAxis
                     domain={[0, 100]}
+<<<<<<< HEAD
                     ticks={[0, 25, 50, 75, 100]}
+=======
+                    allowDataOverflow={true}
+>>>>>>> landing-refactor
                     tickFormatter={(v) => `${v}%`}
                     tick={{ fontSize: 13, fill: "#475569", fontWeight: 600, letterSpacing: "0.02em" }}
                     axisLine={false}

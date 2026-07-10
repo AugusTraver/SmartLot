@@ -7,7 +7,18 @@ const obtenerFechaArchivo = () => {
   return new Date().toISOString().split("T")[0];
 };
 
+<<<<<<< HEAD
 const agregarTitulo = (doc, titulo, logoBase64) => {
+=======
+const obtenerFechaLegible = () => {
+  return new Date().toLocaleString("es-AR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+};
+
+const agregarTitulo = (doc, titulo) => {
+>>>>>>> landing-refactor
   doc.setFillColor(79, 70, 229);
   doc.rect(0, 0, 210, 25, "F");
 
@@ -55,60 +66,84 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
   const logoBase64 = reporte.logoBase64 ?? opciones.logoBase64 ?? null;
   const doc = new jsPDF("p", "mm", "a4");
 
+<<<<<<< HEAD
   agregarTitulo(doc, "Reporte de SmartLot", logoBase64);
+=======
+  agregarTitulo(doc, "Reporte de Datos");
+
+  doc.setTextColor(100, 116, 139);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Fecha de generación: ${obtenerFechaLegible()}`, 14, 35);
+>>>>>>> landing-refactor
 
   doc.setTextColor(30, 30, 30);
-  doc.setFontSize(10);
-  doc.text(`Fecha de generación: ${obtenerFechaArchivo()}`, 14, 35);
-
-  doc.setFontSize(12);
+  doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
-  doc.text("Resumen general", 14, 50);
+  doc.text("Resumen general", 14, 48);
 
   autoTable(doc, {
-    startY: 55,
+    startY: 53,
     head: [["Métrica", "Valor"]],
     body: [
       ["Ocupación media", metricas.ocupacionMedia ?? "-"],
       ["Usuarios activos", metricas.usuariosActivos ?? "-"],
       ["Tiempo promedio", metricas.tiempoPromedio ?? "-"],
       ["Hora pico", metricas.horaPico ?? "-"],
+<<<<<<< HEAD
       ["Periodo", periodo],
       ["Vista", granularidadLabel],
       ["Reservas totales", metricas.reservasTotales ?? "-"],
+=======
+>>>>>>> landing-refactor
     ],
     styles: {
       halign: "center",
       valign: "middle",
-      fontSize: 9,
-      cellPadding: 2,
+      fontSize: 10,
+      cellPadding: 4,
     },
     headStyles: {
       fillColor: [17, 24, 39],
       textColor: [255, 255, 255],
+      fontStyle: "bold",
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252],
     },
   });
 
-  let posicionY = doc.lastAutoTable.finalY + 9;
+  let posicionY = doc.lastAutoTable.finalY + 12;
 
   if (graficoBase64) {
-    doc.setFontSize(12);
+    if (posicionY > 200) {
+      doc.addPage();
+      posicionY = 25;
+    }
+
+    doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 30, 30);
     doc.text("Gráfico de tendencia", 14, posicionY);
 
-    doc.addImage(graficoBase64, "PNG", 14, posicionY + 5, 180, 60);
+    doc.addImage(graficoBase64, "PNG", 14, posicionY + 5, 180, 65);
 
-    posicionY += 72;
+    posicionY += 78;
   }
 
-  if (posicionY > 238) {
+  if (posicionY > 220) {
     doc.addPage();
     posicionY = 25;
   }
 
-  doc.setFontSize(12);
+  doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
+<<<<<<< HEAD
   doc.text(`Tendencia por ${granularidadLabel.toLowerCase()}`, 14, posicionY);
+=======
+  doc.setTextColor(30, 30, 30);
+  doc.text("Tendencia semanal", 14, posicionY);
+>>>>>>> landing-refactor
 
   autoTable(doc, {
     startY: posicionY + 5,
@@ -121,16 +156,20 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     styles: {
       halign: "center",
       valign: "middle",
-      fontSize: 9,
-      cellPadding: 2,
+      fontSize: 10,
+      cellPadding: 3,
     },
     headStyles: {
       fillColor: [17, 24, 39],
       textColor: [255, 255, 255],
+      fontStyle: "bold",
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252],
     },
   });
 
   agregarFooter(doc);
 
-  doc.save(`smartlot_reporte_datos_${obtenerFechaArchivo()}.pdf`);
+  doc.save(`reporte_datos_${obtenerFechaArchivo()}.pdf`);
 };
