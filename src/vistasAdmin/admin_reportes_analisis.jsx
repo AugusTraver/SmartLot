@@ -949,8 +949,6 @@ export default function AdminReportesAnalisis() {
       setExportState("building");
       await new Promise((r) => setTimeout(r, 300));
       await exportarReporteExcel(datosReporteVisible, { graficoTendencia });
-      setExportState("downloading");
-      await new Promise((r) => setTimeout(r, 400));
     } finally {
       setExportState(null);
       setExportFormat("");
@@ -970,8 +968,6 @@ export default function AdminReportesAnalisis() {
         graficoTendencia,
         logoBase64,
       });
-      setExportState("downloading");
-      await new Promise((r) => setTimeout(r, 400));
     } finally {
       setExportState(null);
       setExportFormat("");
@@ -1025,7 +1021,7 @@ export default function AdminReportesAnalisis() {
         <div>
           <h1 className="admin-panel__title">Reportes y Analisis</h1>
           <p className="admin-panel__subtitle">
-            Visualiza el rendimiento general y descarga auditorias del sistema.
+            Visualiza el rendimiento general y las auditorias del sistema.
           </p>
         </div>
       </header>
@@ -1042,7 +1038,7 @@ export default function AdminReportesAnalisis() {
                 </div>
                 <div className="report-btn__content">
                   <span className="report-btn__title">Exportar a Excel</span>
-                  <span className="report-btn__subtitle">Descargar reporte en XLSX</span>
+                  <span className="report-btn__subtitle">Reporte en XLSX</span>
                 </div>
               </button>
               <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading || exportState}>
@@ -1051,7 +1047,7 @@ export default function AdminReportesAnalisis() {
                 </div>
                 <div className="report-btn__content">
                   <span className="report-btn__title">Exportar a PDF</span>
-                  <span className="report-btn__subtitle">Descargar reporte en PDF</span>
+                  <span className="report-btn__subtitle">Reporte en PDF</span>
                 </div>
               </button>
             </div>
@@ -1212,13 +1208,9 @@ export default function AdminReportesAnalisis() {
                   Generando grafico{exportFormat === "PDF" ? " y logo" : ""}
                 </span>
               </div>
-              <div className={`export-step ${exportState === "building" ? "export-step--active" : exportState === "downloading" ? "export-step--done" : ""}`}>
-                <span className="export-step__icon">{exportState === "building" ? "..." : exportState === "downloading" ? "✓" : ""}</span>
+              <div className={`export-step ${exportState === "building" ? "export-step--active" : ""}`}>
+                <span className="export-step__icon">{exportState === "building" ? "..." : ""}</span>
                 <span className="export-step__label">Armando archivo {exportFormat || "reporte"}</span>
-              </div>
-              <div className={`export-step ${exportState === "downloading" ? "export-step--active" : ""}`}>
-                <span className="export-step__icon">{exportState === "downloading" ? "..." : ""}</span>
-                <span className="export-step__label">Descargando reporte</span>
               </div>
             </div>
           </div>

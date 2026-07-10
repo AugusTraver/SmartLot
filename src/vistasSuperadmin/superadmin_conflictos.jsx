@@ -113,6 +113,7 @@ export default function SuperadminConflictos() {
   const toastKeyRef = useRef(0);
   const [compactMode, setCompactMode] = useState(true);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+  const [conflictosResolviendo, setConflictosResolviendo] = useState(() => new Set());
   const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
   const [isStale, setIsStale] = useState(false);
 
@@ -121,9 +122,9 @@ export default function SuperadminConflictos() {
     setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
   };
 
-  const cargarPapelera = async () => {
+  const cargarPapelera = async ({ force = false } = {}) => {
     setCargandoPapelera(true);
-    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: true });
+    const papeleraResponse = await ConflictosGetPapelera({ superAdmin: true, force });
     if (papeleraResponse.respuesta) {
       setPapelera(obtenerListado(papeleraResponse.datos));
     } else {
@@ -246,6 +247,8 @@ export default function SuperadminConflictos() {
   const pendientes = conflictos.filter((conflicto) => conflicto.estado !== "Resuelto").length;
 
   const handleCambiarEstado = async (conflicto, estado) => {
+    const estadoAnterior = conflicto.estado;
+    if (estadoAnterior === estado) return;
     setActualizandoId(conflicto.id);
     const payload = {
       id_usuario: obtenerIdUsuario(conflicto),
@@ -257,7 +260,34 @@ export default function SuperadminConflictos() {
 
     const resultado = await ConflictosUpdate(conflicto.id, payload);
     if (resultado.respuesta) {
-      setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
+      if (estado === "Resuelto") {
+        const resultadoEliminar = await ConflictosDelete(conflicto.id);
+        if (resultadoEliminar.respuesta) {
+          setConflictosResolviendo((prev) => new Set(prev).add(conflicto.id));
+          await new Promise((resolve) => setTimeout(resolve, 520));
+          setConflictos((prev) => prev.filter((item) => item.id !== conflicto.id));
+          setConflictosResolviendo((prev) => {
+            const next = new Set(prev);
+            next.delete(conflicto.id);
+            return next;
+          });
+          await cargarPapelera({ force: true });
+          mostrarToast("Conflicto resuelto y enviado a papelera", async () => {
+            const restaurado = await ConflictosRestore(conflicto.id);
+            if (!restaurado.respuesta) return;
+
+            const revert = await ConflictosUpdate(conflicto.id, { ...payload, estado: estadoAnterior });
+            const conflictoRestaurado = revert.respuesta ? revert.datos : restaurado.datos;
+            setPapelera((prev) => prev.filter((item) => item.id !== conflicto.id));
+            setConflictos((prev) => [conflictoRestaurado, ...prev.filter((item) => item.id !== conflicto.id)]);
+            await cargarPapelera({ force: true });
+          });
+        } else {
+          setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
+        }
+      } else {
+        setConflictos((prev) => prev.map((item) => item.id === conflicto.id ? resultado.datos : item));
+      }
     }
     setActualizandoId(null);
   };
@@ -268,7 +298,7 @@ export default function SuperadminConflictos() {
     if (resultado.respuesta) {
       const idEliminado = id;
       setConflictos((prev) => prev.filter((item) => item.id !== idEliminado));
-      await cargarPapelera();
+      await cargarPapelera({ force: true });
       mostrarToast("Conflicto eliminado", () => handleRestaurar(idEliminado));
     }
     setActualizandoId(null);
@@ -281,14 +311,14 @@ export default function SuperadminConflictos() {
       setPapelera((prev) => prev.filter((item) => item.id !== id));
       setConflictos((prev) => [resultado.datos, ...prev.filter((item) => item.id !== id)]);
       setMostrarPapelera(false);
-      await cargarPapelera();
+      await cargarPapelera({ force: true });
     }
     setActualizandoId(null);
   };
 
   const handleMostrarPapelera = () => {
     setMostrarPapelera(true);
-    cargarPapelera();
+    cargarPapelera({ force: true });
   };
 
   const navegarConTransicion = (ruta) => {
@@ -465,9 +495,10 @@ export default function SuperadminConflictos() {
                     ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
                     : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
                   const deshabilitado = actualizandoId === conflicto.id;
+                  const resolviendo = conflictosResolviendo.has(conflicto.id);
 
                   return (
-                    <tr key={conflicto.id}>
+                    <tr key={conflicto.id} className={resolviendo ? "conflict-row--resolving" : ""}>
                       <td>
                         <strong>{nombreUsuario}</strong>
                         {usuario?.email && <span>{usuario.email}</span>}
@@ -483,7 +514,7 @@ export default function SuperadminConflictos() {
                           className={`conflict-status-select conflict-status-select--${estadoClase(conflicto.estado)}`}
                           value={conflicto.estado || "Pendiente"}
                           onChange={(event) => handleCambiarEstado(conflicto, event.target.value)}
-                          disabled={deshabilitado}
+                          disabled={deshabilitado || resolviendo}
                         >
                           <option value="Pendiente">Pendiente</option>
                           <option value="En Proceso">En Proceso</option>
@@ -500,7 +531,7 @@ export default function SuperadminConflictos() {
                         <button
                           className="conflict-delete-btn"
                           onClick={() => handleEliminar(conflicto.id)}
-                          disabled={deshabilitado}
+                          disabled={deshabilitado || resolviendo}
                           aria-label="Eliminar conflicto"
                         >
                           {conflicto.estado === "Resuelto" ? <CheckCircle2 size={15} /> : <Trash2 size={15} />}

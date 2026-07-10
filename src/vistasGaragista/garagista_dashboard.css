@@ -1,0 +1,635 @@
+.garagista-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #172033;
+  text-align: left;
+}
+
+.garagista-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 34px 0 118px;
+}
+
+.garagista-hero,
+.garagista-title-block,
+.garagista-eyebrow,
+.garagista-summary-metric,
+.garagista-capacity,
+.garagista-search,
+.garagista-section-heading,
+.access-card__top,
+.garagista-primary-btn,
+.garagista-secondary-btn,
+.garagista-logout,
+.garagista-icon-button,
+.movement-row,
+.garagista-modal__header,
+.garagista-modal__actions {
+  display: flex;
+  align-items: center;
+}
+
+.garagista-hero {
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.garagista-title-block {
+  gap: 14px;
+  min-width: 0;
+}
+
+.garagista-eyebrow {
+  gap: 7px;
+  margin-bottom: 6px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garagista-hero h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.garagista-icon-button,
+.garagista-logout {
+  border: 1px solid #dbe5f1;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.garagista-icon-button {
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  border-radius: 14px;
+  flex: 0 0 auto;
+}
+
+.garagista-logout {
+  min-height: 44px;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.garagista-icon-button:hover,
+.garagista-logout:hover {
+  transform: translateY(-1px);
+  border-color: #bfdbfe;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.garagista-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, auto) minmax(220px, auto);
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  border: 1px solid #dbe7f7;
+  border-radius: 22px;
+  padding: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
+}
+
+.garagista-summary-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garagista-summary-card strong {
+  color: #0f172a;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.garagista-summary-metric,
+.garagista-capacity {
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 54px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0 15px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.garagista-capacity {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.garagista-search {
+  gap: 10px;
+  min-height: 52px;
+  margin-bottom: 22px;
+  border: 1px solid #dbe5f1;
+  border-radius: 16px;
+  padding: 0 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  color: #94a3b8;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+}
+
+.garagista-search:focus-within {
+  border-color: #2563eb;
+  color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.garagista-search input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.garagista-search input::placeholder {
+  color: #94a3b8;
+}
+
+.garagista-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.garagista-section {
+  min-width: 0;
+}
+
+.garagista-section--movements {
+  margin-top: 24px;
+}
+
+.garagista-section-heading {
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 13px;
+}
+
+.garagista-section-heading span {
+  display: block;
+  margin-bottom: 3px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garagista-section-heading h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.garagista-section-heading > strong {
+  min-width: 38px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #eaf2ff;
+  color: #1d4ed8;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.garagista-card-list {
+  display: grid;
+  gap: 13px;
+}
+
+.access-card,
+.movement-row,
+.garagista-empty,
+.garagista-modal {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.access-card {
+  border-radius: 18px;
+  padding: 17px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.access-card:hover {
+  transform: translateY(-2px);
+  border-color: #c9d7ea;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.access-card--inside {
+  border-left: 4px solid #2563eb;
+}
+
+.access-card__top {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.access-card h3,
+.movement-row h3 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.access-card p,
+.movement-row p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.access-card__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 15px;
+}
+
+.access-card__meta div {
+  min-width: 0;
+  border-radius: 13px;
+  padding: 10px 12px;
+  background: #f8fafc;
+}
+
+.access-card__meta dt {
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.access-card__meta dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.garagista-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.garagista-status--pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.garagista-status--dentro {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.garagista-status--finalizado {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.garagista-primary-btn,
+.garagista-secondary-btn,
+.garagista-cancel-btn {
+  min-height: 42px;
+  justify-content: center;
+  border-radius: 13px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.garagista-primary-btn,
+.garagista-secondary-btn {
+  width: 100%;
+  gap: 8px;
+}
+
+.garagista-primary-btn {
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.garagista-primary-btn:hover {
+  transform: translateY(-1px);
+  background: #1d4ed8;
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.24);
+}
+
+.garagista-secondary-btn {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.garagista-secondary-btn:hover {
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+  background: #dbeafe;
+}
+
+.garagista-empty {
+  border-radius: 16px;
+  padding: 24px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.movements-list {
+  display: grid;
+  gap: 10px;
+}
+
+.movement-row {
+  grid-template-columns: minmax(220px, 1fr) auto repeat(3, minmax(110px, auto));
+  gap: 14px;
+  border-radius: 16px;
+  padding: 14px 16px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.movement-row h3 {
+  color: #334155;
+}
+
+.movement-row p {
+  color: #7b8798;
+}
+
+.garagista-modal {
+  width: min(100%, 440px);
+  max-height: min(90vh, 620px);
+  overflow-y: auto;
+  border-radius: 22px;
+  padding: 22px;
+  color: #172033;
+}
+
+.garagista-modal__header {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.garagista-modal__header h2 {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+.garagista-modal__header p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.garagista-modal__close {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #334155;
+  cursor: pointer;
+}
+
+.garagista-modal__field {
+  display: grid;
+  gap: 8px;
+}
+
+.garagista-modal__field span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.garagista-modal__field input {
+  width: 100%;
+  min-height: 50px;
+  box-sizing: border-box;
+  border: 1px solid #dbe5f1;
+  border-radius: 15px;
+  padding: 0 14px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.garagista-modal__field input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.13);
+}
+
+.garagista-modal__error {
+  margin-top: 12px;
+  border-radius: 13px;
+  padding: 12px 14px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.garagista-vehicle-confirmation {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 17px;
+  background: #eff6ff;
+}
+
+.garagista-vehicle-confirmation__icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.garagista-vehicle-confirmation div {
+  display: grid;
+  gap: 3px;
+}
+
+.garagista-vehicle-confirmation span,
+.garagista-vehicle-confirmation small {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.garagista-vehicle-confirmation strong {
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.garagista-modal__actions {
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.garagista-modal__actions .garagista-primary-btn {
+  width: auto;
+}
+
+.garagista-cancel-btn {
+  border: 1px solid #dbe5f1;
+  background: #ffffff;
+  color: #475569;
+}
+
+.garagista-cancel-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+@media (max-width: 980px) {
+  .garagista-summary-card,
+  .garagista-sections-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .movement-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .garagista-shell {
+    width: min(100% - 24px, 1180px);
+    padding-top: 22px;
+  }
+
+  .garagista-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .garagista-hero h1 {
+    font-size: 32px;
+  }
+
+  .garagista-logout {
+    width: 100%;
+  }
+
+  .garagista-summary-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .garagista-summary-card strong {
+    font-size: 23px;
+  }
+
+  .access-card__meta,
+  .movement-row {
+    grid-template-columns: 1fr;
+  }
+
+  .garagista-modal {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .garagista-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .garagista-modal__actions .garagista-primary-btn,
+  .garagista-cancel-btn {
+    width: 100%;
+  }
+}

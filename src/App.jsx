@@ -105,6 +105,11 @@ function AppRoutes() {
           <GaragistaDashboard />
         </ProtectedRoute>
       } />
+      <Route path="/control-acceso" element={
+        <ProtectedRoute allowedRoles={[1, 3]} usuario={usuario}>
+          <GaragistaDashboard />
+        </ProtectedRoute>
+      } />
 
       {/* Rutas protegidas - Admin */}
       <Route path="/admin_dashboard" element={

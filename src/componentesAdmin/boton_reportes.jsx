@@ -13,7 +13,7 @@ export default function BotonReportes() {
       </div>
       <div className="report-btn__content">
         <span className="report-btn__title">Ver Reportes</span>
-        <span className="report-btn__subtitle">Descargar informes en PDF/Excel</span>
+        <span className="report-btn__subtitle">Analisis y auditorias del sistema</span>
       </div>
     </button>
   );

@@ -125,7 +125,7 @@ export default function TablaReservasPanleControl() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeChip, setActiveChip] = useState("Todas");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [fechaReferenciaOrden] = useState(() => Date.now());
 
