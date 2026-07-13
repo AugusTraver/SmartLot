@@ -146,6 +146,25 @@ const obtenerCampo = (item, claves, fallback = "") => {
   return fallback;
 };
 
+const esValorVerdadero = (valor) => {
+  if (valor === true || valor === 1) return true;
+  if (valor === false || valor === 0 || valor == null) return false;
+  if (typeof valor !== "string") return false;
+
+  const texto = valor.trim().toLowerCase();
+  if (!texto || ["false", "0", "no", "null", "undefined"].includes(texto)) return false;
+  if (["true", "1", "si", "sí", "completo", "completado"].includes(texto)) return true;
+  return !Number.isNaN(new Date(valor).getTime());
+};
+
+const tieneSalidaRegistrada = (reserva) =>
+  [
+    obtenerCampo(reserva, ["salida", "egreso", "check_out", "checkOut", "salio"]),
+    obtenerCampo(reserva, ["salida_registrada", "salidaRegistrada"]),
+    obtenerCampo(reserva, ["fecha_salida_real", "fechaSalidaReal"]),
+    obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"]),
+  ].some(esValorVerdadero);
+
 const obtenerNombreGarage = (garage) =>
   garage
     ? obtenerCampo(garage, ["nombre", "name", "descripcion", "ubicacion", "nombre_garage", "garage_nombre", "nombre_zona", "direccion"], "Garage")
@@ -240,6 +259,7 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     nombre_zona: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" }) : "Mes",
     hora_entrada: horaInicio,
     hora_salida: horaFin,
+    salidaRegistrada: tieneSalidaRegistrada(reserva),
     vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
   };
 };
@@ -489,6 +509,7 @@ function EmpleadoDashboard() {
     return reservas
       .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
       .filter((reserva) => {
+        if (reserva.salidaRegistrada) return false;
         if (!reserva.fecha) return true;
         const fecha = new Date(`${reserva.fecha}T00:00:00`);
         return Number.isNaN(fecha.getTime()) || fecha >= hoy;

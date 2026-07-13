@@ -36,10 +36,39 @@ const extraerHora = (valor) => {
   return hora ? hora.substring(0, 5) : "";
 };
 
+const esValorVerdadero = (valor) => {
+  if (valor === true || valor === 1) return true;
+  if (valor === false || valor === 0 || valor == null) return false;
+  if (typeof valor !== "string") return false;
+
+  const texto = valor.trim().toLowerCase();
+  if (!texto || ["false", "0", "no", "null", "undefined"].includes(texto)) return false;
+  if (["true", "1", "si", "sí", "completo", "completado"].includes(texto)) return true;
+  return !Number.isNaN(new Date(valor).getTime());
+};
+
+const tieneSalidaRegistrada = (reserva) =>
+  [
+    obtenerCampo(reserva, ["salida", "egreso", "check_out", "checkOut", "salio"]),
+    obtenerCampo(reserva, ["salida_registrada", "salidaRegistrada"]),
+    obtenerCampo(reserva, ["fecha_salida_real", "fechaSalidaReal"]),
+    obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"]),
+  ].some(esValorVerdadero);
+
 const obtenerIdUsuario = (usuario) =>
   usuario?.id ?? usuario?.id_usuario ?? usuario?.idUsuario ?? usuario?.usuario_id ?? usuario?.usuarioId;
 
-const obtenerSalidaReserva = (reserva) => {
+const obtenerSalidaReserva = (reserva, ahora = new Date()) => {
+  const fechaSalidaReal = obtenerCampo(reserva, [
+    "fecha_salida_real",
+    "fechaSalidaReal",
+    "salida_registrada",
+    "salidaRegistrada",
+  ]);
+  const salidaDesdeReal = normalizarFechaHora(fechaSalidaReal);
+  if (salidaDesdeReal) return salidaDesdeReal;
+  if (tieneSalidaRegistrada(reserva)) return ahora;
+
   const fechaSalidaCompleta = obtenerCampo(reserva, [
     "fecha_salida",
     "fechaSalida",
@@ -54,7 +83,10 @@ const obtenerSalidaReserva = (reserva) => {
 
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"]);
   const horaSalida = obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"]);
-  return normalizarFechaHora(fecha && horaSalida ? `${fecha}T${horaSalida}` : "");
+  const salidaProgramada = normalizarFechaHora(fecha && horaSalida ? `${fecha}T${horaSalida}` : "");
+  if (salidaProgramada) return salidaProgramada;
+
+  return null;
 };
 
 const normalizarReservaHistorial = (reserva) => {
@@ -67,13 +99,17 @@ const normalizarReservaHistorial = (reserva) => {
     "fecha_fin",
     "fechaFin",
   ]);
+  const fechaEntradaReal = obtenerCampo(reserva, ["fecha_entrada_real", "fechaEntradaReal"]);
+  const fechaSalidaReal = obtenerCampo(reserva, ["fecha_salida_real", "fechaSalidaReal"]);
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFecha(fechaEntrada || fechaSalida));
 
   return {
     ...reserva,
     fecha,
-    hora_entrada: obtenerCampo(reserva, ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"], extraerHora(fechaEntrada)),
-    hora_salida: obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"], extraerHora(fechaSalida)),
+    hora_entrada: obtenerCampo(reserva, ["hora_entrada_real", "horaEntradaReal"], "") ||
+      obtenerCampo(reserva, ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"], extraerHora(fechaEntradaReal || fechaEntrada)),
+    hora_salida: obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"], "") ||
+      obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"], extraerHora(fechaSalidaReal || fechaSalida)),
   };
 };
 
@@ -167,10 +203,10 @@ function HistorialReserva() {
       const ahora = new Date();
       const pasadas = datos
         .map((reserva) => {
-          const salida = obtenerSalidaReserva(reserva);
+          const salida = obtenerSalidaReserva(reserva, ahora);
           return salida ? { reserva: normalizarReservaHistorial(reserva), salida } : null;
         })
-        .filter((item) => item && item.salida < ahora)
+        .filter((item) => item && item.salida <= ahora)
         .sort((a, b) => b.salida.getTime() - a.salida.getTime())
         .map((item) => item.reserva);
 

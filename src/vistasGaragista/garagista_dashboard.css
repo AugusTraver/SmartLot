@@ -655,6 +655,128 @@
   background: #f8fafc;
 }
 
+.garagista-skeleton {
+  display: grid;
+  gap: 24px;
+}
+
+.garagista-skeleton-line {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e8eef7 0%, #f8fbff 45%, #e2eaf5 100%);
+  background-size: 220% 100%;
+  animation: garagista-skeleton-shimmer 1.25s ease-in-out infinite;
+}
+
+.garagista-skeleton-stack {
+  width: min(100%, 260px);
+  display: grid;
+  gap: 8px;
+}
+
+.garagista-skeleton-line--garage {
+  width: min(100%, 280px);
+  height: 30px;
+  border-radius: 10px;
+}
+
+.garagista-skeleton-line--capacity {
+  width: 116px;
+  height: 18px;
+}
+
+.garagista-skeleton-line--eyebrow {
+  width: 138px;
+  height: 11px;
+  margin-bottom: 8px;
+}
+
+.garagista-skeleton-line--heading {
+  width: 176px;
+  height: 24px;
+  border-radius: 9px;
+}
+
+.garagista-skeleton-line--count {
+  width: 38px;
+  height: 34px;
+  border-radius: 12px;
+}
+
+.garagista-skeleton-line--title {
+  width: min(100%, 190px);
+  height: 18px;
+  border-radius: 7px;
+}
+
+.garagista-skeleton-line--text {
+  width: min(100%, 238px);
+  height: 13px;
+}
+
+.garagista-skeleton-line--badge {
+  width: 84px;
+  height: 28px;
+}
+
+.garagista-skeleton-line--label {
+  width: 78px;
+  height: 10px;
+  margin-bottom: 9px;
+}
+
+.garagista-skeleton-line--value {
+  width: 94px;
+  height: 16px;
+  border-radius: 7px;
+}
+
+.garagista-skeleton-line--short {
+  width: 48px;
+}
+
+.garagista-skeleton-line--button {
+  width: 100%;
+  height: 42px;
+  border-radius: 13px;
+}
+
+.garagista-skeleton-line--tab {
+  width: 132px;
+  height: 38px;
+  border-radius: 10px;
+}
+
+.access-card--skeleton {
+  pointer-events: none;
+}
+
+.access-card--skeleton:hover {
+  transform: none;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.movement-row--skeleton {
+  pointer-events: none;
+}
+
+@keyframes garagista-skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garagista-skeleton-line {
+    animation: none;
+  }
+}
+
 @media (max-width: 980px) {
   .garagista-summary-card,
   .garagista-sections-grid {

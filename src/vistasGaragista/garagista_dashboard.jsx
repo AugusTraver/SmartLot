@@ -35,6 +35,10 @@ const normalizarPatente = (valor) =>
 const MENSAJE_INGRESO_ANTICIPADO =
   "No se puede ingresar el vehículo hasta una hora antes del horario pautado de la reserva.";
 
+const MINUTOS_ANTICIPACION_INGRESO = 60;
+const SKELETON_CARD_KEYS = ["reserva-1", "reserva-2", "reserva-3"];
+const SKELETON_MOVEMENT_KEYS = ["movimiento-1", "movimiento-2", "movimiento-3"];
+
 const obtenerHoraActual = () =>
   new Intl.DateTimeFormat("es-AR", {
     hour: "2-digit",
@@ -58,9 +62,23 @@ const obtenerFechaISOActual = () =>
     timeZone: "America/Argentina/Buenos_Aires",
   }).format(new Date());
 
+const tieneZonaHoraria = (valor) => /(?:Z|[+-]\d{2}:?\d{2})$/.test(String(valor).trim());
+
 const extraerFecha = (valor) => {
   if (!valor) return "";
   const texto = String(valor);
+  if (tieneZonaHoraria(texto)) {
+    const fecha = new Date(texto);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
+
   const coincidencia = texto.match(/^\d{4}-\d{2}-\d{2}/);
   if (coincidencia) return coincidencia[0];
 
@@ -146,10 +164,61 @@ const normalizarEstadoReserva = (reserva) => {
 
 const extraerHora = (valor) => {
   if (!valor) return null;
-  if (typeof valor === "string" && valor.includes("T")) return valor.split("T")[1]?.slice(0, 5);
-  if (typeof valor === "string" && valor.includes(" ")) return valor.split(" ")[1]?.slice(0, 5);
-  if (typeof valor === "string" && valor.includes(":")) return valor.slice(0, 5);
+  const texto = String(valor).trim();
+
+  if (/^\d{2}:\d{2}/.test(texto)) return texto.slice(0, 5);
+
+  if (tieneZonaHoraria(texto)) {
+    const fecha = new Date(texto);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
+
+  if (texto.includes("T")) return texto.split("T")[1]?.slice(0, 5);
+  if (texto.includes(" ")) return texto.split(" ")[1]?.slice(0, 5);
+  if (texto.includes(":")) return texto.slice(0, 5);
   return null;
+};
+
+const obtenerFechaHoraReserva = (reserva) => {
+  const fecha = reserva?.fechaReserva;
+  const hora = reserva?.horaReserva;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || !/^\d{2}:\d{2}$/.test(hora)) return null;
+
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  const [horas, minutos] = hora.split(":").map(Number);
+  const fechaHora = new Date(anio, mes - 1, dia, horas, minutos);
+
+  return Number.isNaN(fechaHora.getTime()) ? null : fechaHora;
+};
+
+const obtenerHoraHabilitacionIngreso = (reserva) => {
+  const fechaHoraReserva = obtenerFechaHoraReserva(reserva);
+  if (!fechaHoraReserva) return null;
+
+  const fechaHabilitacion = new Date(fechaHoraReserva);
+  fechaHabilitacion.setMinutes(fechaHabilitacion.getMinutes() - MINUTOS_ANTICIPACION_INGRESO);
+  return fechaHabilitacion;
+};
+
+const formatearHora = (fecha) =>
+  new Intl.DateTimeFormat("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(fecha);
+
+const obtenerMensajeIngresoAnticipado = (reserva) => {
+  const fechaHabilitacion = obtenerHoraHabilitacionIngreso(reserva);
+  if (!fechaHabilitacion) return MENSAJE_INGRESO_ANTICIPADO;
+
+  return `No se puede registrar el ingreso todavia. La entrada del vehiculo se podra efectuar a partir de las ${formatearHora(fechaHabilitacion)}, una hora antes del horario de la reserva.`;
 };
 
 function BadgeEstado({ estado }) {
@@ -162,6 +231,93 @@ function BadgeEstado({ estado }) {
 
 function EmptyState({ mensaje }) {
   return <div className="garagista-empty">{mensaje}</div>;
+}
+
+function SkeletonLine({ className = "" }) {
+  return <span className={`garagista-skeleton-line ${className}`} aria-hidden="true" />;
+}
+
+function SkeletonAccessCard() {
+  return (
+    <article className="access-card access-card--skeleton" aria-hidden="true">
+      <div className="access-card__top">
+        <div className="garagista-skeleton-stack">
+          <SkeletonLine className="garagista-skeleton-line--title" />
+          <SkeletonLine className="garagista-skeleton-line--text" />
+        </div>
+        <SkeletonLine className="garagista-skeleton-line--badge" />
+      </div>
+
+      <dl className="access-card__meta">
+        <div>
+          <SkeletonLine className="garagista-skeleton-line--label" />
+          <SkeletonLine className="garagista-skeleton-line--value" />
+        </div>
+        <div>
+          <SkeletonLine className="garagista-skeleton-line--label" />
+          <SkeletonLine className="garagista-skeleton-line--value garagista-skeleton-line--short" />
+        </div>
+      </dl>
+
+      <SkeletonLine className="garagista-skeleton-line--button" />
+    </article>
+  );
+}
+
+function GaragistaDashboardSkeleton() {
+  return (
+    <div className="garagista-skeleton" role="status" aria-label="Cargando datos del garage">
+      <div className="garagista-mobile-tabs garagista-skeleton-tabs" aria-hidden="true">
+        <SkeletonLine className="garagista-skeleton-line--tab" />
+        <SkeletonLine className="garagista-skeleton-line--tab" />
+      </div>
+
+      <div className="garagista-sections-grid">
+        {["Ingresos pendientes", "Autos dentro"].map((titulo) => (
+          <section className="garagista-section garagista-mobile-panel is-active" key={titulo}>
+            <div className="garagista-section-heading" aria-hidden="true">
+              <div>
+                <SkeletonLine className="garagista-skeleton-line--eyebrow" />
+                <SkeletonLine className="garagista-skeleton-line--heading" />
+              </div>
+              <SkeletonLine className="garagista-skeleton-line--count" />
+            </div>
+
+            <div className="garagista-card-list">
+              {SKELETON_CARD_KEYS.map((key) => (
+                <SkeletonAccessCard key={`${titulo}-${key}`} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <section className="garagista-section garagista-section--movements">
+        <div className="garagista-section-heading" aria-hidden="true">
+          <div>
+            <SkeletonLine className="garagista-skeleton-line--eyebrow" />
+            <SkeletonLine className="garagista-skeleton-line--heading" />
+          </div>
+          <SkeletonLine className="garagista-skeleton-line--count" />
+        </div>
+
+        <div className="movements-list" aria-hidden="true">
+          {SKELETON_MOVEMENT_KEYS.map((key) => (
+            <article className="movement-row movement-row--skeleton" key={key}>
+              <div className="garagista-skeleton-stack">
+                <SkeletonLine className="garagista-skeleton-line--title" />
+                <SkeletonLine className="garagista-skeleton-line--text" />
+              </div>
+              <SkeletonLine className="garagista-skeleton-line--badge" />
+              <SkeletonLine className="garagista-skeleton-line--value" />
+              <SkeletonLine className="garagista-skeleton-line--value" />
+              <SkeletonLine className="garagista-skeleton-line--value" />
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 }
 
 export default function GaragistaDashboard() {
@@ -445,6 +601,12 @@ export default function GaragistaDashboard() {
   const confirmarAcceso = async () => {
     if (esAdmin || guardandoAccion || !reservaSeleccionada || !patenteVerificada) return;
 
+    const horaHabilitacionIngreso = obtenerHoraHabilitacionIngreso(reservaSeleccionada);
+    if (horaHabilitacionIngreso && new Date() < horaHabilitacionIngreso) {
+      setErrorVerificacion(obtenerMensajeIngresoAnticipado(reservaSeleccionada));
+      return;
+    }
+
     setGuardandoAccion(true);
     const horaEntrada = obtenerHoraActual();
     const resultado = await ReservasCheckIn(reservaSeleccionada.id);
@@ -469,7 +631,7 @@ export default function GaragistaDashboard() {
       const ingresoTodaviaNoHabilitado = /todav[ií]a no est[aá] habilitad/i.test(mensajeBackend);
       setErrorVerificacion(
         ingresoTodaviaNoHabilitado
-          ? MENSAJE_INGRESO_ANTICIPADO
+          ? obtenerMensajeIngresoAnticipado(reservaSeleccionada)
           : mensajeBackend || "No se pudo registrar el ingreso en el servidor."
       );
     }
@@ -557,6 +719,8 @@ export default function GaragistaDashboard() {
                     </option>
                   ))}
                 </select>
+              ) : cargandoVista ? (
+                <SkeletonLine className="garagista-skeleton-line--garage" />
               ) : (
                 <strong>{garageData?.nombre || garageData?.name || garageData?.descripcion || garageData?.ubicacion || garageData?.nombre_garage || garageData?.garage_nombre || "Sin garage"}</strong>
               )}
@@ -569,7 +733,11 @@ export default function GaragistaDashboard() {
 
             <div className="garagista-capacity">
               <CarFront size={22} />
-              <span>{cantidadAutosDentro} / {capacidadTotal || "—"} dentro</span>
+              {cargandoVista ? (
+                <SkeletonLine className="garagista-skeleton-line--capacity" />
+              ) : (
+                <span>{cantidadAutosDentro} / {capacidadTotal || "—"} dentro</span>
+              )}
             </div>
           </section>
 
@@ -603,7 +771,7 @@ export default function GaragistaDashboard() {
           </div>
 
           {cargandoVista ? (
-            <div className="garagista-empty">Cargando datos del garage…</div>
+            <GaragistaDashboardSkeleton />
           ) : errorVista ? (
             <div className="garagista-empty">{errorVista}</div>
           ) : (
@@ -819,14 +987,14 @@ export default function GaragistaDashboard() {
                     }}
                   />
                 </label>
-
-                {errorVerificacion ? (
-                  <p className="garagista-modal__error" role="alert">
-                    {errorVerificacion}
-                  </p>
-                ) : null}
               </>
             )}
+
+            {errorVerificacion ? (
+              <p className="garagista-modal__error" role="alert">
+                {errorVerificacion}
+              </p>
+            ) : null}
 
             <div className="garagista-modal__actions">
               <button className="garagista-cancel-btn" type="button" onClick={cerrarVerificacion}>
