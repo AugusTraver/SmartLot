@@ -72,6 +72,7 @@ const normalizarEstadoReserva = (reserva) => {
 
 const extraerHora = (valor) => {
   if (!valor) return null;
+  if (typeof valor === "string" && valor.includes("T")) return valor.split("T")[1]?.slice(0, 5);
   if (typeof valor === "string" && valor.includes(" ")) return valor.split(" ")[1]?.slice(0, 5);
   if (typeof valor === "string" && valor.includes(":")) return valor.slice(0, 5);
   return null;
@@ -164,8 +165,8 @@ export default function GaragistaDashboard() {
           const id = Number(v.id_vehiculo ?? v.id ?? v._id);
           if (id) {
             const patente = v.patente ?? v.patenteVehiculo ?? "";
-            const marca = v.marca ?? "";
-            const modelo = v.modelo ?? "";
+            const marca = v.marca ?? v.nombre_marca ?? "";
+            const modelo = v.modelo ?? v.nombre_modelo ?? "";
             const descripcion = [marca, modelo].filter(Boolean).join(" ") || patente || "Vehículo";
             vehiculosMap.set(id, { patente, descripcion });
           }
