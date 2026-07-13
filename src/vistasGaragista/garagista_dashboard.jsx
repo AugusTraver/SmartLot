@@ -7,15 +7,16 @@ import {
   CheckCircle2,
   Clock3,
   DoorOpen,
-  LogOut,
+  Eye,
   Search,
   ShieldCheck,
   X,
 } from "lucide-react";
-import apiClient from "../api/client";
-import { clearCache } from "../cache/cacheStore";
-import { GaragesGetById } from "../servicies/API_Garage";
-import { ReservasGetAll } from "../servicies/API_Reserva";
+import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
+import { ReservasCheckIn, ReservasCheckOut, ReservasGetAll } from "../servicies/API_Reserva";
+import { SedesGetAll } from "../servicies/API_Sede";
+import { MarcasGetAll } from "../servicies/API_Marca";
+import { ModelosGetAll } from "../servicies/API_Modelo";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
@@ -23,12 +24,6 @@ import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
 import { showToast } from "../helpers/toast";
-import {
-  eliminarSuperadminBackup,
-  eliminarUsuarioImpersonado,
-  obtenerSuperadminBackup,
-  obtenerUsuarioImpersonado,
-} from "../helpers/superadminSession";
 import "./garagista_dashboard.css";
 
 const normalizarPatente = (valor) =>
@@ -36,6 +31,9 @@ const normalizarPatente = (valor) =>
     .trim()
     .replace(/[\s-]/g, "")
     .toUpperCase();
+
+const MENSAJE_INGRESO_ANTICIPADO =
+  "No se puede ingresar el vehículo hasta una hora antes del horario pautado de la reserva.";
 
 const obtenerHoraActual = () =>
   new Intl.DateTimeFormat("es-AR", {
@@ -52,6 +50,46 @@ const obtenerFechaActual = () =>
     year: "numeric",
   }).format(new Date());
 
+const obtenerFechaISOActual = () =>
+  new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Argentina/Buenos_Aires",
+  }).format(new Date());
+
+const extraerFecha = (valor) => {
+  if (!valor) return "";
+  const texto = String(valor);
+  const coincidencia = texto.match(/^\d{4}-\d{2}-\d{2}/);
+  if (coincidencia) return coincidencia[0];
+
+  const fecha = new Date(texto);
+  if (Number.isNaN(fecha.getTime())) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "America/Argentina/Buenos_Aires",
+  }).format(fecha);
+};
+
+const obtenerFechaReserva = (reserva) => {
+  const candidatos = [
+    reserva.fecha_entrada,
+    reserva.fechaEntrada,
+    reserva.fecha,
+    reserva.fecha_reserva,
+    reserva.fechaReserva,
+  ];
+
+  for (const candidato of candidatos) {
+    const fecha = extraerFecha(candidato);
+    if (fecha) return fecha;
+  }
+  return "";
+};
+
 const obtenerIdGarage = (garage) =>
   garage?.id_garage ?? garage?.idGarage ?? garage?.garage_id ?? garage?.id ?? garage?._id;
 
@@ -61,9 +99,45 @@ const obtenerIdGarageUsuario = (user) =>
 const obtenerIdReserva = (reserva) =>
   reserva?.id_reserva ?? reserva?.id ?? reserva?._id;
 
+const obtenerListado = (datos) => {
+  if (Array.isArray(datos)) return datos;
+  if (Array.isArray(datos?.datos)) return datos.datos;
+  if (Array.isArray(datos?.data)) return datos.data;
+  if (Array.isArray(datos?.reservas)) return datos.reservas;
+  if (Array.isArray(datos?.usuarios)) return datos.usuarios;
+  return [];
+};
+
+const esValorVerdadero = (valor) => {
+  if (valor === true || valor === 1) return true;
+  if (valor === false || valor === 0 || valor == null) return false;
+  if (typeof valor !== "string") return false;
+
+  const texto = valor.trim().toLowerCase();
+  if (!texto || ["false", "0", "no", "null", "undefined"].includes(texto)) return false;
+  if (["true", "1", "si", "sí", "completo", "completado"].includes(texto)) return true;
+  return !Number.isNaN(new Date(valor).getTime());
+};
+
 const normalizarEstadoReserva = (reserva) => {
-  const entro = reserva.entrada ?? reserva.ingreso ?? reserva.check_in ?? reserva.entro ?? false;
-  const salio = reserva.salida ?? reserva.egreso ?? reserva.check_out ?? reserva.salio ?? false;
+  const entro = [
+    reserva.entrada,
+    reserva.ingreso,
+    reserva.check_in,
+    reserva.checkIn,
+    reserva.entro,
+    reserva.entrada_registrada,
+    reserva.fecha_entrada_real,
+  ].some(esValorVerdadero);
+  const salio = [
+    reserva.salida,
+    reserva.egreso,
+    reserva.check_out,
+    reserva.checkOut,
+    reserva.salio,
+    reserva.salida_registrada,
+    reserva.fecha_salida_real,
+  ].some(esValorVerdadero);
 
   if (salio) return "Finalizado";
   if (entro) return "Dentro";
@@ -92,32 +166,99 @@ function EmptyState({ mensaje }) {
 
 export default function GaragistaDashboard() {
   const navigate = useNavigate();
-  const { usuario, setUsuario, setRoleTransition } = useAuth();
+  const { usuario } = useAuth();
   const [reservas, setReservas] = useState([]);
   const [garageData, setGarageData] = useState(null);
+  const [garagesDisponibles, setGaragesDisponibles] = useState([]);
+  const [garageSeleccionadoId, setGarageSeleccionadoId] = useState(null);
+  const [cargandoGaragesAdmin, setCargandoGaragesAdmin] = useState(true);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [filtroFecha, setFiltroFecha] = useState("todas");
+  const [seccionMovil, setSeccionMovil] = useState("pendientes");
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [patenteIngresada, setPatenteIngresada] = useState("");
   const [errorVerificacion, setErrorVerificacion] = useState("");
   const [patenteVerificada, setPatenteVerificada] = useState(false);
+  const [guardandoAccion, setGuardandoAccion] = useState(false);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
   const fechaActual = useMemo(() => obtenerFechaActual(), []);
-  const idGarageAsignado = useMemo(() => Number(obtenerIdGarageUsuario(usuario)) || null, [usuario]);
+  const fechaISOActual = useMemo(() => obtenerFechaISOActual(), []);
+  const idGarageAsignado = useMemo(
+    () => esAdmin ? garageSeleccionadoId : Number(obtenerIdGarageUsuario(usuario)) || null,
+    [esAdmin, garageSeleccionadoId, usuario]
+  );
   const terminoBusqueda = busqueda.trim().toLowerCase();
   const capacidadTotal = useMemo(() => {
     if (!garageData) return 0;
     return Number(garageData.capacidad_reservas || 0) + Number(garageData.capacidad_para_no_reservas || 0);
   }, [garageData]);
+  const cargandoVista = idGarageAsignado ? cargando : esAdmin && cargandoGaragesAdmin;
+  const errorVista = idGarageAsignado
+    ? errorCarga
+    : esAdmin
+      ? cargandoGaragesAdmin ? "" : "No hay garages disponibles para consultar."
+      : "No tenés un garage asignado.";
 
   useEffect(() => {
-    if (!idGarageAsignado) {
-      setCargando(false);
-      setErrorCarga("No tenés un garage asignado.");
-      return;
-    }
+    if (!esAdmin) return;
+
+    let cancelado = false;
+
+    const cargarGaragesDelAdmin = async () => {
+      setCargandoGaragesAdmin(true);
+      try {
+        const [garagesResp, sedesResp] = await Promise.all([
+          GaragesGetAll(),
+          SedesGetAll(),
+        ]);
+        if (cancelado) return;
+
+        const todosLosGarages = obtenerListado(garagesResp.datos);
+        const idSedeAdmin = Number(usuario?.id_sede);
+        const idEmpresaAdmin = Number(usuario?.id_empresa);
+        let garagesPermitidos = todosLosGarages;
+
+        if (idSedeAdmin > 0) {
+          garagesPermitidos = todosLosGarages.filter(
+            (garage) => Number(garage.id_sede ?? garage.idSede) === idSedeAdmin
+          );
+        } else if (idEmpresaAdmin > 0) {
+          const idsSedes = new Set(
+            obtenerListado(sedesResp.datos)
+              .filter((sede) => Number(sede.id_empresa ?? sede.idEmpresa) === idEmpresaAdmin)
+              .map((sede) => Number(sede.id_sede ?? sede.id))
+          );
+          garagesPermitidos = todosLosGarages.filter((garage) =>
+            idsSedes.has(Number(garage.id_sede ?? garage.idSede))
+          );
+        }
+
+        setGaragesDisponibles(garagesPermitidos);
+        setGarageSeleccionadoId((actual) => {
+          const seleccionValida = actual && garagesPermitidos.some(
+            (garage) => Number(obtenerIdGarage(garage)) === actual
+          );
+          return seleccionValida ? actual : Number(obtenerIdGarage(garagesPermitidos[0])) || null;
+        });
+      } catch {
+        if (!cancelado) {
+          setGaragesDisponibles([]);
+          setGarageSeleccionadoId(null);
+        }
+      } finally {
+        if (!cancelado) setCargandoGaragesAdmin(false);
+      }
+    };
+
+    cargarGaragesDelAdmin();
+    return () => { cancelado = true; };
+  }, [esAdmin, usuario?.id_empresa, usuario?.id_sede]);
+
+  useEffect(() => {
+    if (!idGarageAsignado) return;
 
     let cancelado = false;
 
@@ -126,11 +267,20 @@ export default function GaragistaDashboard() {
       setErrorCarga("");
 
       try {
-        const [garageResp, reservasResp, usuariosResp, vehiculosResp] = await Promise.all([
+        const [
+          garageResp,
+          reservasResp,
+          usuariosResp,
+          vehiculosResp,
+          marcasResp,
+          modelosResp,
+        ] = await Promise.all([
           GaragesGetById(idGarageAsignado),
-          ReservasGetAll(),
+          ReservasGetAll({ force: true }),
           UsuariosGetAll(),
           VehiculosGetAll(),
+          MarcasGetAll(),
+          ModelosGetAll(),
         ]);
 
         if (cancelado) return;
@@ -144,12 +294,16 @@ export default function GaragistaDashboard() {
 
         setGarageData(garage);
 
-        const usuariosLista = Array.isArray(usuariosResp.datos)
-          ? usuariosResp.datos
-          : Array.isArray(usuariosResp.datos?.data) ? usuariosResp.datos.data : [];
-        const vehiculosLista = Array.isArray(vehiculosResp.datos)
-          ? vehiculosResp.datos
-          : Array.isArray(vehiculosResp.datos?.data) ? vehiculosResp.datos.data : [];
+        const usuariosLista = obtenerListado(usuariosResp.datos);
+        const vehiculosLista = obtenerListado(vehiculosResp.datos);
+        const marcasLista = obtenerListado(marcasResp.datos);
+        const modelosLista = obtenerListado(modelosResp.datos);
+        const marcasMap = new Map(
+          marcasLista.map((marca) => [Number(marca.id ?? marca.id_marca ?? marca._id), marca])
+        );
+        const modelosMap = new Map(
+          modelosLista.map((modelo) => [Number(modelo.id ?? modelo.id_modelo ?? modelo._id), modelo])
+        );
 
         const usuariosMap = new Map();
         usuariosLista.forEach((u) => {
@@ -165,16 +319,37 @@ export default function GaragistaDashboard() {
           const id = Number(v.id_vehiculo ?? v.id ?? v._id);
           if (id) {
             const patente = v.patente ?? v.patenteVehiculo ?? "";
-            const marca = v.marca ?? v.nombre_marca ?? "";
-            const modelo = v.modelo ?? v.nombre_modelo ?? "";
-            const descripcion = [marca, modelo].filter(Boolean).join(" ") || patente || "Vehículo";
+            const idModelo = Number(v.id_modelo ?? v.idModelo ?? v.modelo_id);
+            const modeloRelacion = modelosMap.get(idModelo);
+            const modeloDirecto = typeof v.modelo === "string" && !/^\d+$/.test(v.modelo)
+              ? v.modelo
+              : v.modelo?.nombre ?? v.modelo?.nombre_modelo ?? "";
+            const modelo = v.nombre_modelo
+              || modeloDirecto
+              || modeloRelacion?.nombre
+              || modeloRelacion?.nombre_modelo
+              || "";
+            const idMarca = Number(
+              v.id_marca
+              ?? v.idMarca
+              ?? modeloRelacion?.id_marca
+              ?? modeloRelacion?.idMarca
+            );
+            const marcaRelacion = marcasMap.get(idMarca);
+            const marcaDirecta = typeof v.marca === "string" && !/^\d+$/.test(v.marca)
+              ? v.marca
+              : v.marca?.nombre ?? v.marca?.nombre_marca ?? "";
+            const marca = v.nombre_marca
+              || marcaDirecta
+              || marcaRelacion?.nombre
+              || marcaRelacion?.nombre_marca
+              || "";
+            const descripcion = [marca, modelo].filter(Boolean).join(" ") || "Vehículo sin marca/modelo";
             vehiculosMap.set(id, { patente, descripcion });
           }
         });
 
-        const todasReservas = Array.isArray(reservasResp.datos)
-          ? reservasResp.datos
-          : Array.isArray(reservasResp.datos?.data) ? reservasResp.datos.data : [];
+        const todasReservas = obtenerListado(reservasResp.datos);
 
         const reservasDelGarage = todasReservas
           .filter((r) => {
@@ -192,6 +367,7 @@ export default function GaragistaDashboard() {
             return {
               id: obtenerIdReserva(r),
               conductor: usuariosMap.get(idUsuario) || "Conductor desconocido",
+              fechaReserva: obtenerFechaReserva(r),
               horaReserva: extraerHora(r.hora_entrada) ?? extraerHora(r.fecha_entrada) ?? "--:--",
               plaza: r.nro_plaza ?? r.plaza ?? "--",
               vehiculo: vehiculo.descripcion || "Vehículo desconocido",
@@ -199,6 +375,7 @@ export default function GaragistaDashboard() {
               estado,
               horaEntrada: extraerHora(r.fecha_entrada_real) ?? extraerHora(r.hora_entrada_real) ?? null,
               horaSalida: extraerHora(r.fecha_salida_real) ?? extraerHora(r.hora_salida_real) ?? null,
+              raw: r,
             };
           });
 
@@ -215,13 +392,15 @@ export default function GaragistaDashboard() {
   }, [idGarageAsignado]);
 
   const reservasFiltradas = useMemo(() => {
-    if (!terminoBusqueda) return reservas;
-
     return reservas.filter((reserva) => {
-      const textoVisible = `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase();
+      const coincideFecha = filtroFecha === "todas" || reserva.fechaReserva === fechaISOActual;
+      if (!coincideFecha) return false;
+      if (!terminoBusqueda) return true;
+
+      const textoVisible = `${reserva.conductor} ${reserva.vehiculo} ${reserva.patenteInterna}`.toLowerCase();
       return textoVisible.includes(terminoBusqueda);
     });
-  }, [reservas, terminoBusqueda]);
+  }, [fechaISOActual, filtroFecha, reservas, terminoBusqueda]);
 
   const reservasPendientes = reservasFiltradas.filter(
     (reserva) => reserva.estado === "Pendiente"
@@ -233,6 +412,7 @@ export default function GaragistaDashboard() {
   const cantidadAutosDentro = reservas.filter((reserva) => reserva.estado === "Dentro").length;
 
   const abrirVerificacion = (reserva) => {
+    if (esAdmin) return;
     setReservaSeleccionada(reserva);
     setPatenteIngresada("");
     setErrorVerificacion("");
@@ -248,7 +428,7 @@ export default function GaragistaDashboard() {
 
   const verificarPatente = (event) => {
     event.preventDefault();
-    if (!reservaSeleccionada) return;
+    if (esAdmin || !reservaSeleccionada) return;
 
     const patenteEscrita = normalizarPatente(patenteIngresada);
     const patenteEsperada = normalizarPatente(reservaSeleccionada.patenteInterna);
@@ -262,60 +442,73 @@ export default function GaragistaDashboard() {
     setPatenteVerificada(true);
   };
 
-  const confirmarAcceso = () => {
-    if (!reservaSeleccionada || !patenteVerificada) return;
+  const confirmarAcceso = async () => {
+    if (esAdmin || guardandoAccion || !reservaSeleccionada || !patenteVerificada) return;
 
+    setGuardandoAccion(true);
     const horaEntrada = obtenerHoraActual();
-    setReservas((reservasActuales) =>
-      reservasActuales.map((reserva) =>
-        reserva.id === reservaSeleccionada.id
-          ? { ...reserva, estado: "Dentro", horaEntrada }
-          : reserva
-      )
-    );
-    cerrarVerificacion();
-    showToast("Ingreso verificado correctamente.", "success");
+    const resultado = await ReservasCheckIn(reservaSeleccionada.id);
+
+    if (resultado.respuesta) {
+      setReservas((reservasActuales) =>
+        reservasActuales.map((reserva) =>
+          reserva.id === reservaSeleccionada.id
+            ? {
+                ...reserva,
+                estado: "Dentro",
+                horaEntrada,
+                raw: { ...reserva.raw, ...resultado.datos },
+              }
+            : reserva
+        )
+      );
+      cerrarVerificacion();
+      showToast("Ingreso verificado correctamente.", "success");
+    } else {
+      const mensajeBackend = resultado.datos?.message || "";
+      const ingresoTodaviaNoHabilitado = /todav[ií]a no est[aá] habilitad/i.test(mensajeBackend);
+      setErrorVerificacion(
+        ingresoTodaviaNoHabilitado
+          ? MENSAJE_INGRESO_ANTICIPADO
+          : mensajeBackend || "No se pudo registrar el ingreso en el servidor."
+      );
+    }
+    setGuardandoAccion(false);
   };
 
-  const registrarSalida = (id) => {
+  const registrarSalida = async (reservaSeleccionadaSalida) => {
+    if (esAdmin || guardandoAccion || !reservaSeleccionadaSalida) return;
+
+    setGuardandoAccion(true);
     const horaSalida = obtenerHoraActual();
-    setReservas((reservasActuales) =>
-      reservasActuales.map((reserva) =>
-        reserva.id === id ? { ...reserva, estado: "Finalizado", horaSalida } : reserva
-      )
-    );
-    showToast("Salida registrada correctamente.", "success");
-  };
+    const resultado = await ReservasCheckOut(reservaSeleccionadaSalida.id);
 
-  const handleCerrarSesion = async () => {
-    const cookies = document.cookie.split("; ").filter(Boolean);
-    const superadminBackup = obtenerSuperadminBackup();
-    const usuarioImpersonado = obtenerUsuarioImpersonado();
-
-    if (cookies.length > 1 && superadminBackup && usuarioImpersonado) {
-      eliminarUsuarioImpersonado();
-      clearCache();
-      setRoleTransition(true);
-      setUsuario(superadminBackup);
-      navigate("/superadmin_dashboard", { replace: true });
-      return;
+    if (resultado.respuesta) {
+      setReservas((reservasActuales) =>
+        reservasActuales.map((reserva) =>
+          reserva.id === reservaSeleccionadaSalida.id
+            ? {
+                ...reserva,
+                estado: "Finalizado",
+                horaSalida,
+                raw: { ...reserva.raw, ...resultado.datos },
+              }
+            : reserva
+        )
+      );
+      showToast("Salida registrada correctamente.", "success");
+    } else {
+      showToast(
+        resultado.datos?.message || "No se pudo registrar la salida en el servidor.",
+        "error"
+      );
     }
-
-    try {
-      await apiClient.post("/api/usuario/logout");
-    } catch {
-      // Salimos localmente aunque falle el logout del servidor.
-    }
-
-    eliminarSuperadminBackup();
-    eliminarUsuarioImpersonado();
-    setUsuario(null);
-    navigate("/login", { replace: true });
+    setGuardandoAccion(false);
   };
 
   return (
     <>
-      {esAdmin ? <HeaderAdmin /> : null}
+      <HeaderAdmin homePath={esAdmin ? "/admin_dashboard" : "/garagista_dashboard"} />
 
       <main className="garagista-page">
         <div className="garagista-shell">
@@ -334,25 +527,39 @@ export default function GaragistaDashboard() {
 
               <div>
                 <span className="garagista-eyebrow">
-                  <ShieldCheck size={16} />
-                  Operación diaria
+                  {esAdmin ? <Eye size={16} /> : <ShieldCheck size={16} />}
+                  {esAdmin ? "Vista de solo lectura" : "Operación diaria"}
                 </span>
                 <h1>Control de acceso</h1>
               </div>
             </div>
 
-            {!esAdmin ? (
-              <button className="garagista-logout" type="button" onClick={handleCerrarSesion}>
-                <LogOut size={18} />
-                Cerrar sesion
-              </button>
-            ) : null}
           </header>
 
           <section className="garagista-summary-card" aria-label="Resumen operativo">
             <div>
-              <span className="garagista-summary-label">Garage asignado</span>
-              <strong>{garageData?.nombre || garageData?.name || garageData?.descripcion || garageData?.ubicacion || garageData?.nombre_garage || garageData?.garage_nombre || "Sin garage"}</strong>
+              <span className="garagista-summary-label">
+                {esAdmin ? "Garage consultado" : "Garage asignado"}
+              </span>
+              {esAdmin ? (
+                <select
+                  className="garagista-garage-select"
+                  value={garageSeleccionadoId ?? ""}
+                  onChange={(event) => setGarageSeleccionadoId(Number(event.target.value) || null)}
+                  disabled={cargandoGaragesAdmin || garagesDisponibles.length === 0}
+                  aria-label="Seleccionar garage para consultar"
+                >
+                  {garagesDisponibles.length === 0 ? (
+                    <option value="">Sin garages disponibles</option>
+                  ) : garagesDisponibles.map((garage) => (
+                    <option key={obtenerIdGarage(garage)} value={obtenerIdGarage(garage)}>
+                      {garage.nombre || garage.name || garage.descripcion || garage.ubicacion || "Garage"}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <strong>{garageData?.nombre || garageData?.name || garageData?.descripcion || garageData?.ubicacion || garageData?.nombre_garage || garageData?.garage_nombre || "Sin garage"}</strong>
+              )}
             </div>
 
             <div className="garagista-summary-metric">
@@ -376,14 +583,51 @@ export default function GaragistaDashboard() {
             />
           </label>
 
-          {cargando ? (
+          <div className="garagista-date-filter" role="group" aria-label="Filtrar reservas por fecha">
+            <button
+              type="button"
+              className={filtroFecha === "todas" ? "is-active" : ""}
+              onClick={() => setFiltroFecha("todas")}
+              aria-pressed={filtroFecha === "todas"}
+            >
+              Todas las reservas
+            </button>
+            <button
+              type="button"
+              className={filtroFecha === "hoy" ? "is-active" : ""}
+              onClick={() => setFiltroFecha("hoy")}
+              aria-pressed={filtroFecha === "hoy"}
+            >
+              Reservas de hoy
+            </button>
+          </div>
+
+          {cargandoVista ? (
             <div className="garagista-empty">Cargando datos del garage…</div>
-          ) : errorCarga ? (
-            <div className="garagista-empty">{errorCarga}</div>
+          ) : errorVista ? (
+            <div className="garagista-empty">{errorVista}</div>
           ) : (
           <>
+          <div className="garagista-mobile-tabs" role="group" aria-label="Estado de las reservas">
+            <button
+              type="button"
+              className={seccionMovil === "pendientes" ? "is-active" : ""}
+              onClick={() => setSeccionMovil("pendientes")}
+              aria-pressed={seccionMovil === "pendientes"}
+            >
+              Pendientes <span>{reservasPendientes.length}</span>
+            </button>
+            <button
+              type="button"
+              className={seccionMovil === "dentro" ? "is-active" : ""}
+              onClick={() => setSeccionMovil("dentro")}
+              aria-pressed={seccionMovil === "dentro"}
+            >
+              Dentro <span>{autosDentro.length}</span>
+            </button>
+          </div>
           <div className="garagista-sections-grid">
-            <section className="garagista-section">
+            <section className={`garagista-section garagista-mobile-panel ${seccionMovil === "pendientes" ? "is-active" : ""}`}>
               <div className="garagista-section-heading">
                 <div>
                   <span>Ingresos pendientes</span>
@@ -418,14 +662,17 @@ export default function GaragistaDashboard() {
                         </div>
                       </dl>
 
-                      <button
-                        className="garagista-primary-btn"
-                        type="button"
-                        onClick={() => abrirVerificacion(reserva)}
-                      >
-                        <ShieldCheck size={17} />
-                        Verificar ingreso
-                      </button>
+                      {!esAdmin ? (
+                        <button
+                          className="garagista-primary-btn"
+                          type="button"
+                          onClick={() => abrirVerificacion(reserva)}
+                          disabled={guardandoAccion}
+                        >
+                          <ShieldCheck size={17} />
+                          Verificar ingreso
+                        </button>
+                      ) : null}
                     </article>
                   ))
                 ) : (
@@ -434,7 +681,7 @@ export default function GaragistaDashboard() {
               </div>
             </section>
 
-            <section className="garagista-section">
+            <section className={`garagista-section garagista-mobile-panel ${seccionMovil === "dentro" ? "is-active" : ""}`}>
               <div className="garagista-section-heading">
                 <div>
                   <span>Ocupacion actual</span>
@@ -469,14 +716,17 @@ export default function GaragistaDashboard() {
                         </div>
                       </dl>
 
-                      <button
-                        className="garagista-secondary-btn"
-                        type="button"
-                        onClick={() => registrarSalida(reserva.id)}
-                      >
-                        <CheckCircle2 size={17} />
-                        Registrar salida
-                      </button>
+                      {!esAdmin ? (
+                        <button
+                          className="garagista-secondary-btn"
+                          type="button"
+                          onClick={() => registrarSalida(reserva)}
+                          disabled={guardandoAccion}
+                        >
+                          <CheckCircle2 size={17} />
+                          Registrar salida
+                        </button>
+                      ) : null}
                     </article>
                   ))
                 ) : (
@@ -521,7 +771,7 @@ export default function GaragistaDashboard() {
 
       {esAdmin ? <FooterAdmin /> : null}
 
-      {reservaSeleccionada ? (
+      {!esAdmin && reservaSeleccionada ? (
         <ModalPortal onClose={cerrarVerificacion} overlayClassName="garagista-modal-overlay">
           <form className="garagista-modal" onSubmit={verificarPatente} onClick={(e) => e.stopPropagation()}>
             <div className="garagista-modal__header">
@@ -586,8 +836,9 @@ export default function GaragistaDashboard() {
                 className="garagista-primary-btn"
                 type={patenteVerificada ? "button" : "submit"}
                 onClick={patenteVerificada ? confirmarAcceso : undefined}
+                disabled={guardandoAccion}
               >
-                {patenteVerificada ? "Confirmar" : "Verificar patente"}
+                {guardandoAccion ? "Guardando..." : patenteVerificada ? "Confirmar" : "Verificar patente"}
               </button>
             </div>
           </form>

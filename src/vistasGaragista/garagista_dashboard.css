@@ -125,6 +125,31 @@
   font-weight: 900;
 }
 
+.garagista-garage-select {
+  width: min(100%, 360px);
+  min-height: 46px;
+  border: 1px solid #cbd5e1;
+  border-radius: 13px;
+  padding: 0 38px 0 13px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.garagista-garage-select:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  border-color: #2563eb;
+}
+
+.garagista-garage-select:disabled {
+  cursor: not-allowed;
+  color: #64748b;
+  background: #f8fafc;
+}
+
 .garagista-summary-metric,
 .garagista-capacity {
   justify-content: flex-start;
@@ -150,7 +175,7 @@
 .garagista-search {
   gap: 10px;
   min-height: 52px;
-  margin-bottom: 22px;
+  margin-bottom: 12px;
   border: 1px solid #dbe5f1;
   border-radius: 16px;
   padding: 0 16px;
@@ -391,6 +416,62 @@
   background: #dbeafe;
 }
 
+.garagista-date-filter,
+.garagista-mobile-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border: 1px solid #dbe5f1;
+  border-radius: 14px;
+  padding: 4px;
+  background: #ffffff;
+}
+
+.garagista-date-filter {
+  margin-bottom: 22px;
+}
+
+.garagista-date-filter button,
+.garagista-mobile-tabs button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.garagista-date-filter button:hover,
+.garagista-mobile-tabs button:hover {
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.garagista-date-filter button.is-active,
+.garagista-mobile-tabs button.is-active {
+  color: #ffffff;
+  background: #2563eb;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+.garagista-mobile-tabs {
+  display: none;
+}
+
+.garagista-primary-btn:disabled,
+.garagista-secondary-btn:disabled {
+  cursor: wait;
+  transform: none;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
 .garagista-empty {
   border-radius: 16px;
   padding: 24px;
@@ -612,6 +693,47 @@
 
   .garagista-summary-card strong {
     font-size: 23px;
+  }
+
+  .garagista-date-filter,
+  .garagista-mobile-tabs {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .garagista-date-filter button,
+  .garagista-mobile-tabs button {
+    flex: 1;
+    padding-inline: 8px;
+  }
+
+  .garagista-mobile-tabs {
+    display: flex;
+    margin-bottom: 18px;
+  }
+
+  .garagista-mobile-tabs span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    margin-left: 4px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-size: 11px;
+  }
+
+  .garagista-mobile-tabs .is-active span {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .garagista-mobile-panel {
+    display: none;
+  }
+
+  .garagista-mobile-panel.is-active {
+    display: block;
   }
 
   .access-card__meta,

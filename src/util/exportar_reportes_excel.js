@@ -3,9 +3,8 @@
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
-const BRAND_COLOR = "FF4F46E5";
-const HEADER_BG = "FF111827";
 const HEADER_TEXT = "FFFFFFFF";
+const MIN_COLUMN_WIDTH = 12;
 
 const aplicarEstiloTitulo = (celda) => {
   celda.font = {
@@ -92,7 +91,7 @@ const aplicarFilasAlternadas = (worksheet, desdeFila) => {
 
 const ajustarColumnas = (worksheet) => {
   worksheet.columns.forEach((columna) => {
-    let maxLength = minWidth;
+    let maxLength = MIN_COLUMN_WIDTH;
 
     columna.eachCell({ includeEmpty: true }, (celda) => {
       const valor = celda.value ? celda.value.toString() : "";
@@ -130,7 +129,7 @@ const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia, startRo
     vertical: "middle",
     horizontal: "center",
   };
-  tituloGrafico.border = {
+  tituloCell.border = {
     top: { style: "thin", color: { argb: "FFCBD5E1" } },
     left: { style: "thin", color: { argb: "FFCBD5E1" } },
     bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
@@ -215,7 +214,7 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
 
   // Chart: placed below the KPI table with a spacer row
   if (graficoTendencia) {
-    const chartStartRow = 10; // After KPIs + spacer
+    const chartStartRow = hojaResumen.rowCount + 2;
     insertarGraficoTendencia(workbook, hojaResumen, graficoTendencia, chartStartRow);
   }
 

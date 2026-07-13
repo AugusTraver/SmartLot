@@ -598,8 +598,7 @@ export default function AdminReportesAnalisis() {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [exportState, setExportState] = useState(null);
-  const [exportFormat, setExportFormat] = useState("");
+  const [exportando, setExportando] = useState(false);
   const [granularidad, setGranularidad] = useState("semana");
   const [fechaActual, setFechaActual] = useState(() => new Date());
 
@@ -929,37 +928,31 @@ export default function AdminReportesAnalisis() {
   };
 
   const exportarExcel = async () => {
-    if (loading || exportState) return;
+    if (loading || exportando) return;
     try {
-      setExportFormat("Excel");
-      setExportState("generating");
-      await new Promise((r) => setTimeout(r, 350));
+      setExportando(true);
       const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
-      setExportState("building");
-      await new Promise((r) => setTimeout(r, 300));
       await exportarReporteExcel(datosReporteVisible, { graficoTendencia });
+    } catch (errorExportacion) {
+      console.error("No se pudo exportar el reporte a Excel:", errorExportacion);
     } finally {
-      setExportState(null);
-      setExportFormat("");
+      setExportando(false);
     }
   };
   const exportarPDF = async () => {
-    if (loading || exportState) return;
+    if (loading || exportando) return;
     try {
-      setExportFormat("PDF");
-      setExportState("generating");
-      await new Promise((r) => setTimeout(r, 350));
+      setExportando(true);
       const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
       const logoBase64 = await cargarImagenBase64(logoSmartLot);
-      setExportState("building");
-      await new Promise((r) => setTimeout(r, 300));
       exportarReportePDF(datosReporteVisible, {
         graficoTendencia,
         logoBase64,
       });
+    } catch (errorExportacion) {
+      console.error("No se pudo exportar el reporte a PDF:", errorExportacion);
     } finally {
-      setExportState(null);
-      setExportFormat("");
+      setExportando(false);
     }
   };
   const kpis = [
@@ -1021,7 +1014,7 @@ export default function AdminReportesAnalisis() {
         <>
           <section className="reportes-section">
             <div className="export-actions">
-              <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading || exportState}>
+              <button className="report-btn report-btn--excel" onClick={exportarExcel} disabled={loading || exportando}>
                 <div className="report-btn__icon-wrapper">
                   <FileText size={24} className="report-btn__icon" />
                 </div>
@@ -1030,7 +1023,7 @@ export default function AdminReportesAnalisis() {
                   <span className="report-btn__subtitle">Reporte en XLSX</span>
                 </div>
               </button>
-              <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading || exportState}>
+              <button className="report-btn report-btn--pdf" onClick={exportarPDF} disabled={loading || exportando}>
                 <div className="report-btn__icon-wrapper">
                   <FileText size={24} className="report-btn__icon" />
                 </div>
@@ -1180,27 +1173,6 @@ export default function AdminReportesAnalisis() {
       )}
 
       <FooterEmpleado />
-
-      {exportState && (
-        <div className="export-overlay">
-          <div className="export-modal">
-            <h3 className="export-modal__title">Exportando reporte</h3>
-            <p className="export-modal__subtitle">Preparando tu archivo {exportFormat || "reporte"}...</p>
-            <div className="export-steps">
-              <div className={`export-step ${exportState === "generating" ? "export-step--active" : exportState !== "generating" ? "export-step--done" : ""}`}>
-                <span className="export-step__icon">{exportState === "generating" ? "..." : "✓"}</span>
-                <span className="export-step__label">
-                  Generando grafico{exportFormat === "PDF" ? " y logo" : ""}
-                </span>
-              </div>
-              <div className={`export-step ${exportState === "building" ? "export-step--active" : ""}`}>
-                <span className="export-step__icon">{exportState === "building" ? "..." : ""}</span>
-                <span className="export-step__label">Armando archivo {exportFormat || "reporte"}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

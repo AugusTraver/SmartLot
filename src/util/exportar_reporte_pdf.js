@@ -14,7 +14,7 @@ const obtenerFechaLegible = () => {
   });
 };
 
-const agregarTitulo = (doc, titulo) => {
+const agregarTitulo = (doc, titulo, logoBase64) => {
   doc.setFillColor(79, 70, 229);
   doc.rect(0, 0, 210, 25, "F");
 
@@ -56,13 +56,11 @@ export const exportarReportePDF = (reporte = {}, opciones = {}) => {
     ocupacion: item.ocupacion ?? (item.valor != null ? `${item.valor}%` : undefined),
   }));
   const etiquetaDimension = reporte.etiquetaDimension ?? metricasBase.etiquetaDimension ?? "Periodo";
-  const granularidadLabel = reporte.granularidadLabel ?? metricasBase.granularidadLabel ?? "Periodo";
-  const periodo = reporte.periodo ?? metricasBase.periodo ?? "-";
   const graficoBase64 = reporte.graficoBase64 ?? opciones.graficoBase64 ?? opciones.graficoTendencia ?? null;
   const logoBase64 = reporte.logoBase64 ?? opciones.logoBase64 ?? null;
   const doc = new jsPDF("p", "mm", "a4");
 
-  agregarTitulo(doc, "Reporte de Datos");
+  agregarTitulo(doc, "Reporte de Datos", logoBase64);
 
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(10);

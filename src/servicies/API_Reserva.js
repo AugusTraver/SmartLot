@@ -174,6 +174,46 @@ const ReservasCancel = async (id) => {
     }
 };
 
+const ReservasCheckIn = async (id) => {
+    const returnObject = { respuesta: false, datos: null };
+
+    try {
+        const response = await apiClient.post(
+            '/api/reserva/' + id + '/check-in',
+            {},
+            { _skipToast: true }
+        );
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+        invalidateReservasDependencies();
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+    }
+
+    return returnObject;
+};
+
+const ReservasCheckOut = async (id) => {
+    const returnObject = { respuesta: false, datos: null };
+
+    try {
+        const response = await apiClient.post(
+            '/api/reserva/' + id + '/check-out',
+            {},
+            { _skipToast: true }
+        );
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+        invalidateReservasDependencies();
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+    }
+
+    return returnObject;
+};
+
 
 
 const ReservasGetByUsuario = async (idUsuario, { force = false } = {}) => {
@@ -292,6 +332,8 @@ export {
     ReservasUpdate,
     ReservasDelete,
     ReservasCancel,
+    ReservasCheckIn,
+    ReservasCheckOut,
     ReservasGetDisponibilidadPorHora,
     ReservasGetByUsuario
 };
