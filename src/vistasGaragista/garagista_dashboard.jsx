@@ -24,13 +24,8 @@ import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
 import { showToast } from "../helpers/toast";
+import { normalizarPatente } from "../helpers/patente";
 import "./garagista_dashboard.css";
-
-const normalizarPatente = (valor) =>
-  valor
-    .trim()
-    .replace(/[\s-]/g, "")
-    .toUpperCase();
 
 const MENSAJE_INGRESO_ANTICIPADO =
   "No se puede ingresar el vehículo hasta una hora antes del horario pautado de la reserva.";
@@ -145,7 +140,9 @@ const normalizarEstadoReserva = (reserva) => {
     reserva.checkIn,
     reserva.entro,
     reserva.entrada_registrada,
+    reserva.entradaRegistrada,
     reserva.fecha_entrada_real,
+    reserva.fechaEntradaReal,
   ].some(esValorVerdadero);
   const salio = [
     reserva.salida,
@@ -154,7 +151,9 @@ const normalizarEstadoReserva = (reserva) => {
     reserva.checkOut,
     reserva.salio,
     reserva.salida_registrada,
+    reserva.salidaRegistrada,
     reserva.fecha_salida_real,
+    reserva.fechaSalidaReal,
   ].some(esValorVerdadero);
 
   if (salio) return "Finalizado";
@@ -183,6 +182,80 @@ const extraerHora = (valor) => {
   if (texto.includes("T")) return texto.split("T")[1]?.slice(0, 5);
   if (texto.includes(" ")) return texto.split(" ")[1]?.slice(0, 5);
   if (texto.includes(":")) return texto.slice(0, 5);
+  return null;
+};
+
+const obtenerHoraEntradaReal = (reserva) => {
+  const candidatos = [
+    reserva.fecha_entrada_real,
+    reserva.fechaEntradaReal,
+    reserva.hora_entrada_real,
+    reserva.horaEntradaReal,
+    reserva.entrada_registrada,
+    reserva.entradaRegistrada,
+    reserva.check_in,
+    reserva.checkIn,
+    reserva.entrada,
+    reserva.ingreso,
+    reserva.fecha_ingreso,
+    reserva.fechaIngreso,
+    reserva.hora_ingreso,
+    reserva.horaIngreso,
+    reserva.ingreso_at,
+    reserva.ingresoAt,
+    reserva.check_in_at,
+    reserva.checkInAt,
+    reserva.movimiento?.fecha_entrada,
+    reserva.movimiento?.fechaEntrada,
+    reserva.movimiento?.hora_entrada,
+    reserva.movimiento?.horaEntrada,
+    reserva.movimiento?.fecha_ingreso,
+    reserva.movimiento?.hora_ingreso,
+  ];
+
+  for (const candidato of candidatos) {
+    if (typeof candidato === "boolean" || candidato === 0 || candidato === 1) continue;
+    const hora = extraerHora(candidato);
+    if (hora) return hora;
+  }
+
+  return null;
+};
+
+const obtenerHoraSalidaReal = (reserva) => {
+  const candidatos = [
+    reserva.fecha_salida_real,
+    reserva.fechaSalidaReal,
+    reserva.hora_salida_real,
+    reserva.horaSalidaReal,
+    reserva.salida_registrada,
+    reserva.salidaRegistrada,
+    reserva.check_out,
+    reserva.checkOut,
+    reserva.salida,
+    reserva.egreso,
+    reserva.fecha_egreso,
+    reserva.fechaEgreso,
+    reserva.hora_egreso,
+    reserva.horaEgreso,
+    reserva.egreso_at,
+    reserva.egresoAt,
+    reserva.check_out_at,
+    reserva.checkOutAt,
+    reserva.movimiento?.fecha_salida,
+    reserva.movimiento?.fechaSalida,
+    reserva.movimiento?.hora_salida,
+    reserva.movimiento?.horaSalida,
+    reserva.movimiento?.fecha_egreso,
+    reserva.movimiento?.hora_egreso,
+  ];
+
+  for (const candidato of candidatos) {
+    if (typeof candidato === "boolean" || candidato === 0 || candidato === 1) continue;
+    const hora = extraerHora(candidato);
+    if (hora) return hora;
+  }
+
   return null;
 };
 
@@ -334,6 +407,7 @@ export default function GaragistaDashboard() {
   const [filtroFecha, setFiltroFecha] = useState("todas");
   const [seccionMovil, setSeccionMovil] = useState("pendientes");
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
+  const [tipoVerificacion, setTipoVerificacion] = useState("ingreso");
   const [patenteIngresada, setPatenteIngresada] = useState("");
   const [errorVerificacion, setErrorVerificacion] = useState("");
   const [patenteVerificada, setPatenteVerificada] = useState(false);
@@ -525,12 +599,12 @@ export default function GaragistaDashboard() {
               conductor: usuariosMap.get(idUsuario) || "Conductor desconocido",
               fechaReserva: obtenerFechaReserva(r),
               horaReserva: extraerHora(r.hora_entrada) ?? extraerHora(r.fecha_entrada) ?? "--:--",
-              plaza: r.nro_plaza ?? r.plaza ?? "--",
+              horaSalidaPrevista: extraerHora(r.hora_salida) ?? extraerHora(r.fecha_salida) ?? "--:--",
               vehiculo: vehiculo.descripcion || "Vehículo desconocido",
               patenteInterna: vehiculo.patente || "--",
               estado,
-              horaEntrada: extraerHora(r.fecha_entrada_real) ?? extraerHora(r.hora_entrada_real) ?? null,
-              horaSalida: extraerHora(r.fecha_salida_real) ?? extraerHora(r.hora_salida_real) ?? null,
+              horaEntrada: obtenerHoraEntradaReal(r),
+              horaSalida: obtenerHoraSalidaReal(r),
               raw: r,
             };
           });
@@ -553,7 +627,7 @@ export default function GaragistaDashboard() {
       if (!coincideFecha) return false;
       if (!terminoBusqueda) return true;
 
-      const textoVisible = `${reserva.conductor} ${reserva.vehiculo} ${reserva.patenteInterna}`.toLowerCase();
+      const textoVisible = `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase();
       return textoVisible.includes(terminoBusqueda);
     });
   }, [fechaISOActual, filtroFecha, reservas, terminoBusqueda]);
@@ -561,7 +635,11 @@ export default function GaragistaDashboard() {
   const reservasPendientes = reservasFiltradas.filter(
     (reserva) => reserva.estado === "Pendiente"
   );
-  const autosDentro = reservasFiltradas.filter((reserva) => reserva.estado === "Dentro");
+  const autosDentro = reservas.filter((reserva) => {
+    if (reserva.estado !== "Dentro") return false;
+    if (!terminoBusqueda) return true;
+    return `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase().includes(terminoBusqueda);
+  });
   const movimientosFinalizados = reservasFiltradas.filter(
     (reserva) => reserva.estado === "Finalizado"
   );
@@ -570,6 +648,16 @@ export default function GaragistaDashboard() {
   const abrirVerificacion = (reserva) => {
     if (esAdmin) return;
     setReservaSeleccionada(reserva);
+    setTipoVerificacion("ingreso");
+    setPatenteIngresada("");
+    setErrorVerificacion("");
+    setPatenteVerificada(false);
+  };
+
+  const abrirVerificacionSalida = (reserva) => {
+    if (esAdmin || guardandoAccion) return;
+    setReservaSeleccionada(reserva);
+    setTipoVerificacion("salida");
     setPatenteIngresada("");
     setErrorVerificacion("");
     setPatenteVerificada(false);
@@ -587,10 +675,19 @@ export default function GaragistaDashboard() {
     if (esAdmin || !reservaSeleccionada) return;
 
     const patenteEscrita = normalizarPatente(patenteIngresada);
+    if (!patenteEscrita) {
+      setErrorVerificacion("Ingresá la patente completa para continuar.");
+      return;
+    }
+
     const patenteEsperada = normalizarPatente(reservaSeleccionada.patenteInterna);
 
     if (patenteEscrita !== patenteEsperada) {
-      setErrorVerificacion("La patente ingresada no coincide con la reserva.");
+      setErrorVerificacion(
+        tipoVerificacion === "salida"
+          ? "La patente ingresada no coincide con el vehículo registrado"
+          : "La patente ingresada no coincide con la reserva."
+      );
       return;
     }
 
@@ -638,33 +735,38 @@ export default function GaragistaDashboard() {
     setGuardandoAccion(false);
   };
 
-  const registrarSalida = async (reservaSeleccionadaSalida) => {
-    if (esAdmin || guardandoAccion || !reservaSeleccionadaSalida) return;
+  const confirmarSalida = async () => {
+    if (esAdmin || guardandoAccion || !reservaSeleccionada || !patenteVerificada) return;
 
     setGuardandoAccion(true);
-    const horaSalida = obtenerHoraActual();
-    const resultado = await ReservasCheckOut(reservaSeleccionadaSalida.id);
+    setErrorVerificacion("");
+    const resultado = await ReservasCheckOut(reservaSeleccionada.id);
 
     if (resultado.respuesta) {
+      const datosSalida = resultado.datos?.data ?? resultado.datos?.reserva ?? resultado.datos;
+      const horaSalidaBackend = obtenerHoraSalidaReal(datosSalida || {});
+      const horaSalida = horaSalidaBackend || obtenerHoraActual();
+
       setReservas((reservasActuales) =>
         reservasActuales.map((reserva) =>
-          reserva.id === reservaSeleccionadaSalida.id
+          reserva.id === reservaSeleccionada.id
             ? {
                 ...reserva,
                 estado: "Finalizado",
                 horaSalida,
-                raw: { ...reserva.raw, ...resultado.datos },
+                raw: { ...reserva.raw, ...datosSalida },
               }
             : reserva
         )
       );
+      cerrarVerificacion();
       showToast("Salida registrada correctamente.", "success");
     } else {
-      showToast(
-        resultado.datos?.message || "No se pudo registrar la salida en el servidor.",
-        "error"
+      setErrorVerificacion(
+        resultado.datos?.message || "No se pudo registrar la salida en el servidor. Intentá nuevamente."
       );
     }
+
     setGuardandoAccion(false);
   };
 
@@ -816,17 +918,13 @@ export default function GaragistaDashboard() {
                         <BadgeEstado estado={reserva.estado} />
                       </div>
 
-                      <dl className="access-card__meta">
+                      <dl className="access-card__meta access-card__meta--single">
                         <div>
                           <dt>Hora de reserva</dt>
                           <dd>
                             <Clock3 size={15} />
                             {reserva.horaReserva}
                           </dd>
-                        </div>
-                        <div>
-                          <dt>Plaza</dt>
-                          <dd>{reserva.plaza}</dd>
                         </div>
                       </dl>
 
@@ -870,17 +968,22 @@ export default function GaragistaDashboard() {
                         <BadgeEstado estado={reserva.estado} />
                       </div>
 
-                      <dl className="access-card__meta">
+                      <dl className={`access-card__meta ${reserva.horaEntrada ? "" : "access-card__meta--single"}`}>
+                        {reserva.horaEntrada ? (
+                          <div>
+                            <dt>Hora de entrada</dt>
+                            <dd>
+                              <DoorOpen size={15} />
+                              {reserva.horaEntrada}
+                            </dd>
+                          </div>
+                        ) : null}
                         <div>
-                          <dt>Hora de entrada</dt>
+                          <dt>Salida prevista</dt>
                           <dd>
-                            <DoorOpen size={15} />
-                            {reserva.horaEntrada}
+                            <Clock3 size={15} />
+                            {reserva.horaSalidaPrevista}
                           </dd>
-                        </div>
-                        <div>
-                          <dt>Plaza</dt>
-                          <dd>{reserva.plaza}</dd>
                         </div>
                       </dl>
 
@@ -888,11 +991,11 @@ export default function GaragistaDashboard() {
                         <button
                           className="garagista-secondary-btn"
                           type="button"
-                          onClick={() => registrarSalida(reserva)}
+                          onClick={() => abrirVerificacionSalida(reserva)}
                           disabled={guardandoAccion}
                         >
                           <CheckCircle2 size={17} />
-                          Registrar salida
+                          Verificar salida
                         </button>
                       ) : null}
                     </article>
@@ -922,9 +1025,8 @@ export default function GaragistaDashboard() {
                       <p>{reserva.vehiculo}</p>
                     </div>
                     <BadgeEstado estado={reserva.estado} />
-                    <span>Plaza {reserva.plaza}</span>
-                    <span>Entrada {reserva.horaEntrada}</span>
-                    <span>Salida {reserva.horaSalida}</span>
+                    {reserva.horaEntrada ? <span>Entrada {reserva.horaEntrada}</span> : null}
+                    {reserva.horaSalida ? <span>Salida real {reserva.horaSalida}</span> : null}
                   </article>
                 ))
               ) : (
@@ -944,11 +1046,13 @@ export default function GaragistaDashboard() {
           <form className="garagista-modal" onSubmit={verificarPatente} onClick={(e) => e.stopPropagation()}>
             <div className="garagista-modal__header">
               <div>
-                <h2>{patenteVerificada ? "Confirmar vehículo" : "Verificar patente"}</h2>
+                <h2>{patenteVerificada ? "Confirmar vehículo" : `Verificar ${tipoVerificacion}`}</h2>
                 <p>
                   {patenteVerificada
-                    ? "Revisá los datos antes de registrar el ingreso."
-                    : "Ingresá la patente del vehículo para confirmar el acceso."}
+                    ? tipoVerificacion === "salida"
+                      ? "Patente verificada"
+                      : "Revisá los datos antes de registrar el ingreso."
+                    : `Ingresá la patente completa para validar ${tipoVerificacion === "salida" ? "la salida" : "el acceso"}.`}
                 </p>
               </div>
               <button
@@ -967,13 +1071,25 @@ export default function GaragistaDashboard() {
                   <CarFront size={25} />
                 </span>
                 <div>
-                  <span>El vehículo que ingresará es</span>
+                  <span>{tipoVerificacion === "salida" ? "Patente verificada" : "El vehículo que ingresará es"}</span>
                   <strong>{reservaSeleccionada.vehiculo}</strong>
-                  <small>Patente {reservaSeleccionada.patenteInterna}</small>
+                  {tipoVerificacion === "ingreso" ? <small>Patente {reservaSeleccionada.patenteInterna}</small> : null}
                 </div>
               </div>
             ) : (
               <>
+                {tipoVerificacion === "salida" ? (
+                  <div className="garagista-vehicle-confirmation">
+                    <span className="garagista-vehicle-confirmation__icon">
+                      <CarFront size={25} />
+                    </span>
+                    <div>
+                      <span>Vehículo dentro</span>
+                      <strong>{reservaSeleccionada.vehiculo}</strong>
+                      <small>{reservaSeleccionada.conductor}</small>
+                    </div>
+                  </div>
+                ) : null}
                 <label className="garagista-modal__field">
                   <span>Patente</span>
                   <input
@@ -981,6 +1097,8 @@ export default function GaragistaDashboard() {
                     type="text"
                     placeholder="Ej: AB123CD"
                     value={patenteIngresada}
+                    autoComplete="off"
+                    spellCheck="false"
                     onChange={(event) => {
                       setPatenteIngresada(event.target.value);
                       setErrorVerificacion("");
@@ -997,16 +1115,20 @@ export default function GaragistaDashboard() {
             ) : null}
 
             <div className="garagista-modal__actions">
-              <button className="garagista-cancel-btn" type="button" onClick={cerrarVerificacion}>
+              <button className="garagista-cancel-btn" type="button" onClick={cerrarVerificacion} disabled={guardandoAccion}>
                 Cancelar
               </button>
               <button
                 className="garagista-primary-btn"
                 type={patenteVerificada ? "button" : "submit"}
-                onClick={patenteVerificada ? confirmarAcceso : undefined}
+                onClick={patenteVerificada ? (tipoVerificacion === "salida" ? confirmarSalida : confirmarAcceso) : undefined}
                 disabled={guardandoAccion}
               >
-                {guardandoAccion ? "Guardando..." : patenteVerificada ? "Confirmar" : "Verificar patente"}
+                {guardandoAccion
+                  ? "Guardando..."
+                  : patenteVerificada
+                    ? tipoVerificacion === "salida" ? "Confirmar salida" : "Confirmar"
+                    : "Verificar patente"}
               </button>
             </div>
           </form>

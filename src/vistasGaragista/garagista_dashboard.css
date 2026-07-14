@@ -320,6 +320,10 @@
   margin: 0 0 15px;
 }
 
+.access-card__meta--single {
+  grid-template-columns: 1fr;
+}
+
 .access-card__meta div {
   min-width: 0;
   border-radius: 13px;
@@ -487,7 +491,7 @@
 }
 
 .movement-row {
-  grid-template-columns: minmax(220px, 1fr) auto repeat(3, minmax(110px, auto));
+  grid-template-columns: minmax(220px, 1fr) auto repeat(2, minmax(110px, auto));
   gap: 14px;
   border-radius: 16px;
   padding: 14px 16px;
@@ -552,6 +556,10 @@
 .garagista-modal__field {
   display: grid;
   gap: 8px;
+}
+
+.garagista-vehicle-confirmation + .garagista-modal__field {
+  margin-top: 16px;
 }
 
 .garagista-modal__field span {
@@ -653,6 +661,11 @@
 .garagista-cancel-btn:hover {
   border-color: #cbd5e1;
   background: #f8fafc;
+}
+
+.garagista-cancel-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .garagista-skeleton {
