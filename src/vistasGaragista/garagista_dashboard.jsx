@@ -404,7 +404,6 @@ export default function GaragistaDashboard() {
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [filtroFecha, setFiltroFecha] = useState("todas");
   const [seccionMovil, setSeccionMovil] = useState("pendientes");
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [tipoVerificacion, setTipoVerificacion] = useState("ingreso");
@@ -583,6 +582,7 @@ export default function GaragistaDashboard() {
 
         const reservasDelGarage = todasReservas
           .filter((r) => {
+            if (esValorVerdadero(r.borrado)) return false;
             const idGarageReserva = Number(
               r.id_garage ?? r.idGarage ?? r.garage_id ?? r.garageId
             );
@@ -623,19 +623,18 @@ export default function GaragistaDashboard() {
 
   const reservasFiltradas = useMemo(() => {
     return reservas.filter((reserva) => {
-      const coincideFecha = filtroFecha === "todas" || reserva.fechaReserva === fechaISOActual;
-      if (!coincideFecha) return false;
+      if (reserva.fechaReserva !== fechaISOActual) return false;
       if (!terminoBusqueda) return true;
 
       const textoVisible = `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase();
       return textoVisible.includes(terminoBusqueda);
     });
-  }, [fechaISOActual, filtroFecha, reservas, terminoBusqueda]);
+  }, [fechaISOActual, reservas, terminoBusqueda]);
 
   const reservasPendientes = reservasFiltradas.filter(
     (reserva) => reserva.estado === "Pendiente"
   );
-  const autosDentro = reservas.filter((reserva) => {
+  const autosDentro = reservasFiltradas.filter((reserva) => {
     if (reserva.estado !== "Dentro") return false;
     if (!terminoBusqueda) return true;
     return `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase().includes(terminoBusqueda);
@@ -643,7 +642,7 @@ export default function GaragistaDashboard() {
   const movimientosFinalizados = reservasFiltradas.filter(
     (reserva) => reserva.estado === "Finalizado"
   );
-  const cantidadAutosDentro = reservas.filter((reserva) => reserva.estado === "Dentro").length;
+  const cantidadAutosDentro = reservasFiltradas.filter((reserva) => reserva.estado === "Dentro").length;
 
   const abrirVerificacion = (reserva) => {
     if (esAdmin) return;
@@ -852,25 +851,6 @@ export default function GaragistaDashboard() {
               onChange={(event) => setBusqueda(event.target.value)}
             />
           </label>
-
-          <div className="garagista-date-filter" role="group" aria-label="Filtrar reservas por fecha">
-            <button
-              type="button"
-              className={filtroFecha === "todas" ? "is-active" : ""}
-              onClick={() => setFiltroFecha("todas")}
-              aria-pressed={filtroFecha === "todas"}
-            >
-              Todas las reservas
-            </button>
-            <button
-              type="button"
-              className={filtroFecha === "hoy" ? "is-active" : ""}
-              onClick={() => setFiltroFecha("hoy")}
-              aria-pressed={filtroFecha === "hoy"}
-            >
-              Reservas de hoy
-            </button>
-          </div>
 
           {cargandoVista ? (
             <GaragistaDashboardSkeleton />
