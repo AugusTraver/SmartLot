@@ -294,9 +294,33 @@ const obtenerMensajeIngresoAnticipado = (reserva) => {
   return `No se puede registrar el ingreso todavia. La entrada del vehiculo se podra efectuar a partir de las ${formatearHora(fechaHabilitacion)}, una hora antes del horario de la reserva.`;
 };
 
+const obtenerFechaHoraProgramada = (fecha, hora) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) || !/^\d{2}:\d{2}$/.test(String(hora))) {
+    return null;
+  }
+
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  const [horas, minutos] = hora.split(":").map(Number);
+  const fechaHora = new Date(anio, mes - 1, dia, horas, minutos);
+
+  return Number.isNaN(fechaHora.getTime()) ? null : fechaHora;
+};
+
+const estaReservaPendienteVencida = (reserva, ahora = new Date()) => {
+  if (reserva.estado !== "Pendiente") return false;
+  const salidaProgramada = obtenerFechaHoraProgramada(reserva.fechaReserva, reserva.horaSalidaPrevista);
+  return Boolean(salidaProgramada && salidaProgramada <= ahora);
+};
+
+const obtenerClaseEstado = (estado) =>
+  String(estado || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+
 function BadgeEstado({ estado }) {
   return (
-    <span className={`garagista-status garagista-status--${estado.toLowerCase()}`}>
+    <span className={`garagista-status garagista-status--${obtenerClaseEstado(estado)}`}>
       {estado}
     </span>
   );
@@ -592,14 +616,21 @@ export default function GaragistaDashboard() {
             const idUsuario = Number(r.id_usuario ?? r.idUsuario);
             const idVehiculo = Number(r.id_vehiculo ?? r.idVehiculo);
             const vehiculo = vehiculosMap.get(idVehiculo) || {};
-            const estado = normalizarEstadoReserva(r);
+            const estadoBase = normalizarEstadoReserva(r);
+            const fechaReserva = obtenerFechaReserva(r);
+            const horaSalidaPrevista = extraerHora(r.hora_salida) ?? extraerHora(r.fecha_salida) ?? "--:--";
+            const estado = estaReservaPendienteVencida({
+              estado: estadoBase,
+              fechaReserva,
+              horaSalidaPrevista,
+            }) ? "Sin registro" : estadoBase;
 
             return {
               id: obtenerIdReserva(r),
               conductor: usuariosMap.get(idUsuario) || "Conductor desconocido",
-              fechaReserva: obtenerFechaReserva(r),
+              fechaReserva,
               horaReserva: extraerHora(r.hora_entrada) ?? extraerHora(r.fecha_entrada) ?? "--:--",
-              horaSalidaPrevista: extraerHora(r.hora_salida) ?? extraerHora(r.fecha_salida) ?? "--:--",
+              horaSalidaPrevista,
               vehiculo: vehiculo.descripcion || "Vehículo desconocido",
               patenteInterna: vehiculo.patente || "--",
               estado,
@@ -640,7 +671,7 @@ export default function GaragistaDashboard() {
     return `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase().includes(terminoBusqueda);
   });
   const movimientosFinalizados = reservasFiltradas.filter(
-    (reserva) => reserva.estado === "Finalizado"
+    (reserva) => reserva.estado === "Finalizado" || reserva.estado === "Sin registro"
   );
   const cantidadAutosDentro = reservasFiltradas.filter((reserva) => reserva.estado === "Dentro").length;
 
@@ -1006,7 +1037,11 @@ export default function GaragistaDashboard() {
                     </div>
                     <BadgeEstado estado={reserva.estado} />
                     {reserva.horaEntrada ? <span>Entrada {reserva.horaEntrada}</span> : null}
-                    {reserva.horaSalida ? <span>Salida real {reserva.horaSalida}</span> : null}
+                    {reserva.horaSalida ? (
+                      <span>Salida real {reserva.horaSalida}</span>
+                    ) : reserva.estado === "Sin registro" ? (
+                      <span>Salida prevista {reserva.horaSalidaPrevista}</span>
+                    ) : null}
                   </article>
                 ))
               ) : (

@@ -375,6 +375,11 @@
   color: #475569;
 }
 
+.garagista-status--sin-registro {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .garagista-primary-btn,
 .garagista-secondary-btn,
 .garagista-cancel-btn {

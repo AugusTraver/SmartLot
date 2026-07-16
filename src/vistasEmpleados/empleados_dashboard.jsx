@@ -165,6 +165,26 @@ const tieneSalidaRegistrada = (reserva) =>
     obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"]),
   ].some(esValorVerdadero);
 
+const tieneEntradaRegistrada = (reserva) =>
+  [
+    obtenerCampo(reserva, ["entrada", "ingreso", "check_in", "checkIn", "entro"]),
+    obtenerCampo(reserva, ["entrada_registrada", "entradaRegistrada"]),
+    obtenerCampo(reserva, ["fecha_entrada_real", "fechaEntradaReal"]),
+    obtenerCampo(reserva, ["hora_entrada_real", "horaEntradaReal"]),
+  ].some(esValorVerdadero);
+
+const obtenerFechaHoraProgramada = (fecha, hora) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) || !/^\d{2}:\d{2}$/.test(String(hora))) {
+    return null;
+  }
+
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  const [horas, minutos] = hora.split(":").map(Number);
+  const fechaHora = new Date(anio, mes - 1, dia, horas, minutos);
+
+  return Number.isNaN(fechaHora.getTime()) ? null : fechaHora;
+};
+
 const obtenerNombreGarage = (garage) =>
   garage
     ? obtenerCampo(garage, ["nombre", "name", "descripcion", "ubicacion", "nombre_garage", "garage_nombre", "nombre_zona", "direccion"], "Garage")
@@ -259,6 +279,7 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     nombre_zona: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" }) : "Mes",
     hora_entrada: horaInicio,
     hora_salida: horaFin,
+    entradaRegistrada: tieneEntradaRegistrada(reserva),
     salidaRegistrada: tieneSalidaRegistrada(reserva),
     vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
   };
@@ -510,6 +531,8 @@ function EmpleadoDashboard() {
       .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
       .filter((reserva) => {
         if (reserva.salidaRegistrada) return false;
+        const salidaProgramada = obtenerFechaHoraProgramada(reserva.fecha, reserva.hora_salida);
+        if (!reserva.entradaRegistrada && salidaProgramada && salidaProgramada <= new Date()) return false;
         if (!reserva.fecha) return true;
         const fecha = new Date(`${reserva.fecha}T00:00:00`);
         return Number.isNaN(fecha.getTime()) || fecha >= hoy;

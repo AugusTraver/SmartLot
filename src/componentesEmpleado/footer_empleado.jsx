@@ -5,41 +5,79 @@ import {
   ClipboardClock,
   UserRound,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FooterBottonEmpleado from "./boton_footer_empleado";
+
+const FOOTER_STORAGE_KEY = "smartlot-footer-active-index";
+
+const FOOTER_ITEMS = [
+  {
+    titulo: "INICIO",
+    path: "/empleados_dashboard",
+    icono: <House size={28} />,
+  },
+  {
+    titulo: "RESERVA",
+    path: "/nueva_reserva",
+    icono: <BookCheck size={28} />,
+  },
+  {
+    titulo: "HISTORIAL",
+    path: "/historial_reserva",
+    icono: <ClipboardClock size={28} />,
+  },
+  {
+    titulo: "PERFIL",
+    path: "/perfil_empleado",
+    icono: <UserRound size={28} />,
+  },
+];
+
+const obtenerIndiceGuardado = (fallback) => {
+  const guardado = Number(sessionStorage.getItem(FOOTER_STORAGE_KEY));
+  return Number.isInteger(guardado) && guardado >= 0 && guardado < FOOTER_ITEMS.length
+    ? guardado
+    : fallback;
+};
 
 function FooterEmpleado() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isPathActive = (path) => location.pathname === path;
+  const activeIndex = Math.max(
+    FOOTER_ITEMS.findIndex((item) => isPathActive(item.path)),
+    0
+  );
+  const [visualIndex, setVisualIndex] = useState(() => obtenerIndiceGuardado(activeIndex));
+  const activeOffset = `${visualIndex * 100}%`;
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setVisualIndex(activeIndex);
+      sessionStorage.setItem(FOOTER_STORAGE_KEY, String(activeIndex));
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [activeIndex]);
 
   return (
-    <footer className="footer-empleado">
-      <FooterBottonEmpleado
-        titulo="INICIO"
-        icono={<House size={28} />}
-        onClick={() => navigate("/empleados_dashboard")}
-        isActive={isPathActive("/empleados_dashboard")}
-      />
-      <FooterBottonEmpleado
-        titulo="RESERVA"
-        icono={<BookCheck size={28} />}
-        onClick={() => navigate("/nueva_reserva")}
-        isActive={isPathActive("/nueva_reserva")}
-      />
-      <FooterBottonEmpleado
-        titulo="HISTORIAL"
-        icono={<ClipboardClock size={28} />}
-        onClick={() => navigate("/historial_reserva")}
-        isActive={isPathActive("/historial_reserva")}
-      />
-      <FooterBottonEmpleado
-        titulo="PERFIL"
-        icono={<UserRound size={28} />}
-        onClick={() => navigate("/perfil_empleado")}
-        isActive={isPathActive("/perfil_empleado")}
-      />
+    <footer
+      className="footer-empleado"
+      style={{ "--footer-active-offset": activeOffset }}
+      aria-label="Navegacion principal del empleado"
+    >
+      <span className="footer-active-indicator" aria-hidden="true" />
+      {FOOTER_ITEMS.map((item) => (
+        <FooterBottonEmpleado
+          key={item.path}
+          titulo={item.titulo}
+          icono={item.icono}
+          onClick={() => navigate(item.path)}
+          isActive={isPathActive(item.path)}
+        />
+      ))}
     </footer>
   );
 }

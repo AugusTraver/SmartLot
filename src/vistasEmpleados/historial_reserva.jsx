@@ -55,19 +55,57 @@ const tieneSalidaRegistrada = (reserva) =>
     obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"]),
   ].some(esValorVerdadero);
 
+const esValorEstado = (valor) => {
+  if (typeof valor !== "string") return false;
+  const texto = valor.trim().toLowerCase();
+  return ["true", "false", "1", "0", "si", "sÃ­", "no", "completo", "completado"].includes(texto);
+};
+
+const obtenerFechaHoraReal = (reserva, camposFechaHora, camposFecha, camposHora) => {
+  for (const campo of camposFechaHora) {
+    const valor = obtenerCampo(reserva, [campo]);
+    if (typeof valor === "boolean" || valor === 0 || valor === 1) continue;
+    if (esValorEstado(valor)) continue;
+
+    const fecha = normalizarFechaHora(valor);
+    if (fecha) return fecha;
+  }
+
+  const fecha = obtenerCampo(reserva, camposFecha);
+  const hora = obtenerCampo(reserva, camposHora);
+  return normalizarFechaHora(fecha && hora ? `${fecha}T${hora}` : "");
+};
+
 const obtenerIdUsuario = (usuario) =>
   usuario?.id ?? usuario?.id_usuario ?? usuario?.idUsuario ?? usuario?.usuario_id ?? usuario?.usuarioId;
 
-const obtenerSalidaReserva = (reserva, ahora = new Date()) => {
-  const fechaSalidaReal = obtenerCampo(reserva, [
-    "fecha_salida_real",
-    "fechaSalidaReal",
-    "salida_registrada",
-    "salidaRegistrada",
-  ]);
-  const salidaDesdeReal = normalizarFechaHora(fechaSalidaReal);
+const obtenerSalidaReserva = (reserva) => {
+  const salidaDesdeReal = obtenerFechaHoraReal(
+    reserva,
+    [
+      "fecha_salida_real",
+      "fechaSalidaReal",
+      "hora_salida_real",
+      "horaSalidaReal",
+      "salida_registrada",
+      "salidaRegistrada",
+      "check_out",
+      "checkOut",
+      "salida",
+      "egreso",
+    ],
+    [
+      "fecha_salida_real",
+      "fechaSalidaReal",
+      "fecha_salida",
+      "fechaSalida",
+      "fecha",
+      "fecha_reserva",
+      "fechaReserva",
+    ],
+    ["hora_salida_real", "horaSalidaReal"]
+  );
   if (salidaDesdeReal) return salidaDesdeReal;
-  if (tieneSalidaRegistrada(reserva)) return ahora;
 
   const fechaSalidaCompleta = obtenerCampo(reserva, [
     "fecha_salida",
@@ -203,11 +241,18 @@ function HistorialReserva() {
       const ahora = new Date();
       const pasadas = datos
         .map((reserva) => {
-          const salida = obtenerSalidaReserva(reserva, ahora);
+          const salida = obtenerSalidaReserva(reserva);
           return salida ? { reserva: normalizarReservaHistorial(reserva), salida } : null;
         })
         .filter((item) => item && item.salida <= ahora)
-        .sort((a, b) => b.salida.getTime() - a.salida.getTime())
+        .sort((a, b) => {
+          const diferenciaSalida = b.salida.getTime() - a.salida.getTime();
+          if (diferenciaSalida !== 0) return diferenciaSalida;
+
+          const idA = Number(a.reserva.id_reserva ?? a.reserva.id ?? 0);
+          const idB = Number(b.reserva.id_reserva ?? b.reserva.id ?? 0);
+          return idB - idA;
+        })
         .map((item) => item.reserva);
 
       setUltimaReserva(pasadas[0] || null);
