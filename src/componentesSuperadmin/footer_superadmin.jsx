@@ -6,47 +6,84 @@ import {
   MessageSquareWarning,
   Users,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import FooterBotton from "./superadmin_dashboard_boton_footer";
+
+const FOOTER_STORAGE_KEY = "smartlot-footer-superadmin-active-index";
+
+const FOOTER_ITEMS = [
+  {
+    titulo: "DASHBOARD",
+    path: "/superadmin_dashboard",
+    icono: <House size={28} />,
+  },
+  {
+    titulo: "EMPRESAS",
+    path: "/superadmin/gestion_empresas",
+    icono: <Building2 size={28} />,
+  },
+  {
+    titulo: "SEDES",
+    path: "/superadmin/gestion_sedes",
+    icono: <MapPin size={28} />,
+  },
+  {
+    titulo: "USUARIOS",
+    path: "/superadmin/gestion_usuarios",
+    icono: <Users size={28} />,
+  },
+  {
+    titulo: "CONFLICTOS",
+    path: "/superadmin/conflictos",
+    icono: <MessageSquareWarning size={28} />,
+  },
+];
+
+const obtenerIndiceGuardado = (fallback) => {
+  const guardado = Number(sessionStorage.getItem(FOOTER_STORAGE_KEY));
+  return Number.isInteger(guardado) && guardado >= 0 && guardado < FOOTER_ITEMS.length
+    ? guardado
+    : fallback;
+};
 
 function FooterSuperadmin() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isPathActive = (path) => location.pathname === path;
+  const activeIndex = Math.max(
+    FOOTER_ITEMS.findIndex((item) => isPathActive(item.path)),
+    0
+  );
+  const [visualIndex, setVisualIndex] = useState(() => obtenerIndiceGuardado(activeIndex));
+  const activeOffset = `${visualIndex * 100}%`;
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setVisualIndex(activeIndex);
+      sessionStorage.setItem(FOOTER_STORAGE_KEY, String(activeIndex));
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [activeIndex]);
 
   return (
-    <footer className="footer-superadmin">
-      <FooterBotton
-        titulo="DASHBOARD"
-        icono={<House size={28} />}
-        onClick={() => navigate("/superadmin_dashboard")}
-        isActive={isPathActive("/superadmin_dashboard")}
-      />
-      <FooterBotton
-        titulo="EMPRESAS"
-        icono={<Building2 size={28} />}
-        onClick={() => navigate("/superadmin/gestion_empresas")}
-        isActive={isPathActive("/superadmin/gestion_empresas")}
-      />
-      <FooterBotton
-        titulo="SEDES"
-        icono={<MapPin size={28} />}
-        onClick={() => navigate("/superadmin/gestion_sedes")}
-        isActive={isPathActive("/superadmin/gestion_sedes")}
-      />
-      <FooterBotton
-        titulo="USUARIOS"
-        icono={<Users size={28} />}
-        onClick={() => navigate("/superadmin/gestion_usuarios")}
-        isActive={isPathActive("/superadmin/gestion_usuarios")}
-      />
-      <FooterBotton
-        titulo="CONFLICTOS"
-        icono={<MessageSquareWarning size={28} />}
-        onClick={() => navigate("/superadmin/conflictos")}
-        isActive={isPathActive("/superadmin/conflictos")}
-      />
+    <footer
+      className="footer-superadmin"
+      style={{ "--footer-active-offset": activeOffset }}
+      aria-label="Navegacion principal del superadministrador"
+    >
+      <span className="footer-active-indicator" aria-hidden="true" />
+      {FOOTER_ITEMS.map((item) => (
+        <FooterBotton
+          key={item.path}
+          titulo={item.titulo}
+          icono={item.icono}
+          onClick={() => navigate(item.path)}
+          isActive={isPathActive(item.path)}
+        />
+      ))}
     </footer>
   );
 }

@@ -1,48 +1,85 @@
 import "./footer_admin.css";
 import {
-    House, 
-    CarFront, 
-    UsersRound,  
-    ChartBarDecreasing  
+  House,
+  CarFront,
+  UsersRound,
+  ChartBarDecreasing,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom"; // Importamos useLocation
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import FooterBotton from "./admin_dashboard_boton_footer";
 
-function FooterEmpleado() {
-    const navigate = useNavigate();
-    const location = useLocation(); // Obtenemos la ruta actual
+const FOOTER_STORAGE_KEY = "smartlot-footer-admin-active-index";
 
-    // Función auxiliar para verificar si la ruta está activa
-    const isPathActive = (path) => location.pathname === path;
+const FOOTER_ITEMS = [
+  {
+    titulo: "DASHBOARD",
+    path: "/admin_dashboard",
+    icono: <House size={28} />,
+  },
+  {
+    titulo: "GARAGE",
+    path: "/gestion_garages",
+    icono: <CarFront size={28} />,
+  },
+  {
+    titulo: "GESTION",
+    path: "/gestion_de_empleados",
+    icono: <UsersRound size={28} />,
+  },
+  {
+    titulo: "PANEL",
+    path: "/admin_panel_de_control",
+    icono: <ChartBarDecreasing size={28} />,
+  },
+];
 
-    return (
-        <footer className="footer-admin">
-            <FooterBotton    
-                titulo="DASHBOARD"
-                icono={<House size={28}/>} 
-                onClick={() => navigate("/admin_dashboard")}
-                isActive={isPathActive("/admin_dashboard")} // Se activa si estamos en la raíz
-            />
-            <FooterBotton
-                titulo="GARAGE"
-                icono={<CarFront size={28}/>} 
-                onClick={() => navigate("/gestion_garages")}
-                isActive={isPathActive("/gestion_garages")}
-            />
-            <FooterBotton
-                titulo="GESTION"
-                icono={<UsersRound size={28}/>} 
-                onClick={() => navigate("/gestion_de_empleados")}
-                isActive={isPathActive("/gestion_de_empleados")}
-            />
-            <FooterBotton
-                titulo="PANEL"
-                icono={<ChartBarDecreasing size={28}/>} 
-                onClick={() => navigate("/admin_panel_de_control")}
-                isActive={isPathActive("/admin_panel_de_control")}
-            />
-        </footer>
-    );
+const obtenerIndiceGuardado = (fallback) => {
+  const guardado = Number(sessionStorage.getItem(FOOTER_STORAGE_KEY));
+  return Number.isInteger(guardado) && guardado >= 0 && guardado < FOOTER_ITEMS.length
+    ? guardado
+    : fallback;
+};
+
+function FooterAdmin() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isPathActive = (path) => location.pathname === path;
+  const activeIndex = Math.max(
+    FOOTER_ITEMS.findIndex((item) => isPathActive(item.path)),
+    0
+  );
+  const [visualIndex, setVisualIndex] = useState(() => obtenerIndiceGuardado(activeIndex));
+  const activeOffset = `${visualIndex * 100}%`;
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setVisualIndex(activeIndex);
+      sessionStorage.setItem(FOOTER_STORAGE_KEY, String(activeIndex));
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [activeIndex]);
+
+  return (
+    <footer
+      className="footer-admin"
+      style={{ "--footer-active-offset": activeOffset }}
+      aria-label="Navegacion principal del administrador"
+    >
+      <span className="footer-active-indicator" aria-hidden="true" />
+      {FOOTER_ITEMS.map((item) => (
+        <FooterBotton
+          key={item.path}
+          titulo={item.titulo}
+          icono={item.icono}
+          onClick={() => navigate(item.path)}
+          isActive={isPathActive(item.path)}
+        />
+      ))}
+    </footer>
+  );
 }
 
-export default FooterEmpleado;
+export default FooterAdmin;

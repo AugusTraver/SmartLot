@@ -9,11 +9,16 @@ export function AuthProvider({ children }) {
   const [roleTransition, setRoleTransition] = useState(false);
 
   useEffect(() => {
+    // Distingue la cancelación por desmontaje (StrictMode remonta el efecto)
+    // de un fallo real de sesión: si se aborta por cleanup no hay que tocar
+    // las cookies de impersonación ni el estado.
+    let cancelado = false;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     apiClient.get('/api/usuario/me', { _skipAuthRedirect: true, signal: controller.signal })
       .then((res) => {
+        if (cancelado) return;
         const impersonado = obtenerUsuarioImpersonado();
         if (impersonado && haySuperadminBackup()) {
           setUsuario(impersonado);
@@ -25,13 +30,17 @@ export function AuthProvider({ children }) {
         }
       })
       .catch(() => {
+        if (cancelado) return;
         setUsuario(null);
         eliminarUsuarioImpersonado();
         eliminarSuperadminBackup();
       })
-      .finally(() => { clearTimeout(timeout); setLoading(false); });
+      .finally(() => {
+        clearTimeout(timeout);
+        if (!cancelado) setLoading(false);
+      });
 
-    return () => { controller.abort(); clearTimeout(timeout); };
+    return () => { cancelado = true; controller.abort(); clearTimeout(timeout); };
   }, []);
 
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Building2, MapPin, Car, MessageSquareWarning } from "lucide-react";
+import { Users, Building2, MapPin, Car, MessageSquareWarning, CalendarDays } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -105,7 +105,7 @@ function SuperadminDashboard() {
               ))}
             </div>
             <div className="superadmin-dashboard-grid">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 6 }).map((_, i) => (
                 <div className="superadmin-dashboard-card superadmin-dashboard-card-skeleton" key={i}>
                   <span className="skeleton-line skeleton-card-icon" />
                   <span className="skeleton-line skeleton-card-title" />
@@ -169,6 +169,14 @@ function SuperadminDashboard() {
                   titulo="Gestión de Garages"
                   descripcion="Administrar todos los garages del sistema"
                   onClick={() => navigate("/superadmin/gestion_garages")}
+                />
+              </div>
+              <div className="superadmin-stagger-card">
+                <SuperadminDashboardBoton
+                  icono={<CalendarDays />}
+                  titulo="Reservas del Sistema"
+                  descripcion="Ver todas las reservas con filtros por dia, hora, empresa y sede"
+                  onClick={() => navigate("/superadmin/reservas")}
                 />
               </div>
               <div className="superadmin-stagger-card">

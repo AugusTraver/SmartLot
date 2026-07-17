@@ -38,11 +38,15 @@ function mensajeAmigable(datosError, nombreGarage) {
 }
 
 function mensajeToast(raw) {
-  const msg = (Array.isArray(raw) ? raw.join(". ") : String(raw)).toLowerCase();
-  const match = patrones.find((e) => e.patron.test(msg));
+  const texto = Array.isArray(raw) ? raw.join(". ") : String(raw ?? "");
+  const match = patrones.find((e) => e.patron.test(texto.toLowerCase()));
   if (match?.texto) return match.texto;
-  const limpio = textoLimpio(msg);
-  return limpio || "Error de conexi\u00f3n con el servidor.";
+
+  const limpio = textoLimpio(texto);
+  if (!limpio || /^(error|undefined|null|\[object object\])$/i.test(limpio)) {
+    return "No se pudo completar la operaci\u00f3n. Intentalo de nuevo.";
+  }
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1);
 }
 
 export { patrones, mensajeAmigable, mensajeToast };

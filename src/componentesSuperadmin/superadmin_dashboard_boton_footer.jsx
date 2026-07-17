@@ -1,12 +1,15 @@
 function FooterBotton({ titulo, icono, onClick, isActive }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className={`footer-item ${isActive ? "active" : ""}`}
+      aria-current={isActive ? "page" : undefined}
+      aria-label={titulo}
     >
       {icono}
       <span>{titulo}</span>
-    </div>
+    </button>
   );
 }
 

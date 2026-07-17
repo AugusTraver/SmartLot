@@ -13,12 +13,21 @@ if (import.meta.env.PROD) {
   }
 }
 
+let ultimoToast = { titulo: '', hora: 0 };
+
 function showToast(message, icon = 'error') {
+  const titulo = mensajeToast(message);
+  const ahora = Date.now();
+
+  // Evita repetir la misma card si varias requests fallan en cadena
+  if (titulo === ultimoToast.titulo && ahora - ultimoToast.hora < 5000) return;
+  ultimoToast = { titulo, hora: ahora };
+
   Swal.fire({
     toast: true,
     position: 'top-end',
     icon,
-    title: mensajeToast(message),
+    title: titulo,
     showConfirmButton: false,
     timer: 4000,
     timerProgressBar: true,
@@ -146,10 +155,10 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config ?? {};
     const data = error.response?.data;
     const status = data?.statusCode ?? error.response?.status ?? 0;
-    const message = data?.message ?? 'Error de conexión con el servidor.';
+    const message = data?.message ?? 'No se pudo completar la operación. Intentá nuevamente.';
 
     if (originalRequest._skipToast) {
       return Promise.reject(error);
@@ -182,24 +191,42 @@ apiClient.interceptors.response.use(
       }
     }
 
+    if (status === 401) {
+      if (!originalRequest._skipAuthRedirect) {
+        clearCache();
+        navigateTo('/login');
+      }
+      return Promise.reject(error);
+    }
+
+    const method = originalRequest.method?.toLowerCase();
+    const esMutacion = ['post', 'put', 'patch', 'delete'].includes(method);
+    const esCancelado = axios.isCancel(error) || error.code === 'ERR_CANCELED';
+
+    // Solo mostramos toast cuando falla una acción del usuario (mutación);
+    // los GET de carga de datos ya muestran su error en la propia pantalla.
+    if (esCancelado || !esMutacion) {
+      return Promise.reject(error);
+    }
+
+    if (!error.response) {
+      showToast('No se pudo conectar con el servidor. Revisá tu conexión a internet.', 'error');
+      return Promise.reject(error);
+    }
+
     switch (status) {
-      case 401:
-        if (!originalRequest._skipAuthRedirect) {
-          clearCache();
-          navigateTo('/login');
-        }
-        break;
       case 403:
-        showToast(message, 'warning');
-        break;
       case 429:
         showToast(message, 'warning');
         break;
       case 413:
-        showToast('El archivo o datos enviados son demasiados grandes.', 'error');
+        showToast('El archivo o los datos enviados son demasiado grandes.', 'error');
         break;
       case 500:
-        showToast('Error interno del servidor. Intente nuevamente.', 'error');
+      case 502:
+      case 503:
+      case 504:
+        showToast('El servidor tuvo un problema. Intentá nuevamente en unos segundos.', 'error');
         break;
       default:
         showToast(message, 'error');
