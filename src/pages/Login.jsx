@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Lock, LogIn, Mail, ParkingSquare } from 'lucide-react';
 import apiClient from '../api/client';
+import './Login.css';
+
+const RUTAS_POR_ROL = {
+  1: '/admin_dashboard',
+  2: '/empleados_dashboard',
+  3: '/garagista_dashboard',
+  4: '/superadmin_dashboard',
+};
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [verPassword, setVerPassword] = useState(false);
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -28,11 +39,13 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await apiClient.post('/api/usuario/login', {
+      const res = await apiClient.post('/api/usuario/login', {
         email: email.trim(),
         contraseña: password,
       }, { _skipAuthRedirect: true });
-      window.location.href = '/dashboard';
+
+      const usuario = res.data?.usuario;
+      window.location.href = RUTAS_POR_ROL[Number(usuario?.id_rol)] || '/';
     } catch (err) {
       const msg = err.response?.data?.message || 'Error de conexión.';
       setError(msg);
@@ -47,24 +60,83 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Iniciar Sesión</h1>
+    <div className="login-page">
+      <div className="login-glow login-glow--uno" aria-hidden="true" />
+      <div className="login-glow login-glow--dos" aria-hidden="true" />
 
-      <input type="email" value={email}
-             onChange={(e) => setEmail(e.target.value)}
-             placeholder="Email" required />
+      <main className="login-card">
+        <div className="login-brand">
+          <span className="login-brand-icon">
+            <ParkingSquare size={26} />
+          </span>
+          <span className="login-brand-nombre">SmartLot</span>
+        </div>
 
-      <input type="password" value={password}
-             onChange={(e) => setPassword(e.target.value)}
-             placeholder="Contraseña" required />
+        <h1 className="login-titulo">Iniciar Sesión</h1>
+        <p className="login-subtitulo">Ingresá a tu panel de gestión</p>
 
-      {error && <div className="error">{error}</div>}
+        <form className="login-form" onSubmit={handleSubmit}>
+          <label className="login-campo">
+            <span className="login-campo-label">Correo electrónico</span>
+            <div className="login-input-wrapper">
+              <Mail size={18} className="login-input-icon" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@empresa.com"
+                autoComplete="email"
+                required
+              />
+            </div>
+          </label>
 
-      <button type="submit" disabled={loading || cooldown > 0}>
-        {cooldown > 0
-          ? `Espere ${cooldown}s`
-          : loading ? 'Ingresando...' : 'Ingresar'}
-      </button>
-    </form>
+          <label className="login-campo">
+            <span className="login-campo-label">Contraseña</span>
+            <div className="login-input-wrapper">
+              <Lock size={18} className="login-input-icon" />
+              <input
+                type={verPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="login-toggle-password"
+                onClick={() => setVerPassword((prev) => !prev)}
+                aria-label={verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                {verPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </label>
+
+          {error && (
+            <div className="login-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="login-boton"
+            disabled={loading || cooldown > 0}
+          >
+            <LogIn size={18} />
+            {cooldown > 0
+              ? `Espere ${cooldown}s`
+              : loading ? 'Ingresando...' : 'Ingresar'}
+          </button>
+        </form>
+
+        <p className="login-pie">
+          ¿No tenés cuenta?{' '}
+          <Link to="/register">Registrate</Link>
+        </p>
+      </main>
+    </div>
   );
 }
