@@ -117,15 +117,15 @@
 ========================= */
 
 .resv-toolbar {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
   border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
 .resv-toolbar-fila {
@@ -135,9 +135,16 @@
   align-items: flex-end;
 }
 
-.resv-toolbar-fila--pills {
-  justify-content: space-between;
-  align-items: center;
+.resv-toolbar-fila--campos {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E9EEF5;
+}
+
+.resv-toolbar-fila--opciones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 14px;
 }
 
 .resv-search {
@@ -252,11 +259,40 @@
 .resv-estado-pills {
   display: flex;
   flex-wrap: wrap;
+  gap: 6px;
+}
+
+.resv-filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
+}
+
+.resv-filtro-grupo--presencia {
+  padding-left: 14px;
+  border-left: 1px solid #E2E8F0;
+}
+
+.resv-filtro-grupo__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.45px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.resv-filtro-grupo__label svg {
+  color: #94A3B8;
 }
 
 .resv-pill {
-  padding: 7px 14px;
+  padding: 7px 12px;
   border-radius: 999px;
   border: 1px solid #E2E8F0;
   background: #ffffff;
@@ -293,23 +329,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-}
-
-.resv-presencia-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: #64748B;
-  margin-right: 4px;
-}
-
-.resv-presencia-label svg {
-  color: #94A3B8;
+  gap: 6px;
 }
 
 .resv-pill--dentro.active { background: #059669; border-color: #059669; }
@@ -373,8 +393,8 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
   transition: background 0.2s;
 }
 
@@ -550,6 +570,18 @@
   .resv-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .resv-toolbar-fila--opciones {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .resv-filtro-grupo--presencia {
+    padding-top: 12px;
+    padding-left: 0;
+    border-top: 1px solid #E2E8F0;
+    border-left: 0;
+  }
 }
 
 @media (max-width: 600px) {
@@ -574,9 +606,11 @@
     flex-basis: 100%;
   }
 
-  .resv-toolbar-fila--pills {
-    flex-direction: column;
-    align-items: flex-start;
+  .resv-toolbar-fila--campos {
     gap: 10px;
+  }
+
+  .resv-pill {
+    padding-inline: 11px;
   }
 }

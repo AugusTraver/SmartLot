@@ -454,7 +454,7 @@ export default function SuperadminReservas() {
         ) : (
           <>
             <section className="resv-toolbar resv-animate-toolbar">
-              <div className="resv-toolbar-fila">
+              <div className="resv-toolbar-fila resv-toolbar-fila--campos">
                 <div className="resv-search">
                   <Search className="resv-search-icon" size={20} />
                   <input
@@ -571,25 +571,60 @@ export default function SuperadminReservas() {
                 </div>
               </div>
 
-              <div className="resv-toolbar-fila resv-toolbar-fila--pills">
-                <div className="resv-estado-pills">
-                  <button
-                    type="button"
-                    className={`resv-pill ${!filtroEstado ? "active" : ""}`}
-                    onClick={() => setFiltroEstado("")}
-                  >
-                    Todas
-                  </button>
-                  {ESTADO_ORDER.map((estado) => (
+              <div className="resv-toolbar-fila resv-toolbar-fila--opciones">
+                <div className="resv-filtro-grupo" role="group" aria-labelledby="resv-estado-label">
+                  <span className="resv-filtro-grupo__label" id="resv-estado-label">
+                    Estado de la reserva
+                  </span>
+                  <div className="resv-estado-pills">
                     <button
-                      key={estado}
                       type="button"
-                      className={`resv-pill resv-pill--${estado} ${filtroEstado === estado ? "active" : ""}`}
-                      onClick={() => setFiltroEstado(estado)}
+                      className={`resv-pill ${!filtroEstado ? "active" : ""}`}
+                      onClick={() => setFiltroEstado("")}
                     >
-                      {ESTADOS[estado].label}
+                      Todas
                     </button>
-                  ))}
+                    {ESTADO_ORDER.map((estado) => (
+                      <button
+                        key={estado}
+                        type="button"
+                        className={`resv-pill resv-pill--${estado} ${filtroEstado === estado ? "active" : ""}`}
+                        onClick={() => setFiltroEstado(estado)}
+                      >
+                        {ESTADOS[estado].label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="resv-filtro-grupo resv-filtro-grupo--presencia" role="group" aria-labelledby="resv-presencia-label">
+                  <span className="resv-filtro-grupo__label" id="resv-presencia-label">
+                    <ParkingCircle size={14} />
+                    En el garage
+                  </span>
+                  <div className="resv-presencia-pills">
+                    <button
+                      type="button"
+                      className={`resv-pill ${!filtroPresencia ? "active" : ""}`}
+                      onClick={() => setFiltroPresencia("")}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      type="button"
+                      className={`resv-pill resv-pill--dentro ${filtroPresencia === "dentro" ? "active" : ""}`}
+                      onClick={() => setFiltroPresencia("dentro")}
+                    >
+                      Dentro
+                    </button>
+                    <button
+                      type="button"
+                      className={`resv-pill resv-pill--fuera ${filtroPresencia === "fuera" ? "active" : ""}`}
+                      onClick={() => setFiltroPresencia("fuera")}
+                    >
+                      Fuera
+                    </button>
+                  </div>
                 </div>
 
                 {hayFiltros && (
@@ -598,36 +633,6 @@ export default function SuperadminReservas() {
                     Limpiar filtros
                   </button>
                 )}
-              </div>
-
-              <div className="resv-toolbar-fila resv-toolbar-fila--pills">
-                <div className="resv-presencia-pills">
-                  <span className="resv-presencia-label">
-                    <ParkingCircle size={14} />
-                    En el garage
-                  </span>
-                  <button
-                    type="button"
-                    className={`resv-pill ${!filtroPresencia ? "active" : ""}`}
-                    onClick={() => setFiltroPresencia("")}
-                  >
-                    Todos
-                  </button>
-                  <button
-                    type="button"
-                    className={`resv-pill resv-pill--dentro ${filtroPresencia === "dentro" ? "active" : ""}`}
-                    onClick={() => setFiltroPresencia("dentro")}
-                  >
-                    Dentro
-                  </button>
-                  <button
-                    type="button"
-                    className={`resv-pill resv-pill--fuera ${filtroPresencia === "fuera" ? "active" : ""}`}
-                    onClick={() => setFiltroPresencia("fuera")}
-                  >
-                    Fuera
-                  </button>
-                </div>
               </div>
             </section>
 
