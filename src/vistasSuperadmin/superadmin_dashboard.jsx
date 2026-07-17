@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Building2, MapPin, Car, MessageSquareWarning, CalendarDays } from "lucide-react";
+import {
+  Users,
+  Building2,
+  MapPin,
+  Car,
+  MessageSquareWarning,
+  CalendarDays,
+  Database,
+} from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -116,9 +124,20 @@ function SuperadminDashboard() {
           </>
         ) : (
           <>
-            <div className="superadmin-dashboard-header superadmin-stagger-title">
-              <h1>Panel de Control</h1>
-              <p>Visión general del sistema SmartLot</p>
+            <div className="superadmin-dashboard-header superadmin-dashboard-header--with-cache superadmin-stagger-title">
+              <div className="superadmin-dashboard-title">
+                <h1>Panel de Control</h1>
+                <p>Visión general del sistema SmartLot</p>
+              </div>
+
+              <button
+                type="button"
+                className="superadmin-cache-link"
+                onClick={() => navigate("/superadmin/cache")}
+              >
+                <Database size={17} />
+                Caché
+              </button>
             </div>
 
             <div className="superadmin-stats-grid">
@@ -188,6 +207,7 @@ function SuperadminDashboard() {
                 />
               </div>
             </div>
+
           </>
         )}
       </div>

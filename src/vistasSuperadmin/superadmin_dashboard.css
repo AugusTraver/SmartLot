@@ -136,6 +136,48 @@
   line-height: 1.4;
 }
 
+.superadmin-dashboard-header--with-cache {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.superadmin-dashboard-header--with-cache .superadmin-dashboard-title p {
+  padding-bottom: 0;
+}
+
+.superadmin-cache-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #dbe4ef;
+  border-radius: 12px;
+  color: #1a2744;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.superadmin-cache-link:hover {
+  transform: translateY(-1px);
+  color: #ffffff;
+  background: #1a2744;
+}
+
+.superadmin-cache-link:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.25);
+  outline-offset: 2px;
+}
+
 .superadmin-dashboard-icon-bg {
   position: absolute;
   right: -12px;
@@ -271,5 +313,17 @@
   .superadmin-dashboard-icon-bg svg {
     width: 116px !important;
     height: 116px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .superadmin-dashboard-header--with-cache {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .superadmin-cache-link {
+    align-self: flex-start;
   }
 }

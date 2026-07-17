@@ -64,9 +64,27 @@ const clearCache = () => {
     pendingRequests.clear();
 };
 
+const getCacheStats = () => ({
+    entries: cacheStore.size,
+    pendingRequests: pendingRequests.size,
+});
+
+const getCacheEntries = () => {
+    const now = Date.now();
+
+    return Array.from(cacheStore, ([key, entry]) => ({
+        key,
+        expiresAt: entry.expiresAt,
+        remainingMs: Math.max(0, entry.expiresAt - now),
+        expired: entry.expiresAt <= now,
+    }));
+};
+
 export {
     getFromCache,
     invalidateCache,
     invalidateByPrefix,
     clearCache,
+    getCacheStats,
+    getCacheEntries,
 };

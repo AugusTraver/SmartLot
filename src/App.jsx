@@ -24,6 +24,7 @@ import AgregarSede from "./vistasSuperadmin/agregar_sede";
 import SuperadminGestionGarages from "./vistasSuperadmin/superadmin_gestion_garages";
 import SuperadminConflictos from "./vistasSuperadmin/superadmin_conflictos";
 import SuperadminReservas from "./vistasSuperadmin/superadmin_reservas";
+import SuperadminCache from "./vistasSuperadmin/superadmin_cache";
 
 // Vistas Landing & Base
 import LandingPage from "./vistasLanding/Landing";
@@ -222,6 +223,11 @@ function AppRoutes() {
       <Route path="/superadmin/reservas" element={
         <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
           <SuperadminReservas />
+        </ProtectedRoute>
+      } />
+      <Route path="/superadmin/cache" element={
+        <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+          <SuperadminCache />
         </ProtectedRoute>
       } />
 
