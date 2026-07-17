@@ -45,6 +45,27 @@ const ReservasGetAll = async ({ force = false } = {}) => {
     }
 };
 
+const ReservasGetControlAcceso = async (idGarage, fecha, { force = false } = {}) => {
+    const returnObject = { respuesta: false, datos: [] };
+
+    try {
+        return await getFromCache(
+            `reservas:control-acceso:${idGarage}:${fecha}`,
+            async () => {
+                const response = await apiClient.get(`/api/reserva/control-acceso/${idGarage}`, {
+                    params: { fecha },
+                });
+                return { respuesta: true, datos: response.data };
+            },
+            { ttlMs: RESERVAS_TTL_MS, force }
+        );
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+        return returnObject;
+    }
+};
+
 
 
 const ReservasGetById = async (id, { force = false } = {}) => {
@@ -174,13 +195,13 @@ const ReservasCancel = async (id) => {
     }
 };
 
-const ReservasCheckIn = async (id) => {
+const ReservasCheckIn = async (id, patente) => {
     const returnObject = { respuesta: false, datos: null };
 
     try {
         const response = await apiClient.post(
             '/api/reserva/' + id + '/check-in',
-            {},
+            { patente },
             { _skipToast: true }
         );
         returnObject.respuesta = true;
@@ -194,13 +215,13 @@ const ReservasCheckIn = async (id) => {
     return returnObject;
 };
 
-const ReservasCheckOut = async (id) => {
+const ReservasCheckOut = async (id, patente) => {
     const returnObject = { respuesta: false, datos: null };
 
     try {
         const response = await apiClient.post(
             '/api/reserva/' + id + '/check-out',
-            {},
+            { patente },
             { _skipToast: true }
         );
         returnObject.respuesta = true;
@@ -327,6 +348,7 @@ const ReservasGetDisponibilidadPorHora = async (garageId, fecha, { force = false
 
 export {
     ReservasGetAll,
+    ReservasGetControlAcceso,
     ReservasGetById,
     ReservasCreate,
     ReservasUpdate,

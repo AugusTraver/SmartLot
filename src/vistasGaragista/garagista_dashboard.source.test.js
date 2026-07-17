@@ -19,7 +19,7 @@ test("Autos dentro abre la verificación de salida sin mostrar la patente", asyn
 test("la salida contempla patente incorrecta, confirmación y error del servidor", async () => {
   const source = await readFile(dashboardPath, "utf8");
   assert.match(source, /La patente ingresada no coincide con el vehículo registrado/);
-  assert.match(source, /ReservasCheckOut\(reservaSeleccionada\.id\)/);
+  assert.match(source, /ReservasCheckOut\(reservaSeleccionada\.id, patenteIngresada\)/);
   assert.match(source, /Confirmar salida/);
   assert.match(source, /No se pudo registrar la salida en el servidor/);
 });
@@ -40,6 +40,21 @@ test("Últimos movimientos muestra la hora real de salida", async () => {
   assert.match(source, /reserva\.fechaSalidaReal/);
   assert.match(source, /reserva\.salida/);
   assert.match(source, /reserva\.hora_egreso/);
-  assert.match(source, /reserva\.horaSalida \? <span>Salida real/);
+  assert.match(source, /reserva\.horaSalida \? \(\s*<span>Salida real/);
   assert.doesNotMatch(source, /Salida real \{reserva\.horaSalida \|\| "--:--"\}/);
+});
+
+test("control de acceso usa el endpoint acotado y envía la patente al backend", async () => {
+  const source = await readFile(dashboardPath, "utf8");
+  assert.match(source, /ReservasGetControlAcceso\(idGarageAsignado, fechaISOActual/);
+  assert.match(source, /ReservasCheckIn\(reservaSeleccionada\.id, patenteIngresada\)/);
+  assert.match(source, /ReservasCheckOut\(reservaSeleccionada\.id, patenteIngresada\)/);
+  assert.doesNotMatch(source, /UsuariosGetAll|VehiculosGetAll|ReservasGetAll/);
+});
+
+test("actualiza la fecha del tablero sin recargar la página", async () => {
+  const source = await readFile(dashboardPath, "utf8");
+  assert.match(source, /setInterval\(actualizarFecha, 60 \* 1000\)/);
+  assert.match(source, /addEventListener\("focus", actualizarFecha\)/);
+  assert.match(source, /addEventListener\("visibilitychange", actualizarFecha\)/);
 });

@@ -13,12 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
-import { ReservasCheckIn, ReservasCheckOut, ReservasGetAll } from "../servicies/API_Reserva";
+import { ReservasCheckIn, ReservasCheckOut, ReservasGetControlAcceso } from "../servicies/API_Reserva";
 import { SedesGetAll } from "../servicies/API_Sede";
-import { MarcasGetAll } from "../servicies/API_Marca";
-import { ModelosGetAll } from "../servicies/API_Modelo";
-import { UsuariosGetAll } from "../servicies/API_Usuario";
-import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
@@ -437,8 +433,8 @@ export default function GaragistaDashboard() {
   const [guardandoAccion, setGuardandoAccion] = useState(false);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
-  const fechaActual = useMemo(() => obtenerFechaActual(), []);
-  const fechaISOActual = useMemo(() => obtenerFechaISOActual(), []);
+  const [fechaISOActual, setFechaISOActual] = useState(obtenerFechaISOActual);
+  const fechaActual = obtenerFechaActual();
   const idGarageAsignado = useMemo(
     () => esAdmin ? garageSeleccionadoId : Number(obtenerIdGarageUsuario(usuario)) || null,
     [esAdmin, garageSeleccionadoId, usuario]
@@ -454,6 +450,19 @@ export default function GaragistaDashboard() {
     : esAdmin
       ? cargandoGaragesAdmin ? "" : "No hay garages disponibles para consultar."
       : "No tenés un garage asignado.";
+
+  useEffect(() => {
+    const actualizarFecha = () => setFechaISOActual(obtenerFechaISOActual());
+    const intervalo = window.setInterval(actualizarFecha, 60 * 1000);
+    window.addEventListener("focus", actualizarFecha);
+    document.addEventListener("visibilitychange", actualizarFecha);
+
+    return () => {
+      window.clearInterval(intervalo);
+      window.removeEventListener("focus", actualizarFecha);
+      document.removeEventListener("visibilitychange", actualizarFecha);
+    };
+  }, []);
 
   useEffect(() => {
     if (!esAdmin) return;
@@ -520,20 +529,9 @@ export default function GaragistaDashboard() {
       setErrorCarga("");
 
       try {
-        const [
-          garageResp,
-          reservasResp,
-          usuariosResp,
-          vehiculosResp,
-          marcasResp,
-          modelosResp,
-        ] = await Promise.all([
+        const [garageResp, reservasResp] = await Promise.all([
           GaragesGetById(idGarageAsignado),
-          ReservasGetAll({ force: true }),
-          UsuariosGetAll(),
-          VehiculosGetAll(),
-          MarcasGetAll(),
-          ModelosGetAll(),
+          ReservasGetControlAcceso(idGarageAsignado, fechaISOActual, { force: true }),
         ]);
 
         if (cancelado) return;
@@ -547,61 +545,6 @@ export default function GaragistaDashboard() {
 
         setGarageData(garage);
 
-        const usuariosLista = obtenerListado(usuariosResp.datos);
-        const vehiculosLista = obtenerListado(vehiculosResp.datos);
-        const marcasLista = obtenerListado(marcasResp.datos);
-        const modelosLista = obtenerListado(modelosResp.datos);
-        const marcasMap = new Map(
-          marcasLista.map((marca) => [Number(marca.id ?? marca.id_marca ?? marca._id), marca])
-        );
-        const modelosMap = new Map(
-          modelosLista.map((modelo) => [Number(modelo.id ?? modelo.id_modelo ?? modelo._id), modelo])
-        );
-
-        const usuariosMap = new Map();
-        usuariosLista.forEach((u) => {
-          const id = Number(u.id_usuario ?? u.id ?? u._id);
-          if (id) {
-            const nombre = [u.nombre, u.apellido].filter(Boolean).join(" ") || "Sin nombre";
-            usuariosMap.set(id, nombre);
-          }
-        });
-
-        const vehiculosMap = new Map();
-        vehiculosLista.forEach((v) => {
-          const id = Number(v.id_vehiculo ?? v.id ?? v._id);
-          if (id) {
-            const patente = v.patente ?? v.patenteVehiculo ?? "";
-            const idModelo = Number(v.id_modelo ?? v.idModelo ?? v.modelo_id);
-            const modeloRelacion = modelosMap.get(idModelo);
-            const modeloDirecto = typeof v.modelo === "string" && !/^\d+$/.test(v.modelo)
-              ? v.modelo
-              : v.modelo?.nombre ?? v.modelo?.nombre_modelo ?? "";
-            const modelo = v.nombre_modelo
-              || modeloDirecto
-              || modeloRelacion?.nombre
-              || modeloRelacion?.nombre_modelo
-              || "";
-            const idMarca = Number(
-              v.id_marca
-              ?? v.idMarca
-              ?? modeloRelacion?.id_marca
-              ?? modeloRelacion?.idMarca
-            );
-            const marcaRelacion = marcasMap.get(idMarca);
-            const marcaDirecta = typeof v.marca === "string" && !/^\d+$/.test(v.marca)
-              ? v.marca
-              : v.marca?.nombre ?? v.marca?.nombre_marca ?? "";
-            const marca = v.nombre_marca
-              || marcaDirecta
-              || marcaRelacion?.nombre
-              || marcaRelacion?.nombre_marca
-              || "";
-            const descripcion = [marca, modelo].filter(Boolean).join(" ") || "Vehículo sin marca/modelo";
-            vehiculosMap.set(id, { patente, descripcion });
-          }
-        });
-
         const todasReservas = obtenerListado(reservasResp.datos);
 
         const reservasDelGarage = todasReservas
@@ -613,9 +556,6 @@ export default function GaragistaDashboard() {
             return idGarageReserva === idGarageAsignado;
           })
           .map((r) => {
-            const idUsuario = Number(r.id_usuario ?? r.idUsuario);
-            const idVehiculo = Number(r.id_vehiculo ?? r.idVehiculo);
-            const vehiculo = vehiculosMap.get(idVehiculo) || {};
             const estadoBase = normalizarEstadoReserva(r);
             const fechaReserva = obtenerFechaReserva(r);
             const horaSalidaPrevista = extraerHora(r.hora_salida) ?? extraerHora(r.fecha_salida) ?? "--:--";
@@ -627,12 +567,12 @@ export default function GaragistaDashboard() {
 
             return {
               id: obtenerIdReserva(r),
-              conductor: usuariosMap.get(idUsuario) || "Conductor desconocido",
+              conductor: r.conductor || "Conductor desconocido",
               fechaReserva,
               horaReserva: extraerHora(r.hora_entrada) ?? extraerHora(r.fecha_entrada) ?? "--:--",
               horaSalidaPrevista,
-              vehiculo: vehiculo.descripcion || "Vehículo desconocido",
-              patenteInterna: vehiculo.patente || "--",
+              vehiculo: [r.marca_nombre, r.modelo_nombre].filter(Boolean).join(" ") || "Vehículo desconocido",
+              patenteInterna: r.patente || "--",
               estado,
               horaEntrada: obtenerHoraEntradaReal(r),
               horaSalida: obtenerHoraSalidaReal(r),
@@ -650,7 +590,7 @@ export default function GaragistaDashboard() {
 
     cargarDatos();
     return () => { cancelado = true; };
-  }, [idGarageAsignado]);
+  }, [fechaISOActual, idGarageAsignado]);
 
   const reservasFiltradas = useMemo(() => {
     return reservas.filter((reserva) => {
@@ -736,7 +676,7 @@ export default function GaragistaDashboard() {
 
     setGuardandoAccion(true);
     const horaEntrada = obtenerHoraActual();
-    const resultado = await ReservasCheckIn(reservaSeleccionada.id);
+    const resultado = await ReservasCheckIn(reservaSeleccionada.id, patenteIngresada);
 
     if (resultado.respuesta) {
       setReservas((reservasActuales) =>
@@ -770,7 +710,7 @@ export default function GaragistaDashboard() {
 
     setGuardandoAccion(true);
     setErrorVerificacion("");
-    const resultado = await ReservasCheckOut(reservaSeleccionada.id);
+    const resultado = await ReservasCheckOut(reservaSeleccionada.id, patenteIngresada);
 
     if (resultado.respuesta) {
       const datosSalida = resultado.datos?.data ?? resultado.datos?.reserva ?? resultado.datos;
