@@ -317,14 +317,16 @@
 
 /* Badge de presencia en la tabla */
 
-.resv-presencia {
+.resv-table td > .resv-presencia {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  width: fit-content;
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
   margin-top: 0 !important;
 }
 
