@@ -50,6 +50,12 @@ Always apply every relevant domain:
 - Tailwind CSS
 - Design systems
 - UI/UX Pro Max
+- Three.js core (scene setup, render loops, memory lifecycle)
+- React Three Fiber (R3F) declarative 3D scenes
+- Custom Shaders (GLSL vertex/fragment, uniforms, varyings)
+- Canvas orchestration (HTML/WebGL layering, scroll sync, hydration)
+- Creative text effects (SplitText, TextPlugin, variable fonts, SVG text paths)
+- Smooth scroll ecosystem (Lenis, ScrollSmoother, GSAP sync, R3F sync)
 
 Do not wait for the user to explicitly request these.
 
@@ -69,6 +75,9 @@ Determine:
 - accessibility requirements
 - performance constraints
 - animation opportunities
+- 3D/WebGL requirements (scene complexity, shader needs, hybrid layout)
+- typography animation needs (text splitting, kinetic type, variable fonts)
+- scroll behavior model (native, smooth, scroll-driven animations)
 
 ---
 
@@ -94,6 +103,44 @@ Motion React Performance
 +
 React Best Practices
 
+Example:
+
+3D Animated Landing Page
+
+↓
+
+UI Styling
++
+UI UX Pro Max
++
+Three Core
++
+R3F Shaders
++
+Canvas Orchestration
++
+GSAP ScrollTrigger
++
+Motion React Core
+
+Example:
+
+Premium Text-Heavy Landing Page
+
+↓
+
+UI Styling
++
+UI UX Pro Max
++
+GSAP Text Effects
++
+Smooth Scroll Ecosystem
++
+GSAP ScrollTrigger
++
+Motion React Core
+
 All applicable rules remain active simultaneously.
 
 ---
@@ -111,6 +158,11 @@ Define:
 - animation ownership
 - responsive behavior
 - accessibility strategy
+- 3D scene graph structure (when WebGL is involved)
+- shader uniform flow (when custom materials are needed)
+- HTML/WebGL layering strategy (when hybrid layouts are needed)
+- text animation strategy (split type, revert plan, aria-label coverage)
+- scroll behavior architecture (native vs smooth, GSAP sync method)
 
 ---
 
@@ -131,6 +183,14 @@ Before finishing, verify:
 - reduced motion support
 - code quality
 - maintainability
+- GPU memory disposal (Three.js scenes)
+- shader precision and branching compliance (custom GLSL)
+- hydration safety (Canvas/SSR boundaries)
+- canvas layering and pointer-events correctness (hybrid layouts)
+- text split accessibility (aria-label, aria-hidden, revert on unmount)
+- layout shift prevention for animated text (overflow, min-height, CLS)
+- smooth scroll sync with ScrollTrigger (ticker or proxy hookup)
+- smooth scroll reduced motion fallback
 
 Fix issues before presenting the final solution.
 
@@ -161,6 +221,13 @@ When reviewing existing code, actively search for:
 - hydration issues
 - poor component boundaries
 - inconsistent design
+- Three.js memory leaks (undisposed geometry/materials/textures)
+- shader anti-patterns (loop allocations, excessive branching, missing precision)
+- R3F misuse (useState in useFrame, missing refs, nested Canvas)
+- canvas layering conflicts (pointer-events, z-index, SSR rendering)
+- text split leaks (unrevert SplitText, missing aria-label, CLS from splits)
+- smooth scroll desync (Lenis/ScrollSmoother not synced with ScrollTrigger)
+- over-smoothed mobile touch scroll (smoothTouch enabled without testing)
 
 Correct them automatically.
 

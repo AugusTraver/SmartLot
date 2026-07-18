@@ -1,7 +1,7 @@
 ---
 name: frontend-lead
-description: Master orchestration skill for premium frontend development. Automatically combines every specialized frontend rule and applies them together to produce production-ready React interfaces.
-version: "2.0.0"
+description: Master orchestration skill for premium frontend development. Automatically combines every specialized frontend rule and applies them together to produce production-ready React interfaces, immersive 3D experiences, hybrid WebGL layouts, creative typography animation, and smooth scroll ecosystems.
+version: "3.1.0"
 ---
 
 # Frontend Lead
@@ -83,6 +83,98 @@ Apply:
 
 ---
 
+## 3D Background / Immersive Scene
+
+Apply:
+
+- Three Core
+- R3F Shaders
+- Canvas Orchestration
+- Performance
+- Accessibility
+- Reduced Motion
+
+---
+
+## 3D Landing Page with Scroll Sync
+
+Apply:
+
+- UI Styling
+- UI/UX Pro Max
+- Three Core
+- R3F Shaders
+- Canvas Orchestration
+- GSAP ScrollTrigger
+- Motion React Core
+- Accessibility
+- Performance
+
+---
+
+## Custom Shader Effect
+
+Apply:
+
+- R3F Shaders
+- Three Core
+- Performance
+- Canvas Orchestration
+
+---
+
+## Hybrid HTML + WebGL Layout
+
+Apply:
+
+- Canvas Orchestration
+- Three Core
+- R3F Shaders
+- UI Styling
+- Accessibility
+- Responsive Design
+
+---
+
+## Animated Text Reveal / Kinetic Typography
+
+Apply:
+
+- GSAP Text Effects
+- GSAP Core
+- GSAP Timeline
+- UI Styling
+- Accessibility
+- Performance
+
+---
+
+## Smooth Scroll Landing Page
+
+Apply:
+
+- Smooth Scroll Ecosystem
+- GSAP ScrollTrigger
+- GSAP Text Effects
+- UI Styling
+- UI/UX Pro Max
+- Accessibility
+- Performance
+
+---
+
+## Variable Font + Scroll-Driven Typography
+
+Apply:
+
+- GSAP Text Effects
+- Smooth Scroll Ecosystem
+- GSAP ScrollTrigger
+- UI Styling
+- Performance
+
+---
+
 # Decision Priority
 
 When multiple rules overlap:
@@ -112,6 +204,9 @@ Identify:
 - state
 - interactions
 - responsive needs
+- 3D/WebGL scope (scene complexity, shader needs, hybrid layout)
+- typography animation needs (text splitting, kinetic type, variable fonts)
+- scroll behavior model (native, smooth, scroll-driven)
 
 ---
 
@@ -134,6 +229,11 @@ Before code:
 - responsiveness
 - accessibility
 - animation strategy
+- 3D scene graph structure (when applicable)
+- shader uniform data flow (when applicable)
+- HTML/WebGL layering and pointer-events plan (when applicable)
+- text split strategy and revert plan (when applicable)
+- smooth scroll architecture and GSAP sync method (when applicable)
 
 ---
 
@@ -161,6 +261,8 @@ Check:
 - semantic HTML
 - focus visibility
 - contrast
+- screen reader fallbacks for 3D content
+- reduced motion for WebGL animations
 
 ### Performance
 
@@ -170,6 +272,10 @@ Check:
 - GPU-safe animations
 - cleanup
 - bundle size
+- Three.js memory disposal on unmount
+- DPR capping at 2
+- InstancedMesh for repeated objects
+- no math object allocation inside animation loops
 
 ### Animation
 
@@ -178,6 +284,44 @@ Check:
 - cleanup
 - interruption handling
 - no layout thrashing
+- framerate-independent delta time
+
+### Shaders
+
+- explicit precision declarations
+- minimal conditional branching
+- math-based alternatives (step, mix, smoothstep, clamp)
+- external shader file organization
+- ref-based uniform updates inside useFrame
+
+### Canvas & Hybrid Layout
+
+- client-only rendering boundaries (SSR safety)
+- Suspense + Loader fallbacks
+- z-index layer consistency
+- pointer-events isolation
+- scroll sync without jitter
+- route transition cleanup
+
+### Typography & Text Effects
+
+- SplitText revert on unmount and animation complete
+- aria-label on parent, aria-hidden on split wrappers
+- overflow: hidden on line wrappers for masked reveals
+- responsive re-splitting via matchMedia or ResizeObserver
+- CLS prevention (min-height, reserved space)
+- reduced motion bypass for character animations
+- TextPlugin aria-live on typewriter containers
+
+### Smooth Scroll
+
+- single smooth scroll instance per page
+- Lenis/ScrollSmoother synced with GSAP ticker or scrollerProxy
+- reduced motion disables smooth scrolling
+- mobile touch sensitivity tested on real devices
+- scroll lock for modals and overlays
+- anchor links routed through smooth scroll API
+- cleanup/destroy on route change
 
 ### UI
 
@@ -231,6 +375,13 @@ When existing code is provided, automatically improve:
 - responsiveness
 - maintainability
 - visual consistency
+- Three.js memory management
+- shader optimization
+- canvas hydration safety
+- HTML/WebGL layering correctness
+- text split accessibility and cleanup
+- smooth scroll GSAP synchronization
+- variable font animation performance
 
 Explain important improvements briefly.
 
