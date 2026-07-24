@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useFooterCompacto } from "../hooks/useFooterCompacto";
 import FooterBottonEmpleado from "./boton_footer_empleado";
 
 const FOOTER_STORAGE_KEY = "smartlot-footer-active-index";
@@ -44,6 +45,7 @@ const obtenerIndiceGuardado = (fallback) => {
 function FooterEmpleado() {
   const navigate = useNavigate();
   const location = useLocation();
+  const compacto = useFooterCompacto();
 
   const isPathActive = (path) => location.pathname === path;
   const activeIndex = Math.max(
@@ -64,7 +66,7 @@ function FooterEmpleado() {
 
   return (
     <footer
-      className="footer-empleado"
+      className={`footer-empleado${compacto ? " footer-compacto" : ""}`}
       style={{ "--footer-active-offset": activeOffset }}
       aria-label="Navegacion principal del empleado"
     >

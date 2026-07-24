@@ -8,13 +8,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useFooterCompacto } from "../hooks/useFooterCompacto";
 import FooterBotton from "./superadmin_dashboard_boton_footer";
 
 const FOOTER_STORAGE_KEY = "smartlot-footer-superadmin-active-index";
 
 const FOOTER_ITEMS = [
   {
-    titulo: "DASHBOARD",
+    titulo: "INICIO",
     path: "/superadmin_dashboard",
     icono: <House size={28} />,
   },
@@ -50,6 +51,7 @@ const obtenerIndiceGuardado = (fallback) => {
 function FooterSuperadmin() {
   const navigate = useNavigate();
   const location = useLocation();
+  const compacto = useFooterCompacto();
 
   const isPathActive = (path) => location.pathname === path;
   const activeIndex = Math.max(
@@ -70,7 +72,7 @@ function FooterSuperadmin() {
 
   return (
     <footer
-      className="footer-superadmin"
+      className={`footer-superadmin${compacto ? " footer-compacto" : ""}`}
       style={{ "--footer-active-offset": activeOffset }}
       aria-label="Navegacion principal del superadministrador"
     >

@@ -7,13 +7,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useFooterCompacto } from "../hooks/useFooterCompacto";
 import FooterBotton from "./admin_dashboard_boton_footer";
 
 const FOOTER_STORAGE_KEY = "smartlot-footer-admin-active-index";
 
 const FOOTER_ITEMS = [
   {
-    titulo: "DASHBOARD",
+    titulo: "INICIO",
     path: "/admin_dashboard",
     icono: <House size={28} />,
   },
@@ -44,6 +45,7 @@ const obtenerIndiceGuardado = (fallback) => {
 function FooterAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
+  const compacto = useFooterCompacto();
 
   const isPathActive = (path) => location.pathname === path;
   const activeIndex = Math.max(
@@ -64,7 +66,7 @@ function FooterAdmin() {
 
   return (
     <footer
-      className="footer-admin"
+      className={`footer-admin${compacto ? " footer-compacto" : ""}`}
       style={{ "--footer-active-offset": activeOffset }}
       aria-label="Navegacion principal del administrador"
     >
