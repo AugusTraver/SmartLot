@@ -20,6 +20,7 @@ export default function LogoWatermark({ heroRef }) {
   const canvasRef = useRef(null);
   const staticImgRef = useRef(null);
   const wrapperRef = useRef(null);
+  const tiltRef = useRef(null);
   const framesRef = useRef([]);
   const startLogoRef = useRef(null);
   const animStateRef = useRef({ framesReady: false, staticReady: false });
@@ -160,6 +161,47 @@ export default function LogoWatermark({ heroRef }) {
       gsap.set(staticImgRef.current, { opacity: 0 });
 
 
+      // ── Scroll-velocity inertia (3D momentum) ──
+      // The inner tilt layer reacts to how HARD you scroll: fast scrolling
+      // pushes a 3D tilt + a forward "lunge" (translateZ), then quickTo eases
+      // it back to rest, giving the logo a sense of physical inertia. It lives
+      // on a separate element so it never fights the timeline's own transforms
+      // (position/scale/rotationY spin) applied to the wrapper.
+      gsap.set(tiltRef.current, { transformPerspective: 900, transformOrigin: '50% 50%' });
+      const rotXTo = gsap.quickTo(tiltRef.current, 'rotationX', { duration: 0.8, ease: 'power3' });
+      const rotYTo = gsap.quickTo(tiltRef.current, 'rotationY', { duration: 0.8, ease: 'power3' });
+      const zTo = gsap.quickTo(tiltRef.current, 'z', { duration: 0.9, ease: 'power3' });
+
+      // Scroll speed also spins the settled watermark faster, then decays back.
+      const spinProxy = { ts: 1 };
+      const spinTo = gsap.quickTo(spinProxy, 'ts', {
+        duration: 0.6,
+        ease: 'power2.out',
+        onUpdate: () => {
+          if (continuousAnim) continuousAnim.timeScale(spinProxy.ts);
+        },
+      });
+
+      let idleTimer;
+      const settle = () => {
+        rotXTo(0);
+        rotYTo(0);
+        zTo(0);
+        spinTo(1);
+      };
+
+      // Map raw scroll velocity (px/s) to the 3D inertia response.
+      const applyInertia = (velocity) => {
+        const v = gsap.utils.clamp(-3500, 3500, velocity);
+        rotXTo(gsap.utils.mapRange(-3500, 3500, 20, -20, v));
+        rotYTo(gsap.utils.mapRange(-3500, 3500, -12, 12, v));
+        zTo(gsap.utils.clamp(0, 100, Math.abs(velocity) / 30));
+        spinTo(gsap.utils.clamp(1, 4.5, 1 + Math.abs(velocity) / 500));
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(settle, 150);
+      };
+
+
       // Swap in: capture hero logo position, pin the wrapper there, hide the hero logo
       const swapIn = () => {
         const heroLogo = getHeroLogo();
@@ -234,15 +276,27 @@ export default function LogoWatermark({ heroRef }) {
             swapOut();
           },
           onUpdate: (self) => {
+            // Harder scroll → stronger 3D tilt/lunge + faster spin (inertia).
+            applyInertia(self.getVelocity());
+
             if (self.progress >= 1 && !continuousAnim) {
+              // Past this point it's no longer "the logo transitioning" —
+              // it's a persistent background mark sitting over the rest of
+              // the page's sections, several of which have transparent
+              // backdrops. Fading it down to true watermark opacity here
+              // keeps it a subtle brand touch instead of a solid shape
+              // competing with whatever section content scrolls under it.
+              gsap.to(wrapperRef.current, { opacity: 0.14, duration: 0.6, ease: 'power2.out' });
               continuousAnim = gsap.to(wrapperRef.current, {
                 rotationY: "+=360",
                 duration: 20,
                 ease: "none",
                 repeat: -1,
               });
+              continuousAnim.timeScale(spinProxy.ts);
             }
             if (self.progress < 1 && continuousAnim) {
+              gsap.to(wrapperRef.current, { opacity: 1, duration: 0.4, ease: 'power2.out' });
               continuousAnim.kill();
               continuousAnim = null;
             }
@@ -291,6 +345,9 @@ export default function LogoWatermark({ heroRef }) {
         duration: 0.20,
         ease: "power1.out",
       }, 0.80);
+
+
+      return () => clearTimeout(idleTimer);
     });
 
 
@@ -301,20 +358,26 @@ export default function LogoWatermark({ heroRef }) {
   return (
     <div ref={container} className="fixed inset-0 pointer-events-none z-[5]">
       <div ref={wrapperRef} className="logo-watermark" style={{ opacity: 0 }}>
-        <canvas
-          ref={canvasRef}
+        <div
+          ref={tiltRef}
           className="absolute inset-0 w-full h-full"
-          style={{ opacity: 0 }}
-          role="img"
-          aria-label="SmartLot animated logo transition"
-        />
-        <img
-          ref={staticImgRef}
-          src="/logo.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-contain"
-          style={{ opacity: 0 }}
-        />
+          style={{ willChange: 'transform' }}
+        >
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+            style={{ opacity: 0 }}
+            role="img"
+            aria-label="SmartLot animated logo transition"
+          />
+          <img
+            ref={staticImgRef}
+            src="/logo.png"
+            alt=""
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{ opacity: 0 }}
+          />
+        </div>
       </div>
     </div>
   );
